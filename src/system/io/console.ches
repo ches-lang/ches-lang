@@ -1,0 +1,33 @@
+package system.io
+
+
+
+class Console
+
+
+
+private StandardStream _ss = new
+
+
+
+public void in()
+
+    return _ss.read()
+
+
+
+public void inln()
+
+    return _ss.readln()
+
+
+
+public void out(str s)
+
+    _ss.write(s)
+
+
+
+public void outln(str s)
+
+    out(s ~ "\n")
