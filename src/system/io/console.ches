@@ -6,25 +6,25 @@ class Console
 
 
 
-private StandardStream _ss = new
+private ConsoleStream _cs = new
 
 
 
 public void in()
 
-    return _ss.read()
+    return _cs.read()
 
 
 
 public void inln()
 
-    return _ss.readln()
+    return _cs.readln()
 
 
 
 public void out(str s)
 
-    _ss.write(s)
+    _cs.write(s)
 
 
 

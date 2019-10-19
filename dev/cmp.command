@@ -4,4 +4,4 @@
 # ches
 
 cd /Users/garnetdev/Desktop/sources/chestnut/dev/
-g++ -o ches src/main.cpp
+g++ -o ches src/main.cpp -std=c++11

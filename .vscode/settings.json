@@ -58,6 +58,7 @@
         "utility": "cpp",
         "vector": "cpp",
         "__tree": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "fstream": "cpp"
     }
 }
