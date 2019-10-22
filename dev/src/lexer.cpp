@@ -15,35 +15,36 @@
 #define UNKNOWN     0
 #define INDENT      1
 #define NEWLINE     2
-#define KEYWORD     3
-#define IDENTIFIER  4
-#define NUMBER      5
-#define CHARACTER   6
-#define STRING      7
-#define EXCLAMATION 8
-#define QUESTION    9
-#define TILDE       10
-#define PLUS        11
-#define HYPHEN      12
-#define ASTERISK    13
-#define SLASH       14
-#define PERCENTAGE  15
-#define CARET       16
-#define EQUAL       17
-#define PIPE        18
-#define AMPERSAND   19
-#define PERIOD      20
-#define COMMA       21
-#define COLON       22
-#define SEMICOLON   23
-#define LPAREN      24
-#define RPAREN      25
-#define LBRACK      26
-#define RBLACK      27
-#define LANGBLACK   28
-#define RANGBLACK   29
-#define LBRACE      30
-#define RBRACE      31
+#define COMMENTOUT  3
+#define KEYWORD     4
+#define IDENTIFIER  5
+#define NUMBER      6
+#define CHARACTER   7
+#define STRING      8
+#define EXCLAMATION 9
+#define QUESTION    10
+#define TILDE       11
+#define PLUS        12
+#define HYPHEN      13
+#define ASTERISK    14
+#define SLASH       15
+#define PERCENTAGE  16
+#define CARET       17
+#define EQUAL       18
+#define PIPE        19
+#define AMPERSAND   20
+#define PERIOD      21
+#define COMMA       22
+#define COLON       23
+#define SEMICOLON   24
+#define LPAREN      25
+#define RPAREN      26
+#define LBRACK      27
+#define RBLACK      28
+#define LANGBLACK   29
+#define RANGBLACK   30
+#define LBRACE      31
+#define RBRACE      32
 
 
 
@@ -70,10 +71,12 @@ public:
             std::cout << "type " << (int)res.first << "\t" << res.second << std::endl;
 
         } while(res.first != ENDOFFILE);
+        if(err) exit(-1);
     }
 
 private:
 
+    bool err = false;
     int index = -1;
 
     std::pair<char, std::string> scan() {
@@ -101,8 +104,19 @@ private:
         else if(ch == '*')
             return std::make_pair(ASTERISK, std::string{ch});
 
-        else if(ch == '/') // コメントアウト
-            return std::make_pair(SLASH, std::string{ch});
+        else if(ch == '/')
+            if(source[index + 1] == '*') {
+                std::string res;
+                for(index += 2; index < source.length(); index++) {
+                    if(source[index] == '*' && source[index + 1] == '/') {
+                        index++;
+                        return std::make_pair(COMMENTOUT, res);
+                    } else res += std::string{source[index]};
+                }
+                error("expected eof with '*/' (line: " + std::to_string(getline(index)) + ")", true);
+            }
+            else
+                return std::make_pair(SLASH, std::string{ch});
 
         else if(ch == '%')
             return std::make_pair(PERCENTAGE, std::string{ch});
@@ -164,7 +178,15 @@ private:
             if(source[index + 1] == ' ' && source[index + 2] == ' ' && source[index + 3] == ' ') {
                 index += 3;
                 return std::make_pair(INDENT, "    ");
-            } else error("invalid indent space");
+            } else {
+                int add = 0;
+                if(source[index + 1] == ' ') add++;
+                if(source[index + 2] == ' ') add++;
+                if(source[index + 3] == ' ') add++;
+                index += add;
+                err = true;
+                error("invalid indent space (line: " + std::to_string(getline(index)) + ")");
+            }
         }
 
         else if(ch == '\n')
@@ -194,11 +216,13 @@ private:
             } else {
                 bool contain = false;
                 int i;
-                for(i = index + 1; i < source.length(); i++)
-                    if(source[i] == '\'') { contain = true; break; }
-                index = i;
-                if(contain) error("too long character");
-                else error("expected eof with '''");
+                for(index += 1; index < source.length(); index++)
+                    if(source[index] == '\'') { contain = true; break; }
+                if(contain) {
+                    err = true;
+                    error("too long character (line: " + std::to_string(getline(index)) + ")");
+                }
+                else error("expected eof with ''' (line: " + std::to_string(getline(index)) + ")", true);
                 return scan();
             }
             return std::make_pair(CHARACTER, std::string{chr});
@@ -206,13 +230,11 @@ private:
 
         else if(ch == '\"') {
             std::string res;
-            for(int i = index + 1; i < source.length(); i++)
-                if(source[i] != '\"') res += source[i];
-                else {
-                    index += res.length() + 1;
-                    return std::make_pair(STRING, res);
-                }
-            error("expected eof with '\"'");
+            for(index += 1; index < source.length(); index++) {
+                if(source[index] != '\"') res += source[index];
+                else return std::make_pair(STRING, res);
+            }
+            error("expected eof with '\"' (line: " + std::to_string(getline(index)) + ")", true);
         }
 
         else {
@@ -220,14 +242,24 @@ private:
             while(index < source.length()) {
                 // 正規表現では↑で判定済みの文字のみを使用してください。(無限ループ防止)
                 if(!std::regex_match(std::string{source[index]}, std::regex("[!?~+\\-*/%^=&|.,:;()\\[\\]<>{}'\" \n]"))) {
-                    /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
                     res += source[index];
                     index++;
                 }
                 else { index--; break; }
             }
-            return std::make_pair(IDENTIFIER, res);
+            if(std::regex_match(res, std::regex("bol|break|byt|default|case|catch|chr|class|continue|dbl|elif|else|false|flt|for|import|int|lon|new|null|obj|package|private|public|return|sht|str|switch|true|ubyt|usht|uint|ulon|void")))
+                return std::make_pair(KEYWORD, res);
+            else
+                return std::make_pair(IDENTIFIER, res);
         }
+
         return std::make_pair(UNKNOWN, "");
+    }
+
+    int getline(int index) {
+        int res = 0;
+        for(int i = 0; i < index; i++)
+            if(source[i] == '\n') res++;
+        return res;
     }
 };

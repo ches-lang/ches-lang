@@ -1,3 +1,12 @@
+/*
+ * Chestnut: system.io.Console
+ * 
+ * Copyright © Garnet 2019 All rights reserved.
+ * 
+ */
+
+
+
 package system.io
 
 
@@ -31,6 +40,3 @@ public void out(str s)
 public void outln(str s)
 
     out(s ~ "\n")
-
-        abc+-*/()亜'-'
-a!a?a~a+a-a*a/a%a^a=|a&a.a,a:a;a(a)a[a]a<a>a{a}
