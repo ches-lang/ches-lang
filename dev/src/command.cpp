@@ -16,8 +16,6 @@ std::vector<std::string> args;
 
 
 void c_ches() {
-    std::cout << std::endl;
-
     if(args.size() == 0) {
         std::cout << "show help message with 'ches -help'" << std::endl;
     }
@@ -35,13 +33,9 @@ void c_ches() {
     else if(args[0] == "-ver") {
         std::cout << "version: 0.0.0 dev" << std::endl;
     }
-
-    std::cout << std::endl;
 }
 
 void c_comp() {
-    std::cout << std::endl;
-
     if(args.size() == 1) {
         std::cout << "show help message with 'ches comp -help'" << std::endl;
     }
@@ -52,15 +46,12 @@ void c_comp() {
     }
 
     else {
-        Compiler cmp(args[1]);
+        Compiler cmp;
+        cmp.loadFile(args[1]);
         cmp.compile();
     }
-
-    std::cout << std::endl;
 }
 
 void c_help() {
-    std::cout << std::endl;
     std::cout << "show help message with 'ches -help'" << std::endl;
-    std::cout << std::endl;
 }

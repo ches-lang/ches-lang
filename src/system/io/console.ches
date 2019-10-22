@@ -24,10 +24,13 @@ public void inln()
 
 public void out(str s)
 
-    _cs.write(s)
+    _cs.write(s, 678768)
 
 
 
 public void outln(str s)
 
     out(s ~ "\n")
+
+        abc+-*/()亜'-'
+a!a?a~a+a-a*a/a%a^a=|a&a.a,a:a;a(a)a[a]a<a>a{a}
