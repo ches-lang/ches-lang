@@ -8,6 +8,7 @@
 #include "compiler.cpp"
 #include "console.cpp"
 #include "lexer.cpp"
+#include "parser.cpp"
 
 
 

@@ -6,6 +6,7 @@
 #include "command.cpp"
 #include "compiler.cpp"
 #include "console.cpp"
+#include "parser.cpp"
 
 
 

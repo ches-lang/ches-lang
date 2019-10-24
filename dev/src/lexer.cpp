@@ -9,6 +9,7 @@
 #include "command.cpp"
 #include "compiler.cpp"
 #include "console.cpp"
+#include "parser.cpp"
 
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
 #define ENDOFFILE  -1
@@ -67,8 +68,8 @@ public:
             res = scan();
             tokens.push_back(res);
 
-            if(res.second == "\n") res.second = "\\n";
-            std::cout << "type " << (int)res.first << "\t" << res.second << std::endl;
+            // if(res.second == "\n") res.second = "\\n";
+            // std::cout << "type " << (int)res.first << "\t" << res.second << std::endl;
 
         } while(res.first != ENDOFFILE);
         if(err) exit(-1);
