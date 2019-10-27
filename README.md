@@ -4,11 +4,11 @@
 
 [Documentation](https://github.com/Garnet3106/chestnut/blob/develop/docs/index.md)
 
- - [Releases](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/index.md)
+- [Releases](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/index.md)
 
- - [License](https://github.com/Garnet3106/chestnut/blob/develop/docs/license/index.md)
+- [License [MUST-READ]](https://github.com/Garnet3106/chestnut/blob/develop/docs/license/index.md)
 
- - [Library](https://github.com/Garnet3106/chestnut/blob/develop/docs/library/index.md)
+- [Library](https://github.com/Garnet3106/chestnut/blob/develop/docs/library/index.md)
 
 ---
 

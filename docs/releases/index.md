@@ -1,13 +1,11 @@
-# Chestnut License
+# Releases
 
-ライセンスの範囲内であれば、Chestnutを誰でも自由に使用することができます。ただし、Chestnutの使用に関して一切の責任を負いません。自己責任でお願いします。
+## Links
 
-## 制作物について
+- [Ches0](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/ches0/index.md)
 
-制作物とはソースコードやドキュメントなどのファイルを指します。個人的な用途ならば、完全に自由に制作物を使用・複製・改変ができます。
+- [Ches0.0 (Relese Note)](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/ches0.0/index.md)
 
-ファイルを改変していない状態での他人への再配布は可能です。ただし、配布時はライセンスの提示または同包をお願いします。
+---
 
-Chestnutの改変物を配布する際は制作者までご連絡ください。
-
-2019/10/24
+Copyright © Garnet 2019 All rights reserved.
