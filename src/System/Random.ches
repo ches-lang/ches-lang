@@ -1,0 +1,18 @@
+dbl rand()
+  dbl x = 0  // seed
+  x = x ^ (x << 13)
+  x = x ^ (x >> 17)
+  x = x ^ (x >> 15)
+  return y
+
+
+dbl rand(dbl min, dbl max)
+  return rand() * (max - min + 1) + min
+
+
+int rand()
+  return Math.floor(rand() * Uint.max) + Int.min
+
+
+int rand(int min, int max)
+  return Math.floor(rand() * (max - min + 1)) + min

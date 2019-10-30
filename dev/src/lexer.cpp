@@ -1,15 +1,13 @@
 #pragma once
 
-#include <fstream>
 #include <iostream>
-#include <map>
 #include <regex>
 #include <string>
 #include <vector>
 #include "command.cpp"
-#include "compiler.cpp"
 #include "console.cpp"
-#include "parser.cpp"
+
+
 
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
 #define ENDOFFILE  -1
@@ -49,30 +47,28 @@
 
 
 
-std::string source;
-std::vector<std::pair<char, std::string>> tokens;
-
-
-
 class Lexer {
 
 public:
 
-    Lexer() {
+    std::string source;
 
+    Lexer() {}
+
+    Lexer(std::string src) {
+        source = src;
     }
 
-    void analyze() {
-        std::pair<char, std::string> res;
+    std::vector<std::pair<char, std::string>> run() {
+        std::vector<std::pair<char, std::string>> res;
+        std::pair<char, std::string> p;
+
         do {
-            res = scan();
-            tokens.push_back(res);
-
-            // if(res.second == "\n") res.second = "\\n";
-            // std::cout << "type " << (int)res.first << "\t" << res.second << std::endl;
-
-        } while(res.first != ENDOFFILE);
-        if(err) exit(-1);
+            p = scan();
+            res.push_back(p);
+            std::cout << (int)p.first << "\t" << ((p.second == "\n") ? "\\n" : p.second) << std::endl;
+        } while(p.first != ENDOFFILE);
+        return res;
     }
 
 private:
@@ -84,7 +80,7 @@ private:
         index++;
         char ch = source[index];
 
-        if(index >= source.length())
+        if(index > source.size())
             return std::make_pair(ENDOFFILE, "");
 
         else if(ch == '!')
@@ -105,7 +101,7 @@ private:
         else if(ch == '*')
             return std::make_pair(ASTERISK, std::string{ch});
 
-        else if(ch == '/')
+        else if(ch == '/') {
             if(source[index + 1] == '*') {
                 std::string res;
                 for(index += 2; index < source.length(); index++) {
@@ -114,10 +110,11 @@ private:
                         return std::make_pair(COMMENTOUT, res);
                     } else res += std::string{source[index]};
                 }
-                error("expected eof with '*/' (line: " + std::to_string(getline(index)) + ")", true);
+                error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'*/'" }, true);
             }
             else
                 return std::make_pair(SLASH, std::string{ch});
+        }
 
         else if(ch == '%')
             return std::make_pair(PERCENTAGE, std::string{ch});
@@ -176,17 +173,13 @@ private:
                 else if(source[i] == '\n') break;
                 else return scan();
 
-            if(source[index + 1] == ' ' && source[index + 2] == ' ' && source[index + 3] == ' ') {
-                index += 3;
-                return std::make_pair(INDENT, "    ");
+            if(source[index + 1] == ' ') {
+                index += 1;
+                return std::make_pair(INDENT, "  ");
             } else {
-                int add = 0;
-                if(source[index + 1] == ' ') add++;
-                if(source[index + 2] == ' ') add++;
-                if(source[index + 3] == ' ') add++;
-                index += add;
+                if(source[index + 1] == ' ') index++;
                 err = true;
-                error("invalid indent space (line: " + std::to_string(getline(index)) + ")");
+                error("cerr7903", "invalid indent space", { "line", std::to_string(getline(index)) }, false);
             }
         }
 
@@ -214,6 +207,9 @@ private:
             } else if(source[index + 1] == '\\' && source[index + 3] == '\'') {
                 chr = "\\" + std::string{source[index + 2]};
                 index += 3;
+            } else if(source[index + 1] == '\'') {
+                error("cerr4139", "too short character length", { "line", std::to_string(getline(index)), "expected", "a character" }, false);
+                index += 1;
             } else {
                 bool contain = false;
                 int i;
@@ -221,9 +217,9 @@ private:
                     if(source[index] == '\'') { contain = true; break; }
                 if(contain) {
                     err = true;
-                    error("too long character (line: " + std::to_string(getline(index)) + ")");
+                    error("cerr2471", "too long character length", { "line", std::to_string(getline(index)) }, false);
                 }
-                else error("expected eof with ''' (line: " + std::to_string(getline(index)) + ")", true);
+                else error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'''" }, true);
                 return scan();
             }
             return std::make_pair(CHARACTER, std::string{chr});
@@ -235,7 +231,7 @@ private:
                 if(source[index] != '\"') res += source[index];
                 else return std::make_pair(STRING, res);
             }
-            error("expected eof with '\"' (line: " + std::to_string(getline(index)) + ")", true);
+            error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'\"'" }, true);
         }
 
         else {
@@ -254,7 +250,7 @@ private:
                 return std::make_pair(IDENTIFIER, res);
         }
 
-        return std::make_pair(UNKNOWN, "");
+        return std::make_pair(UNKNOWN, std::string{ch});
     }
 
     int getline(int index) {

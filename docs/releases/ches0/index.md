@@ -6,7 +6,7 @@ This major version is developed for testing.
 
 - [Library](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/ches0/library/index.md)
 
-  - [System Module](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/ches0/index.md)
+  - [System Module](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/ches0/library/System/index.md)
 
 ---
 

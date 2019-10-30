@@ -6,4 +6,10 @@ System module has basic functions to develop applications.
 
 |Name|Description|
 |:---:|:---:|
-|IO||
+|IO|I/O stream functions|
+
+## Classes
+
+|Name|Description|
+|:---:|:---:|
+|Math|Mathematical functions|

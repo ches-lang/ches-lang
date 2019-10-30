@@ -1,0 +1,21 @@
+ConsoleStream _cs = new()
+
+
+print(str s)
+
+  _cs.write(s)
+
+
+println(str s)
+
+  println(s ~ "\n")
+
+
+str read()
+
+  return _cs.read()
+
+
+str readln()
+
+  return _cs.readln()

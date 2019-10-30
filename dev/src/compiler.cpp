@@ -1,19 +1,12 @@
 #pragma once
 
-#include <fstream>
 #include <iostream>
-#include <map>
+#include <fstream>
 #include <string>
 #include <vector>
 #include "command.cpp"
 #include "console.cpp"
 #include "lexer.cpp"
-#include "parser.cpp"
-
-
-
-extern std::string source;
-extern std::vector<std::pair<char, std::string>> tokens;
 
 
 
@@ -21,33 +14,29 @@ class Compiler {
 
 public:
 
+    std::string source;
+    std::vector<std::pair<char, std::string>> tokens;
+
+    Compiler() {}
+
     std::string filepath;
     Lexer lexer;
-    Parser parser;
 
-    Compiler() {
-    }
-
-    void compile() {
-        lexer.analyze();
-        parser.parse();
-    }
-
-    void loadFile(std::string path) {
+    void load(std::string path) {
         filepath = path;
-        std::ifstream ifs(filepath);
-        bool res = false;
-
+        std::ifstream ifs(path);
         if(!ifs.is_open())
-            error("file '" + filepath + "' is not exist", true);
-
+            error("specified file '" + path + "' was not found", true);
         if(ifs.fail())
-            error("loading file '" + filepath + "' is failed", true);
+            error("file read error", true);
 
-        std::string ln;
-        while(getline(ifs, ln))
-            source += ln + "\n";
+        source = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
         ifs.close();
+    }
+
+    void run() {
+        lexer = Lexer(source);
+        tokens = lexer.run();
     }
 };

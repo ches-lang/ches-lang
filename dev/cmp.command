@@ -3,7 +3,7 @@
 # chmod u+x cmp.command
 # ches
 
-clear
+
 cd /Users/garnetdev/Desktop/sources/chestnut/dev/
 # ファイル ches を削除
 g++ -o ches src/main.cpp -std=c++11
