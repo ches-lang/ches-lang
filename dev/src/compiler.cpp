@@ -7,6 +7,7 @@
 #include "command.cpp"
 #include "console.cpp"
 #include "lexer.cpp"
+#include "parser.cpp"
 
 
 
@@ -17,10 +18,11 @@ public:
     std::string source;
     std::vector<std::pair<char, std::string>> tokens;
 
-    Compiler() {}
-
     std::string filepath;
     Lexer lexer;
+    Parser parser;
+
+    Compiler() {}
 
     void load(std::string path) {
         filepath = path;
@@ -38,5 +40,7 @@ public:
     void run() {
         lexer = Lexer(source);
         tokens = lexer.run();
+        parser = Parser(tokens);
+        parser.run();
     }
 };

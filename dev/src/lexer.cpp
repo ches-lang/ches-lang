@@ -66,7 +66,7 @@ public:
         do {
             p = scan();
             res.push_back(p);
-            std::cout << (int)p.first << "\t" << ((p.second == "\n") ? "\\n" : p.second) << std::endl;
+            //std::cout << (int)p.first << "\t" << ((p.second == "\n") ? "\\n" : p.second) << "|" << std::endl;
         } while(p.first != ENDOFFILE);
         return res;
     }
@@ -80,7 +80,7 @@ private:
         index++;
         char ch = source[index];
 
-        if(index > source.size())
+        if(index >= source.size())
             return std::make_pair(ENDOFFILE, "");
 
         else if(ch == '!')
