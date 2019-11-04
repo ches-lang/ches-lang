@@ -101,18 +101,19 @@ struct Node {
         type = t;
     }
 
-    void add(Node n) {
+    inline void add(Node n) {
         nodes.push_back(n);
     }
 
-    void add(Child c) {
+    inline void add(Child c) {
         children.push_back(c);
     }
-    void set(std::vector<Node> n) {
+
+    inline void set(std::vector<Node> n) {
         nodes = n;
     }
 
-    void set(std::vector<Child> c) {
+    inline void set(std::vector<Child> c) {
         children = c;
     }
 

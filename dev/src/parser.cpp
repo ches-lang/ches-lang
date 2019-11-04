@@ -70,7 +70,7 @@ public:
         do {
             b = scan();
         } while(b);
-        tree.out("");
+        //tree.out("");
         return tree;
     }
 
@@ -120,78 +120,6 @@ private:
 
         ln.clear();
         return true;
-
-        /*
-        bool res = true;
-        //if(tokens[index].first == EOF) {std::cout << "eof: " << index << std::endl;return false;}
-
-        while(true) {
-            if(tokens[index].first == EOF) {
-                //index++;
-                res = false;
-                break;
-            } else if(tokens[index].first == NEWLINE) {//std::cout << "newline" << std::endl;
-                index++;
-                break;
-            } else {
-                //std::cout << index << " " << ((tokens[index].second == "  ") ? "indent" : tokens[index].second) << std::endl;
-                ln.push_back(tokens[index]);
-                index++;
-            }
-        }
-
-        for(std::pair<char, std::string> p : ln) {
-            std::cout << ((p.second == "  ") ? "indent" : p.second) << " ";
-        } std::cout << "index: " << index << std::endl;
-
-        try {
-            int len = ln.size();
-
-            if(typeMatch(0, IDENTIFIER) && typeMatch(1, LPAREN) && typeMatch(len - 1, RPAREN)) {
-                Node fnc(DEFFUNC);
-                fnc.add(Child(at(0)));
-                Node args(ARGS);
-                for(int i = 2; i < len - 1; i++)
-                    args.add(Child(at(i)));
-                fnc.add(args);
-                tree.add(fnc);
-                return res;
-            }
-
-            if(typeMatch(0, INDENT) && typeMatch(1, IDENTIFIER) && typeMatch(2, LPAREN) && typeMatch(len - 1, RPAREN)) {
-                Node callfnc(CALLFUNC);
-                callfnc.add(Child(at(1)));
-                Node args(ARGS);
-                callfnc.add(args);
-                //tree.add(callfnc);
-                return res;
-            }
-
-
-
-            // ↓のソースコードを...
-
-            main(str[] args)
-              println("Hello, world")
-
-            // ↓に変換！
-
-            ROOT
-              DEFFUNC
-                main
-                str
-                [
-                ]
-                args
-              CALLFUNC
-                println
-                Hello, World
-
-            
-
-        } catch(std::out_of_range ignored) {}
-
-        return res;*/
     }
 
     inline std::pair<char, std::string> at(int i) {

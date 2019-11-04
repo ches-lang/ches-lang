@@ -6,6 +6,7 @@
 #include <vector>
 #include "command.cpp"
 #include "console.cpp"
+#include "converter.cpp"
 #include "lexer.cpp"
 #include "parser.cpp"
 
@@ -21,6 +22,11 @@ public:
     std::string filepath;
     Lexer lexer;
     Parser parser;
+    Node node;
+    Converter converter;
+    std::vector<std::vector<unsigned char>> compiled;
+
+
 
     Compiler() {}
 
@@ -41,6 +47,8 @@ public:
         lexer = Lexer(source);
         tokens = lexer.run();
         parser = Parser(tokens);
-        parser.run();
+        node = parser.run();
+        converter = Converter(node, filepath);
+        compiled = converter.run();
     }
 };
