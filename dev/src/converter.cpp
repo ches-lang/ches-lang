@@ -56,7 +56,7 @@ public:
 
     Node tree;
     std::string path;
-    std::vector<std::vector<unsigned char>> res;
+    std::vector<std::vector<std::vector<unsigned char>>> res;
 
     Converter() {}
 
@@ -65,19 +65,22 @@ public:
         path = p;
     }
 
-    std::vector<std::vector<unsigned char>> run() {
+    std::vector<std::vector<std::vector<unsigned char>>> run() {
         bool b;
-        res.push_back({0x43, 0x4F, 0x4D, 0x50, 0x49, 0x4C, 0x45, 0x44, 0x5F, 0x43, 0x48, 0x45, 0x53});
+        res.push_back({{0x43, 0x4F, 0x4D, 0x50, 0x49, 0x4C, 0x45, 0x44, 0x5F, 0x43, 0x48, 0x45, 0x53}});
         do {
             b = scan();
         } while(b);
+        //out();
         return res;
     }
 
     void out() {
         for(int i = 0; i < res.size(); i++) {
-            for(int j = 0; j < res.at(i).size(); j++) {
-                std::cout << (int)res[i][j] << " ";
+            for(int j = 0; j < res[i].size(); j++) {
+                for(int k = 0; k < res[i][j].size(); k++) {
+                    std::cout << (int)res[i][j][k] << " ";
+                } std::cout << " ";
             } std::cout << std::endl;
         }
     }
@@ -92,14 +95,20 @@ private:
         Node node = tree.nodes[index];
 
         if(node.type == CALLFUNC) {
-            std::vector<unsigned char> arr = {0x81, 0x9D, 0x01};
-            std::vector<unsigned char> funcname = toChars(node.children[0].token.second);
-            arr.insert(arr.end(), funcname.begin(), funcname.end());
+            std::vector<std::vector<unsigned char>> arr;
+            arr.push_back({0x81, 0x9D});
+            arr.push_back(toChars(node.children[0].token.second));
+            for(Child c : node.nodes[0].children)
+                arr.push_back(toChars(c.token.second));
             res.push_back(arr);
         }
 
         else if(node.type == DEFFUNC) {
-            std::vector<unsigned char> arr = {0x4E, 0xC0};
+            std::vector<std::vector<unsigned char>> arr;
+            arr.push_back({0x4E, 0xC0});
+            arr.push_back(toChars(node.children[0].token.second));
+            for(Child c : node.nodes[0].children)
+                arr.push_back(toChars(c.token.second));
             res.push_back(arr);
         }
 

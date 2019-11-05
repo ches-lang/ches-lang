@@ -41,8 +41,7 @@ void c_cmp() {
     }
 
     if(args.size() >= 1) {
-        Compiler cmp;
-        cmp.load(args[0].second);
+        Compiler cmp(args[0].second);
         cmp.run();
     }
 }

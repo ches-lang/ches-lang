@@ -1,2 +1,3 @@
 main(str[] args)
+  str name = inln();
   println("Hello, world!")
