@@ -1,9 +1,9 @@
-# cd /users/garnetdev/desktop/sources/chestnut/dev/
-# export PATH=$PATH:/users/garnetdev/desktop/sources/chestnut/dev/
+# cd /users/garnetdev/desktop/sources/
+# export PATH=$PATH:/users/garnetdev/desktop/sources/
 # chmod u+x cmp.command
-# ches
+# ches cmp ../src/Examples/hello.ches
 
 
-cd /Users/garnetdev/Desktop/sources/chestnut/dev/
-# ファイル ches を削除
-g++ -o ches src/main.cpp -std=c++11
+
+rm ches
+g++ -o ches chestnut/dev/src/main.cpp -std=c++11

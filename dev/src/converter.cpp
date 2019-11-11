@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include <iostream>
 #include <string>
@@ -42,11 +42,6 @@
 #define RANGBLACK   30
 #define LBRACE      31
 #define RBRACE      32
-
-#define ROOT        33
-#define DEFFUNC     34
-#define CALLFUNC    35
-#define ARGS        36
 
 
 
@@ -94,7 +89,7 @@ private:
         if(index > tree.nodes.size()) return false;
         Node node = tree.nodes[index];
 
-        if(node.type == CALLFUNC) {
+        if(node.type == "CALLFUNC") {
             std::vector<std::vector<unsigned char>> arr;
             arr.push_back({0x81, 0x9D});
             arr.push_back(toChars(node.children[0].token.second));
@@ -103,7 +98,7 @@ private:
             res.push_back(arr);
         }
 
-        else if(node.type == DEFFUNC) {
+        else if(node.type == "DEFFUNC") {
             std::vector<std::vector<unsigned char>> arr;
             arr.push_back({0x4E, 0xC0});
             arr.push_back(toChars(node.children[0].token.second));
@@ -115,10 +110,24 @@ private:
         return true;
     }
 
+    Node getNode() {
+
+    }
+
     std::vector<unsigned char> toChars(std::string str) {
         std::vector<unsigned char> res;
         for(int i = 0; i < str.length(); i++)
             res.push_back(str[i]);
         return res;
     }
-};
+};*/
+
+
+
+/*
+
+str hoge = hoge(hoge2());
+
+DEFVAR { str hoge ARGS { CALLFUNC { hoge2 ARGS { } } } }
+
+*/

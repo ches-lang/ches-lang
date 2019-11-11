@@ -18,15 +18,15 @@ class Compiler {
 public:
 
     std::string source;
-    std::vector<std::pair<char, std::string>> tokens;
+    std::vector<Token> tokens;
 
     std::string filepath;
     FileManager filemanager;
     Lexer lexer;
     Parser parser;
     Node node;
-    Converter converter;
-    std::vector<std::vector<std::vector<unsigned char>>> compiled;
+    //Converter converter;
+    //std::vector<std::vector<std::vector<unsigned char>>> compiled;
 
 
 
@@ -40,9 +40,9 @@ public:
         tokens = lexer.run();
         parser = Parser(tokens);
         node = parser.run();
-        converter = Converter(node, filepath);
-        compiled = converter.run();
-        filemanager.write(renamePathExt(filepath, "chesc"), compiled);
+        //converter = Converter(node, filepath);
+        //compiled = converter.run();
+        //filemanager.write(renamePathExt(filepath, "chesc"), compiled);
     }
 
     std::string renamePathExt(std::string path, std::string ext) {

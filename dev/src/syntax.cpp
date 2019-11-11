@@ -43,46 +43,30 @@
 #define LBRACE      31
 #define RBRACE      32
 
-#define ROOT        33
-#define DEFFUNC     34
-#define CALLFUNC    35
 
 
+struct Token {
 
-            /*
+    char type = UNKNOWN;
+    std::string string = "";
 
-            // ↓のソースコードを...
+    Token() {}
 
-            main(str[] args)
-              println("Hello, world")
+    Token(char tp) {
+        type = tp;
+    }
 
-            // ↓に変換！
+    Token(std::string st) {
+        string = st;
+    }
 
-            N ROOT
-              N DEFFUNC
-                C main
-                N ARGS
-                  C str
-                  C [
-                  C ]
-                  C args
-              N CALLFUNC
-                C println
-                N ARGS
-                  C Hello, World
+    Token(char tp, std::string st) {
+        type = tp;
+        string = st;
+    }
 
-            */
-
-
-
-struct Child {
-
-    std::pair<char, std::string> token;
-
-    Child() {}
-
-    Child(std::pair<char, std::string> tk) {
-        token = tk;
+    bool compare(Token tk) {
+        return (type == tk.type && string == tk.string);
     }
 };
 
@@ -90,37 +74,57 @@ struct Child {
 
 struct Node {
 
-    std::vector<Node> nodes;
-    std::vector<Child> children;
-
-    char type;
+    std::string type = "";
+    std::vector<Node> children;
+    std::vector<Token> tokens;
 
     Node() {}
 
-    Node(char t) {
-        type = t;
+    Node(std::string tp) {
+        type = tp;
     }
 
-    inline void add(Node n) {
-        nodes.push_back(n);
+    Node(std::string tp, std::vector<Node> ch) {
+        type = tp;
+        children = ch;
     }
 
-    inline void add(Child c) {
-        children.push_back(c);
+    Node(std::string tp, std::vector<Token> tk) {
+        type = tp;
+        tokens = tk;
     }
 
-    inline void set(std::vector<Node> n) {
-        nodes = n;
+    Node(std::string tp, std::vector<Node> ch, std::vector<Token> tk) {
+        type = tp;
+        children = ch;
+        tokens = tk;
     }
 
-    inline void set(std::vector<Child> c) {
-        children = c;
+    void addNode(Node nd) {
+        children.push_back(nd);
     }
 
-    void out(std::string head) {
-        for(int i = 0; i < children.size(); i++)
-            std::cout << head << (int)type << " " << (int)children[i].token.first << " " << children[i].token.second << std::endl;
-        for(int i = 0; i < nodes.size(); i++)
-            nodes[i].out(head += "  ");
+    void addToken(Token tk) {
+        tokens.push_back(tk);
+    }
+
+    Node getNode(int index) {
+        return children[index];
+    }
+
+    Token getToken(int index) {
+        return tokens[index];
+    }
+
+    bool isEmpty() {
+        return (type == "");
+    }
+
+    void out(std::string level) {
+        std::cout << level << type << std::endl;
+        for(Token t : tokens)
+            std::cout << level << "|" << t.string << std::endl;
+        for(Node n : children)
+            n.out(level + "|");
     }
 };
