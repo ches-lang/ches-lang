@@ -61,6 +61,7 @@
         "map": "cpp",
         "fstream": "cpp",
         "deque": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "stack": "cpp"
     }
 }

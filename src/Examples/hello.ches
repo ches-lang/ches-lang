@@ -1,6 +1,7 @@
 main(str[] args)
-  str name = inln()
-  println("Hello, world!")
+  str name = inln(1 - 2 + 3 * 4 + 5)
+/*  println("Hello, world!")
   for(int i = 0; (i < 100); i += 1)
-/*  for(100)*/
+  for(100)
     println("Hey!")
+*/

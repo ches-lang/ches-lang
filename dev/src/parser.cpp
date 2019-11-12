@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <regex>
+#include <stack>
 #include <string>
 #include <vector>
 #include "console.cpp"
@@ -45,13 +46,13 @@
 #define LBRACE      31
 #define RBRACE      32
 
-#define at(i) (tk.at(i))
-#define match(i, t) (t.compare(at(i)))
-#define typeAt(i) (at(i).type)
-#define typeMatch(i, c) (typeAt(i) == c)
-#define stringAt(i) (at(i).string)
-#define stringMatch(i, s) (stringAt(i) == s)
-#define stringMatchReg(i, s) (std::regex_match(stringAt(i), std::regex(s)))
+#define A(i) (tk.at(i))
+#define M(i, t) (t.compare(A(i)))
+#define TA(i) (A(i).type)
+#define TM(i, c) (TA(i) == c)
+#define SA(i) (A(i).string)
+#define SM(i, s) (SA(i) == s)
+#define SMR(i, s) (std::regex_match(SA(i), std::regex(s)))
 
 
 
@@ -126,28 +127,28 @@ private:
 
         try {
 
-            if(indent == 0 && typeMatch(0, IDENTIFIER) && typeMatch(1, LPAREN) && typeMatch(len - 1, RPAREN)) {
+            if(indent == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node("DEFFUNC");
-                node.addToken(Token(IDENTIFIER, stringAt(0)));
+                node.addToken(Token(IDENTIFIER, SA(0)));
                 if(len >= 4) {
                     Node args("ARGS");
                     std::vector<Token> ag;
                     int nest = 0;
                     for(int i = 2; i < len - 1; i++) {
-                        if(stringAt(i) == "," && nest == 0) {
+                        if(SA(i) == "," && nest == 0) {
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                             ag.clear();
                         } else if(i == len - 2) {
-                            ag.push_back(at(i));
+                            ag.push_back(A(i));
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                         } else {
-                            if(stringMatch(i, "[(\\[{]"))
+                            if(SM(i, "[(\\[{]"))
                                 nest++;
-                            else if(stringMatch(i, "[)\\}]"))
+                            else if(SM(i, "[)\\}]"))
                                 nest--;
-                            ag.push_back(at(i));
+                            ag.push_back(A(i));
                         }
                     }
                     node.addNode(args);
@@ -156,28 +157,28 @@ private:
                 return node;
             }
 
-            if(indent >= 1 && len >= 3 && typeMatch(0, IDENTIFIER) && typeMatch(1, LPAREN) && typeMatch(len - 1, RPAREN)) {
+            if(indent >= 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node("CALLFUNC");
-                node.addToken(Token(IDENTIFIER, stringAt(0)));
+                node.addToken(Token(IDENTIFIER, SA(0)));
                 if(len >= 4) {
                     Node args("ARGS");
                     std::vector<Token> ag;
                     int nest = 0;
                     for(int i = 2; i < len - 1; i++) {
-                        if(stringAt(i) == "," && nest == 0) {
+                        if(SA(i) == "," && nest == 0) {
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                             ag.clear();
                         } else if(i == len - 2) {
-                            ag.push_back(at(i));
+                            ag.push_back(A(i));
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                         } else {
-                            if(stringMatchReg(i, "[(\\[{]"))
+                            if(SMR(i, "[(\\[{]"))
                                 nest++;
-                            else if(stringMatchReg(i, "[)\\]}]"))
+                            else if(SMR(i, "[)\\]}]"))
                                 nest--;
-                            ag.push_back(at(i));
+                            ag.push_back(A(i));
                         }
                     }
                     node.addNode(args);
@@ -185,38 +186,38 @@ private:
                 return node;
             }
 
-            if(len == 2 && (typeMatch(0, IDENTIFIER) || typeMatch(0, KEYWORD)) && typeMatch(1, IDENTIFIER)) {
+            if(len == 2 && (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, IDENTIFIER)) {
                 Node node("DEFVAR");
-                node.addToken(at(0));
-                node.addToken(at(1));
+                node.addToken(A(0));
+                node.addToken(A(1));
                 return node;
             }
 
-            if(len == 4 &&  (typeMatch(0, IDENTIFIER) || typeMatch(0, KEYWORD)) && typeMatch(1, LBRACK) && typeMatch(2, RBRACK) && typeMatch(3, IDENTIFIER)) {
+            if(len == 4 &&  (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, LBRACK) && TM(2, RBRACK) && TM(3, IDENTIFIER)) {
                 Node node("DEFVAR");
-                node.addToken(at(0));
-                node.addToken(at(1));
-                node.addToken(at(2));
-                node.addToken(at(3));
+                node.addToken(A(0));
+                node.addToken(A(1));
+                node.addToken(A(2));
+                node.addToken(A(3));
                 return node;
             }
 
-            if(len >= 4 && (typeMatch(0, IDENTIFIER) || typeMatch(0, KEYWORD)) && typeMatch(1, IDENTIFIER) && typeMatch(2, EQUAL)) {
+            if(len >= 4 && (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, IDENTIFIER) && TM(2, EQUAL)) {
                 Node node("INITVAR");
-                node.addToken(at(0));
-                node.addToken(at(1));
+                node.addToken(A(0));
+                node.addToken(A(1));
                 if(len == 4) {
-                    node.addToken(at(3));
+                    node.addToken(A(3));
                 } else {
                     std::vector<Token> rs;
                     for(int i = 3; i < len; i++)
-                        rs.push_back(at(i));
+                        rs.push_back(A(i));
                     node.addNode(getNode(rs));
                 }
                 return node;
             }
 
-            if(len >= 4 && match(0, Token(KEYWORD, "for")) && typeMatch(1, LPAREN) && typeMatch(len - 1, RPAREN)) {
+            if(len >= 4 && M(0, Token(KEYWORD, "for")) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node("NODE");
                 int sccount = 0;
 
@@ -225,21 +226,21 @@ private:
 
                 if(sccount == 0) {
                     if(len == 4) {
-                        node.addNode(Node("COUNT", {}, { at(2) }));
+                        node.addNode(Node("COUNT", {}, { A(2) }));
                     } else {
                         std::vector<Token> inParen;
                         for(int i = 2; i < len - 1; i++)
-                            inParen.push_back(at(i));
+                            inParen.push_back(A(i));
                         node.addNode(getNode(inParen));
                     }
                 } else if(sccount == 2) {
                     std::vector<Token> item;
                     for(int i = 2; i < len; i++) {
-                        if(typeMatch(i, SEMICOLON)) {
+                        if(TM(i, SEMICOLON)) {
                             node.addNode(getNode(item));
                             item.clear();
                         } else {
-                            item.push_back(at(i));
+                            item.push_back(A(i));
                         }
                     }
                 }
@@ -251,18 +252,36 @@ private:
             bool countlpc = true;
             int lpcount = 0;
             for(int i = 0; i < len; i++) {
-                if(typeMatch(i, LPAREN)) {
+                if(TM(i, LPAREN)) {
                     if(countlpc) lpcount++;
                 } else {
-                    if(stringMatchReg(i, "[~+\\-*/%^=&|<>]"))
+                    if(SMR(i, "[~+\\-*/%^=&|<>]"))
                         ismatch = true;
                     countlpc = false;
                 }
             }
             if(len >= 3 && ismatch) {
                 Node node("EXPRESS");
+                std::stack<Token> stack;
+                std::vector<Token> item;
+
                 for(int i = lpcount; i < len; i++) {
-                    
+                    if(std::regex_match(SA(i), std::regex("[+\\-*/]"))) {
+                        node.addNode(Node("OPE", {}, { A(i) }));
+                    } else {
+                        for(int j = i; j <= len; j++) {
+                            if(j != len && !std::regex_match(SA(j), std::regex("[+\\-*/]"))) {
+                                item.push_back(A(j));
+                            } else {
+                                if(j == len) i = j + 1;
+                                i = i + item.size() - 1;
+                                if(item.size() == 1) node.addNode(Node("ITEM", {}, { item.at(0) }));
+                                else node.addNode(getNode(item));
+                                item.clear();
+                                break;
+                            }
+                        }
+                    }
                 }
                 return node;
             }
@@ -272,5 +291,20 @@ private:
         }
 
         return Node("UNKNOWN");
+    }
+
+    // 優先度高い             優先度低い
+    // true → ope1 < ope2   false → ope1 >= ope2
+    bool compareOpe(std::string ope1, std::string ope2) {
+
+        if(std::regex_match(ope1, std::regex("[+\\-]"))) {
+            return (std::regex_match(ope2, std::regex("[+\\-*/]")));
+        }
+
+        if(std::regex_match(ope1, std::regex("[*/]"))) {
+            return (std::regex_match(ope2, std::regex("[*/]")));
+        }
+
+        return false;
     }
 };
