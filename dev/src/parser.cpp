@@ -249,32 +249,61 @@ private:
 
             // 計算式、比較式、論理式
             bool ismatch = false;
-            bool countlpc = true;
-            int lpcount = 0;
             for(int i = 0; i < len; i++) {
-                if(TM(i, LPAREN)) {
-                    if(countlpc) lpcount++;
-                } else {
-                    if(SMR(i, "[~+\\-*/%^=&|<>]"))
-                        ismatch = true;
-                    countlpc = false;
-                }
+                if(SMR(i, "[~+\\-*/%^=&|<>]"))
+                    ismatch = true;
             }
             if(len >= 3 && ismatch) {
                 Node node("EXPRESS");
                 std::stack<Token> stack;
                 std::vector<Token> item;
 
-                for(int i = lpcount; i < len; i++) {
-                    if(std::regex_match(SA(i), std::regex("[+\\-*/]"))) {
-                        node.addNode(Node("OPE", {}, { A(i) }));
+                for(int i = 0; i < len; i++) {
+                    if(TM(i, LPAREN)) {
+                        std::vector<Token> inParen;
+                        int nest = 0;
+                        for(i++; i < len; i++) {
+                            if(TM(i, RPAREN)) {
+                                if(nest == 0) {
+                                    Node nd = getNode(inParen);
+                                    for(Node n : nd.children)
+                                        node.addNode(n);
+                                    break;
+                                } else {
+                                    inParen.push_back(A(i));
+                                    nest--;
+                                }
+                            } else if(TM(i, LPAREN)) {
+                                inParen.push_back(A(i));
+                                nest++;
+                            } else {
+                                inParen.push_back(A(i));
+                            }
+                        }
+                    } else if(std::regex_match(SA(i), std::regex("[+\\-*/]"))) {
+                        if(stack.size() == 0) {
+                            //スタックの要素数が0 → スタックに積む
+                            stack.push(A(i));
+                        } else if(compareOpe(stack.top().string, SA(i))) {
+                            // 先頭に比べて優先度が高い → スタックに積む
+                            stack.push(A(i));
+                        } else {
+                            // 先頭に比べて優先度が低い → 優先度が低くなるまでaddNode
+                            while(stack.size() != 0) {
+                                if(compareOpe(SA(i), stack.top().string)) {
+                                    node.addNode(Node("OPE", {}, { stack.top() }));
+                                    stack.pop();
+                                } else break;
+                            }
+                            stack.push(A(i));
+                        }
                     } else {
                         for(int j = i; j <= len; j++) {
                             if(j != len && !std::regex_match(SA(j), std::regex("[+\\-*/]"))) {
                                 item.push_back(A(j));
                             } else {
                                 if(j == len) i = j + 1;
-                                i = i + item.size() - 1;
+                                else i += item.size() - 1;
                                 if(item.size() == 1) node.addNode(Node("ITEM", {}, { item.at(0) }));
                                 else node.addNode(getNode(item));
                                 item.clear();
@@ -282,6 +311,10 @@ private:
                             }
                         }
                     }
+                }
+                while(stack.size() != 0) {
+                    node.addNode(Node("OPE", {}, { stack.top() }));
+                    stack.pop();
                 }
                 return node;
             }
@@ -298,11 +331,11 @@ private:
     bool compareOpe(std::string ope1, std::string ope2) {
 
         if(std::regex_match(ope1, std::regex("[+\\-]"))) {
-            return (std::regex_match(ope2, std::regex("[+\\-*/]")));
+            return (std::regex_match(ope2, std::regex("[*/]")));
         }
 
         if(std::regex_match(ope1, std::regex("[*/]"))) {
-            return (std::regex_match(ope2, std::regex("[*/]")));
+            return (std::regex_match(ope2, std::regex("[]")));
         }
 
         return false;
