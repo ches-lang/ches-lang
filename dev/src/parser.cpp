@@ -75,7 +75,7 @@ public:
             b = scan();
         } while(b);
         //std::cout << tree.getNode(0).getNode(0).tokens[0].string << std::endl;
-        tree.out("");
+        tree.out("|");
         return tree;
     }
 
@@ -247,12 +247,155 @@ private:
                 return node;
             }
 
-            // 計算式、比較式、論理式
-            bool ismatch = false;
-            for(int i = 0; i < len; i++) {
-                if(SMR(i, "[~+\\-*/%^=&|<>]"))
-                    ismatch = true;
+            bool ismatch;
+            bool enclosed;
+            bool containsParen;
+            int nest;
+
+            /* 括弧チェック */
+
+            while(true) {
+                len = tk.size();
+                containsParen = false;
+                enclosed = true;
+                nest = 0;
+
+                for(int i = 0; i < len; i++) {
+                    if(SMR(i, "[(\\[{]")) {
+                        containsParen = true;
+                        nest++;
+                    } else if(SMR(i, "[)\\]}]")) {
+                        containsParen = true;
+                        nest--;std::cout << "aaa" << std::endl;
+                        if(nest == 0 && i != len - 1) {enclosed = false;std::cout << "fl" << std::endl;} // 括弧に囲まれてない そのまま使える
+                    }
+                }
+
+                if(enclosed && tk.size() >= 3 && containsParen && tk.at(0).type == LPAREN) {//
+                    std::vector<Token> cutout;
+    
+                    for(int i = 1; i < tk.size() - 1; i++)
+                        cutout.push_back(tk.at(i));
+
+                    tk = cutout;
+
+                    std::cout << "tk: " << cutout.size() << " : ";
+                    for(Token t : tk)
+                        std::cout << t.string << " ";
+                    std::cout << std::endl;
+
+                } else {//
+                    break;
+                }
             }
+
+            /* 論理式 */
+
+            ismatch = false;
+            nest = 0;
+
+            for(int i = 0; i < len; i++) {
+                if(SMR(i, "[&|]")) {
+                    if(nest == 0) ismatch = true;
+                } else if(SMR(i, "[(\\[{]")) {
+                    nest++;
+                } else if(SMR(i, "[)\\]}]")) {
+                    nest--;
+                }
+            }
+
+            if (len >= 3 && ismatch) {
+                Node node("LOGIC");
+                std::vector<Token> side;
+                nest = 0;
+                for(int i = 0; i < len; i++) {
+                    if(SMR(i, "[&|]") && nest == 0) {
+                        if(side.size() == 1) {node.addNode(Node("ITEM", {}, { side.at(0) }));}
+                        else node.addNode(getNode(side));
+                        side.clear();
+
+                        std::cout << "side: ";
+                        for(Token t : side)
+                            std::cout << t.string << " ";
+                        std::cout << std::endl;
+
+                        if(TM(i, PIPE) && TM(i + 1, PIPE)) {
+                            node.addNode(Node("OPE", {}, { A(i) }));
+                            i++;
+                        } else if(TM(i, AMPERSAND) && TM(i + 1, AMPERSAND)) {
+                            node.addNode(Node("OPE", {}, { A(i) }));
+                            i++;
+                        }
+                    } else if(TM(i, LPAREN)) {
+                        side.push_back(A(i));
+                        nest++;
+                    } else if(TM(i, RPAREN)) {
+                        side.push_back(A(i));
+                        nest--;
+                    } else {
+                        side.push_back(A(i));
+                    }
+                }
+                if(side.size() == 1) node.addNode(Node("ITEM", {}, { side.at(0) }));
+                else node.addNode(getNode(side));
+                side.clear();
+                return node;
+            }
+
+            /* 比較式 */
+
+            ismatch = false;
+            nest = 0;
+
+            for(int i = 0; i < len; i++) {
+                if(SMR(i, "[=<>]")) {
+                    if(nest == 0) ismatch = true;
+                } else if(SMR(i, "[(\\[{]")) {
+                    nest++;
+                } else if(SMR(i, "[)\\]}]")) {
+                    nest--;
+                }
+            }
+
+            if (len >= 3 && ismatch) {
+                Node node("COMP");
+                std::string type = "";
+                std::vector<Token> leftside;
+                std::vector<Token> rightside;
+                for(int i = 0; i < len; i++) {
+                    if(SM(i, "=") && SM(i + 1, "=")) {
+                        type = "EQUAL";
+                        i++;
+                    } else if(type == "") {
+                        leftside.push_back(A(i));
+                    } else {
+                        rightside.push_back(A(i));
+                    }
+                }
+                node.addNode(Node(type, {}, {}));
+                if(leftside.size() == 1) node.addNode(Node("ITEM", {}, { leftside.at(0) }));
+                else node.addNode(getNode(leftside));
+                if(rightside.size() == 1) node.addNode(Node("ITEM", {}, { rightside.at(0) }));
+                else node.addNode(getNode(rightside));
+                return node;
+            }
+
+            /* 計算式 */
+
+            ismatch = false;
+            nest = 0;
+
+            for(int i = 0; i < len; i++) {
+                if(SMR(i, "[~+\\-*/%^]")) {
+                    if(nest == 0) ismatch = true;
+                } else if(SMR(i, "[(\\[{]")) {
+                    nest++;
+                } else if(SMR(i, "[)\\]}]")) {
+                    nest--;
+                    if(nest == 0 && i != len - 1) enclosed = false;
+                }
+            }
+
             if(len >= 3 && ismatch) {
                 Node node("EXPRESS");
                 std::stack<Token> stack;
@@ -312,10 +455,12 @@ private:
                         }
                     }
                 }
+
                 while(stack.size() != 0) {
                     node.addNode(Node("OPE", {}, { stack.top() }));
                     stack.pop();
                 }
+
                 return node;
             }
 

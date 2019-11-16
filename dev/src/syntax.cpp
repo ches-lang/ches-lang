@@ -121,10 +121,10 @@ struct Node {
     }
 
     void out(std::string level) {
-        std::cout << level << type << std::endl;
+        std::cout << "\033[30m" << level << "\033[m" << type << std::endl;
         for(Token t : tokens)
-            std::cout << level << "|" << t.string << std::endl;
+            std::cout << "\033[30m" << level << "||" << "\033[m" << ((t.string == "|") ? "[pipe]" : t.string) << std::endl;
         for(Node n : children)
-            n.out(level + "|");
+            n.out(level + "||");
     }
 };
