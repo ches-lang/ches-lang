@@ -121,11 +121,12 @@ private:
         int len = tk.size();
         if(len == 0 || len == 1) return Node();
 
-        for(Token t : tk) {
-            std::cout << t.string << " ";
-        } std::cout << std::endl;
-
         try {
+
+            std::cout << "tk: ";
+            for(Token t : tk)
+                std::cout << t.string << " ";
+            std::cout << std::endl;
 
             if(indent == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node("DEFFUNC");
@@ -135,7 +136,7 @@ private:
                     std::vector<Token> ag;
                     int nest = 0;
                     for(int i = 2; i < len - 1; i++) {
-                        if(SA(i) == "," && nest == 0) {
+                        if(TM(i, COMMA) && nest == 0) {
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                             ag.clear();
@@ -144,9 +145,9 @@ private:
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                         } else {
-                            if(SM(i, "[(\\[{]"))
+                            if(match(TA(i), { LPAREN, LBRACK, LBRACE }))
                                 nest++;
-                            else if(SM(i, "[)\\}]"))
+                            else if(match(TA(i), { RPAREN, RBRACK, RBRACE }))
                                 nest--;
                             ag.push_back(A(i));
                         }
@@ -157,15 +158,29 @@ private:
                 return node;
             }
 
-            if(indent >= 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
+            bool ismatch = true;
+            int nest = 0;
+
+            for(int i = 0; i < len; i++) {
+                if(match(TA(i), { LPAREN, LBRACK, LBRACE })) {
+                    nest++;
+                } else if(match(TA(i), { RPAREN, RBRACK, RBRACE })) {
+                    nest--;
+                    if(nest < 0 || (nest == 0 && i != len - 1)) ismatch = false;
+                }
+            }
+
+            if(ismatch && nest == 0 && indent >= 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node("CALLFUNC");
                 node.addToken(Token(IDENTIFIER, SA(0)));
+
+                nest = 0;
+
                 if(len >= 4) {
                     Node args("ARGS");
                     std::vector<Token> ag;
-                    int nest = 0;
                     for(int i = 2; i < len - 1; i++) {
-                        if(SA(i) == "," && nest == 0) {
+                        if(TM(i, COMMA) && nest == 0) {
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                             ag.clear();
@@ -174,10 +189,11 @@ private:
                             if(ag.size() == 1) args.addToken(ag[0]);
                             else args.addNode(getNode(ag));
                         } else {
-                            if(SMR(i, "[(\\[{]"))
+                            if(match(TA(i), { LPAREN, LBRACK, LBRACE })) {
                                 nest++;
-                            else if(SMR(i, "[)\\]}]"))
+                            } else if(match(TA(i), { RPAREN, RBRACK, LBRACE })) {
                                 nest--;
+                            }
                             ag.push_back(A(i));
                         }
                     }
@@ -247,10 +263,10 @@ private:
                 return node;
             }
 
-            bool ismatch;
+            //bool ismatch;
             bool enclosed;
             bool containsParen;
-            int nest;
+            //int nest;
 
             /* 括弧チェック */
 
@@ -261,33 +277,36 @@ private:
                 nest = 0;
 
                 for(int i = 0; i < len; i++) {
-                    if(SMR(i, "[(\\[{]")) {
+                    if(match(TA(i), { LPAREN, LBRACK, LANGBLACK, LBRACE })) {
                         containsParen = true;
                         nest++;
-                    } else if(SMR(i, "[)\\]}]")) {
+                    } else if(match(TA(i), { RPAREN, RBRACK, RANGBLACK, RBRACE })) {
                         containsParen = true;
-                        nest--;std::cout << "aaa" << std::endl;
-                        if(nest == 0 && i != len - 1) {enclosed = false;std::cout << "fl" << std::endl;} // 括弧に囲まれてない そのまま使える
+                        nest--;
+                        if(nest == 0 && i != len - 1) enclosed = false; // 括弧に囲まれてない そのまま使える
                     }
                 }
 
-                if(enclosed && tk.size() >= 3 && containsParen && tk.at(0).type == LPAREN) {//
-                    std::vector<Token> cutout;
+                if(tk.at(0).type != LPAREN || tk.at(tk.size() - 1).type != RPAREN)
+                    enclosed = false;
+
+                if(enclosed && containsParen && tk.size() >= 3) {
+                    std::vector<Token> cutout;  
     
                     for(int i = 1; i < tk.size() - 1; i++)
                         cutout.push_back(tk.at(i));
 
                     tk = cutout;
 
-                    std::cout << "tk: " << cutout.size() << " : ";
-                    for(Token t : tk)
-                        std::cout << t.string << " ";
-                    std::cout << std::endl;
-
-                } else {//
-                    break;
-                }
+                } else break;
             }
+
+            len = tk.size();
+
+            std::cout << "tk exp: ";
+            for(Token t : tk)
+                std::cout << t.string << " ";
+            std::cout << std::endl;
 
             /* 論理式 */
 
@@ -295,11 +314,11 @@ private:
             nest = 0;
 
             for(int i = 0; i < len; i++) {
-                if(SMR(i, "[&|]")) {
+                if(match(TA(i), { PIPE, AMPERSAND })) {
                     if(nest == 0) ismatch = true;
-                } else if(SMR(i, "[(\\[{]")) {
+                } else if(match(TA(i), { LPAREN, LBRACK, LBRACE })) {
                     nest++;
-                } else if(SMR(i, "[)\\]}]")) {
+                } else if(match(TA(i), { RPAREN, RBRACK, RBRACE })) {
                     nest--;
                 }
             }
@@ -309,15 +328,10 @@ private:
                 std::vector<Token> side;
                 nest = 0;
                 for(int i = 0; i < len; i++) {
-                    if(SMR(i, "[&|]") && nest == 0) {
+                    if(match(TA(i), { PIPE, AMPERSAND }) && nest == 0) {
                         if(side.size() == 1) {node.addNode(Node("ITEM", {}, { side.at(0) }));}
                         else node.addNode(getNode(side));
                         side.clear();
-
-                        std::cout << "side: ";
-                        for(Token t : side)
-                            std::cout << t.string << " ";
-                        std::cout << std::endl;
 
                         if(TM(i, PIPE) && TM(i + 1, PIPE)) {
                             node.addNode(Node("OPE", {}, { A(i) }));
@@ -348,11 +362,11 @@ private:
             nest = 0;
 
             for(int i = 0; i < len; i++) {
-                if(SMR(i, "[=<>]")) {
+                if(match(TA(i), { LANGBLACK, RANGBLACK, EQUAL })) {
                     if(nest == 0) ismatch = true;
-                } else if(SMR(i, "[(\\[{]")) {
+                } else if(match(TA(i), { LPAREN, LBRACK, LBRACE })) {
                     nest++;
-                } else if(SMR(i, "[)\\]}]")) {
+                } else if(match(TA(i), { RPAREN, RBRACK, RBRACE })) {
                     nest--;
                 }
             }
@@ -363,9 +377,13 @@ private:
                 std::vector<Token> leftside;
                 std::vector<Token> rightside;
                 for(int i = 0; i < len; i++) {
-                    if(SM(i, "=") && SM(i + 1, "=")) {
+                    if(TM(i, EQUAL) && TM(i + 1, EQUAL)) {
                         type = "EQUAL";
                         i++;
+                    } else if(TM(i, LANGBLACK)) {
+                        type = "LANGBLACK";std::cout<<"wajighwapgjwiagw"<<std::endl;
+                    } else if(TM(i, RANGBLACK)) {
+                        type = "RANGBLACK";
                     } else if(type == "") {
                         leftside.push_back(A(i));
                     } else {
@@ -386,11 +404,11 @@ private:
             nest = 0;
 
             for(int i = 0; i < len; i++) {
-                if(SMR(i, "[~+\\-*/%^]")) {
+                if(match(TA(i), { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
                     if(nest == 0) ismatch = true;
-                } else if(SMR(i, "[(\\[{]")) {
+                } else if(match(TA(i), { LPAREN, LBRACK, LBRACE })) {
                     nest++;
-                } else if(SMR(i, "[)\\]}]")) {
+                } else if(match(TA(i), { RPAREN, RBRACK, RBRACE })) {
                     nest--;
                     if(nest == 0 && i != len - 1) enclosed = false;
                 }
@@ -423,7 +441,7 @@ private:
                                 inParen.push_back(A(i));
                             }
                         }
-                    } else if(std::regex_match(SA(i), std::regex("[+\\-*/]"))) {
+                    } else if(match(TA(i), { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
                         if(stack.size() == 0) {
                             //スタックの要素数が0 → スタックに積む
                             stack.push(A(i));
@@ -442,7 +460,7 @@ private:
                         }
                     } else {
                         for(int j = i; j <= len; j++) {
-                            if(j != len && !std::regex_match(SA(j), std::regex("[+\\-*/]"))) {
+                            if(j != len && !match(TA(j), { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
                                 item.push_back(A(j));
                             } else {
                                 if(j == len) i = j + 1;
@@ -475,6 +493,10 @@ private:
     // true → ope1 < ope2   false → ope1 >= ope2
     bool compareOpe(std::string ope1, std::string ope2) {
 
+        if(std::regex_match(ope1, std::regex("[~]"))) {
+            return (std::regex_match(ope2, std::regex("[+\\-*/]")));
+        }
+
         if(std::regex_match(ope1, std::regex("[+\\-]"))) {
             return (std::regex_match(ope2, std::regex("[*/]")));
         }
@@ -484,5 +506,13 @@ private:
         }
 
         return false;
+    }
+
+    bool match(char type, std::vector<char> matches) {
+        bool res = false;
+        for(int i = 0; i < matches.size(); i++)
+            if(matches[i] == type)
+                res = true;
+        return res;
     }
 };

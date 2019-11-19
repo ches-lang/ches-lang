@@ -112,9 +112,19 @@ private:
                     } else res += std::string{source[index]};
                 }
                 error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'*/'" }, true);
-            }
-            else
+            } else if(source[index + 1] == '/') {
+                std::string res;
+                for(index += 2; index < source.length(); index++) {
+                    if(source[index] == '\n') {
+                        index--;
+                        break;
+                    }
+                    res += std::string{source[index]};
+                }
+                return Token(COMMENTOUT, res);
+            } else {
                 return Token(SLASH, std::string{ch});
+            }
         }
 
         else if(ch == '%')
