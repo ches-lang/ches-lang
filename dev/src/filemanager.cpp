@@ -43,23 +43,13 @@ public:
         return res;
     }
 
-    void write(std::string path, std::vector<std::vector<std::vector<unsigned char>>> src) {
+    void write(std::string path, std::vector<unsigned char> src) {
         std::ofstream ofs;
         ofs.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
         if (!ofs) error("file open error", true);
 
-        for(int i = 0; i < src.size(); i++) {
-            src[i].push_back({0x00});
-            for(int j = 0; j < src[i].size(); j++) {
-                if(j < src[i].size() - 1)
-                    src[i][j].push_back(0x01);
-            }
-        }
-
-        for(std::vector<std::vector<unsigned char>> vec1 : src)
-            for(std::vector<unsigned char> vec2 : vec1)
-                for(unsigned char uc : vec2)
-                    ofs.write((char*)&uc, sizeof(char));
+        for(unsigned char uc : src)
+            ofs.write((char*)&uc, sizeof(char));
 
         ofs.close();
     }

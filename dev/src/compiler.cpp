@@ -4,9 +4,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "bytecode.cpp"
 #include "command.cpp"
 #include "console.cpp"
-#include "converter.cpp"
 #include "filemanager.cpp"
 #include "lexer.cpp"
 #include "parser.cpp"
@@ -19,14 +19,14 @@ public:
 
     std::string source;
     std::vector<Token> tokens;
-
     std::string filepath;
+    bytecode bin;
+
     FileManager filemanager;
     Lexer lexer;
     Parser parser;
     Node node;
-    //Converter converter;
-    //std::vector<std::vector<std::vector<unsigned char>>> compiled;
+    Bytecode bc;
 
 
 
@@ -40,9 +40,9 @@ public:
         tokens = lexer.run();
         parser = Parser(tokens);
         node = parser.run();
-        //converter = Converter(node, filepath);
-        //compiled = converter.run();
-        //filemanager.write(renamePathExt(filepath, "chesc"), compiled);
+        bc = Bytecode(node);
+        bin = bc.run();
+        filemanager.write(renamePathExt(filepath, "chesc"), bin);
     }
 
     std::string renamePathExt(std::string path, std::string ext) {

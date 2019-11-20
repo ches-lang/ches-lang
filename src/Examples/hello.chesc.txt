@@ -1,0 +1,11 @@
+chestnut_compiled
+label Examples.Hello.main
+subst $arg:0 "Hello, World"
+subst $0 0
+subst $1 0<100
+if $1
+goto 11
+end
+call System.Console.println
+subst $0 $0+1
+goto 4
