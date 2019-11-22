@@ -6,8 +6,9 @@
 #include "console.cpp"
 #include "parser.cpp"
 
-typedef std::vector<std::vector<std::vector<unsigned char>>> bytecode;
-typedef std::vector<unsigned char> bytecode_serial;
+typedef std::vector<std::vector<std::vector<unsigned char>>> bytecode_obj;
+typedef std::vector<std::vector<unsigned char>> bytecode_ln;
+typedef std::vector<unsigned char> bytecode;
 
 
 
@@ -16,78 +17,89 @@ class Bytecode {
 public:
 
     Node tree;
+    std::string spaceName;
+    std::string className;
 
     Bytecode() {}
 
-    Bytecode(Node node) {
+    Bytecode(Node node, std::string relpath) {
         tree = node;
+        //
     }
 
     bytecode run() {
-        bytecode res;
-        bytecode scanned;
-
-        while(!eof) {
-            scanned = scan(node);
-            res.insert(res.end(), scanned.begin(), scanned.end());
+        bc.push_back({ { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 } });
+        while(index < tree.children.size()) {
+            scan(tree.getNode(index));
+            index++;
         }
-
-        return res;
+        return getBytecode(bc);
     }
 
 private:
 
-    bool eof = false;
-    int index = -1;
+    bytecode_obj bc;
 
-    bytecode scan(Node node) {
-        bytecode res;
-        return res;
-    }
+    int index = 0;
 
-    std::vector<std::vector<std::vector<unsigned char>>> getLine() {
-        index++;
-        Node nd = node.getNode(index);
-
-        if(index == nd.children.size() - 1) eof = true;
-
+    void scan(Node node) {
         try {
-            return scan(nd);
-        } catch(std::out_of_range ignored) {
-            std::cout << "EXCEPTION" << std::endl;
-            return std::vector<std::vector<unsigned char>>();
-        }
-    }
 
-    std::vector<std::vector<unsigned char>> scan(Node nd) {
-        std::vector<std::vector<unsigned char>> res;
+            bytecode_ln line;
 
-        std::string type = nd.type;
-        std::vector<Token> tokens = nd.tokens;
-        std::vector<Node> nodes = nd.children;
-
-        int tokenlen = tokens.size();
-        int nodelen = nodes.size();
-
-        if(type == "DEFFUNC") {
-            res.push_back({ 0x00, 0x01 });
-            if(nodelen == 1) {
-                res
-            }
-        }
-
-        return res;
-    }
-
-    std::vector<unsigned char> getBytecode(std::vector<std::vector<std::vector<unsigned char>>> src) {
-        std::vector<unsigned char> res;
-        for(int line_i = 0; line_i < src.size(); line_i++) {
-            for(int token_i = 0; token_i < src[line_i].size(); token_i++) {
-                for(int chr_i = 0; chr_i < src[line_i][token_i].size(); chr_i++) {
-                    res.push_back(src[line_i][token_i][chr_i]);
+            if(node.type == "DEFFUNC") {
+                line.push_back({ 0xa2, 0x89 });
+                line.push_back(getBytecode(node.getToken(0).string));
+                bc.push_back(line);
+                line.clear();
+                for(int i = 0; i < node.getNode(0).children.size(); i++) {
+                    line.push_back({ 0x14 });
+                    line.push_back({ 0x9e, (unsigned char)i });
+                    line.push_back({ 0x9e, 0xb6, (unsigned char)i });
+                    bc.push_back(line);
+                    line.clear();
+                    line.push_back({ 0x4d });
+                    line.push_back({ 0x9e, (unsigned char)i });
+                    bc.push_back(line);
+                    line.clear();
                 }
             }
+
+        } catch(std::out_of_range ignored) {
+            std::cout << "EXCEPTION" << std::endl;
         }
+    }
+
+    bytecode mergeBytecode(bytecode bc_first, bytecode bc_second) {
+        for(unsigned char uc : bc_second)
+            bc_first.push_back(uc);
+        return bc_first;
+    }
+
+    bytecode getBytecode(std::string str) {
+        bytecode res;
+        for(unsigned char s : str)
+            res.push_back(s);
+        return res;
+    }
+
+    bytecode getBytecode(bytecode_obj src) {
+        bytecode res;//00を連続させて区別
+        std::cout << std::endl;
+        for(int ln_i = 0; ln_i < src.size(); ln_i++) {
+            for(int tk_i = 0; tk_i < src[ln_i].size(); tk_i++) {
+                for(int ch_i = 0; ch_i < src[ln_i][tk_i].size(); ch_i++) {
+                    std::cout << src[ln_i][tk_i][ch_i];
+                    res.push_back(src[ln_i][tk_i][ch_i]);
+                    if(src[ln_i][tk_i][ch_i] == 0x00) res.push_back(0x00);
+                    if(src[ln_i][tk_i][ch_i] == 0x01) res.push_back(0x01);
+                }
+                if(tk_i != src[ln_i].size() - 1) res.push_back(0x01);
+            }
+            if(ln_i != src.size() - 1) res.push_back(0x00);
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
         return res;
     }
 };

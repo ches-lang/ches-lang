@@ -43,7 +43,7 @@ public:
         return res;
     }
 
-    void write(std::string path, std::vector<unsigned char> src) {
+    void write(std::string path, bytecode src) {
         std::ofstream ofs;
         ofs.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
         if (!ofs) error("file open error", true);

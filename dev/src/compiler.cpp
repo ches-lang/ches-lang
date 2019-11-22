@@ -40,7 +40,7 @@ public:
         tokens = lexer.run();
         parser = Parser(tokens);
         node = parser.run();
-        bc = Bytecode(node);
+        bc = Bytecode(node, "");
         bin = bc.run();
         filemanager.write(renamePathExt(filepath, "chesc"), bin);
     }
