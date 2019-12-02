@@ -61,7 +61,7 @@ class Parser {
 public:
 
     std::vector<Token> tokens;
-    Node tree = Node("ROOT");
+    Node tree = Node(N_ROOT);
 
     Parser() {}
 
@@ -123,16 +123,16 @@ private:
 
         try {
 
-            std::cout << "tk: ";
+            /*std::cout << "tk: ";
             for(Token t : tk)
                 std::cout << t.string << " ";
-            std::cout << std::endl;
+            std::cout << std::endl;*/
 
             if(indent == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
-                Node node("DEFFUNC");
+                Node node(N_DEFFUNC);
                 node.addToken(Token(IDENTIFIER, SA(0)));
                 if(len >= 4) {
-                    Node args("ARGS");
+                    Node args(N_ARGS);
                     std::vector<Token> ag;
                     int nest = 0;
                     for(int i = 2; i < len - 1; i++) {
@@ -171,13 +171,13 @@ private:
             }
 
             if(ismatch && nest == 0 && indent >= 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
-                Node node("CALLFUNC");
+                Node node(N_CALLFUNC);
                 node.addToken(Token(IDENTIFIER, SA(0)));
 
                 nest = 0;
 
                 if(len >= 4) {
-                    Node args("ARGS");
+                    Node args(N_ARGS);
                     std::vector<Token> ag;
                     for(int i = 2; i < len - 1; i++) {
                         if(TM(i, COMMA) && nest == 0) {
@@ -203,14 +203,14 @@ private:
             }
 
             if(len == 2 && (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, IDENTIFIER)) {
-                Node node("DEFVAR");
+                Node node(N_DEFVAR);
                 node.addToken(A(0));
                 node.addToken(A(1));
                 return node;
             }
 
             if(len == 4 &&  (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, LBRACK) && TM(2, RBRACK) && TM(3, IDENTIFIER)) {
-                Node node("DEFVAR");
+                Node node(N_DEFVAR);
                 node.addToken(A(0));
                 node.addToken(A(1));
                 node.addToken(A(2));
@@ -219,7 +219,7 @@ private:
             }
 
             if(len >= 4 && (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, IDENTIFIER) && TM(2, EQUAL)) {
-                Node node("INITVAR");
+                Node node(N_INITVAR);
                 node.addToken(A(0));
                 node.addToken(A(1));
                 if(len == 4) {
@@ -234,7 +234,7 @@ private:
             }
 
             if(len >= 4 && M(0, Token(KEYWORD, "for")) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
-                Node node("NODE");
+                Node node(N_LOOP);
                 int sccount = 0;
 
                 for(Token t : tk)
@@ -242,7 +242,7 @@ private:
 
                 if(sccount == 0) {
                     if(len == 4) {
-                        node.addNode(Node("COUNT", {}, { A(2) }));
+                        node.addNode(Node(N_COUNT, {}, { A(2) }));
                     } else {
                         std::vector<Token> inParen;
                         for(int i = 2; i < len - 1; i++)
@@ -303,10 +303,10 @@ private:
 
             len = tk.size();
 
-            std::cout << "tk exp: ";
+            /*std::cout << "tk exp: ";
             for(Token t : tk)
                 std::cout << t.string << " ";
-            std::cout << std::endl;
+            std::cout << std::endl;*/
 
             /* 論理式 */
 
@@ -324,20 +324,20 @@ private:
             }
 
             if (len >= 3 && ismatch) {
-                Node node("LOGIC");
+                Node node(N_LOGIC);
                 std::vector<Token> side;
                 nest = 0;
                 for(int i = 0; i < len; i++) {
                     if(match(TA(i), { PIPE, AMPERSAND }) && nest == 0) {
-                        if(side.size() == 1) {node.addNode(Node("ITEM", {}, { side.at(0) }));}
+                        if(side.size() == 1) {node.addNode(Node(N_ITEM, {}, { side.at(0) }));}
                         else node.addNode(getNode(side));
                         side.clear();
 
                         if(TM(i, PIPE) && TM(i + 1, PIPE)) {
-                            node.addNode(Node("OPE", {}, { A(i) }));
+                            node.addNode(Node(N_OPE, {}, { A(i) }));
                             i++;
                         } else if(TM(i, AMPERSAND) && TM(i + 1, AMPERSAND)) {
-                            node.addNode(Node("OPE", {}, { A(i) }));
+                            node.addNode(Node(N_OPE, {}, { A(i) }));
                             i++;
                         }
                     } else if(TM(i, LPAREN)) {
@@ -350,7 +350,7 @@ private:
                         side.push_back(A(i));
                     }
                 }
-                if(side.size() == 1) node.addNode(Node("ITEM", {}, { side.at(0) }));
+                if(side.size() == 1) node.addNode(Node(N_ITEM, {}, { side.at(0) }));
                 else node.addNode(getNode(side));
                 side.clear();
                 return node;
@@ -372,28 +372,28 @@ private:
             }
 
             if (len >= 3 && ismatch) {
-                Node node("COMP");
-                std::string type = "";
+                Node node(N_COMP);
+                unsigned char type = N_UNKNOWN;
                 std::vector<Token> leftside;
                 std::vector<Token> rightside;
                 for(int i = 0; i < len; i++) {
                     if(TM(i, EQUAL) && TM(i + 1, EQUAL)) {
-                        type = "EQUAL";
+                        type = N_EQUAL;
                         i++;
                     } else if(TM(i, LANGBLACK)) {
-                        type = "LANGBLACK";std::cout<<"wajighwapgjwiagw"<<std::endl;
+                        type = N_LANGBLACK;
                     } else if(TM(i, RANGBLACK)) {
-                        type = "RANGBLACK";
-                    } else if(type == "") {
+                        type = N_RANGBLACK;
+                    } else if(type == N_UNKNOWN) {
                         leftside.push_back(A(i));
                     } else {
                         rightside.push_back(A(i));
                     }
                 }
                 node.addNode(Node(type, {}, {}));
-                if(leftside.size() == 1) node.addNode(Node("ITEM", {}, { leftside.at(0) }));
+                if(leftside.size() == 1) node.addNode(Node(N_ITEM, {}, { leftside.at(0) }));
                 else node.addNode(getNode(leftside));
-                if(rightside.size() == 1) node.addNode(Node("ITEM", {}, { rightside.at(0) }));
+                if(rightside.size() == 1) node.addNode(Node(N_ITEM, {}, { rightside.at(0) }));
                 else node.addNode(getNode(rightside));
                 return node;
             }
@@ -415,7 +415,7 @@ private:
             }
 
             if(len >= 3 && ismatch) {
-                Node node("EXPRESS");
+                Node node(N_EXPRESS);
                 std::stack<Token> stack;
                 std::vector<Token> item;
 
@@ -452,7 +452,7 @@ private:
                             // 先頭に比べて優先度が低い → 優先度が低くなるまでaddNode
                             while(stack.size() != 0) {
                                 if(compareOpe(SA(i), stack.top().string)) {
-                                    node.addNode(Node("OPE", {}, { stack.top() }));
+                                    node.addNode(Node(N_OPE, {}, { stack.top() }));
                                     stack.pop();
                                 } else break;
                             }
@@ -465,7 +465,7 @@ private:
                             } else {
                                 if(j == len) i = j + 1;
                                 else i += item.size() - 1;
-                                if(item.size() == 1) node.addNode(Node("ITEM", {}, { item.at(0) }));
+                                if(item.size() == 1) node.addNode(Node(N_ITEM, {}, { item.at(0) }));
                                 else node.addNode(getNode(item));
                                 item.clear();
                                 break;
@@ -475,7 +475,7 @@ private:
                 }
 
                 while(stack.size() != 0) {
-                    node.addNode(Node("OPE", {}, { stack.top() }));
+                    node.addNode(Node(N_OPE, {}, { stack.top() }));
                     stack.pop();
                 }
 
@@ -486,7 +486,7 @@ private:
             std::cout << "EXCEPTION" << std::endl;
         }
 
-        return Node("UNKNOWN");
+        return Node(N_UNKNOWN);
     }
 
     // 優先度高い             優先度低い

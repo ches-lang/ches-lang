@@ -11,7 +11,7 @@
 #include "lexer.cpp"
 #include "parser.cpp"
 
-
+class Instruction;
 
 class Compiler {
 
@@ -20,13 +20,11 @@ public:
     std::string source;
     std::vector<Token> tokens;
     std::string filepath;
-    bytecode bin;
+    Bytecode bytecode;
 
-    FileManager filemanager;
     Lexer lexer;
     Parser parser;
     Node node;
-    Bytecode bc;
 
 
 
@@ -35,14 +33,13 @@ public:
     }
 
     void run() {
-        source = filemanager.readText(filepath);
+        source = FileManager::readText(filepath);
         lexer = Lexer(source);
         tokens = lexer.run();
         parser = Parser(tokens);
         node = parser.run();
-        bc = Bytecode(node, "");
-        bin = bc.run();
-        filemanager.write(renamePathExt(filepath, "chesc"), bin);
+        bytecode = Bytecode(node);
+        FileManager::writeBytecode(renamePathExt(filepath, "chesc"), bytecode);
     }
 
     std::string renamePathExt(std::string path, std::string ext) {

@@ -43,6 +43,47 @@
 #define LBRACE      31
 #define RBRACE      32
 
+#define N_UNKNOWN   0x00
+#define N_ROOT      0x01
+#define N_LINEDIV   0x02
+#define N_TOKENDIV  0x03
+#define N_DEFVAR    0x04
+#define N_INITVAR   0x05
+#define N_FREEVAR   0x06
+#define N_VARPREFEX 0x07
+#define N_ARGPREFEX 0x08
+#define N_DEFFUNC   0x09
+#define N_CALLFUNC  0x10
+#define N_ARGS      0x11
+#define N_LOOP      0x12
+#define N_COUNT     0x13
+#define N_LOGIC     0x14
+#define N_COMP      0x15
+#define N_EXPRESS   0x16
+#define N_ITEM      0x17
+#define N_OPE       0x18
+#define N_EQUAL     0x19
+#define N_LANGBLACK 0x20
+#define N_RANGBLACK 0x21
+
+#define I_UNKNOWN   0x00
+#define I_GROUP     0x01
+#define I_GROUP_CONST   0x02
+#define I_LSPUSH    0x03
+#define I_LLSET     0x04
+#define I_LLPREF    0x05
+#define I_ARGPREF   0x06
+#define I_CONSTPREF 0x07
+#define I_CALL      0x08
+#define I_RETURN    0x09
+#define I_VOID      0x10
+#define I_LAND      0x11
+#define I_LOR       0x12
+#define I_NADD      0x13
+#define I_NSUB      0x14
+#define I_NMUL      0x15
+#define I_NDIV      0x16
+
 
 
 struct Token {
@@ -74,27 +115,27 @@ struct Token {
 
 struct Node {
 
-    std::string type = "";
+    unsigned char type = N_UNKNOWN;
     std::vector<Node> children;
     std::vector<Token> tokens;
 
     Node() {}
 
-    Node(std::string tp) {
+    Node(unsigned char tp) {
         type = tp;
     }
 
-    Node(std::string tp, std::vector<Node> ch) {
+    Node(unsigned char tp, std::vector<Node> ch) {
         type = tp;
         children = ch;
     }
 
-    Node(std::string tp, std::vector<Token> tk) {
+    Node(unsigned char tp, std::vector<Token> tk) {
         type = tp;
         tokens = tk;
     }
 
-    Node(std::string tp, std::vector<Node> ch, std::vector<Token> tk) {
+    Node(unsigned char tp, std::vector<Node> ch, std::vector<Token> tk) {
         type = tp;
         children = ch;
         tokens = tk;
@@ -117,11 +158,11 @@ struct Node {
     }
 
     bool isEmpty() {
-        return (type == "");
+        return (type == N_UNKNOWN);
     }
 
     void out(std::string level) {
-        std::cout << "\033[30m" << level << "\033[m" << type << std::endl;
+        std::cout << "\033[30m" << level << "\033[m" << (int)type << std::endl;
         for(Token t : tokens)
             std::cout << "\033[30m" << level << "||" << "\033[m" << ((t.string == "|") ? "[pipe]" : t.string) << std::endl;
         for(Node n : children)

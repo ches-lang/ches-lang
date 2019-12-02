@@ -62,6 +62,9 @@
         "fstream": "cpp",
         "deque": "cpp",
         "regex": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "__errc": "cpp",
+        "__node_handle": "cpp",
+        "optional": "cpp"
     }
 }

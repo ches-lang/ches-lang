@@ -1,68 +1,167 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 #include "console.cpp"
 #include "parser.cpp"
-
-typedef std::vector<std::vector<std::vector<unsigned char>>> bytecode_obj;
-typedef std::vector<std::vector<unsigned char>> bytecode_ln;
-typedef std::vector<unsigned char> bytecode;
+#include "syntax.cpp"
 
 
 
+//relpath
 class Bytecode {
 
 public:
 
-    Node tree;
-    std::string spaceName;
-    std::string className;
+    std::vector<unsigned char> source;
 
     Bytecode() {}
 
-    Bytecode(Node node, std::string relpath) {
-        tree = node;
-        //
+    Bytecode(std::vector<unsigned char> src) {
+        source = src;
     }
 
-    bytecode run() {
-        bc.push_back({ { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 } });
-        while(index < tree.children.size()) {
-            scan(tree.getNode(index));
-            index++;
+    Bytecode(int src) {
+        source.push_back((unsigned char)src);
+    }
+
+    Bytecode(std::string src) {
+        for(unsigned char s : src)
+            source.push_back(s);
+    }
+    
+    Bytecode(Node tree) {
+        source = toBytecode(tree).source;
+    }
+
+    Bytecode(std::vector<std::vector<Bytecode>> src) {
+        for(int ln = 0; ln < src.size(); ln++) {
+            for(int tk = 0; tk < src[ln].size(); tk++) {
+                for(int ch = 0; ch < src[ln][tk].source.size(); ch++) {
+                    if(src[ln][tk].source[ch] == N_LINEDIV) source.push_back(N_LINEDIV);
+                    else if(src[ln][tk].source[ch] == N_TOKENDIV) source.push_back(N_TOKENDIV);
+                    source.push_back(src[ln][tk].source[ch]);
+                }
+                if(tk < src[ln].size() - 1) source.push_back(N_TOKENDIV);
+            }
+            if(ln < src.size() - 1) source.push_back(N_LINEDIV);
         }
-        return getBytecode(bc);
+    }
+
+    Bytecode append(Bytecode src) {
+        for(unsigned char c : src.source)
+            source.push_back(c);
+        return source;
+    }
+
+    Bytecode append(unsigned char src) {
+        source.push_back(src);
+        return source;
+    }
+
+    Bytecode append(std::vector<unsigned char> src) {
+        for(unsigned char c : src)
+            source.push_back(c);
+        return source;
+    }
+
+    int toInt() {
+        return *(unsigned int *)&source;
+    }
+
+    std::string toString() {
+        std::string res;
+        for(unsigned char c : source)
+            res.push_back(c);
+        return res;
+    }
+
+    std::vector<std::vector<Bytecode>> divide() {
+        std::vector<std::vector<Bytecode>> res;
+        std::vector<Bytecode> ln;
+        Bytecode tk;
+
+        for(int i = 0; i < source.size(); i++) {
+            if(source[i] == N_LINEDIV) {
+                if(i - 1 < source.size() && source[i + 1] == N_LINEDIV) {
+                    tk.source.push_back(source[i]);
+                    i++;
+                } else {
+                    ln.push_back(tk);
+                    tk.source.clear();
+                    res.push_back(ln);
+                    ln.clear();
+                }
+            } else if(source[i] == N_TOKENDIV) {
+                if(i - 1 < source.size() && source[i + 1] == N_TOKENDIV) {
+                    tk.source.push_back(source[i]);
+                    i++;
+                } else {
+                    ln.push_back(tk);
+                    tk.source.clear();
+                }
+            } else {
+                tk.source.push_back(source[i]);
+            }
+        }
+
+        ln.push_back(tk);
+        res.push_back(ln);
+
+        for(std::vector<Bytecode> a : res) {
+            for(Bytecode b : a) {
+                for(unsigned char c : b.source) {
+                    std::cout << (int)c << " ";
+                }std::cout << "| ";
+            }std::cout << std::endl;
+        }
+
+        return res;
     }
 
 private:
 
-    bytecode_obj bc;
-
     int index = 0;
+    std::vector<unsigned char> bytecode;
+    std::string spaceName;
+    std::string className;
+    int lslen = 0;
+    int lllen = 0;
 
-    void scan(Node node) {
+    Bytecode toBytecode(Node tree) {
+        std::vector<unsigned char> mn = { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 };
+        _append(mn);
+        _append(N_LINEDIV);
+
+        while(index < tree.children.size()) {
+            toBytecode_scan(tree.getNode(index));
+            index++;
+        }
+
+        return Bytecode(bytecode);
+    }
+
+    void toBytecode_scan(Node node) {
         try {
 
-            bytecode_ln line;
+            if(node.type == N_DEFFUNC) {
+                _append(I_GROUP);std::cout<<node.getToken(0).string;
+                _append(Bytecode(node.getToken(0).string));
+                _append(N_LINEDIV);
 
-            if(node.type == "DEFFUNC") {
-                line.push_back({ 0xa2, 0x89 });
-                line.push_back(getBytecode(node.getToken(0).string));
-                bc.push_back(line);
-                line.clear();
-                for(int i = 0; i < node.getNode(0).children.size(); i++) {
-                    line.push_back({ 0x14 });
-                    line.push_back({ 0x9e, (unsigned char)i });
-                    line.push_back({ 0x9e, 0xb6, (unsigned char)i });
-                    bc.push_back(line);
-                    line.clear();
-                    line.push_back({ 0x4d });
-                    line.push_back({ 0x9e, (unsigned char)i });
-                    bc.push_back(line);
-                    line.clear();
-                }
+                // args
+                lllen += node.getNode(0).children.size();
+            } else if(node.type == N_CALLFUNC) {
+                // args
+                //for(int i = 0; i < node.getNode(0).children.size(); i++) {
+
+                //}
+
+                //line.push_back({ N_CALLFUNC });
+                //line.push_back(getBytecode(node.getToken(0).string));
+                //bc.push_back(line);
             }
 
         } catch(std::out_of_range ignored) {
@@ -70,36 +169,17 @@ private:
         }
     }
 
-    bytecode mergeBytecode(bytecode bc_first, bytecode bc_second) {
-        for(unsigned char uc : bc_second)
-            bc_first.push_back(uc);
-        return bc_first;
+    void _append(Bytecode src) {
+        for(unsigned char c : src.source)
+            bytecode.push_back(c);
     }
 
-    bytecode getBytecode(std::string str) {
-        bytecode res;
-        for(unsigned char s : str)
-            res.push_back(s);
-        return res;
+    void _append(unsigned char src) {
+        bytecode.push_back(src);
     }
 
-    bytecode getBytecode(bytecode_obj src) {
-        bytecode res;//00を連続させて区別
-        std::cout << std::endl;
-        for(int ln_i = 0; ln_i < src.size(); ln_i++) {
-            for(int tk_i = 0; tk_i < src[ln_i].size(); tk_i++) {
-                for(int ch_i = 0; ch_i < src[ln_i][tk_i].size(); ch_i++) {
-                    std::cout << src[ln_i][tk_i][ch_i];
-                    res.push_back(src[ln_i][tk_i][ch_i]);
-                    if(src[ln_i][tk_i][ch_i] == 0x00) res.push_back(0x00);
-                    if(src[ln_i][tk_i][ch_i] == 0x01) res.push_back(0x01);
-                }
-                if(tk_i != src[ln_i].size() - 1) res.push_back(0x01);
-            }
-            if(ln_i != src.size() - 1) res.push_back(0x00);
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        return res;
+    void _append(std::vector<unsigned char> src) {
+        for(unsigned char c : src)
+            bytecode.push_back(c);
     }
 };

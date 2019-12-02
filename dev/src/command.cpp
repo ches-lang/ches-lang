@@ -6,6 +6,7 @@
 #include <vector>
 #include "compiler.cpp"
 #include "console.cpp"
+#include "interpreter.cpp"
 
 
 
@@ -46,6 +47,18 @@ void c_cmp() {
     }
 }
 
+void c_run() {
+    if(find("-help") != -1) {
+        std::cout << "-help" << "\t" << "show help message" << std::endl;
+        return;
+    }
+
+    if(args.size() >= 1) {
+        Interpreter itp(args[0].second);
+        itp.run();
+    }
+}
+
 void c_set() {
 
 }
@@ -58,6 +71,7 @@ void command(std::string cmd) {
 
     procs.insert(std::make_pair("ches", c_ches));
     procs.insert(std::make_pair("cmp", c_cmp));
+    procs.insert(std::make_pair("run", c_run));
     procs.insert(std::make_pair("set", c_set));
 
     cmdprocs::iterator it = procs.find(cmd);

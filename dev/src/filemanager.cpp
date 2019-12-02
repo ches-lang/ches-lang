@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "bytecode.cpp"
 #include "console.cpp"
 
 
@@ -11,8 +12,6 @@
 class FileManager {
 
 public:
-
-    FileManager() {}
 
     /*void readBin(std::string path) {
         std::ifstream ifs(path, std::ios::binary);
@@ -30,7 +29,26 @@ public:
         ifs.close();
     }*/
 
-    std::string readText(std::string path) {
+    static Bytecode readBytecode(std::string path) {
+        Bytecode res;
+
+        std::ifstream ifs(path);
+        if(!ifs.is_open())
+            error("specified file '" + path + "' was not found", true);
+        if(ifs.fail())
+            error("file read error", true);
+
+        unsigned char uc;
+        while(!ifs.eof()) {
+            ifs.read((char*)&uc, sizeof(unsigned char));
+            res.source.push_back(uc);
+        }
+
+        ifs.close();
+        return res;
+    }
+
+    static std::string readText(std::string path) {
         std::ifstream ifs(path);
         if(!ifs.is_open())
             error("specified file '" + path + "' was not found", true);
@@ -43,12 +61,12 @@ public:
         return res;
     }
 
-    void write(std::string path, bytecode src) {
+    static void writeBytecode(std::string path, Bytecode src) {
         std::ofstream ofs;
         ofs.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
         if (!ofs) error("file open error", true);
 
-        for(unsigned char uc : src)
+        for(unsigned char uc : src.source)
             ofs.write((char*)&uc, sizeof(char));
 
         ofs.close();
