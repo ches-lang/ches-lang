@@ -1,7 +1,3 @@
 main(str[] args)
-  inln("a" ~ b > c)
-//  str name = inln(hoge() == hoge2())
-//  println("Hello, world!")
-//  for(int i = 0; i < 100; i += 1)
-//  for(100)
-//    println("Hey!")
+  println("Hello, world!")
+/*

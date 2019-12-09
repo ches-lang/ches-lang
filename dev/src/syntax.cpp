@@ -45,44 +45,39 @@
 
 #define N_UNKNOWN   0x00
 #define N_ROOT      0x01
-#define N_LINEDIV   0x02
-#define N_TOKENDIV  0x03
-#define N_DEFVAR    0x04
-#define N_INITVAR   0x05
-#define N_FREEVAR   0x06
-#define N_VARPREFEX 0x07
-#define N_ARGPREFEX 0x08
-#define N_DEFFUNC   0x09
-#define N_CALLFUNC  0x10
-#define N_ARGS      0x11
-#define N_LOOP      0x12
-#define N_COUNT     0x13
-#define N_LOGIC     0x14
-#define N_COMP      0x15
-#define N_EXPRESS   0x16
-#define N_ITEM      0x17
-#define N_OPE       0x18
-#define N_EQUAL     0x19
-#define N_LANGBLACK 0x20
-#define N_RANGBLACK 0x21
+#define N_DEFVAR    0x02
+#define N_INITVAR   0x03
+#define N_FREEVAR   0x04
+#define N_DEFFUNC   0x05
+#define N_CALLFUNC  0x06
+#define N_ARGS      0x07
+#define N_LOOP      0x08
+#define N_COUNT     0x09
+#define N_LOGIC     0x10
+#define N_COMP      0x11
+#define N_EXPRESS   0x12
+#define N_ITEM      0x13
+#define N_OPE       0x14
+#define N_EQUAL     0x15
+#define N_LANGBLACK 0x16
+#define N_RANGBLACK 0x17
 
-#define I_UNKNOWN   0x00
-#define I_GROUP     0x01
-#define I_GROUP_CONST   0x02
-#define I_LSPUSH    0x03
-#define I_LLSET     0x04
-#define I_LLPREF    0x05
-#define I_ARGPREF   0x06
-#define I_CONSTPREF 0x07
-#define I_CALL      0x08
-#define I_RETURN    0x09
-#define I_VOID      0x10
-#define I_LAND      0x11
-#define I_LOR       0x12
-#define I_NADD      0x13
-#define I_NSUB      0x14
-#define I_NMUL      0x15
-#define I_NDIV      0x16
+#define SI_LNDIV    0x00
+#define SI_TKDIV    0x01
+#define SI_LLPREF   0x02
+
+#define I_UNKNOWN   0x03
+#define I_GROUP     0x04
+#define I_LSPUSH    0x05
+#define I_LLPUSH    0x06
+#define I_CALL      0x07
+#define I_RETURN    0x08
+#define I_LAND      0x09
+#define I_LOR       0x10
+#define I_NADD      0x11
+#define I_NSUB      0x12
+#define I_NMUL      0x13
+#define I_NDIV      0x14
 
 
 

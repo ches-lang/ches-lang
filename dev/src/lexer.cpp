@@ -52,11 +52,13 @@ class Lexer {
 
 public:
 
+    std::string filepath;
     std::string source;
 
     Lexer() {}
 
-    Lexer(std::string src) {
+    Lexer(std::string path, std::string src) {
+        filepath = path;
         source = src;
     }
 
@@ -67,14 +69,20 @@ public:
         do {
             tk = scan();
             res.push_back(tk);
-            //std::cout << (int)tk.type << "\t" << ((tk.string == "\n") ? "\\n" : tk.string) << std::endl;
+            std::cout << (int)tk.type << "\t" << ((tk.string == "\n") ? "\\n" : tk.string) << std::endl;//
         } while(tk.type != ENDOFFILE);
+
+        if(Console::errored) {
+            exit(-1);
+        } else if(Console::warned) {
+            // do you continue?
+        }
+
         return res;
     }
 
 private:
 
-    bool err = false;
     int index = -1;
 
     Token scan() {
@@ -111,7 +119,8 @@ private:
                         return Token(COMMENTOUT, res);
                     } else res += std::string{source[index]};
                 }
-                error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'*/'" }, true);
+                std::pair<int, int> at = getPosition(index);
+                Console::error("cerr1562", "expected EOF", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'*/'" } }, true);
             } else if(source[index + 1] == '/') {
                 std::string res;
                 for(index += 2; index < source.length(); index++) {
@@ -189,8 +198,8 @@ private:
                 return Token(INDENT, "  ");
             } else {
                 if(source[index + 1] == ' ') index++;
-                err = true;
-                error("cerr7903", "invalid indent space", { "line", std::to_string(getline(index)) }, false);
+                std::pair<int, int> at = getPosition(index);
+                Console::error("cerr7903", "invalid indent space", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
             }
         }
 
@@ -219,7 +228,8 @@ private:
                 chr = "\\" + std::string{source[index + 2]};
                 index += 3;
             } else if(source[index + 1] == '\'') {
-                error("cerr4139", "too short character length", { "line", std::to_string(getline(index)), "expected", "a character" }, false);
+                std::pair<int, int> at = getPosition(index);
+                Console::error("cerr4139", "too short character length", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "a character" } }, false);
                 index += 1;
             } else {
                 bool contain = false;
@@ -227,10 +237,12 @@ private:
                 for(index += 1; index < source.length(); index++)
                     if(source[index] == '\'') { contain = true; break; }
                 if(contain) {
-                    err = true;
-                    error("cerr2471", "too long character length", { "line", std::to_string(getline(index)) }, false);
+                    std::pair<int, int> at = getPosition(index);
+                    Console::error("cerr2471", "too long character length", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
+                } else {
+                    std::pair<int, int> at = getPosition(index);
+                    Console::error("cerr1562", "expected EOF", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'''" } }, true);
                 }
-                else error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'''" }, true);
                 return scan();
             }
             return Token(CHARACTER, std::string{chr});
@@ -242,7 +254,8 @@ private:
                 if(source[index] != '\"') res += source[index];
                 else return Token(STRING, res);
             }
-            error("cerr1562", "expected EOF", { "line", std::to_string(getline(index)), "expected", "'\"'" }, true);
+            std::pair<int, int> at = getPosition(index);
+            Console::error("cerr1562", "expected EOF", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'\"'" } }, true);
         }
 
         else {
@@ -255,19 +268,30 @@ private:
                 }
                 else { index--; break; }
             }
-            if(std::regex_match(res, std::regex("bol|break|byt|default|case|catch|chr|class|continue|dbl|elif|else|false|flt|for|import|int|lon|new|null|obj|package|private|public|return|sht|str|switch|true|ubyt|usht|uint|ulon|void")))
+            if(std::regex_match(res, std::regex("bol|break|byt|default|case|catch|chr|class|continue|dbl|elif|else|false|flt|for|import|int|lon|new|null|obj|package|private|public|return|sht|str|switch|true|ubyt|usht|uint|ulon|void"))) {
                 return Token(KEYWORD, res);
-            else
+            } else {
                 return Token(IDENTIFIER, res);
+            }
         }
 
         return Token(UNKNOWN, std::string{ch});
     }
 
-    int getline(int index) {
-        int res = 0;
-        for(int i = 0; i < index; i++)
-            if(source[i] == '\n') res++;
-        return res;
+    std::pair<int, int> getPosition(int index) {
+        int charlen = 0;
+        int line = 0;
+        int at = 0;
+
+        for(int i = 0; i < index; i++) {
+            if(source[i] == '\n') {
+                line++;
+                charlen = 0;
+            } else {
+                charlen++;
+            }
+        }
+
+        return {line, at};
     }
 };

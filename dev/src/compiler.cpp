@@ -28,13 +28,15 @@ public:
 
 
 
+    Compiler() {}
+
     Compiler(std::string path) {
         filepath = path;
     }
 
     void run() {
         source = FileManager::readText(filepath);
-        lexer = Lexer(source);
+        lexer = Lexer(filepath, source);
         tokens = lexer.run();
         parser = Parser(tokens);
         node = parser.run();

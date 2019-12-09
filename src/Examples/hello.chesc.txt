@@ -1,27 +1,19 @@
-chestnut
+compiled_ches
 
-group   const
-    #0  System.Console.println
-
-group   Examples.Hello.main
-    llset   $0  "Hello, World"
+group   3683ad0a12  Examples.Hello.main
+    call    4f7c79ce46
     lspush  $0
-    call    #0
-    return  void
+    call    c9df638e59
+    return
+
+group   c9df638e59  Examples.Hello.greet
+    lspush  "Hello, "
+    lspush  $0
+    strmrg
+    call    64bc2e6d56
+    return
 
 
-
-group
-
-    命令の集まりをグループとして分割します。
-
-    const
-
-        関数や定数などの、基本的に変更のない要素を定義します。
-
-    [関数名]
-
-        関数を定義します。
 
 nadd
 
@@ -64,6 +56,8 @@ call [関数番号]
     関数を呼び出します。
     ローカル要素を作成します。
     ローカルリストには最初から呼び出し時の引数が格納されます。
+
+callmem [LL番号] [関数番号]
 
 return [戻り値]
 
@@ -116,68 +110,4 @@ lspush [値]
 
 
 
-chestnut_compiled ; マジックナンバー
-deffunc 2 9 Examples.Hello.main ; main関数の場所を2~9と定義
-alloc   $0 $arg:0 ; 引数0を移動
-free    $arg
-alloc   $1 0 ; ループ条件用の変数領域を確保
-alloc   $2 $1<100
-if      $2
-goto    8
-alloc   
-call System.Console.println
-
-
-main(str[] args)
-  for(100)
-    println("Hello, " ~ args[0])
-
-
-[関数定義]
-main(str[] args)
-↓
-label   Example.main
-alloc   $0 $arg:0
-alloc   $1 $arg:1
-...
-free    $0
-free    $1
-
-
-[変数定義/初期化]
-int hoge1
-str hoge2 = "Example"
-↓
-alloc $0
-alloc $0 "Example"
-
-
-[メモリ解放]
-free $0
-
-
-[条件分岐]
-if "hoge1" == "hoge2"
-  //処理
-↓
-alloc $0 "hoge1"=="hoge2"
-ifnot $0
-goto 4
-; 処理
-
-
-
-chestnut_compiled
-label   Examples.Hello.main ; 関数定義(label)
-alloc   $0 $arg:0 ; 引数0を移動
-free    $arg ; 引数を解放
-alloc   $1 0 ; ループカウント用の変数を確保
-alloc   $2 0<100 ; ループ条件用の変数を確保
-if      $2 0 ; ループ条件用の変数を確保
-goto    14
-end
-alloc   $arg:0 "Hello, "~$0:0~"!"
-call    System.Console.println
-alloc   $1 $0+1
-alloc   $2 0<100 ; ループ条件用のフラグを更新
-goto    7
+goto 関数内の番号で？

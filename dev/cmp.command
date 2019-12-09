@@ -5,4 +5,4 @@
 # ches run chestnut/src/Examples/hello.chesc
 
 rm ches
-g++ -o ches chestnut/dev/src/main.cpp -std=c++11
+g++ -o ches chestnut/dev/src/main.cpp -std=c++1z -lstdc++ -lstdc++fs -std=c++17

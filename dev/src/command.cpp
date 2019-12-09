@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <string>
@@ -42,8 +43,31 @@ void c_cmp() {
     }
 
     if(args.size() >= 1) {
-        Compiler cmp(args[0].second);
-        cmp.run();
+        std::vector<Compiler> cmp;
+
+        struct {
+            bool operator()(std::string dirpath, std::vector<std::string> &filenames) {
+                std::filesystem::directory_iterator iter(dirpath), end;
+                std::error_code err;
+
+                for (; iter != end && !err; iter.increment(err)) {
+                    const directory_entry entry = *iter;
+                    filenames.push_back(entry.path().string());
+                    printf("%s\n", filenames.back().c_str());
+                }
+
+                if (err) {
+                    std::cout << err.value() << std::endl;
+                    std::cout << err.message() << std::endl;
+                    return false;
+                }
+                return true;
+            }
+        } compileFiles;
+
+        if(!compileFiles(args[0].second)) {
+            Console::error("a","a",{{}},true);
+        }
     }
 }
 
@@ -78,5 +102,5 @@ void command(std::string cmd) {
     if(it != procs.end())
         it->second();
     else
-        error("unknown command '" + cmd + "'", true);
+        Console::error("cerr1064", "unknown command", { { "command", cmd } }, true);
 }

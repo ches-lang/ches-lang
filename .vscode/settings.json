@@ -65,6 +65,8 @@
         "stack": "cpp",
         "__errc": "cpp",
         "__node_handle": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "numeric": "cpp",
+        "random": "cpp"
     }
 }
