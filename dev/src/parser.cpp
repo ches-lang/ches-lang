@@ -75,7 +75,7 @@ public:
             b = scan();
         } while(b);
         //std::cout << tree.getNode(0).getNode(0).tokens[0].string << std::endl;
-        tree.out("|");
+        //tree.out("|");
         return tree;
     }
 

@@ -17,42 +17,43 @@ class Compiler {
 
 public:
 
-    std::string source;
-    std::vector<Token> tokens;
-    std::string filepath;
-    Bytecode bytecode;
-
-    Lexer lexer;
-    Parser parser;
-    Node node;
-
-
+    std::map<std::string, std::string> options;
+    std::string path;
 
     Compiler() {}
 
-    Compiler(std::string path) {
-        filepath = path;
+    Compiler(std::map<std::string, std::string> opt) {
+        path = opt["-i"];std::cout<<path;
+        options = opt;
     }
 
-    void run() {
-        source = FileManager::readText(filepath);
-        lexer = Lexer(filepath, source);
-        tokens = lexer.run();
-        parser = Parser(tokens);
-        node = parser.run();
-        bytecode = Bytecode(node);
-        FileManager::writeBytecode(renamePathExt(filepath, "chesc"), bytecode);
+    void compile() {
+        if(!FileManager::isDirectory(path)) {
+            if(options.find("-o") != options.end()) {
+                std::cout<<"notdir : "<<path<<std::endl;
+            } else {
+                FileManager::writeBytecode(FileManager::renamePathExt(path, "chesc"), getBytecode());
+                std::cout<<"notdir : auto"<<std::endl;
+            }
+        } else {
+            std::cout<<"dir : "<<path<<std::endl;
+            std::vector<std::string> filepaths = FileManager::getFilePaths(path);
+            std::vector<Bytecode> bytecodes;
+
+            for(std::string path : filepaths) {
+                if(FileManager::getPathExt(path).compare("ches") == 0) {
+                    bytecodes.push_back(Compiler({ { "-i", path } }).getBytecode());
+                }
+            }
+        }
     }
 
-    std::string renamePathExt(std::string path, std::string ext) {
-        std::string res;
-        std::string e;
-        for(int i = path.length() - 1; i >= 0; i--)
-            if(path[i] == '.') break;
-            else e = path[i] + e;
-
-        if(filepath == e) res = path + "." + ext;
-        else res = path.substr(0, path.length() - e.length()) + ext;
-        return res;
+    Bytecode getBytecode() {
+        std::string source = FileManager::readText(path);
+        Lexer lexer(path, source);
+        std::vector<Token> tokens = lexer.run();
+        Parser parser(tokens);
+        Node node = parser.run();
+        return Bytecode(node);
     }
 };

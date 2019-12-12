@@ -67,6 +67,15 @@
         "__node_handle": "cpp",
         "optional": "cpp",
         "numeric": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "clocale": "cpp",
+        "codecvt": "cpp",
+        "condition_variable": "cpp",
+        "queue": "cpp",
+        "shared_mutex": "cpp",
+        "thread": "cpp",
+        "bit": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp"
     }
 }

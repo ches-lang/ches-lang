@@ -11,21 +11,12 @@
 
 
 
-extern std::vector<std::pair<std::string, std::string>> args;
-
-
-
-int find(std::string name) {
-    for(int i = 0; i < args.size(); i++)
-        if(args[i].first == name)
-            return i;
-    return -1;
-}
+std::map<std::string, std::string> args;
 
 
 
 void c_ches() {
-    if(find("-help") != -1) {
+    if(args.find("-help") != args.end()) {
         std::cout << "-help" << "\t" << "show help message" << std::endl;
         std::cout << "-ver" << "\t" << "show chestnut version" << std::endl;
         std::cout << std::endl;
@@ -35,50 +26,29 @@ void c_ches() {
 }
 
 void c_cmp() {
-    if(find("-help") != -1) {
+    if(args.find("-help") != args.end()) {
         std::cout << "-help" << "\t" << "show help message" << std::endl;
         std::cout << std::endl;
         std::cout << "<filepath>" << "\t" << "compile a specified file" << std::endl;
         return;
     }
 
-    if(args.size() >= 1) {
-        std::vector<Compiler> cmp;
-
-        struct {
-            bool operator()(std::string dirpath, std::vector<std::string> &filenames) {
-                std::filesystem::directory_iterator iter(dirpath), end;
-                std::error_code err;
-
-                for (; iter != end && !err; iter.increment(err)) {
-                    const directory_entry entry = *iter;
-                    filenames.push_back(entry.path().string());
-                    printf("%s\n", filenames.back().c_str());
-                }
-
-                if (err) {
-                    std::cout << err.value() << std::endl;
-                    std::cout << err.message() << std::endl;
-                    return false;
-                }
-                return true;
-            }
-        } compileFiles;
-
-        if(!compileFiles(args[0].second)) {
-            Console::error("a","a",{{}},true);
-        }
+    if(args.find("-i") != args.end()) {std::cout<<"a"<<std::endl;
+        Compiler cmp(args);std::cout<<"b"<<std::endl;
+        cmp.compile();std::cout<<"c"<<std::endl;
+    } else {
+        Console::error("cerr0000", "no input file", {{}}, false);
     }
 }
 
 void c_run() {
-    if(find("-help") != -1) {
+    if(args.find("-help") != args.end()) {
         std::cout << "-help" << "\t" << "show help message" << std::endl;
         return;
     }
 
     if(args.size() >= 1) {
-        Interpreter itp(args[0].second);
+        Interpreter itp(args[""]);
         itp.run();
     }
 }
@@ -87,9 +57,8 @@ void c_set() {
 
 }
 
-
-
-void command(std::string cmd) {
+void command(std::string cmd, std::map<std::string, std::string> ag) {
+    args = ag;
     typedef std::map<std::string, void(*)()> cmdprocs;
     cmdprocs procs;
 

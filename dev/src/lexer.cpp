@@ -69,7 +69,7 @@ public:
         do {
             tk = scan();
             res.push_back(tk);
-            std::cout << (int)tk.type << "\t" << ((tk.string == "\n") ? "\\n" : tk.string) << std::endl;//
+            //std::cout << (int)tk.type << "\t" << ((tk.string == "\n") ? "\\n" : tk.string) << std::endl;//
         } while(tk.type != ENDOFFILE);
 
         if(Console::errored) {
