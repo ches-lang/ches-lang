@@ -52,14 +52,14 @@ class Lexer {
 
 public:
 
-    std::string filepath;
     std::string source;
+    std::map<std::string, std::string> options;
 
     Lexer() {}
 
-    Lexer(std::string path, std::string src) {
-        filepath = path;
+    Lexer(std::string src, std::map<std::string, std::string> opt) {
         source = src;
+        options = opt;
     }
 
     std::vector<Token> run() {
@@ -75,7 +75,8 @@ public:
         if(Console::errored) {
             exit(-1);
         } else if(Console::warned) {
-            // do you continue?
+            if(options.find("-miss") == options.end())
+            exit(-1);
         }
 
         return res;
@@ -120,7 +121,7 @@ private:
                     } else res += std::string{source[index]};
                 }
                 std::pair<int, int> at = getPosition(index);
-                Console::error("cerr1562", "expected EOF", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'*/'" } }, true);
+                Console::error("cerr1562", "expected EOF", { { "at", options["-i"] + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'*/'" } }, true);
             } else if(source[index + 1] == '/') {
                 std::string res;
                 for(index += 2; index < source.length(); index++) {
@@ -199,7 +200,7 @@ private:
             } else {
                 if(source[index + 1] == ' ') index++;
                 std::pair<int, int> at = getPosition(index);
-                Console::error("cerr7903", "invalid indent space", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
+                Console::error("cerr7903", "invalid indent space", { { "at", options["-i"] + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
             }
         }
 
@@ -229,7 +230,7 @@ private:
                 index += 3;
             } else if(source[index + 1] == '\'') {
                 std::pair<int, int> at = getPosition(index);
-                Console::error("cerr4139", "too short character length", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "a character" } }, false);
+                Console::error("cerr4139", "too short character length", { { "at", options["-i"] + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "a character" } }, false);
                 index += 1;
             } else {
                 bool contain = false;
@@ -238,10 +239,10 @@ private:
                     if(source[index] == '\'') { contain = true; break; }
                 if(contain) {
                     std::pair<int, int> at = getPosition(index);
-                    Console::error("cerr2471", "too long character length", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
+                    Console::error("cerr2471", "too long character length", { { "at", options["-i"] + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
                 } else {
                     std::pair<int, int> at = getPosition(index);
-                    Console::error("cerr1562", "expected EOF", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'''" } }, true);
+                    Console::error("cerr1562", "expected EOF", { { "at", options["-i"] + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'''" } }, true);
                 }
                 return scan();
             }
@@ -255,7 +256,7 @@ private:
                 else return Token(STRING, res);
             }
             std::pair<int, int> at = getPosition(index);
-            Console::error("cerr1562", "expected EOF", { { "at", filepath + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'\"'" } }, true);
+            Console::error("cerr1562", "expected EOF", { { "at", options["-i"] + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'\"'" } }, true);
         }
 
         else {

@@ -13,24 +13,17 @@
 int main(int argc, char *argv[]) {
     auto start = std::chrono::system_clock::now();
 
-    std::vector<std::vector<int>> v = {};
-    std::cout << v.size() << std::endl;
-
     std::map<std::string, std::string> args;
     std::string cmd = ((argc >= 2 && argv[1][0] != '-') ? argv[1] : "ches");
 
     for(int i = ((cmd == "ches") ? 1 : 2); i < argc; i++) {
-        if(i + 1 < argc) {
-            if(argv[i + 1][0] != '-') {
-                args[argv[i]] = argv[i + 1];
-                i++;
-            } else {
-                args[argv[i]] = "";
-            }
-        } else if(argv[i][0] == '-') {
-            args[argv[i]] = "";
+        if(argv[i][0] != '-') {
+            Console::error("cerr8732", "invalid command option", { { "at", "'" + std::string{ argv[i] } + "'" }}, true);
+        } else if(i + 1 < argc && argv[i + 1][0] != '-') {
+            args[argv[i]] = argv[i + 1];
+            i++;
         } else {
-            Console::error("cerr0000", "invalid command option", {}, true);
+            args[argv[i]] = "";
         }
     }
 

@@ -82,6 +82,26 @@ public:
         return std::filesystem::is_directory(path);
     }
 
+    static std::string getName(std::string path) {
+        std::vector<std::string> divided = { "" };
+
+        for(char ch : path) {
+            if(ch == '/') {
+                divided.push_back("");
+            } else {
+                divided[divided.size() - 1] += ch;
+            }
+        }
+
+        for(int i = divided.size() - 1; i > 0; i--) {
+            if(divided[i] != "") {
+                return divided[i];
+            }
+        }
+
+        return "";
+    }
+
     static std::vector<std::string> getFilePaths(std::string dirpath) {
         std::vector<std::string> filepaths;
         try {
@@ -116,6 +136,10 @@ public:
         return ext;
     }
 
+    static std::string getFullPath(std::string path) {
+        return std::filesystem::absolute(path);
+    }
+
     static std::string renamePathExt(std::string path, std::string newext) {
         std::string newpath;
         std::string oldext = FileManager::getPathExt(path);
@@ -125,11 +149,3 @@ public:
         return newpath;
     }
 };
-
-
-
-/*
-43 4F 4D 50 49 4C 45 44 5F 43 48 45 53 01 00
-4E C0 01 00
-81 9D 70 72 69 6E 74 6C 6E
-*/

@@ -1,9 +1,5 @@
 # Chestnut License Guide
 
-Chestnut license is written in Japanese.
-<br>
-I'm preparing for an English version.
-
 ## 概要
 
 Chestnutの利用に関するライセンスです。ライセンスの範囲内であればChestnutを誰でも自由に利用することができますが、ライセンスに従わない場合はChestnutの利用を拒否させていただきます。

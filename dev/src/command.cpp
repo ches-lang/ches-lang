@@ -33,11 +33,11 @@ void c_cmp() {
         return;
     }
 
-    if(args.find("-i") != args.end()) {std::cout<<"a"<<std::endl;
-        Compiler cmp(args);std::cout<<"b"<<std::endl;
-        cmp.compile();std::cout<<"c"<<std::endl;
+    if(args.find("-i") != args.end()) {
+        Compiler cmp(args);
+        cmp.compile();
     } else {
-        Console::error("cerr0000", "no input file", {{}}, false);
+        Console::error("cerr5899", "no input file", {}, false);
     }
 }
 

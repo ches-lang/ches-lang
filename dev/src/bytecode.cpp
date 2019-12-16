@@ -6,7 +6,6 @@
 #include <random>
 #include <string>
 #include <vector>
-#include "console.cpp"
 #include "parser.cpp"
 #include "syntax.cpp"
 
@@ -69,31 +68,16 @@ public:
         for(unsigned char s : src)
             source.push_back(s);
     }
-    
+
     Bytecode(Node tree) {
         source = toBytecode(tree).source;
     }
 
-    Bytecode(std::vector<std::vector<unsigned char>> src) {
-        for(std::vector<unsigned char> bc : src) {
-            for(unsigned char uc : bc)
-                source.push_back(uc);
-            source.push_back(SI_LNDIV);
-        }
-        source.pop_back();
-    }
-
-    Bytecode(std::vector<std::vector<Bytecode>> src) {
-        for(int ln = 0; ln < src.size(); ln++) {
-            for(int tk = 0; tk < src[ln].size(); tk++) {
-                for(int ch = 0; ch < src[ln][tk].source.size(); ch++) {
-                    if(src[ln][tk].source[ch] == SI_LNDIV) source.push_back(SI_LNDIV);
-                    else if(src[ln][tk].source[ch] == SI_TKDIV) source.push_back(SI_TKDIV);
-                    source.push_back(src[ln][tk].source[ch]);
-                }
-                if(tk < src[ln].size() - 1) source.push_back(SI_TKDIV);
-            }
-            if(ln < src.size() - 1) source.push_back(SI_LNDIV);
+    Bytecode(std::vector<Bytecode> src) {
+        for(Bytecode bc : src) {
+            append(Bytecode("compiled_ches"));
+            append(Bytecode(std::vector<unsigned char> { SI_LNDIV, SI_BCSTART, SI_LNDIV }));
+            append(Bytecode(bc));
         }
     }
 
@@ -101,21 +85,38 @@ public:
         for(int ln = 0; ln < src.size(); ln++) {
             for(int tk = 0; tk < src[ln].size(); tk++) {
                 for(int ch = 0; ch < src[ln][tk].size(); ch++) {
-                    if(src[ln][tk][ch] == SI_LNDIV) source.push_back(SI_LNDIV);
-                    else if(src[ln][tk][ch] == SI_TKDIV) source.push_back(SI_TKDIV);
-                    source.push_back(src[ln][tk][ch]);
+                    if(src[ln][tk][ch] == SI_LNDIV) append(SI_LNDIV);
+                    else if(src[ln][tk][ch] == SI_TKDIV) append(SI_TKDIV);
+                    append(src[ln][tk][ch]);
                 }
-                if(tk < src[ln].size() - 1) source.push_back(SI_TKDIV);
+                if(tk != src[ln].size() - 1) append(SI_TKDIV);
             }
-            if(ln < src.size() - 1) source.push_back(SI_LNDIV);
+            if(ln != src.size() - 1) append(SI_LNDIV);
         }
     }
 
-    int toInt() {
+    inline Bytecode append(unsigned char src) {
+        source.push_back(src);
+        return source;
+    }
+
+    inline Bytecode append(Bytecode src) {
+        for(unsigned char uc : src.source)
+            source.push_back(uc);
+
+        return source;
+    }
+
+    inline Bytecode pop() {
+        source.pop_back();
+        return source;
+    }
+
+    inline int toInt() {
         return *(unsigned int *)&source;
     }
 
-    std::string toString() {
+    inline std::string toString() {
         std::string res;
         for(unsigned char c : source)
             res.push_back(c);

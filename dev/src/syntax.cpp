@@ -62,22 +62,23 @@
 #define N_LANGBLACK 0x16
 #define N_RANGBLACK 0x17
 
-#define SI_LNDIV    0x00
-#define SI_TKDIV    0x01
-#define SI_LLPREF   0x02
+#define SI_BCSTART  0x00
+#define SI_LNDIV    0x01
+#define SI_TKDIV    0x02
+#define SI_LLPREF   0x03
 
-#define I_UNKNOWN   0x03
-#define I_GROUP     0x04
-#define I_LSPUSH    0x05
-#define I_LLPUSH    0x06
-#define I_CALL      0x07
-#define I_RETURN    0x08
-#define I_LAND      0x09
-#define I_LOR       0x10
-#define I_NADD      0x11
-#define I_NSUB      0x12
-#define I_NMUL      0x13
-#define I_NDIV      0x14
+#define I_UNKNOWN   0x04
+#define I_GROUP     0x05
+#define I_LSPUSH    0x06
+#define I_LLPUSH    0x07
+#define I_CALL      0x08
+#define I_RETURN    0x09
+#define I_LAND      0x10
+#define I_LOR       0x11
+#define I_NADD      0x12
+#define I_NSUB      0x13
+#define I_NMUL      0x14
+#define I_NDIV      0x15
 
 
 
