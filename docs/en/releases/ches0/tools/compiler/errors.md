@@ -1,7 +1,7 @@
 # Compiler Errors
 
 |Code|Message|
-|:---:|:---:|
+|:-:|:-:|
 |[cerr 0327](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr0327.md)|file not found|
 |[cerr 1064](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr1064.md)|unknown command|
 |[cerr 1562](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr1562.md)|expected EOF|

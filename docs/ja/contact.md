@@ -4,7 +4,7 @@
 
 その他の理由で連絡する場合：
 
-- Email [info@gant.work](info@gant.work)
+- Email [info@gant.work](mailto:info@gant.work)
 - Twitter DM [@Garnet3106](https://twitter.com/Garnet3106/)
 - Discord DM [Garnet#9502](http://discord.com/)
 
