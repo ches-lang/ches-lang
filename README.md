@@ -1,18 +1,10 @@
 # Chestnut Github Repository
 
-## Overview
+## Languages
 
-Chestnut, a programming language is developed by Garnet. Chestnut is provided as an open source language.
-
-## Links
-
-[Documentation](https://github.com/Garnet3106/chestnut/blob/develop/docs/index.md)
-
-- [Releases](https://github.com/Garnet3106/chestnut/blob/develop/docs/releases/index.md)
-
-- [License [MUST-READ]](https://github.com/Garnet3106/chestnut/blob/develop/docs/license/index.md)
-
-- [Library](https://github.com/Garnet3106/chestnut/blob/develop/docs/library/index.md)
+- [Chinese (中文)](https://github.com/Garnet3106/chestnut/tree/develop/docs/zh/summary.md)
+- [English](https://github.com/Garnet3106/chestnut/tree/develop/docs/en/summary.md)
+- [Japanese (日本語)](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/summary.md)
 
 ---
 

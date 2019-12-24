@@ -1,16 +1,16 @@
 compiled_ches
 
-group   3683ad0a12  Examples.Hello.main
-    call    4f7c79ce46
+group   1ef211c31e849269b28d  Examples.Hello.main
+    call    5362b37v18dee91f2089
     lspush  $0
-    call    c9df638e59
+    call    b8fb5a506d94846cff48
     return
 
-group   c9df638e59  Examples.Hello.greet
+group   b8fb5a506d94846cff48  Examples.Hello.greet
     lspush  "Hello, "
     lspush  $0
     strmrg
-    call    64bc2e6d56
+    call    0577de596a4147f5c1db
     return
 
 

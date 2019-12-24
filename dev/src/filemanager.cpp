@@ -24,12 +24,10 @@ public:
                 Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
 
             unsigned char uc;
-            while(!ifs.eof()) {
+            do {
                 ifs.read((char*)&uc, sizeof(unsigned char));
                 res.source.push_back(uc);
-            }
-
-            res.source.pop_back();
+            } while(!ifs.eof());
 
             ifs.close();
             return res;
