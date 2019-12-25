@@ -13,8 +13,6 @@
 
 
 
-class Instruction;
-
 class Compiler {
 
 public:
