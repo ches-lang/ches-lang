@@ -31,7 +31,7 @@ void c_cmp() {
         return;
     }
 
-    if(options.exists("-i")) {
+    if(options.exists("-i") && options.get("-i") != "") {
         Compiler cmp(options);
         cmp.compile();
     } else {
@@ -45,9 +45,11 @@ void c_run() {
         return;
     }
 
-    if(options.size() >= 1) {
-        Interpreter itp(options.get(""));
+    if(options.exists("-i") && options.get("-i") != "") {
+        Interpreter itp(options);
         itp.run();
+    } else {
+        Console::error("cerr5899", "no input file", {}, false);
     }
 }
 

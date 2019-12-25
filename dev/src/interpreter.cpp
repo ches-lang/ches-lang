@@ -20,14 +20,14 @@ class Interpreter {
 
 public:
 
-    std::string filepath;
+    Options options;
 
-    Interpreter(std::string path) {
-        filepath = path;
+    Interpreter(Options opt) {
+        options = opt;
     }
 
     void run() {
-        runProgram(FileManager::readBytecode(filepath));
+        runProgram(FileManager::readBytecode(options.get("-i")));
         //バイトコードのチェックも忘れず
     }
 
@@ -44,7 +44,7 @@ private:
             lines = src.divide();
 
             if(TK(0, 0) != std::vector<unsigned char> { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 })
-                Console::error("cerr8732", "invalid file", { { "path", filepath }, { "cause", "magic number" } }, true);
+                Console::error("cerr8732", "invalid file", { { "path", options.get("-i") }, { "cause", "magic number" } }, true);
 
             for(int i = 1; i < lines.size(); ) {
                 if(CH(i, 0, 0) == I_GROUP) {

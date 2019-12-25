@@ -3,6 +3,7 @@
 #include <iostream>
 #include <regex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "command.cpp"
 #include "console.cpp"
@@ -53,11 +54,11 @@
 
 struct Options {
 
-    std::map<std::string, std::string> map;
+    std::unordered_map<std::string, std::string> map;
 
     Options() {}
 
-    Options(std::map<std::string, std::string> opt) {
+    Options(std::unordered_map<std::string, std::string> opt) {
         map = opt;
     }
 
