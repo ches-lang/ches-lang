@@ -13,21 +13,21 @@
 int main(int argc, char *argv[]) {
     auto start = std::chrono::system_clock::now();
 
-    std::map<std::string, std::string> args;
+    Options options;
     std::string cmd = ((argc >= 2 && argv[1][0] != '-') ? argv[1] : "ches");
 
     for(int i = ((cmd == "ches") ? 1 : 2); i < argc; i++) {
         if(argv[i][0] != '-') {
             Console::error("cerr8732", "invalid command option", { { "at", "'" + std::string{ argv[i] } + "'" }}, true);
         } else if(i + 1 < argc && argv[i + 1][0] != '-') {
-            args[argv[i]] = argv[i + 1];
+            options.set(argv[i], argv[i + 1]);
             i++;
         } else {
-            args[argv[i]] = "";
+            options.set(argv[i], "");
         }
     }
 
-    command(cmd, args);
+    command(cmd, options);
 
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;

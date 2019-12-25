@@ -86,6 +86,7 @@ struct Token {
 
     char type = UNKNOWN;
     std::string string = "";
+    int index = 0;
 
     Token() {}
 
@@ -100,6 +101,12 @@ struct Token {
     Token(char tp, std::string st) {
         type = tp;
         string = st;
+    }
+
+    Token(char tp, std::string st, int i) {
+        type = tp;
+        string = st;
+        index = i;
     }
 
     bool compare(Token tk) {

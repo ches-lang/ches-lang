@@ -60,16 +60,18 @@ class Parser {
 
 public:
 
+    std::string source;
     std::vector<Token> tokens;
     Node tree = Node(N_ROOT);
 
     Parser() {}
 
-    Parser(std::vector<Token> tk) {
+    Parser(std::string src, std::vector<Token> tk) {
+        source = src;
         tokens = tk;
     }
 
-    Node run() {
+    Node parse() {
         bool b;
         do {
             b = scan();
@@ -78,8 +80,6 @@ public:
         //tree.out("|");
         return tree;
     }
-
-
 
 private:
 

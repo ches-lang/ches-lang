@@ -11,53 +11,55 @@
 #include "lexer.cpp"
 #include "parser.cpp"
 
+
+
 class Instruction;
 
 class Compiler {
 
 public:
 
-    std::map<std::string, std::string> options;
+    Options options;
 
     Compiler() {}
 
-    Compiler(std::map<std::string, std::string> opt) {
+    Compiler(Options opt) {
         options = opt;
     }
 
     void compile() {
-        if(options.find("-o") != options.end()) {
-            if(FileManager::getFullPath(options["-i"]) == FileManager::getFullPath(options["-o"])) {
-                Console::warn("cwarn3405", "duplicate output file", { { "path", FileManager::getFullPath(options["-o"]) } }, options.find("-miss") == options.end());
+        if(options.exists("-o")) {
+            if(FileManager::getFullPath(options.get("-i")) == FileManager::getFullPath(options.get("-o"))) {
+                Console::warn("cwarn3405", "duplicate output file", { { "path", FileManager::getFullPath(options.get("-o")) } }, !options.exists("-miss"));
             }
         }
 
-        if(!FileManager::isDirectory(options["-i"])) {
-            if(options.find("-o") != options.end()) {
-                FileManager::writeBytecode(options["-o"], getBytecode());
+        if(!FileManager::isDirectory(options.get("-i"))) {
+            if(options.exists("-o")) {
+                FileManager::writeBytecode(options.get("-o"), getBytecode());
             } else {
-                FileManager::writeBytecode(FileManager::renamePathExt(options["-i"], "chesc"), getBytecode());
+                FileManager::writeBytecode(FileManager::renamePathExt(options.get("-i"), "chesc"), getBytecode());
             }
         } else {
-            std::vector<std::string> filepaths = FileManager::getFilePaths(options["-i"]);
+            std::vector<std::string> filepaths = FileManager::getFilePaths(options.get("-i"));
             std::vector<Bytecode> bytecodes;
 
             for(int i = 0; i < filepaths.size(); i++) {
                 if(FileManager::getPathExt(filepaths[i]) == "ches") {
-                    bytecodes.push_back(Compiler({ { "-i", filepaths[i] } }).getBytecode());
+                    bytecodes.push_back(Compiler(Options({ { "-i", filepaths[i] } })).getBytecode());
                 } else {
                     filepaths.erase(filepaths.begin() + i);
                     i--;
                 }
             }
 
-            if(options.find("-merge") != options.end()) {
+            if(options.exists("-merge")) {
                 std::string outpath;
 
-                if(options.find("-o") != options.end()) {
-                    outpath = options["-o"];
+                if(options.exists("-o")) {
+                    outpath = options.get("-o");
                 } else {
-                    outpath = options["-i"] + "/" + FileManager::getName(options["-i"]) + ".chesc";
+                    outpath = options.get("-i") + "/" + FileManager::getName(options.get("-i")) + ".chesc";
                 }
 
                 FileManager::writeBytecode(outpath, Bytecode(bytecodes));
@@ -70,11 +72,11 @@ public:
     }
 
     Bytecode getBytecode() {
-        std::string source = FileManager::readText(options["-i"]);
+        std::string source = FileManager::readText(options.get("-i"));
         Lexer lexer(source, options);
-        std::vector<Token> tokens = lexer.run();
-        Parser parser(tokens);
-        Node node = parser.run();
+        std::vector<Token> tokens = lexer.getTokens();
+        Parser parser(source, tokens);
+        Node node = parser.parse();
         return Bytecode(node);
     }
 };
