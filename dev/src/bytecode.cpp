@@ -19,6 +19,7 @@ typedef struct FuncData_ {
 
     std::vector<unsigned char> id;
     std::vector<unsigned char> name;
+    std::vector<std::vector<std::vector<unsigned char>>> source;
     int start;
     int end;
 
@@ -36,7 +37,14 @@ typedef struct FuncData_ {
         ed = end;
     }
 
-    static FuncData_ find(std::vector<FuncData_> fd, std::vector<unsigned char> nm) {
+    static FuncData_ findById(std::vector<FuncData_> fd, std::vector<unsigned char> id) {
+        for(FuncData_ f : fd)
+            if(f.id == id)
+                return f;
+        return FuncData_();
+    }
+
+    static FuncData_ findByName(std::vector<FuncData_> fd, std::vector<unsigned char> nm) {
         for(FuncData_ f : fd)
             if(f.name == nm)
                 return f;
@@ -60,7 +68,7 @@ public:
         source = src;
     }
 
-    Bytecode(int src) {
+    Bytecode(int src) { //
         source.push_back((unsigned char)src);
     }
 
@@ -153,14 +161,6 @@ public:
             }
         }
 
-        for(std::vector<std::vector<unsigned char>> a : res) {
-            for(std::vector<unsigned char> b : a) {
-                for(unsigned char c : b) {
-                    std::cout << (int)c << " ";
-                }std::cout << "| ";
-            }std::cout << std::endl;
-        }
-
         return res;
     }
 
@@ -195,17 +195,33 @@ private:
         try {
 
             switch(node.type) {
+                case N_CALLFUNC: {
+                    std::vector<unsigned char> funcname = Bytecode(node.getToken(0).string).source;
+                    lines.push_back({ { I_CALL }, FuncData::findByName(funcdata, funcname).id });
+                } break;
+
                 case N_DEFFUNC: {
                     std::vector<unsigned char> funcname = Bytecode(node.getToken(0).string).source;
-                    std::vector<unsigned char> funcid = Bytecode(FuncData::find(funcdata, funcname).id).source;
+                    std::vector<unsigned char> funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
                     lines.push_back({ { I_GROUP }, funcid, funcname });
                     if(node.children.size() > 1)
                         lllen += node.getNode(0).children.size();
                 } break;
 
-                case N_CALLFUNC: {
-                    std::vector<unsigned char> funcname = Bytecode(node.getToken(0).string).source;
-                    lines.push_back({ { I_CALL }, FuncData::find(funcdata, funcname).id });
+                case N_DEFVAR: {
+                    lines.push_back({ { I_LSPUSH }, {} });
+                    lslen++;
+                } break;
+
+                case N_INITVAR: {
+                    Token token = node.getToken(2);
+                    std::vector<unsigned char> value;
+                    if(token.type == NUMBER)
+                        value = Bytecode(std::stoi(token.string)).source;
+                    else if(token.type == STRING)
+                        value = Bytecode(token.string).source;
+                    lines.push_back({ { I_LSPUSH }, value });
+                    lslen++;
                 } break;
             }
 

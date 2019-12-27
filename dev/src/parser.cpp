@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "console.cpp"
+#include "lexer.cpp"
 #include "syntax.cpp"
 
 
@@ -62,13 +63,15 @@ public:
 
     std::string source;
     std::vector<Token> tokens;
+    Options options;
     Node tree = Node(N_ROOT);
 
     Parser() {}
 
-    Parser(std::string src, std::vector<Token> tk) {
+    Parser(std::string src, std::vector<Token> tk, Options opt) {
         source = src;
         tokens = tk;
+        options = opt;
     }
 
     Node parse() {
@@ -170,6 +173,7 @@ private:
                 }
             }
 
+            // CALLFUNC
             if(ismatch && nest == 0 && indent >= 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node(N_CALLFUNC);
                 node.addToken(Token(IDENTIFIER, SA(0)));
@@ -202,6 +206,7 @@ private:
                 return node;
             }
 
+            // DEFVAR
             if(len == 2 && (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, IDENTIFIER)) {
                 Node node(N_DEFVAR);
                 node.addToken(A(0));
@@ -209,6 +214,7 @@ private:
                 return node;
             }
 
+            // DEFVAR (ARRAY)
             if(len == 4 &&  (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, LBRACK) && TM(2, RBRACK) && TM(3, IDENTIFIER)) {
                 Node node(N_DEFVAR);
                 node.addToken(A(0));
@@ -218,6 +224,7 @@ private:
                 return node;
             }
 
+            // INITVAR
             if(len >= 4 && (TM(0, IDENTIFIER) || TM(0, KEYWORD)) && TM(1, IDENTIFIER) && TM(2, EQUAL)) {
                 Node node(N_INITVAR);
                 node.addToken(A(0));
@@ -233,6 +240,7 @@ private:
                 return node;
             }
 
+            // LOOP
             if(len >= 4 && M(0, Token(KEYWORD, "for")) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node(N_LOOP);
                 int sccount = 0;
@@ -263,10 +271,8 @@ private:
                 return node;
             }
 
-            //bool ismatch;
             bool enclosed;
             bool containsParen;
-            //int nest;
 
             /* 括弧チェック */
 

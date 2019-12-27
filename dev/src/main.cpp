@@ -13,6 +13,9 @@
 int main(int argc, char *argv[]) {
     auto start = std::chrono::system_clock::now();
 
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(0);
+
     Options options;
     Console::displayCountLimit = 20;
     std::string cmd = ((argc >= 2 && argv[1][0] != '-') ? argv[1] : "ches");

@@ -13,7 +13,7 @@
 |[cerr 6845](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr0845.md)|file reading fail|
 |[cerr 7903](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr7903.md)|invalid indent space|
 |[cerr 8194](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr8194.md)|invalid command option|
-|[cerr 8732](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr8732.md)|invalid file|
+|[cerr 8732](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/compiler/errors/cerr8732.md)|invalid magic number|
 
 ---
 

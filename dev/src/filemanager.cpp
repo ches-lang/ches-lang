@@ -28,6 +28,7 @@ public:
                 ifs.read((char*)&uc, sizeof(unsigned char));
                 res.source.push_back(uc);
             } while(!ifs.eof());
+            res.source.pop_back();
 
             ifs.close();
             return res;
