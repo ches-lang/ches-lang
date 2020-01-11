@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
 #include "console.cpp"
@@ -8,40 +9,40 @@
 
 
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
-#define ENDOFFILE  -1
-#define UNKNOWN     0
-#define INDENT      1
-#define NEWLINE     2
-#define COMMENTOUT  3
-#define KEYWORD     4
-#define IDENTIFIER  5
-#define NUMBER      6
-#define CHARACTER   7
-#define STRING      8
-#define EXCLAMATION 9
-#define QUESTION    10
-#define TILDE       11
-#define PLUS        12
-#define HYPHEN      13
-#define ASTERISK    14
-#define SLASH       15
-#define PERCENTAGE  16
-#define CARET       17
-#define EQUAL       18
-#define PIPE        19
-#define AMPERSAND   20
-#define PERIOD      21
-#define COMMA       22
-#define COLON       23
-#define SEMICOLON   24
-#define LPAREN      25
-#define RPAREN      26
-#define LBRACK      27
-#define RBLACK      28
-#define LANGBLACK   29
-#define RANGBLACK   30
-#define LBRACE      31
-#define RBRACE      32
+#define ENDOFFILE   0
+#define UNKNOWN     1
+#define INDENT      2
+#define NEWLINE     3
+#define COMMENTOUT  4
+#define KEYWORD     5
+#define IDENTIFIER  6
+#define NUMBER      7
+#define CHARACTER   8
+#define STRING      9
+#define EXCLAMATION 10
+#define QUESTION    11
+#define TILDE       12
+#define PLUS        13
+#define HYPHEN      14
+#define ASTERISK    15
+#define SLASH       16
+#define PERCENTAGE  17
+#define CARET       18
+#define EQUAL       19
+#define PIPE        20
+#define AMPERSAND   21
+#define PERIOD      22
+#define COMMA       23
+#define COLON       24
+#define SEMICOLON   25
+#define LPAREN      26
+#define RPAREN      27
+#define LBRACK      28
+#define RBRACK      29
+#define LANGBRACK   30
+#define RANGBRACK   31
+#define LBRACE      33
+#define RBRACE      34
 
 #define N_UNKNOWN   0x00
 #define N_ROOT      0x01
@@ -51,16 +52,17 @@
 #define N_DEFFUNC   0x05
 #define N_CALLFUNC  0x06
 #define N_ARGS      0x07
-#define N_LOOP      0x08
-#define N_COUNT     0x09
-#define N_LOGIC     0x10
-#define N_COMP      0x11
-#define N_EXPRESS   0x12
-#define N_ITEM      0x13
-#define N_OPE       0x14
-#define N_EQUAL     0x15
-#define N_LANGBLACK 0x16
-#define N_RANGBLACK 0x17
+#define N_IF        0x08
+#define N_LOOP      0x09
+#define N_COUNT     0x10
+#define N_LOGIC     0x11
+#define N_COMP      0x12
+#define N_EXPRESS   0x13
+#define N_ITEM      0x14
+#define N_OPE       0x15
+#define N_EQUAL     0x16
+#define N_LANGBRACK 0x17
+#define N_RANGBRACK 0x18
 
 #define SI_BCSTART  0x00
 #define SI_LNDIV    0x01
@@ -79,38 +81,99 @@
 #define I_NSUB      0x13
 #define I_NMUL      0x14
 #define I_NDIV      0x15
+#define I_IF        0x16
+#define I_GOTO      0x17
 
 
 
 struct Token {
 
-    char type = UNKNOWN;
-    std::string string = "";
     int index = 0;
+    unsigned char type = UNKNOWN;
+    std::string string = "";
 
     Token() {}
 
-    Token(char tp) {
-        type = tp;
+    Token(unsigned char type) {
+        this->type = type;
     }
 
-    Token(std::string st) {
-        string = st;
+    Token(std::string string) {
+        this->string = string;
     }
 
-    Token(char tp, std::string st) {
-        type = tp;
-        string = st;
+    Token(unsigned char type, std::string string) {
+        this->type = type;
+        this->string = string;
     }
 
-    Token(char tp, std::string st, int i) {
-        type = tp;
-        string = st;
-        index = i;
+    Token(unsigned char type, std::string string, int index) {
+        this->type = type;
+        this->string = string;
+        this->index = index;
     }
 
-    bool compare(Token tk) {
-        return (type == tk.type && string == tk.string);
+    // Index won't be compared.
+    inline bool compare(Token token) {
+        return (this->type == token.type && this->string == token.string);
+    }
+
+    std::pair<int, int> getPosition(std::string source) {
+        int line = 0;
+        int pos = 0;
+
+        for(int i = 0; i < this->index; i++) {
+            if(source[i] == '\n') {
+                pos = 0;
+                line++;
+            } else {
+                pos++;
+            }
+        }
+
+        return { line, pos };
+    }
+
+    static std::pair<int, int> getPosition(std::string source, int index) {
+        int line = 0;
+        int pos = 0;
+
+        for(int i = 0; i < index; i++) {
+            if(source[i] == '\n') {
+                pos = 0;
+                line++;
+            } else {
+                pos++;
+            }
+        }
+
+        return { line, pos };
+    }
+
+    static std::string getPositionText(std::string filePath, std::string source, int index) {
+        std::pair pos = Token::getPosition(source, index);
+        return filePath + ":" + std::to_string(pos.first + 1) + ":" + std::to_string(pos.second + 1);
+    }
+
+    std::string getPositionText(std::string filePath, std::string source) {
+        std::pair pos = this->getPosition(source);
+        return filePath + ":" + std::to_string(pos.first + 1) + ":" + std::to_string(pos.second + 1);
+    }
+
+    bool match(std::vector<unsigned char> matches) {
+        bool res = false;
+
+        for(int i = 0; i < matches.size(); i++) {
+            if(matches[i] == this->type) {
+                res = true;
+            }
+        }
+
+        return res;
+    }
+
+    bool match(std::string regexp) {
+        return std::regex_match(this->string, std::regex(regexp));
     }
 };
 
@@ -124,51 +187,53 @@ struct Node {
 
     Node() {}
 
-    Node(unsigned char tp) {
-        type = tp;
+    Node(unsigned char type) {
+        this->type = type;
     }
 
-    Node(unsigned char tp, std::vector<Node> ch) {
-        type = tp;
-        children = ch;
+    Node(unsigned char type, std::vector<Node> children) {
+        this->type = type;
+        this->children = children;
     }
 
-    Node(unsigned char tp, std::vector<Token> tk) {
-        type = tp;
-        tokens = tk;
+    Node(unsigned char type, std::vector<Token> tokens) {
+        this->type = type;
+        this->tokens = tokens;
     }
 
-    Node(unsigned char tp, std::vector<Node> ch, std::vector<Token> tk) {
-        type = tp;
-        children = ch;
-        tokens = tk;
+    Node(unsigned char type, std::vector<Node> children, std::vector<Token> tokens) {
+        this->type = type;
+        this->children = children;
+        this->tokens = tokens;
     }
 
-    void addNode(Node nd) {
-        children.push_back(nd);
+    inline void addChild(Node node) {
+        this->children.push_back(node);
     }
 
-    void addToken(Token tk) {
-        tokens.push_back(tk);
+    inline void addToken(Token token) {
+        this->tokens.push_back(token);
     }
 
-    Node getNode(int index) {
-        return children[index];
+    inline Node childAt(int index) {
+        return this->children[index];
     }
 
-    Token getToken(int index) {
-        return tokens[index];
+    inline Token tokenAt(int index) {
+        return this->tokens[index];
     }
 
-    bool isEmpty() {
-        return (type == N_UNKNOWN);
+    inline void print() {
+        this->print("|");
     }
 
-    void out(std::string level) {
+    void print(std::string level) {
         std::cout << "\033[30m" << level << "\033[m" << (int)type << std::endl;
-        for(Token t : tokens)
-            std::cout << "\033[30m" << level << "||" << "\033[m" << ((t.string == "|") ? "[pipe]" : t.string) << std::endl;
-        for(Node n : children)
-            n.out(level + "||");
+
+        for(Token token : this->tokens)
+            std::cout << "\033[30m" << level << "||" << "\033[m" << ((token.string == "|") ? "[pipe]" : token.string) << std::endl;
+
+        for(Node node : this->children)
+            node.print(level + "||");
     }
 };

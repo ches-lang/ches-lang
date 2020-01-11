@@ -28,7 +28,7 @@ public:
         for(std::pair<std::string, std::string> p : details)
             std::cout << "\t" << p.first << ": " << p.second << std::endl;
 
-        if(displayCount == displayCountLimit + 1)
+        if(displayCount == displayCountLimit)
             Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(displayCountLimit) } }, true);
 
         if(terminate) exit(-1);
@@ -47,7 +47,7 @@ public:
 
         Console::notice("cnote4247", "[-miss] to continue forcibly", {}, false);
 
-        if(displayCount == displayCountLimit + 1)
+        if(displayCount == displayCountLimit)
             Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(displayCountLimit) } }, true);
 
         if(terminate) exit(-1);
@@ -64,7 +64,7 @@ public:
         for(std::pair<std::string, std::string> p : details)
             std::cout << "\t" << p.first << ": " << p.second << std::endl;
 
-        if(displayCount == displayCountLimit + 1)
+        if(displayCount == displayCountLimit)
             Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(displayCountLimit) } }, true);
 
         if(terminate) exit(-1);

@@ -1,5 +1,8 @@
 main(str[] args)
-  int i = 100
-  println("Hello, world!")
+  println("Please input me your name...")
+  greet(name)
 
 println()
+
+greet(str name)
+  println("Hello, " ~ name ~ "!")

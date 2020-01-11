@@ -12,40 +12,40 @@
 
 
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
-#define ENDOFFILE  -1
-#define UNKNOWN     0
-#define INDENT      1
-#define NEWLINE     2
-#define COMMENTOUT  3
-#define KEYWORD     4
-#define IDENTIFIER  5
-#define NUMBER      6
-#define CHARACTER   7
-#define STRING      8
-#define EXCLAMATION 9
-#define QUESTION    10
-#define TILDE       11
-#define PLUS        12
-#define HYPHEN      13
-#define ASTERISK    14
-#define SLASH       15
-#define PERCENTAGE  16
-#define CARET       17
-#define EQUAL       18
-#define PIPE        19
-#define AMPERSAND   20
-#define PERIOD      21
-#define COMMA       22
-#define COLON       23
-#define SEMICOLON   24
-#define LPAREN      25
-#define RPAREN      26
-#define LBRACK      27
-#define RBLACK      28
-#define LANGBLACK   29
-#define RANGBLACK   30
-#define LBRACE      31
-#define RBRACE      32
+#define ENDOFFILE   0
+#define UNKNOWN     1
+#define INDENT      2
+#define NEWLINE     3
+#define COMMENTOUT  4
+#define KEYWORD     5
+#define IDENTIFIER  6
+#define NUMBER      7
+#define CHARACTER   8
+#define STRING      9
+#define EXCLAMATION 10
+#define QUESTION    11
+#define TILDE       12
+#define PLUS        13
+#define HYPHEN      14
+#define ASTERISK    15
+#define SLASH       16
+#define PERCENTAGE  17
+#define CARET       18
+#define EQUAL       19
+#define PIPE        20
+#define AMPERSAND   21
+#define PERIOD      22
+#define COMMA       23
+#define COLON       24
+#define SEMICOLON   25
+#define LPAREN      26
+#define RPAREN      27
+#define LBRACK      28
+#define RBRACK      29
+#define LANGBRACK   30
+#define RANGBRACK   31
+#define LBRACE      33
+#define RBRACE      34
 
 
 
@@ -157,8 +157,7 @@ private:
                         return Token(COMMENTOUT, res, start);
                     } else res += std::string{source[index]};
                 }
-                std::pair<int, int> at = getPosition(index);
-                Console::error("cerr1562", "expected EOF", { { "at", options.get("-i") + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'*/'" } }, true);
+                Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'*/'" } }, true);
             } else if(source[index + 1] == '/') {
                 std::string res;
                 int start = index;
@@ -212,13 +211,13 @@ private:
             return Token(LBRACK, std::string{ch}, index);
 
         else if(ch == ']')
-            return Token(RBLACK, std::string{ch}, index);
+            return Token(RBRACK, std::string{ch}, index);
 
         else if(ch == '<')
-            return Token(LANGBLACK, std::string{ch}, index);
+            return Token(LANGBRACK, std::string{ch}, index);
 
         else if(ch == '>')
-            return Token(RANGBLACK, std::string{ch}, index);
+            return Token(RANGBRACK, std::string{ch}, index);
 
         else if(ch == '{')
             return Token(LBRACE, std::string{ch}, index);
@@ -237,8 +236,7 @@ private:
                 return Token(INDENT, "  ", index - 1);
             } else {
                 if(source[index + 1] == ' ') index++;
-                std::pair<int, int> at = getPosition(index);
-                Console::error("cerr7903", "invalid indent space", { { "at", options.get("-i") + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
+                Console::error("cerr7903", "invalid indent space", { { "at", Token::getPositionText(options.get("-i"), source, index) } }, false);
             }
         }
 
@@ -269,8 +267,7 @@ private:
                 chr = "\\" + std::string{source[index + 2]};
                 index += 3;
             } else if(source[index + 1] == '\'') {
-                std::pair<int, int> at = getPosition(index);
-                Console::error("cerr4139", "too short character length", { { "at", options.get("-i") + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "a character" } }, false);
+                Console::error("cerr4139", "too short character length", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "a character" } }, false);
                 index += 1;
             } else {
                 bool contain = false;
@@ -278,11 +275,9 @@ private:
                 for(index += 1; index < source.length(); index++)
                     if(source[index] == '\'') { contain = true; break; }
                 if(contain) {
-                    std::pair<int, int> at = getPosition(index);
-                    Console::error("cerr2471", "too long character length", { { "at", options.get("-i") + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) } }, false);
+                    Console::error("cerr2471", "too long character length", { { "at", Token::getPositionText(options.get("-i"), source, index) } }, false);
                 } else {
-                    std::pair<int, int> at = getPosition(index);
-                    Console::error("cerr1562", "expected EOF", { { "at", options.get("-i") + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'''" } }, true);
+                    Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'''" } }, true);
                 }
                 return scan();
             }
@@ -296,8 +291,7 @@ private:
                 if(source[index] != '\"') res += source[index];
                 else return Token(STRING, res, start);
             }
-            std::pair<int, int> at = getPosition(index);
-            Console::error("cerr1562", "expected EOF", { { "at", options.get("-i") + ":" + std::to_string(at.first) + ":" + std::to_string(at.second) }, { "expected", "'\"'" } }, true);
+            Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'\"'" } }, true);
         }
 
         else {
@@ -319,22 +313,5 @@ private:
         }
 
         return Token(UNKNOWN, std::string{ch});
-    }
-
-    std::pair<int, int> getPosition(int index) {
-        int charlen = 0;
-        int line = 0;
-        int at = 0;
-
-        for(int i = 0; i < index; i++) {
-            if(source[i] == '\n') {
-                line++;
-                charlen = 0;
-            } else {
-                charlen++;
-            }
-        }
-
-        return { line, at };
     }
 };

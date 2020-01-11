@@ -179,12 +179,12 @@ private:
 
         for(Node nd : tree.children) {
             if(nd.type == N_DEFFUNC) {
-                funcdata.push_back(FuncData(Bytecode(getRandom(10)).source, Bytecode(nd.getToken(0).string).source));
+                funcdata.push_back(FuncData(Bytecode(getRandom(10)).source, Bytecode(nd.tokenAt(0).string).source));
             }
         }
 
         while(index < tree.children.size()) {
-            toBytecode_scan(tree.getNode(index));
+            toBytecode_scan(tree.childAt(index));
             index++;
         }
 
@@ -196,16 +196,16 @@ private:
 
             switch(node.type) {
                 case N_CALLFUNC: {
-                    std::vector<unsigned char> funcname = Bytecode(node.getToken(0).string).source;
+                    std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
                     lines.push_back({ { I_CALL }, FuncData::findByName(funcdata, funcname).id });
                 } break;
 
                 case N_DEFFUNC: {
-                    std::vector<unsigned char> funcname = Bytecode(node.getToken(0).string).source;
+                    std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
                     std::vector<unsigned char> funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
                     lines.push_back({ { I_GROUP }, funcid, funcname });
                     if(node.children.size() > 1)
-                        lllen += node.getNode(0).children.size();
+                        lllen += node.childAt(0).children.size();
                 } break;
 
                 case N_DEFVAR: {
@@ -213,8 +213,16 @@ private:
                     lslen++;
                 } break;
 
+                case N_IF: {
+                    /*for(; index < node.children.size(); index++) {
+                        ln.push_back(node.childAt(index));
+                    }
+                    index--;
+                    lines.push_back({ { I_IF }, {  } });*/
+                } break;
+
                 case N_INITVAR: {
-                    Token token = node.getToken(2);
+                    Token token = node.tokenAt(2);
                     std::vector<unsigned char> value;
                     if(token.type == NUMBER)
                         value = Bytecode(std::stoi(token.string)).source;
