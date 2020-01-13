@@ -1,9 +1,11 @@
 #pragma once
 
+#include <deque>
 #include <iostream>
 #include <regex>
 #include <stack>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "console.cpp"
 #include "lexer.cpp"
@@ -98,6 +100,9 @@ private:
     bool scan() {
         if(index >= tokens.size() || tokens[index].type == ENDOFFILE) return false;
 
+        std::deque<Token> openParens;
+        std::unordered_map<unsigned char, std::pair<int, std::vector<Token>>> nest = { { LPAREN, {} }, { LBRACK, {} }, { LBRACE, {} }, { LANGBRACK, {} } };
+        bool exit = false;
         indent = 0;
         ln.clear();
 
@@ -115,16 +120,56 @@ private:
             } else if(tk.type == COMMENTOUT) {
                 index++;
             } else {
+                if(tk.match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE, LANGBRACK })) {
+                    nest.at(tk.type).first++;
+                    nest.at(tk.type).second.push_back(tk);
+                    openParens.push_back(tk);
+                } else if(tk.match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE, RANGBRACK })) {
+                    if(openParens.size() == 0) {
+                        Console::error("cerr7904", "4 unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+                        exit = true;
+                    } else {
+                        Token paren = tk.getOpenParen();
+                        Token latestOpenParen = openParens.back();
+
+                        //std::cout << "token: " << tk.string << std::endl << "latest: "<<latestOpenParen.string<<std::endl;
+                        //for(auto s : openParens) std::cout<<s.string<<" ";std::cout<<std::endl;
+
+                        if(latestOpenParen.type == UNKNOWN) {
+                            Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+                            exit = true;
+                        } else if(latestOpenParen.type != paren.type) {
+                            Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", latestOpenParen.getPositionText(sourcePath, source) }, { "expected", "'" + latestOpenParen.getCloseParen().string + "'" } }, false);
+                            nest.at(paren.type).first--;
+                            nest.at(latestOpenParen.type).first--;
+                            openParens.pop_back();
+                            openParens.pop_back();
+                            exit = true;
+                        } else if(nest.at(paren.type).first < 0) {
+                            Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+                            exit = true;
+                        } else {
+                            nest.at(paren.type).first--;
+                            openParens.pop_back();
+                        }
+                    }
+                }
+
                 ln.push_back(tokens[index]);
                 index++;
             }
         }
 
+        for(Token paren : openParens) {
+            Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", paren.getPositionText(sourcePath, source) }, { "expected", "'" + paren.getCloseParen().string + "'" } }, false);
+            exit = true;
+        }
+
+        if(exit) return true;
+
         Node n = getNode(ln);
 
-        if(n.type == N_UNKNOWN) {
-            return scan();
-        }
+        if(n.type == N_UNKNOWN) return scan();
 
         tree.addChild(n);
         return true;
@@ -144,56 +189,16 @@ private:
                 std::cout << t.string << " ";
             std::cout << std::endl;
 
-            Token lastOpening;
-
-            for(int i = 0; i < len; i++) {
-                if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE, LANGBRACK })) {
-                    nest++;
-                    lastOpening = A(i);
-                } else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE, RANGBRACK })) {
-                    nest--;
-                    if(nest < 0) {
-                        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", A(i).getPositionText(sourcePath, source) }, { "unexpected", "'" + SA(i) + "'" } }, false);
-                    }
-                }
-            }
-
-            if(nest > 0) {
-                std::string expected;
-
-                switch (lastOpening.type) {
-                    case LPAREN:
-                    expected = ")";
-                    break;
-
-                    case LBRACK:
-                    expected = "]";
-                    break;
-
-                    case LBRACE:
-                    expected = "}";
-                    break;
-
-                    case RANGBRACK:
-                    expected = ">";
-                    break;
-
-                    default:
-                    expected = "???";
-                    break;
-                }
-
-                Console::error("cerr5916", "expected closing parenthesis or bracket", { { "at", lastOpening.getPositionText(sourcePath, source) }, { "expected", "'" + expected + "'" } }, false);
-            }
-
             // DEFFUNC
             if(indent == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
                 Node node(N_DEFFUNC);
                 node.addToken(Token(IDENTIFIER, SA(0)));
+
                 if(len >= 4) {
                     Node args(N_ARGS);
                     std::vector<Token> ag;
                     int nest = 0;
+
                     for(int i = 2; i < len - 1; i++) {
                         if(TM(i, COMMA) && nest == 0) {
                             if(ag.size() == 1) args.addToken(ag[0]);
@@ -211,6 +216,7 @@ private:
                             ag.push_back(A(i));
                         }
                     }
+
                     node.addChild(args);
                 }
 

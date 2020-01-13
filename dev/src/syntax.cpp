@@ -118,6 +118,42 @@ struct Token {
         return (this->type == token.type && this->string == token.string);
     }
 
+    Token getCloseParen() {
+        switch (this->type) {
+            case LPAREN:
+            return Token(RPAREN, ")", this->index);
+
+            case LBRACK:
+            return Token(RBRACK, "]", this->index);
+
+            case LBRACE:
+            return Token(RBRACE, "}", this->index);
+
+            case LANGBRACK:
+            return Token(RANGBRACK, ">", this->index);
+        }
+
+        return Token();
+    }
+
+    Token getOpenParen() {
+        switch (this->type) {
+            case RPAREN:
+            return Token(LPAREN, "(", this->index);
+
+            case RBRACK:
+            return Token(LBRACK, "[", this->index);
+
+            case RBRACE:
+            return Token(LBRACE, "{", this->index);
+
+            case RANGBRACK:
+            return Token(LANGBRACK, "<", this->index);
+        }
+
+        return Token();
+    }
+
     std::pair<int, int> getPosition(std::string source) {
         int line = 0;
         int pos = 0;
