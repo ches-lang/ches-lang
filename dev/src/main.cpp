@@ -31,7 +31,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    command(cmd, options);
+    Command command;
+    command.runCommand(cmd, options);
 
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;

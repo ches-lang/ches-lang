@@ -1,5 +1,8 @@
-main(str[] args)
-  println("Please input me your name...")
+main(str[] args)(/*
+  if(args.len == 0)
+    println("Please input me your name...")
+    exit(-1)
+
   greet(name)
 
 println()
