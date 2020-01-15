@@ -26,7 +26,6 @@ Node Parser::parse() {
 }
 
 bool Parser::scan() {
-    std::cout<<"scan"<<std::endl;
     if(index >= tokens.size() || tokens[index].type == ENDOFFILE)
         return false;
 
@@ -46,10 +45,10 @@ bool Parser::scan() {
             index++;
         } else if(tk.type == COMMENTOUT) {
             index++;
+        } else {
+            ln.push_back(tokens[index]);
+            index++;
         }
-
-        ln.push_back(tokens[index]);
-        index++;
     }
 
     Node n = getNode(ln);
