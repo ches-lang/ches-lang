@@ -26,12 +26,10 @@ Node Parser::parse() {
 }
 
 bool Parser::scan() {
+    std::cout<<"scan"<<std::endl;
     if(index >= tokens.size() || tokens[index].type == ENDOFFILE)
         return false;
 
-    std::deque<Token> openParens;
-    std::unordered_map<unsigned char, std::pair<int, std::vector<Token>>> nest = { { LPAREN, {} }, { LBRACK, {} }, { LBRACE, {} }, { LANGBRACK, {} } };
-    bool exit = false;
     indent = 0;
     ln.clear();
 
@@ -48,54 +46,11 @@ bool Parser::scan() {
             index++;
         } else if(tk.type == COMMENTOUT) {
             index++;
-        } else {
-            if(tk.match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE, LANGBRACK })) {
-                nest.at(tk.type).first++;
-                nest.at(tk.type).second.push_back(tk);
-                openParens.push_back(tk);
-            } else if(tk.match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE, RANGBRACK })) {
-                if(openParens.size() == 0) {
-                    Console::error("cerr7904", "4 unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
-                    exit = true;
-                } else {
-                    Token paren = tk.getOpenParen();
-                    Token latestOpenParen = openParens.back();
-
-                    //std::cout << "token: " << tk.string << std::endl << "latest: "<<latestOpenParen.string<<std::endl;
-                    //for(auto s : openParens) std::cout<<s.string<<" ";std::cout<<std::endl;
-
-                    if(latestOpenParen.type == UNKNOWN) {
-                        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
-                        exit = true;
-                    } else if(latestOpenParen.type != paren.type) {
-                        Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", latestOpenParen.getPositionText(sourcePath, source) }, { "expected", "'" + latestOpenParen.getCloseParen().string + "'" } }, false);
-                        nest.at(paren.type).first--;
-                        nest.at(latestOpenParen.type).first--;
-                        openParens.pop_back();
-                        openParens.pop_back();
-                        exit = true;
-                    } else if(nest.at(paren.type).first < 0) {
-                        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
-                        exit = true;
-                    } else {
-                        nest.at(paren.type).first--;
-                        openParens.pop_back();
-                    }
-                }
-            }
-
-            ln.push_back(tokens[index]);
-            index++;
         }
-    }
 
-    for(Token paren : openParens) {
-        Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", paren.getPositionText(sourcePath, source) }, { "expected", "'" + paren.getCloseParen().string + "'" } }, false);
-        exit = true;
+        ln.push_back(tokens[index]);
+        index++;
     }
-
-    if(exit)
-        return true;
 
     Node n = getNode(ln);
 
@@ -135,15 +90,10 @@ Node Parser::getNode(std::vector<Token> tk) {
 
                 for(int i = 2; i < len - 1; i++) {
                     if(TM(i, COMMA) && nest == 0) {
-                        //if(ag.size() == 1) args.addToken(ag[0]);
-                        //else args.addChild(getNode(ag));
-                        node.addChild(getNode(ag));//
+                        node.addChild(getNode(ag));
                         ag.clear();
                     } else if(i == len - 2) {
                         ag.push_back(A(i));
-                        //if(ag.size() == 1) args.addToken(ag[0]);
-                        //else args.addChild(getNode(ag));
-                        node.addChild(getNode(ag));//
                     } else {
                         if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE }))
                             nest++;
@@ -171,15 +121,11 @@ Node Parser::getNode(std::vector<Token> tk) {
                 std::vector<Token> ag;
                 for(int i = 2; i < len - 1; i++) {
                     if(TM(i, COMMA) && nest == 0) {
-                        //if(ag.size() == 1) args.addToken(ag[0]);
-                        //else args.addChild(getNode(ag));
-                        node.addChild(getNode(ag));//
+                        node.addChild(getNode(ag));
                         ag.clear();
                     } else if(i == len - 2) {
                         ag.push_back(A(i));
-                        //if(ag.size() == 1) args.addToken(ag[0]);
-                        //else args.addChild(getNode(ag));
-                        node.addChild(getNode(ag));//
+                        node.addChild(getNode(ag));
                     } else {
                         if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
                             nest++;
@@ -215,7 +161,7 @@ Node Parser::getNode(std::vector<Token> tk) {
         // IF
         if(len >= 4 && M(0, KEYWORD, "if") && TM(1, LPAREN) && TM(-1, LPAREN)) {
             Node node(N_IF);
-            node.addChild(getNode(copy(2, len - 3, ln)));//
+            //node.addChild(getNode(copy(2, len - 3, ln)));
             //if(len == 4) node.addToken(A(2));
             //else node.addChild(getNode(copy(2, len - 3, ln)));
             //Node root(N_ROOT);

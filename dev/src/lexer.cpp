@@ -30,7 +30,8 @@ int Options::size() {
 
 Lexer::Lexer() {}
 
-Lexer::Lexer(std::string src, Options opt) {
+Lexer::Lexer(std::string srcpath, std::string src, Options opt) {
+    sourcePath = srcpath;
     source = src;
     options = opt;
 }
@@ -44,6 +45,8 @@ std::vector<Token> Lexer::getTokens() {
         tokens.push_back(tk);
         //std::cout << (int)tk.type << "\t" << ((tk.string == "\n") ? "\\n" : tk.string) << std::endl;//
     } while(tk.type != ENDOFFILE);
+
+    checkParenFinally();
 
     if(Console::errored) {
         exit(-1);
@@ -85,12 +88,13 @@ Token Lexer::scan() {
         if(source[index + 1] == '*') {
             std::string res;
             int start = index;
-            for(index += 2; index < source.length(); index++) {
+            for(index += 2; index < source.length() - 1; index++) {
                 if(source[index] == '*' && source[index + 1] == '/') {
                     index++;
                     return Token(COMMENTOUT, res, start);
                 } else res += std::string{source[index]};
             }
+            checkParenFinally();
             Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'*/'" } }, true);
         } else if(source[index + 1] == '/') {
             std::string res;
@@ -135,17 +139,29 @@ Token Lexer::scan() {
     else if(ch == ';')
         return Token(SEMICOLON, std::string{ch}, index);
 
-    else if(ch == '(')
-        return Token(LPAREN, std::string{ch}, index);
+    else if(ch == '(') {
+        Token tk = Token(LPAREN, std::string{ch}, index);
+        checkParen(tk);
+        return tk;
+    }
 
-    else if(ch == ')')
-        return Token(RPAREN, std::string{ch}, index);
+    else if(ch == ')') {
+        Token tk = Token(RPAREN, std::string{ch}, index);
+        checkParen(tk);
+        return tk;
+    }
 
-    else if(ch == '[')
-        return Token(LBRACK, std::string{ch}, index);
+    else if(ch == '[') {
+        Token tk = Token(LBRACK, std::string{ch}, index);
+        checkParen(tk);
+        return tk;
+    }
 
-    else if(ch == ']')
-        return Token(RBRACK, std::string{ch}, index);
+    else if(ch == ']') {
+        Token tk = Token(RBRACK, std::string{ch}, index);
+        checkParen(tk);
+        return tk;
+    }
 
     else if(ch == '<')
         return Token(LANGBRACK, std::string{ch}, index);
@@ -153,11 +169,17 @@ Token Lexer::scan() {
     else if(ch == '>')
         return Token(RANGBRACK, std::string{ch}, index);
 
-    else if(ch == '{')
-        return Token(LBRACE, std::string{ch}, index);
+    else if(ch == '{') {
+        Token tk = Token(LBRACE, std::string{ch}, index);
+        checkParen(tk);
+        return tk;
+    }
 
-    else if(ch == '}')
-        return Token(RBRACE, std::string{ch}, index);
+    else if(ch == '}') {
+        Token tk = Token(RBRACE, std::string{ch}, index);
+        checkParen(tk);
+        return tk;
+    }
 
     else if(ch == ' ') {
         for(int i = index - 1; i >= 0; i--)
@@ -211,6 +233,7 @@ Token Lexer::scan() {
             if(contain) {
                 Console::error("cerr2471", "too long character length", { { "at", Token::getPositionText(options.get("-i"), source, index) } }, false);
             } else {
+                checkParenFinally();
                 Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'''" } }, true);
             }
             return scan();
@@ -225,6 +248,7 @@ Token Lexer::scan() {
             if(source[index] != '\"') res += source[index];
             else return Token(STRING, res, start);
         }
+        checkParenFinally();
         Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'\"'" } }, true);
     }
 
@@ -247,4 +271,40 @@ Token Lexer::scan() {
     }
 
     return Token(UNKNOWN, std::string{ch});
+}
+
+void Lexer::checkParen(Token tk) {
+    if(tk.match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
+        nest.at(tk.type).first++;
+        nest.at(tk.type).second.push_back(tk);
+        openParens.push_back(tk);
+    } else if(tk.match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE })) {
+        if(openParens.size() == 0) {
+            Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+        } else {
+            Token paren = tk.getOpenParen();
+            Token latestOpenParen = openParens.back();
+
+            if(latestOpenParen.type == UNKNOWN) {
+                Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+            } else if(latestOpenParen.type != paren.type) {
+                Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", latestOpenParen.getPositionText(sourcePath, source) }, { "expected", "'" + latestOpenParen.getCloseParen().string + "'" } }, false);
+                nest.at(paren.type).first--;
+                nest.at(latestOpenParen.type).first--;
+                openParens.pop_back();
+                openParens.pop_back();
+            } else if(nest.at(paren.type).first < 0) {
+                Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+            } else {
+                nest.at(paren.type).first--;
+                openParens.pop_back();
+            }
+        }
+    }
+}
+
+void Lexer::checkParenFinally() {
+    for(Token paren : openParens) {
+        Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", paren.getPositionText(sourcePath, source) }, { "expected", "'" + paren.getCloseParen().string + "'" } }, false);
+    }
 }

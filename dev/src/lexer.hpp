@@ -11,47 +11,6 @@
 
 
 
-/* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
-/*#define ENDOFFILE   0
-#define UNKNOWN     1
-#define INDENT      2
-#define NEWLINE     3
-#define COMMENTOUT  4
-#define KEYWORD     5
-#define IDENTIFIER  6
-#define NUMBER      7
-#define CHARACTER   8
-#define STRING      9
-#define EXCLAMATION 10
-#define QUESTION    11
-#define TILDE       12
-#define PLUS        13
-#define HYPHEN      14
-#define ASTERISK    15
-#define SLASH       16
-#define PERCENTAGE  17
-#define CARET       18
-#define EQUAL       19
-#define PIPE        20
-#define AMPERSAND   21
-#define PERIOD      22
-#define COMMA       23
-#define COLON       24
-#define SEMICOLON   25
-#define LPAREN      26
-#define RPAREN      27
-#define LBRACK      28
-#define RBRACK      29
-#define LANGBRACK   30
-#define RANGBRACK   31
-#define LBRACE      33
-#define RBRACE      34*/
-
-
-
-//#ifndef INCLUDED_OPTIONS
-//#define INCLUDED_OPTIONS
-
 struct Options {
 
     std::unordered_map<std::string, std::string> map;
@@ -69,26 +28,33 @@ struct Options {
     int size();
 };
 
-//#endif
-
 
 
 class Lexer {
 
-public:
+private:
 
+    std::string sourcePath;
     std::string source;
     Options options;
 
+    int index = -1;
+    std::unordered_map<unsigned char, std::pair<int, std::vector<Token>>> nest = { { LPAREN, {} }, { LBRACK, {} }, { LBRACE, {} } };
+    std::deque<Token> openParens;
+
+public:
+
     Lexer();
 
-    Lexer(std::string src, Options opt);
+    Lexer(std::string srcpath, std::string src, Options opt);
 
     std::vector<Token> getTokens();
 
 private:
 
-    int index = -1;
-
     Token scan();
+
+    void checkParen(Token tk);
+
+    void checkParenFinally();
 };
