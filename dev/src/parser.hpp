@@ -71,7 +71,6 @@ private:
     Node tree = Node(N_ROOT);
 
     int index = 0;
-    std::vector<Token> ln;
     int indent = 0;
 
 public:
@@ -84,9 +83,9 @@ public:
 
 private:
 
-    bool scan();
+    Node scanNextLine();
 
-    Node getNode(std::vector<Token> tk);
+    Node getNode(std::vector<Token> tk, unsigned char defaultType = N_TOKEN);
 
     // 優先度高い             優先度低い
     // true → ope1 < ope2   false → ope1 >= ope2

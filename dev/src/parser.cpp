@@ -14,23 +14,19 @@ Parser::Parser(std::string srcpath, std::string src, std::vector<Token> tk, Opti
 }
 
 Node Parser::parse() {
-    bool b;
+    int tklen = tokens.size();
 
     do {
-        b = scan();
-    } while(b);
+        tree.addChild(scanNextLine());
+    } while(tokens[index].type != ENDOFFILE);
 
-    //std::cout << tree.childAt(0).childAt(0).tokens[0].string << std::endl;
     tree.print();
     return tree;
 }
 
-bool Parser::scan() {
-    if(index >= tokens.size() || tokens[index].type == ENDOFFILE)
-        return false;
-
+Node Parser::scanNextLine() {
+    std::vector<Token> ln;
     indent = 0;
-    ln.clear();
 
     while(true) {
         Token tk = tokens[index];
@@ -46,21 +42,16 @@ bool Parser::scan() {
         } else if(tk.type == COMMENTOUT) {
             index++;
         } else {
-            ln.push_back(tokens[index]);
+            ln.push_back(tk);
             index++;
         }
     }
 
     Node n = getNode(ln);
-
-    if(n.type == N_UNKNOWN)
-        return scan();
-
-    tree.addChild(n);
-    return true;
+    return n;
 }
 
-Node Parser::getNode(std::vector<Token> tk) {
+Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
     int len = tk.size();
     bool ismatch = false;
     int nest = 0;
@@ -69,13 +60,13 @@ Node Parser::getNode(std::vector<Token> tk) {
         return Node(N_UNKNOWN);
 
     if(len == 1)
-        return Node(N_TOKEN, tk);
+        return Node(defaultType, tk);
 
     try {
-        std::cout << "tk: ";
+        /*std::cout << "tk: ";
         for(Token t : tk)
             std::cout << t.string << " ";
-        std::cout << std::endl;
+        std::cout << std::endl;*/
 
         // DEFFUNC
         if(indent == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
@@ -158,13 +149,13 @@ Node Parser::getNode(std::vector<Token> tk) {
         }
 
         // IF
-        if(len >= 4 && M(0, KEYWORD, "if") && TM(1, LPAREN) && TM(-1, LPAREN)) {
+        if(len >= 4 && M(0, KEYWORD, "if") && TM(1, LPAREN) && TM(-1, RPAREN)) {
             Node node(N_IF);
-            //node.addChild(getNode(copy(2, len - 3, ln)));
-            //if(len == 4) node.addToken(A(2));
-            //else node.addChild(getNode(copy(2, len - 3, ln)));
-            //Node root(N_ROOT);
-            //root.addToken();
+            node.addChild(getNode(copy(2, len - 3, tk)));//
+//            Node root(N_ROOT);
+//            for(index += 1; index < source.size(); index++) {
+                //root.addToken();
+//            }
             return node;
         }
 
@@ -252,10 +243,10 @@ Node Parser::getNode(std::vector<Token> tk) {
 
         len = tk.size();
 
-        /*std::cout << "tk exp: ";
+        std::cout << "tk exp: ";
         for(Token t : tk)
             std::cout << t.string << " ";
-        std::cout << std::endl;*/
+        std::cout << std::endl;
 
         /* 論理式 */
 
@@ -279,8 +270,7 @@ Node Parser::getNode(std::vector<Token> tk) {
 
             for(int i = 0; i < len; i++) {
                 if(A(i).match(std::vector<unsigned char> { PIPE, AMPERSAND }) && nest == 0) {
-                    if(side.size() == 1) {node.addChild(Node(N_ITEM, {}, { side.at(0) }));}
-                    else node.addChild(getNode(side));
+                    node.addChild(getNode(side, N_ITEM));
                     side.clear();
 
                     if(TM(i, PIPE) && TM(i + 1, PIPE)) {
@@ -301,9 +291,9 @@ Node Parser::getNode(std::vector<Token> tk) {
                 }
             }
 
-            if(side.size() == 1) node.addChild(Node(N_ITEM, {}, { side.at(0) }));
-            else node.addChild(getNode(side));
+            node.addChild(getNode(side, N_ITEM));
             side.clear();
+
             return node;
         }
 
@@ -322,32 +312,35 @@ Node Parser::getNode(std::vector<Token> tk) {
             }
         }
 
-        if (len >= 3 && ismatch) {
+        if(len >= 3 && ismatch) {
             Node node(N_COMP);
             unsigned char type = N_UNKNOWN;
             std::vector<Token> leftside;
             std::vector<Token> rightside;
 
             for(int i = 0; i < len; i++) {
-                if(TM(i, EQUAL) && TM(i + 1, EQUAL)) {
-                    type = N_EQUAL;
-                    i++;
-                } else if(TM(i, LANGBRACK)) {
-                    type = N_LANGBRACK;
-                } else if(TM(i, RANGBRACK)) {
-                    type = N_RANGBRACK;
-                } else if(type == N_UNKNOWN) {
-                    leftside.push_back(A(i));
+                if(type == N_UNKNOWN) {
+                    // 左辺: まだ比較演算子がきていない
+                    if(i < len - 1 && TM(i, EQUAL) && TM(i + 1, EQUAL)) {
+                        type = N_EQUAL;
+                        i++;
+                    } else if(TM(i, LANGBRACK)) {
+                        type = N_LESS;
+                    } else if(TM(i, RANGBRACK)) {
+                        type = N_GREATER;
+                    } else {
+                        leftside.push_back(A(i));
+                    }
                 } else {
+                    // 右辺: 比較演算子がすでにきた
                     rightside.push_back(A(i));
                 }
             }
 
             node.addChild(Node(type, {}, {}));
-            if(leftside.size() == 1) node.addChild(Node(N_ITEM, {}, { leftside.at(0) }));
-            else node.addChild(getNode(leftside));
-            if(rightside.size() == 1) node.addChild(Node(N_ITEM, {}, { rightside.at(0) }));
-            else node.addChild(getNode(rightside));
+            node.addChild(getNode(leftside, N_ITEM));
+            node.addChild(getNode(rightside, N_ITEM));
+
             return node;
         }
 
@@ -440,6 +433,7 @@ Node Parser::getNode(std::vector<Token> tk) {
         std::cout << "EXCEPTION" << std::endl;
     }
 
+    // todo: add an error'unknown syntax'
     return Node(N_UNKNOWN);
 }
 

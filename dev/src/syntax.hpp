@@ -63,8 +63,10 @@
 #define N_ITEM      0x15
 #define N_OPE       0x16
 #define N_EQUAL     0x17
-#define N_LANGBRACK 0x18
-#define N_RANGBRACK 0x19
+#define N_LESS      0x18
+#define N_GREATER   0x19
+#define N_LESSEQL   0x20
+#define N_GRTREQL   0x21
 
 #define SI_BCSTART  0x00
 #define SI_LNDIV    0x01
