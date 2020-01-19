@@ -7,8 +7,6 @@
 #include "console.cpp"
 #include "parser.cpp"
 
-
-
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
 #define ENDOFFILE   0
 #define UNKNOWN     1
@@ -149,6 +147,7 @@ struct Node {
     unsigned char type = N_UNKNOWN;
     std::vector<Node> children;
     std::vector<Token> tokens;
+    std::string prefix = "||";
 
     Node();
 

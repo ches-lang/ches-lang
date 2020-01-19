@@ -105,10 +105,6 @@ bool Token::match(std::string regexp) {
 
 
 
-unsigned char type = N_UNKNOWN;
-std::vector<Node> children;
-std::vector<Token> tokens;
-
 Node::Node() {}
 
 Node::Node(unsigned char type) {
@@ -154,15 +150,15 @@ Token Node::tokenAt(int index) {
 }
 
 void Node::print() {
-    this->print("|");
+    this->print(this->prefix);
 }
 
 void Node::print(std::string level) {
-    std::cout << "\033[30m" << level << "\033[m" << (int)type << std::endl;
+    std::cout << "\033[31m" << level << "\033[m" << std::hex << (int)this->type << std::endl;
 
     for(Token token : this->tokens)
-        std::cout << "\033[30m" << level << "||" << "\033[m" << ((token.string == "|") ? "[pipe]" : token.string) << std::endl;
+        std::cout << "\033[31m" << level << this->prefix << "\033[m" << ((token.string == "|") ? "[pipe]" : token.string) << std::endl;
 
     for(Node node : this->children)
-        node.print(level + "||");
+        node.print(level + this->prefix);
 }

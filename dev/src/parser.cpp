@@ -63,10 +63,10 @@ Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
         return Node(defaultType, tk);
 
     try {
-        /*std::cout << "tk: ";
+        std::cout << "tk: ";
         for(Token t : tk)
             std::cout << t.string << " ";
-        std::cout << std::endl;*/
+        std::cout << std::endl;
 
         // DEFFUNC
         if(indent == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
@@ -151,11 +151,16 @@ Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
         // IF
         if(len >= 4 && M(0, KEYWORD, "if") && TM(1, LPAREN) && TM(-1, RPAREN)) {
             Node node(N_IF);
-            node.addChild(getNode(copy(2, len - 3, tk)));//
-//            Node root(N_ROOT);
-//            for(index += 1; index < source.size(); index++) {
-                //root.addToken();
-//            }
+            node.addChild(getNode(copy(2, len - 3, tk)));
+            Node root(N_ROOT);
+            int idt = indent;
+
+            do {
+                root.addChild(scanNextLine());
+                std::cout<<"indent: "<<idt<<": "<<indent<<std::endl;
+            } while(indent > idt && tokens[index].type != ENDOFFILE);
+
+            node.addChild(root);
             return node;
         }
 
