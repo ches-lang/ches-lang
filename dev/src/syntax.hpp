@@ -75,8 +75,8 @@
 #define I_GROUP     0x05
 #define I_LSPUSH    0x06
 #define I_LLPUSH    0x07
-#define I_CALL      0x08
-#define I_RETURN    0x09
+#define I_CALL      0x08 // todo: change it from I_CALL to I_JUMP : it can jump to group and the specified line
+#define I_RETURN    0x09 // todo: remove it
 #define I_LAND      0x10
 #define I_LOR       0x11
 #define I_NADD      0x12

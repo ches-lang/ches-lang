@@ -4,6 +4,17 @@
 
 
 
+Line::Line() {}
+
+Line::Line(std::vector<Token> tokens, int beginIndex, int endIndex, int indent) {
+    this->tokens = tokens;
+    this->indent = indent;
+    this->beginIndex = beginIndex;
+    this->endIndex = endIndex;
+}
+
+
+
 Parser::Parser() {}
 
 Parser::Parser(std::string srcpath, std::string src, std::vector<Token> tk, Options opt) {
@@ -24,9 +35,46 @@ Node Parser::parse() {
     return tree;
 }
 
-Node Parser::scanNextLine() {
+std::vector<Line> Parser::getLines() {
+    std::vector<Line> lines;
+    int index = 0;
+
+    while(true) {
+        std::vector<Token> line;
+        int indent = 0;
+
+        while(true) {
+            Token tk = tokens[index];
+
+            if(tk.type == ENDOFFILE) {
+                break;
+            } else if(tk.type == NEWLINE) {
+                index++;
+                break;
+            } else if(tk.type == INDENT) {
+                indent++;
+                index++;
+            } else if(tk.type == COMMENTOUT) {
+                index++;
+            } else {
+                line.push_back(tk);
+                index++;
+            }
+        }
+
+        lines.push_back(Line(ln));
+
+        if(index >= this->tokens.size())
+            break;
+    }
+
+    return lines;
+}
+
+Node Parser::scanNextLine() {std::cout<<"scanNextLine"<<std::endl;
     std::vector<Token> ln;
-    indent = 0;
+    int index = this->index;
+    int indent = 0;
 
     while(true) {
         Token tk = tokens[index];
@@ -47,8 +95,41 @@ Node Parser::scanNextLine() {
         }
     }
 
-    Node n = getNode(ln);
-    return n;
+    if(ln.size() == 0){std::cout<<"hey!"<<std::endl;
+        return scanNextLine();}
+
+    return getNode(ln);
+    //return scanNextLine();
+}
+
+Node Parser::scanNextNest(unsigned char nodeType) {
+    Node node(nodeType);
+    int index = this->index;
+    int indent = 0;
+
+    while(true) {
+        while(true) {
+            Token tk = tokens[index];
+
+            if(tk.type == ENDOFFILE) {
+                break;
+            } else if(tk.type == NEWLINE) {
+                index++;
+                break;
+            } else if(tk.type == INDENT) {
+                indent++;
+                index++;
+            } else if(tk.type == COMMENTOUT) {
+                index++;
+            } else {
+                ln.push_back(tk);
+                index++;
+            }
+        }
+
+        if(this->index < index)
+            return scanNextLine();
+    }
 }
 
 Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
@@ -153,12 +234,21 @@ Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
             Node node(N_IF);
             node.addChild(getNode(copy(2, len - 3, tk)));
             Node root(N_ROOT);
-            int idt = indent;
 
-            do {
-                root.addChild(scanNextLine());
-                std::cout<<"indent: "<<idt<<": "<<indent<<std::endl;
-            } while(indent > idt && tokens[index].type != ENDOFFILE);
+            int nextLineIndex = index;
+
+            do {std::cout<<"getNode"<<std::endl;
+                NextLine nextLine = getLine(nextLineIndex);
+
+                std::cout<<"aaa: "<<nextLine.nextStartIndex<<" "<<std::hex<<(int)tokens[nextLine.nextStartIndex].type<<std::endl;
+
+                if(tk.size() == 0)
+                    continue;
+
+                if(indent < nextLine.indent)
+                    root.addChild(scanNextLine());
+                else break;
+            } while(tokens[index].type != ENDOFFILE);
 
             node.addChild(root);
             return node;
@@ -229,7 +319,9 @@ Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
                 } else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, RANGBRACK, RBRACE })) {
                     containsParen = true;
                     nest--;
-                    if(nest == 0 && i != len - 1) enclosed = false; // 括弧に囲まれてない そのまま使える
+
+                    if(nest == 0 && i != len - 1)
+                        enclosed = false; // 括弧に囲まれてない そのまま使える
                 }
             }
 
@@ -248,10 +340,10 @@ Node Parser::getNode(std::vector<Token> tk, unsigned char defaultType) {
 
         len = tk.size();
 
-        std::cout << "tk exp: ";
+        /*std::cout << "tk exp: ";
         for(Token t : tk)
             std::cout << t.string << " ";
-        std::cout << std::endl;
+        std::cout << std::endl;*/
 
         /* 論理式 */
 
@@ -462,4 +554,33 @@ std::vector<Token> Parser::copy(int begin, int length, std::vector<Token> src) {
     for(int i = begin; i < begin + length; i++)
         res.push_back(src.at(i));
     return res;
+}
+
+// int: 結果の次行の開始インデックス | vector<Token>: 結果行のトークン配列
+NextLine Parser::getLine(int startIndex) {
+    std::vector<Token> ln;
+    int nextLineIndex = startIndex;
+    int indent;
+
+    for(int i = startIndex; i < tokens.size(); i++, nextLineIndex++) {
+        Token tk = tokens[i];
+std::cout<<std::hex<<(int)tk.type<<" ";
+        if(tk.type == ENDOFFILE) {
+            break;
+        } else if(tk.type == NEWLINE) {
+            break;
+        } else if(tk.type == INDENT) {
+            indent++;
+            continue;
+        } else if(tk.type == COMMENTOUT) {
+            continue;
+        } else {
+            ln.push_back(tk);std::cout<<tk.string<<" | ";
+        }
+    }std::cout<<std::endl;
+
+    nextLineIndex++;
+std::cout<<"aaaaaa: "<<std::hex<<(int)tokens[nextLineIndex].type<<std::endl;
+    return NextLine(ln, startIndex, nextLineIndex, indent);
+    //return std::pair(nextLineIndex, ln);
 }

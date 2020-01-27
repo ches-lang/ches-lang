@@ -22,6 +22,19 @@
 
 
 
+struct Line {
+    std::vector<Token> tokens;
+    int indent;
+    int beginIndex;
+    int endIndex;
+
+    Line();
+
+    Line(std::vector<Token> tokens, int beginIndex, int endIndex, int indent);
+};
+
+
+
 class Parser {
 
 private:
@@ -31,9 +44,9 @@ private:
     std::vector<Token> tokens;
     Options options;
     Node tree = Node(N_ROOT);
+    std::vector<Line> lines;
 
-    int index = 0;
-    int indent = 0;
+    int lineIndex = 0;
 
 public:
 
@@ -45,6 +58,8 @@ public:
 
 private:
 
+    std::vector<Line> getLines();
+
     Node scanNextLine();
 
     Node getNode(std::vector<Token> tk, unsigned char defaultType = N_TOKEN);
@@ -54,4 +69,6 @@ private:
     bool compareOpe(std::string ope1, std::string ope2);
 
     std::vector<Token> copy(int begin, int length, std::vector<Token> src);
+
+    NextLine getLine(int startIndex);
 };
