@@ -142,11 +142,11 @@ void Node::addToken(Token token) {
 }
 
 Node Node::childAt(int index) {
-    return this->children[index];
+    return this->children[(index >= 0 ? index : this->children.size() + index)];
 }
 
 Token Node::tokenAt(int index) {
-    return this->tokens[index];
+    return this->tokens[(index >= 0 ? index : this->tokens.size() + index)];
 }
 
 void Node::print() {
