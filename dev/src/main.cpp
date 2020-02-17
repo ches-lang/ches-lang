@@ -37,5 +37,6 @@ int main(int argc, char *argv[]) {
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;
     auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-    std::cout << msec << "ms" << std::endl;
+    std::cout << "dec duration: " << msec << "ms" << std::endl;
+    std::cout << "hex duration: " << std::dec << msec << "ms" << std::endl;
 }
