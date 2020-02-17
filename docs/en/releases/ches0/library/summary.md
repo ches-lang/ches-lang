@@ -4,7 +4,7 @@
 
 |Name|Description|
 |:-:|:-:|
-|[System](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/library/System/summary.md)|Basic functions to develop applications.|
+|[System](/docs/en/releases/ches0/library/System/summary.md)|Basic functions to develop applications.|
 
 ---
 

@@ -2,15 +2,15 @@
 
 ## Links
 
-- [Releases](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/summary.md)
+- [Releases](/docs/en/releases/summary.md)
 
-  - [Ches0](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/summary.md)
+  - [Ches0](/docs/en/releases/ches0/summary.md)
 
-- [License [MUST-READ]](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/license/items.md)
+- [License [MUST-READ]](/docs/en/license/items.md)
 
-- [License FAQ](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/license/faq.md)
+- [License FAQ](/docs/en/license/faq.md)
 
-- [Contact](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/contact.md)
+- [Contact](/docs/en/contact.md)
 
 ---
 

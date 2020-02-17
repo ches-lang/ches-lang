@@ -8,7 +8,7 @@ Please make an appropriate decision if not described in the license.
 
 
 
-ご不明な点などがあれば [ライセンスFAQ](https://github.com/Garnet3106/chestnut/tree/develop/docs/en/license/faq.md) を確認の上 [ご連絡](#連絡先) ください。
+ご不明な点などがあれば [ライセンスFAQ](/docs/en/license/faq.md) を確認の上 [ご連絡](#連絡先) ください。
 
 ## Items
 
@@ -20,7 +20,7 @@ You can use Chestnut freely if you use for private use.
 
 You can redistribute a part or the whole of Chestnut.
 Please report me [here](#Contact) when you redistribute it.
-And please present the URL of the [Chestnut License](https://github.com/Garnet3106/chestnut/tree/develop/docs/en/license/items.md) for people who use redistributed Chestnut.
+And please present the URL of the [Chestnut License](/docs/en/license/items.md) for people who use redistributed Chestnut.
 
 ### **Analyzation**
 
@@ -57,7 +57,7 @@ For example:
 
 ## Contact
 
-質問・相談・リクエストなどはすべて [こちら](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/contact.md) よりお願いします。
+質問・相談・リクエストなどはすべて [こちら](/docs/en/contact.md) よりお願いします。
 <br>
 　※ 返信が遅れる可能性があります。ご了承ください。
 

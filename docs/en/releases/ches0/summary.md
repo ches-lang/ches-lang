@@ -4,11 +4,11 @@ This major version is developed for testing.
 
 # Links
 
-- [Bytecode](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/bytecode/summary.md)
+- [Bytecode](/docs/en/releases/ches0/bytecode/summary.md)
 
-- [Tools](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/tools/summary.md)
+- [Tools](/docs/en/releases/ches0/tools/summary.md)
 
-- [Library](https://github.com/Garnet3106/chestnut/blob/develop/docs/en/releases/ches0/library/summary.md)
+- [Library](/docs/en/releases/ches0/library/summary.md)
 
 ---
 
