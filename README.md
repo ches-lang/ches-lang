@@ -2,9 +2,9 @@
 
 ## Languages
 
-- [Chinese (中文)](https://github.com/Garnet3106/chestnut/tree/develop/docs/zh/summary.md)
-- [English](https://github.com/Garnet3106/chestnut/tree/develop/docs/en/summary.md)
-- [Japanese (日本語)](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/summary.md)
+- [Chinese (中文)](/docs/zh/summary.md)
+- [English](/docs/en/summary.md)
+- [Japanese (日本語)](/docs/ja/summary.md)
 
 ---
 

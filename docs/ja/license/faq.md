@@ -1,6 +1,6 @@
 # Chestnutライセンス FAQ
 
-FAQを読む前に [ライセンス](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/license/items.md) をご確認ください。
+FAQを読む前に [ライセンス](/docs/ja/license/items.md) をご確認ください。
 
 ## 質問集
 
@@ -11,7 +11,7 @@ FAQを読む前に [ライセンス](https://github.com/Garnet3106/chestnut/tree
 
 ### ライセンスについてわからないことがあります。
 
-[ライセンス](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/license/items.md) と [FAQ](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/license/faq.md) を読んでもわからない場合は [連絡先](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/license/items.md#連絡先) にてご連絡ください。
+[ライセンス](/docs/ja/license/items.md) と [FAQ](/docs/ja/license/faq.md) を読んでもわからない場合は [連絡先](/docs/ja/license/items.md#連絡先) にてご連絡ください。
 
 ---
 

@@ -5,7 +5,7 @@
 Chestnutの利用に関するライセンスです。ライセンス範囲内でのご使用をお願いします。
 また、ライセンスに記載されていないことに関しても、適切なご判断をお願いします。
 
-ご不明な点などがあれば [ライセンスFAQ](https://github.com/Garnet3106/chestnut/tree/develop/docs/ja/license/faq.md) を確認の上 [ご連絡](#連絡先) ください。
+ご不明な点などがあれば [ライセンスFAQ](/docs/ja/license/faq.md) を確認の上 [ご連絡](#連絡先) ください。
 
 ## 条項
 
@@ -16,7 +16,7 @@ Chestnutの利用に関するライセンスです。ライセンス範囲内で
 ### **再配布**
 
 Chestnutの一部または全体は、対象に関わらず再配布が可能です。
-その際は [ライセンスページ (英語版)](https://github.com/Garnet3106/chestnut/tree/develop/docs/en/license/items.md) のURLをご提示願います。
+その際は [ライセンスページ (英語版)](/docs/en/license/items.md) のURLをご提示願います。
 
 ### **解析**
 
