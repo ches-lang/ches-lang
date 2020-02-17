@@ -1,3 +1,0 @@
-- [LinkTest1](/docs/en/summary.md)
-- [LinkTest2](/Garnet3106/chestnut/tree/develop/docs/en/summary.md)
-- [LinkTest3](/tree/develop/docs/en/summary.md)
