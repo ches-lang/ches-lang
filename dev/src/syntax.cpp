@@ -87,6 +87,18 @@ std::string Token::getPositionText(std::string filePath, std::string source) {
     return filePath + ":" + std::to_string(pos.first + 1) + ":" + std::to_string(pos.second + 1);
 }
 
+bool Token::isParen() {
+    return this->match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE, RPAREN, RBRACK, RBRACE });
+}
+
+bool Token::isCloseParen() {
+    return this->match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE });
+}
+
+bool Token::isOpenParen() {
+    return this->match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE });
+}
+
 bool Token::match(std::vector<unsigned char> matches) {
     bool res = false;
 

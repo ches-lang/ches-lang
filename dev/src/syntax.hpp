@@ -7,6 +7,8 @@
 #include "console.cpp"
 #include "parser.cpp"
 
+// todo: 番号の定義をマクロから列挙体に変更
+
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
 #define ENDOFFILE   0
 #define UNKNOWN     1
@@ -74,6 +76,15 @@
 #define SI_TKDIV    0x02
 #define SI_LLPREF   0x03
 
+/*
+enum BytecodeInsts : unsigned char {
+    unknown,
+    group,
+    lspush,
+    llpush
+};
+*/
+
 #define I_UNKNOWN   0x04
 #define I_GROUP     0x05
 #define I_LSPUSH    0x06
@@ -137,6 +148,12 @@ struct Token {
     }
 
     std::string getPositionText(std::string filePath, std::string source);
+
+    bool isParen();
+
+    bool isCloseParen();
+
+    bool isOpenParen();
 
     bool match(std::vector<unsigned char> matches);
 

@@ -11,10 +11,11 @@
 #include "lexer.cpp"
 #include "syntax.cpp"
 
-#define A(i)        (tokens.at(i >= 0 ? i : len + 1))
+#define A(i)        (tokens.at(i >= 0 ? i : len + i))
 #define M(i, t, s)  (Token(t, s).compare(A(i)))
 #define IA(i)       (A(i).index)
 #define LA(i)       (this->lines.at(i))
+#define CURR_LINE   (LA(this->lineIndex))
 #define TA(i)       (A(i).type)
 #define TM(i, c)    (TA(i) == c)
 #define SA(i)       (A(i).string)
@@ -27,25 +28,40 @@ struct Line {
     std::vector<Token> tokens;
     int nest;
     int beginIndex;
-    int endIndex;
 
     Line();
 
-    Line(std::vector<Token> tokens, int beginIndex, int endIndex, int nest);
+    Line(std::vector<Token> tokens);
 };
 
 
 
+// todo: change struct name to ParenList
 struct ParenNest {
-    int* paren, brack, angbrack, brace = 0;
+    std::vector<int> nestOfParens = std::vector<int>(3, 0);
+    std::vector<Token> parens;
+    std::string sourcePath;
+    std::string source;
     Token latestOpenParen;
 
     ParenNest();
 
-    void checkParen(Token token);
+    ParenNest(std::string sourcePath, std::string source);
 
-    int* getNest(unsigned char type);
-}
+    std::vector<Token> getOrderedParens(std::vector<Token> tokens);
+
+private:
+
+    void addCloseParen(Token token);
+
+    void addOpenParen(Token token);
+
+    void checkCloseParensFinally();
+
+    std::vector<Token> removeSurroundingParens(std::vector<Token> tokens);
+
+    int getNestIndex(unsigned char type);
+};
 
 
 
@@ -60,7 +76,7 @@ private:
     Options options;
     Node tree = Node(N_ROOT);
 
-    int lineIndex = -1;
+    int lineIndex = 0;
 
 public:
 
@@ -82,7 +98,11 @@ private:
 
     Node getNode(std::vector<Token> tokens, int nest = -1, unsigned char defaultType = N_TOKEN);
 
-    std::vector<Token> removeParensAtBothEnd(std::vector<Token> tokens);
+    Node getLogicalExpressionNode(std::vector<Token> tokens);
+
+    Node getCompareExpressionNode(std::vector<Token> tokens);
+
+    unsigned char getOpeType(std::vector<Token> tokens, int index);
 
     // 優先度高い             優先度低い
     // true → ope1 < ope2   false → ope1 >= ope2
@@ -90,5 +110,5 @@ private:
 
     std::vector<Token> copy(int begin, int length, std::vector<Token> src);
 
-    NextLine getLine(int startIndex);
+    Line getLine(int startIndex);
 };

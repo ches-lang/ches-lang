@@ -6,71 +6,137 @@
 
 Line::Line() {}
 
-Line::Line(std::vector<Token> tokens, int beginIndex, int endIndex, int nest) {
-    this->tokens = tokens;
+Line::Line(std::vector<Token> tokens) {
+    std::vector<Token> line;
+    int nest = 0;
+
+    for(int i = 0; i < tokens.size(); i++) {
+        if(tokens[i].type == INDENT) {
+            nest++;
+        } else if(tokens[i].type == COMMENTOUT) {
+            continue;
+        } else {
+            line.push_back(tokens[i]);
+        }
+    }
+
+    this->tokens = line;
     this->nest = nest;
-    this->beginIndex = beginIndex;
-    this->endIndex = endIndex;
+    this->beginIndex = ((line.size() != 0) ? line[0].index : -1);
 }
 
 
 
 ParenNest::ParenNest() {}
 
-// 括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
-// エラーが起きたかを返す
-bool ParenNest::checkParen(Token token) {
-    int *nest = this->getNest(token.type);
-
-    if(token.match(std::vector<unsigned char> { LPAREN, LBRACK, LANGBRACK, LBRACE })) {
-        nest++;
-        return;
-    }
-
-    /*
-    [([])]
-    [(])
-    >{}
-    
-    */
-
-    if(token.match(std::vector<unsigned char> { RPAREN, RBRACK, RANGBRACK, RBRACE })) {
-        // 階層が0未満なのでエラー
-        if(nest < 0) {
-            return;
-        }
-
-        // 最後に開いた括弧の種類が異なるのでエラー
-        if(this->latestOpenParen.type == token.type) {
-            return;
-        }
-
-        nest--;
-
-        return;
-    }
+ParenNest::ParenNest(std::string sourcePath, std::string source) {
+    this->sourcePath = sourcePath;
+    this->source = source;
 }
 
-int* ParenNest::getNest(unsigned char type) {
+// 括弧が渡されたら開き括弧と閉じ括弧を判断する
+std::vector<Token> ParenNest::getOrderedParens(std::vector<Token> tokens) {
+    for(int i = 0; i < tokens.size(); i++) {
+        if(tokens[i].match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
+            this->addOpenParen(tokens[i]);
+        } else if(tokens[i].match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE })) {
+            this->addCloseParen(tokens[i]);
+        }
+    }
+
+    this->checkCloseParensFinally();
+    return this->removeSurroundingParens(this->parens);
+}
+
+// 閉じ括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
+void ParenNest::addCloseParen(Token token) {
+    Token expectingCloseParen = this->latestOpenParen.getOpenParen();
+    int nest = this->nestOfParens[this->getNestIndex(token.type)];
+
+    // 階層が0以下なのでエラー
+    if(nest <= 0) {
+        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", token.getPositionText(this->sourcePath, this->source) }, { "unexpected", token.string } });
+        return;
+    }
+
+    // 最後に開いた括弧の種類が異なるのでエラー
+    if(token.type == expectingCloseParen.type) {
+        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", token.getPositionText(this->sourcePath, this->source) }, { "unexpected", token.string }, { "expected", expectingCloseParen.string } });
+        return;
+    }
+
+    this->parens.push_back(token);
+    this->nestOfParens[this->getNestIndex(token.type)]--;
+}
+
+// 開き括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
+void ParenNest::addOpenParen(Token token) {
+    this->latestOpenParen = token;
+    this->parens.push_back(token);
+    this->nestOfParens[this->getNestIndex(token.type)]++;
+}
+
+// 一番最後に閉じられてない括弧がないかチェック
+void ParenNest::checkCloseParensFinally() {
+    // parensを表示
+    /*for(int i = 0; i < parens.size(); i++)
+        std::cout<<parens[i].string<<std::endl;*/
+
+    std::string expectedParen = "";
+
+    if(this->nestOfParens[0] > 0)
+        expectedParen = ")";
+    else if(this->nestOfParens[1] > 0)
+        expectedParen = "]";
+    else if(this->nestOfParens[2] > 0)
+        expectedParen = "}";
+
+    if(expectedParen != "")
+        Console::error("cerr5916", "expected closing parenthesis or bracket", { { "expected", expectedParen } });
+}
+
+// 外側を取り除いた括弧が不正でないかチェックする
+// もし不正ならば取り除いていない状態の括弧を返す
+std::vector<Token> ParenNest::removeSurroundingParens(std::vector<Token> tokens) {
+    // 渡された括弧の数が1以下ならばtokensを返す
+    if(tokens.size() <= 1)
+        return tokens;
+
+    std::vector<Token> insideParens;
+
+    // 内側の括弧を取り出す
+    for(int i = 1; i < tokens.size() - 1; i++)
+        insideParens.push_back(tokens[i]);
+
+    // 内側の括弧の数が1以下ならばtokensを返す
+    if(insideParens.size() <= 1)
+        return tokens;
+
+    // 最初または最後の括弧が不正ならばtokensを返す
+    if(insideParens[0].getOpenParen().type != UNKNOWN
+            && insideParens[insideParens.size() - 1].getCloseParen().type != UNKNOWN)
+        return tokens;
+
+    // 括弧が不正でなければチェックを繰り返す
+    return ParenNest::removeSurroundingParens(insideParens);
+}
+
+int ParenNest::getNestIndex(unsigned char type) {
     switch(type) {
         case LPAREN:
         case RPAREN:
-        return this->paren;
+        return 0;
 
         case LBRACK:
         case RBRACK:
-        return this->brack;
-
-        case LANGBRACK:
-        case RANGBRACK:
-        return this->angbrack;
+        return 1;
 
         case LBRACE:
         case RBRACE:
-        return this->brace;
+        return 2;
 
         default:
-        return (int*)0;
+        return -1;
     }
 }
 
@@ -78,23 +144,12 @@ int* ParenNest::getNest(unsigned char type) {
 
 Parser::Parser() {}
 
-Parser::Parser(std::string srcpath, std::string src, std::vector<Token> tk, Options opt) {
-    sourcePath = srcpath;
-    source = src;
-    tokens = tk;
+Parser::Parser(std::string sourcePath, std::string source, std::vector<Token> tokens, Options options) {
+    this->sourcePath = sourcePath;
+    this->source = source;
+    this->tokens = tokens;
     this->lines = this->getLines();
-    options = opt;
-}
-
-Node Parser::parse() {
-    int tklen = tokens.size();
-
-    do {
-        tree.addChild(scanNextLine());
-    } while(tokens[index].type != ENDOFFILE);
-
-    tree.print();
-    return tree;
+    this->options = options;
 }
 
 std::vector<Line> Parser::getLines() {
@@ -102,24 +157,16 @@ std::vector<Line> Parser::getLines() {
     int index = 0;
 
     while(true) {
-        std::vector<Token> line;
-        int indent = 0;
+        std::vector<Token> ln;
 
         while(true) {
             Token tk = this->tokens[index];
 
-            if(tk.type == ENDOFFILE) {
-                break;
-            } else if(tk.type == NEWLINE) {
+            if(tk.type == ENDOFFILE || tk.type == NEWLINE) {
                 index++;
                 break;
-            } else if(tk.type == INDENT) {
-                indent++;
-                index++;
-            } else if(tk.type == COMMENTOUT) {
-                index++;
             } else {
-                line.push_back(tk);
+                ln.push_back(tk);
                 index++;
             }
         }
@@ -133,32 +180,50 @@ std::vector<Line> Parser::getLines() {
     return lines;
 }
 
-Node Parser::scanNextLine() {std::cout<<"scanNextLine"<<std::endl;
+Node Parser::parse() {
+    for(; this->lineIndex < this->lines.size(); this->lineIndex++)
+        this->tree.addChild(this->scanNextLine());
+
+    this->tree.print();
+    return this->tree;
+}
+
+Node Parser::scanNextLine() {
+    Node node = this->getNode(CURR_LINE);
+    // lineIndexはノード取得後に変更してください
     this->lineIndex++;
-    return this->getNode(LA(this->lineIndex));
+    return node;
 }
 
 Node Parser::scanNextNest(unsigned char nodeType) {
     Node node(nodeType);
-    Line baseLine = LA(this->lineIndex);
+    Line baseLine = CURR_LINE;
 
     while(true) {
-        Line currentLine = LA(this->lineIndex);
+        this->lineIndex++;
 
-        // 行インデックスがトークン列のサイズを超える場合
-        if(this->lineIndex >= this->tokens.size())
+        // 行インデックスがLineのサイズを超える場合
+        if(this->lineIndex >= this->lines.size())
             break;
 
-        // ネストがベース行よりも浅い場合
-        if(baseLine.indent >= currentLine.indent)
+        Line currentLine = CURR_LINE;
+
+        // ネストがベース行と同じか、それよりも浅い場合
+        if(baseLine.nest >= currentLine.nest)
             break;
 
-        // ネストがベース行よりも深い場合
-        if(this->lineIndex < this->tokens.size() - 1)
-            if(baseLine.indent < LA(this->lineIndex + 1).indent)
-                std::cout << "nest error" << std::endl;
-                //scanNextLine内でscanNextNestが呼ばれるべき
-                //error
+        // ネストがチェック中のネストよりも深い場合
+        //scanNextLine内でscanNextNestが呼ばれるべき
+        // よりネストの深い行はチェックする必要なし
+
+        /*if(baseLine.nest < CURR_LINE.nest)
+            if(baseLine.nest < LA(this->lineIndex + 1).nest)
+                continue;*/
+
+        if(baseLine.nest + 1 < CURR_LINE.nest) {
+            std::cout<<"..."<<std::endl;
+            continue;
+        }
 
         node.addChild(this->getNode(currentLine));
     }
@@ -167,22 +232,19 @@ Node Parser::scanNextNest(unsigned char nodeType) {
 }
 
 Node Parser::getNode(Line line, unsigned char defaultType) {
-    return this->getNode(line.tokens, defaultType);
+    return this->getNode(line.tokens, line.nest, defaultType);
 }
 
 Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultType) {
-    int len = tokens.size();
-    bool isLine
-    //bool ismatch = false;
-    //int nest = 0;
-
-    if(len == 0)
-        return Node(N_UNKNOWN);
-
-    if(len == 1)
-        return Node(defaultType, tokens);
-
     try {
+        int len = tokens.size();
+
+        if(len == 0)
+            return Node(N_UNKNOWN);
+
+        if(len == 1)
+            return Node(defaultType, tokens);
+
         std::cout << "tk: ";
         for(Token tk : tokens)
             std::cout << tk.string << " ";
@@ -199,6 +261,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
                 int nestInArgs = 0;
 
                 for(int i = 2; i < len - 1; i++) {
+                    // todo: コンマを括弧チェック後に変換させる？
                     if(TM(i, COMMA) && nestInArgs == 0) {
                         node.addChild(this->getNode(ag));
                         ag.clear();
@@ -214,15 +277,16 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
                 }
 
                 node.addChild(args);
+                node.addChild(this->scanNextNest());
             }
 
             return node;
         }
 
         // CALLFUNC
-        if(nest == 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(-1, RPAREN)) {
+        if(nest >= 1 && len >= 3 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(-1, RPAREN)) {
             Node node(N_CALLFUNC);
-            node.addToken(Token(IDENTIFIER, SA(0)));
+            node.addToken(A(0));
 
             int nest = 0;
 
@@ -232,15 +296,15 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
                 for(int i = 2; i < len - 1; i++) {
                     if(TM(i, COMMA) && nest == 0) {
-                        node.addChild(this->getNode(ag));
+                        args.addChild(this->getNode(ag));
                         ag.clear();
                     } else if(i == len - 2) {
                         ag.push_back(A(i));
-                        node.addChild(getNode(ag));
+                        args.addChild(getNode(ag));
                     } else {
-                        if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE }))
+                        if(A(i).isOpenParen())
                             nest++;
-                        else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, LBRACE }))
+                        else if(A(i).isCloseParen())
                             nest--;
 
                         ag.push_back(A(i));
@@ -271,28 +335,18 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
             return node;
         }
 
-        // IF memo: changed IF statement syntax
+        // IF
         if(len >= 2 && M(0, KEYWORD, "if")) {
             Node node(N_IF);
-            node.addChild(getNode(copy(1, len - 1, tokens)));
+            node.addChild(this->getNode(this->copy(1, len - 1, tokens)));
+            node.addChild(this->scanNextNest());
+            return node;
+        }
 
-            //Node root(N_ROOT);
-
-            /*int nextLineIndex = index;
-
-            do {std::cout<<"getNode"<<std::endl;
-                NextLine nextLine = getLine(nextLineIndex);
-
-                std::cout<<"aaa: "<<nextLine.nextStartIndex<<" "<<std::hex<<(int)tokens[nextLine.nextStartIndex].type<<std::endl;
-
-                if(tk.size() == 0)
-                    continue;
-
-                if(indent < nextLine.indent)
-                    root.addChild(scanNextLine());
-                else break;
-            } while(tokens[index].type != ENDOFFILE);*/
-
+        // IF
+        if(len == 1 && M(0, KEYWORD, "else")) {
+            Node node(N_IF);
+            node.addChild(this->getNode(this->copy(1, len - 1, tokens)));
             node.addChild(this->scanNextNest());
             return node;
         }
@@ -324,9 +378,9 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
             for(Token tk : tokens)
                 if(tk.type == SEMICOLON)
-                    div.push_back({});
+                    semicolonDiv.push_back({});
                 else
-                    div[div.size() - 1].push_back(tk);
+                    semicolonDiv[semicolonDiv.size() - 1].push_back(tk);
 
             if(semicolonDiv.size() == 1) {
                 // Example: for(true)
@@ -337,7 +391,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
                 node.addChild(this->getNode(semicolonDiv[0], N_LOOP_INIT));
                 node.addChild(this->getNode(semicolonDiv[1], N_LOOP_COND));
-                node.addChild(this->getNode(semicolonDiv[2], N_LOOP_CHANGE));
+                node.addChild(this->getNode(semicolonDiv[2], N_LOOP_CHNG));
             } else {
                 //構文エラー
             }
@@ -347,25 +401,183 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
 
 
-        tokens = this->removeParensAtBothEnd();
+        /* 括弧チェック */
 
+        ParenNest parenNest(this->sourcePath, this->source);
+        std::vector<Token> orderedTokens = parenNest.getOrderedParens(tokens);
+
+        len = tokens.size();
         bool enclosed;
         bool containsParen;
 
-        /* 括弧チェック */
-
-        
-
-        len = tk.size();
-
-        /*std::cout << "tk exp: ";
-        for(Token t : tk)
+        /*std::cout << "\ttk exp: ";
+        for(Token t : tokens)
             std::cout << t.string << " ";
         std::cout << std::endl;*/
 
         /* 論理式 */
 
-        ismatch = false;
+        Node logicExpNode = this->getLogicalExpressionNode(tokens);
+
+        if(logicExpNode.type != N_UNKNOWN)
+            return logicExpNode;
+
+        /* 比較式 */
+
+        Node compExpNode = this->getCompareExpressionNode(tokens);
+
+        if(compExpNode.type != N_UNKNOWN)
+            return compExpNode;
+
+        /* 計算式 */
+
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+    }
+
+    // todo: add an error 'unknown syntax'
+    return Node(N_UNKNOWN);
+}
+
+// 式でなかった場合のtypeはUNKNOWN
+// ここで判断
+// 変数'len' および 引数名'tokens' は変更しないでください (A(i)を使用するため)
+Node Parser::getLogicalExpressionNode(std::vector<Token> tokens) {
+    Node node(N_LOGIC);
+    std::vector<Token> side;
+    int len = tokens.size();
+    int nest = 0;
+
+    for(int i = 0; i < tokens.size(); i++) {
+        switch(A(i).type) {
+            case AMPERSAND:
+            case PIPE:
+            if(nest == 0 && i < len - 1 && TA(i) == TA(i + 1)) {
+                node.addChild(this->getNode(side, N_ITEM));
+                side.clear();
+
+                // TA(i) と TA(i + 1) は同じなので、ここでチェックする必要なし
+                if(TM(i, PIPE)) {
+                    node.addChild(Node(N_OPE, {}, { A(i) }));
+                    i++;
+                } else if(TM(i, AMPERSAND)) {
+                    node.addChild(Node(N_OPE, {}, { A(i) }));
+                    i++;
+                }
+            }
+            break;
+
+            default:
+            if(A(i).isOpenParen())
+                nest++;
+            else if(A(i).isCloseParen())
+                nest--;
+
+            side.push_back(A(i));
+            break;
+        }
+    }
+
+    if(node.children.size() > 0)
+        return node;
+    else
+        return Node(N_UNKNOWN);
+}
+
+Node Parser::getCompareExpressionNode(std::vector<Token> tokens) {
+    Node node(N_COMP);
+    unsigned char opeType = N_UNKNOWN;
+    std::vector<Token> leftside;
+    std::vector<Token> rightside;
+    int len = tokens.size();
+    int nest = 0;
+
+    for(int i = 0; i < tokens.size(); i++) {//std::cout<<(int)opeType<<" "<<i<<" "<<tokens.size()<<std::endl;
+        if(opeType == N_UNKNOWN) {
+            // 左辺: まだ比較演算子がきていない
+            if(A(i).isOpenParen()) {
+                nest++;
+            } else if(A(i).isCloseParen()) {
+                nest--;
+            } else {
+                opeType = this->getOpeType(tokens, i);
+
+                switch(opeType) {
+                    case N_UNKNOWN:
+                    leftside.push_back(A(i));
+                    break;
+
+                    case N_LESS:
+                    case N_GREATER:
+                    break;
+
+                    case N_EQUAL:
+                    case N_LESSEQL:
+                    case N_GRTREQL:
+                    i++;
+                    break;
+                }
+            }
+        } else {
+            // 右辺: 比較演算子がすでにきた
+            rightside.push_back(A(i));
+        }
+    }
+
+    /*for(Token tk : leftside)
+        std::cout<<"lt: "<<tk.string<<std::endl;*/
+
+    /*for(Token tk : rightside)
+        std::cout<<"rt: "<<tk.string<<std::endl;*/
+
+    if(leftside.size() == 0 || rightside.size() == 0)
+        return Node(N_UNKNOWN);
+
+    node.addChild(this->getNode(leftside));
+    node.addChild(this->getNode(rightside));
+
+    if(node.childAt(0).type != N_UNKNOWN && node.childAt(1).type != N_UNKNOWN)
+        return Node(N_UNKNOWN);
+
+    return node;
+}
+
+// 引数名'tokens' および 変数'len' を変更しないでください (マクロ'A(i)' を使用するため)
+unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
+    int len = tokens.size();
+    unsigned char tokenType = TA(index);
+
+    if(index < len - 1) {
+        // 2文字の演算子
+
+        unsigned char secondTokenType = TA(index + 1);
+
+        if(tokenType == EQUAL && secondTokenType == EQUAL)
+            return N_EQUAL;
+        else if(tokenType == LANGBRACK && secondTokenType == EQUAL)
+            return N_LESSEQL;
+        else if(tokenType == RANGBRACK && secondTokenType == EQUAL)
+            return N_GRTREQL;
+
+        // N_EQUALなどの場合は呼び出し元で判断してi++する
+    }
+
+    // 1文字の演算子
+
+    if(tokenType == LANGBRACK)
+        return N_LESS;
+    else if(tokenType == RANGBRACK)
+        return N_GREATER;
+
+    // unknownの場合は leftside.push_back(A(i)); をする
+    return N_UNKNOWN;
+}
+
+/* 過去のコード */
+
+        /* 論理式 */
+
+        /*ismatch = false;
         nest = 0;
 
         for(int i = 0; i < len; i++) {
@@ -410,11 +622,11 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
             side.clear();
 
             return node;
-        }
+        }*/
 
         /* 比較式 */
 
-        ismatch = false;
+        /*ismatch = false;
         nest = 0;
 
         for(int i = 0; i < len; i++) {
@@ -457,11 +669,11 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
             node.addChild(getNode(rightside, N_ITEM));
 
             return node;
-        }
+        }*/
 
         /* 計算式 */
 
-        ismatch = false;
+        /*ismatch = false;
         nest = 0;
 
         for(int i = 0; i < len; i++) {
@@ -543,93 +755,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
             return node;
         }
-
-    } catch(std::out_of_range ignored) {
-        std::cout << "EXCEPTION" << std::endl;
-    }
-
-    // todo: add an error'unknown syntax'
-    return Node(N_UNKNOWN);
-}
-
-// 不正な括弧がないかをチェックする
-// 両端の括弧を削除する必要があるかを返す
-bool Parser::checkParensAtBothEnd(std::vector<Token> tokens) {
-    ParenNest parenNest;
-
-    for(int i = 0; i < len; i++)
-        parenNest.checkToken(A(i));
-
-    return;
-}
-
-std::vector<Token> Parser::removeParensAtBothEnd(std::vector<Token> tokens) {
-    std::vector<Token> resTokens;
-
-    if(this->checkParensAtBothEnd(tokens))
-        return resTokens;
-
-    int len = tokens.size();
-    int parenCountAtBothEnd = 0;
-    int parenNest = 0;
-
-    for(int i = 0; i < len; i++) {
-        switch(tokens[i].type) {
-            case LPAREN:
-            parenNest++;
-            
-            resTokens.push_back(tokens[i]);
-            break;
-
-            case RPAREN:
-            parenNest--;
-            resTokens.push_back(tokens[i]);
-            break;
-
-            default:
-            resTokens.push_back(tokens[i]);
-            break;
-        }
-    }
-
-    /*int len = tokens.size();
-    bool containsParen;
-    bool enclosed;
-
-    while(true) {
-        int nest = 0;
-        containsParen = false;
-        enclosed = true;
-
-        for(int i = 0; i < len; i++) {
-            if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LANGBRACK, LBRACE })) {
-                containsParen = true;
-                nest++;
-            } else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, RANGBRACK, RBRACE })) {
-                containsParen = true;
-                nest--;
-
-                // 括弧に囲まれてないのでそのまま使える(？)
-                if(nest == 0 && i != len - 1)
-                    enclosed = false;
-            }
-        }
-
-        if(tk.at(0).type != LPAREN || tk.at(tk.size() - 1).type != RPAREN)
-            enclosed = false;
-
-            if(enclosed && containsParen && tk.size() >= 3) {
-                std::vector<Token> cutout;  
-
-                for(int i = 1; i < tk.size() - 1; i++)
-                    cutout.push_back(tk.at(i));
-
-                tk = cutout;
-            } else break;
-        }*/
-
-    return resTokens;
-}
+*/
 
 // 優先度高い             優先度低い
 // true → ope1 < ope2   false → ope1 >= ope2
@@ -648,36 +774,9 @@ bool Parser::compareOpe(std::string ope1, std::string ope2) {
 
 std::vector<Token> Parser::copy(int begin, int length, std::vector<Token> src) {
     std::vector<Token> res;
+
     for(int i = begin; i < begin + length; i++)
         res.push_back(src.at(i));
+
     return res;
-}
-
-// int: 結果の次行の開始インデックス | vector<Token>: 結果行のトークン配列
-NextLine Parser::getLine(int startIndex) {
-    std::vector<Token> ln;
-    int nextLineIndex = startIndex;
-    int indent;
-
-    for(int i = startIndex; i < tokens.size(); i++, nextLineIndex++) {
-        Token tk = tokens[i];
-        std::cout<<std::hex<<(int)tk.type<<" ";
-        if(tk.type == ENDOFFILE) {
-            break;
-        } else if(tk.type == NEWLINE) {
-            break;
-        } else if(tk.type == INDENT) {
-            indent++;
-            continue;
-        } else if(tk.type == COMMENTOUT) {
-            continue;
-        } else {
-            ln.push_back(tk);std::cout<<tk.string<<" | ";
-        }
-    }std::cout<<std::endl;
-
-    nextLineIndex++;
-    std::cout<<"aaaaaa: "<<std::hex<<(int)tokens[nextLineIndex].type<<std::endl;
-    return NextLine(ln, startIndex, nextLineIndex, indent);
-    //return std::pair(nextLineIndex, ln);
 }
