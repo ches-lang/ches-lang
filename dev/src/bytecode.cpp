@@ -93,7 +93,7 @@ std::string Bytecode::toString() {
 
 // vector型の命令を取得
 std::vector<std::vector<std::vector<unsigned char>>> Bytecode::divide() {
-    std::vector<std::vector<std::vector<unsigned char>>> res;
+    std::vector<std::vector<std::vector<unsigned char>>> res = {{{}}};
 
     for(int i = 0; i < source.size(); i++) {
         switch(this->source[i]) {

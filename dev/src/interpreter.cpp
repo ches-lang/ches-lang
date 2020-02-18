@@ -14,7 +14,7 @@ void Interpreter::run() {
 }
 
 void Interpreter::runProgram(Bytecode src) {
-    //for(unsigned char c : src.source) std::cout << (int)c << " "; std::cout << std::endl << std::endl;
+    for(unsigned char c : src.source) std::cout << (int)c << " "; std::cout << std::endl << std::endl;
 
     try {
         setFuncData(src);
@@ -28,13 +28,13 @@ void Interpreter::runProgram(Bytecode src) {
 void Interpreter::setFuncData(Bytecode src) {
     Lines lines = src.divide();
 
-    /*for(auto a : lines) {
+    for(auto a : lines) {
         for(auto b : a) {
             for(auto c : b) {
                 std::cout << (int)c << " ";
             } std::cout << "| ";
         } std::cout << std::endl;
-    }*/
+    }
 
     if(TK(0, 0) != Code { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 })
         Console::error("cerr8732", "invalid magic number", { { "path", options.get("-i") } }, true);
@@ -63,7 +63,7 @@ void Interpreter::setFuncData(Bytecode src) {
         }
     }
 
-    //for(FuncData fd : funcdata) std::cout << fd.name[0] << std::endl; std::cout << std::endl;
+    for(FuncData fd : funcdata) std::cout << fd.name[0] << std::endl; std::cout << std::endl;
 }
 
 void Interpreter::runInst(Tokens inst) {
