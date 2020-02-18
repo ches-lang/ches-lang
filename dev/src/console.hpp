@@ -18,7 +18,7 @@ public:
     static bool noticed;
 
     static void error(std::string code, std::string msg, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
-        if(Console::errored || Console::warned || Console::noticed) std::cout << std::endl;
+        if(Console::hasDisplayed()) std::cout << std::endl;
 
         Console::errored = true;
         Console::displayCount++;
@@ -35,7 +35,7 @@ public:
     }
 
     static void warn(std::string code, std::string msg, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
-        if(Console::errored || Console::warned || Console::noticed) std::cout << std::endl;
+        if(Console::hasDisplayed()) std::cout << std::endl;
 
         Console::warned = true;
         Console::displayCount++;
@@ -54,7 +54,7 @@ public:
     }
 
     static void notice(std::string code, std::string msg, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
-        if(Console::errored || Console::warned || Console::noticed) std::cout << std::endl;
+        if(Console::hasDisplayed()) std::cout << std::endl;
 
         Console::noticed = true;
         Console::displayCount++;
@@ -68,6 +68,10 @@ public:
             Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(Console::displayCountLimit) } }, true);
 
         if(terminate) exit(-1);
+    }
+
+    static bool hasDisplayed() {
+        return (Console::errored || Console::warned || Console::noticed);
     }
 };
 

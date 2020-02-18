@@ -185,7 +185,7 @@ Node Parser::parse() {
     for(; this->lineIndex < this->lines.size(); this->lineIndex++)
         this->tree.addChild(this->scanNextLine());
 
-    this->tree.print();
+    //this->tree.print();
     return this->tree;
 }
 
@@ -243,10 +243,10 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
         if(len == 0)
             return Node(N_UNKNOWN);
 
-        std::cout << "tk: ";
+        /*std::cout << "tk: ";
         for(Token tk : tokens)
             std::cout << tk.string << " ";
-        std::cout << std::endl;
+        std::cout << std::endl;*/
 
         // DEFFUNC
         if(nest == 0 && TM(0, IDENTIFIER) && TM(1, LPAREN) && TM(len - 1, RPAREN)) {
