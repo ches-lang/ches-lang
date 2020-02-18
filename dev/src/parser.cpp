@@ -171,7 +171,8 @@ std::vector<Line> Parser::getLines() {
             }
         }
 
-        lines.push_back(Line(ln));
+        if(ln.size() > 0)
+            lines.push_back(Line(ln));
 
         if(index >= this->tokens.size())
             break;
@@ -209,8 +210,10 @@ Node Parser::scanNextNest(unsigned char nodeType) {
         Line currentLine = CURR_LINE;
 
         // ネストがベース行と同じか、それよりも浅い場合
-        if(baseLine.nest >= currentLine.nest)
+        if(baseLine.nest >= currentLine.nest) {
+            this->lineIndex--;
             break;
+        }
 
         // ネストがチェック中のネストよりも深い場合
         //scanNextLine内でscanNextNestが呼ばれるべき
@@ -219,11 +222,9 @@ Node Parser::scanNextNest(unsigned char nodeType) {
         /*if(baseLine.nest < CURR_LINE.nest)
             if(baseLine.nest < LA(this->lineIndex + 1).nest)
                 continue;*/
-
-        if(baseLine.nest + 1 < CURR_LINE.nest) {
-            std::cout<<"..."<<std::endl;
+//std::cout<<baseLine.nest + 1 <<" "<< currentLine.nest<<" "<<currentLine.tokens.at(0).string<<std::endl;
+        if(baseLine.nest + 1 < currentLine.nest)
             continue;
-        }
 
         node.addChild(this->getNode(currentLine));
     }
@@ -241,9 +242,6 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
         if(len == 0)
             return Node(N_UNKNOWN);
-
-        if(len == 1)
-            return Node(defaultType, tokens);
 
         std::cout << "tk: ";
         for(Token tk : tokens)
@@ -343,10 +341,9 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
             return node;
         }
 
-        // IF
+        // ELSE
         if(len == 1 && M(0, KEYWORD, "else")) {
-            Node node(N_IF);
-            node.addChild(this->getNode(this->copy(1, len - 1, tokens)));
+            Node node(N_ELSE);
             node.addChild(this->scanNextNest());
             return node;
         }
@@ -430,6 +427,13 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
             return compExpNode;
 
         /* 計算式 */
+
+
+
+        // トークンの長さが１かどうかは、最後にチェックしてください
+        // (最初にチェックすると、else文などが弾かれてしまうため)
+        if(len == 1)
+            return Node(defaultType, tokens);
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
