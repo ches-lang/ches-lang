@@ -5,6 +5,7 @@
 #include <map>
 #include <random>
 #include <string>
+#include <uuid/uuid.h>
 #include <vector>
 #include "parser.cpp"
 #include "syntax.hpp"
@@ -93,7 +94,7 @@ private:
 
     Bytecode toBytecode(Node tree);
 
-    void toBytecode_scan(Node node);
+    void nodeToBytecode(Node node);
 
-    std::vector<unsigned char> getRandom(int num);
+    unsigned char generateUUID();
 };
