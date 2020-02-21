@@ -16,4 +16,4 @@ System module has basic functions to develop applications.
 
 ---
 
-Copyright © Garnet 2019 All rights reserved.
+Copyright © Garnet 2020 All rights reserved.

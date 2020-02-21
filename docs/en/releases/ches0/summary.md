@@ -12,4 +12,4 @@ This major version is developed for testing.
 
 ---
 
-Copyright © Garnet 2019 All rights reserved.
+Copyright © Garnet 2020 All rights reserved.

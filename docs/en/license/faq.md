@@ -15,4 +15,4 @@ If you don't understand even if you read [Chestnut License](/docs/en/license/ite
 
 ---
 
-Copyright © Garnet 2019 All rights reserved.
+Copyright © Garnet 2020 All rights reserved.
