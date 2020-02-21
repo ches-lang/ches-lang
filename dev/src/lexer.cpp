@@ -44,7 +44,7 @@ std::vector<Token> Lexer::getTokens() {
         tk = scan();
         tokens.push_back(tk);
         //std::cout << (int)tk.type << "\t" << ((tk.string == "\n") ? "\\n" : tk.string) << std::endl;//
-    } while(tk.type != ENDOFFILE);
+    } while(tk.type != TK_EndOfFile);
 
     checkParenFinally();
 
@@ -64,25 +64,25 @@ Token Lexer::scan() {
     char ch = source[index];
 
     if(index >= source.size())
-        return Token(ENDOFFILE, "", index);
+        return Token(TK_EndOfFile, "", index);
 
     else if(ch == '!')
-        return Token(EXCLAMATION, std::string{ch}, index);
+        return Token(TK_Exclamation, std::string{ch}, index);
 
     else if(ch == '?')
-        return Token(QUESTION, std::string{ch}, index);
+        return Token(TK_Question, std::string{ch}, index);
 
     else if(ch == '~')
-        return Token(TILDE, std::string{ch}, index);
+        return Token(TK_Tilde, std::string{ch}, index);
 
     else if(ch == '+')
-        return Token(PLUS, std::string{ch}, index);
+        return Token(TK_Plus, std::string{ch}, index);
 
     else if(ch == '-')
-        return Token(HYPHEN, std::string{ch}, index);
+        return Token(TK_Hyphen, std::string{ch}, index);
 
     else if(ch == '*')
-        return Token(ASTERISK, std::string{ch}, index);
+        return Token(TK_Asterisk, std::string{ch}, index);
 
     else if(ch == '/') {
         if(source[index + 1] == '*') {
@@ -91,7 +91,7 @@ Token Lexer::scan() {
             for(index += 2; index < source.length() - 1; index++) {
                 if(source[index] == '*' && source[index + 1] == '/') {
                     index++;
-                    return Token(COMMENTOUT, res, start);
+                    return Token(TK_CommentOut, res, start);
                 } else res += std::string{source[index]};
             }
             checkParenFinally();
@@ -106,77 +106,77 @@ Token Lexer::scan() {
                 }
                 res += std::string{source[index]};
             }
-            return Token(COMMENTOUT, res, start);
+            return Token(TK_CommentOut, res, start);
         } else {
-            return Token(SLASH, std::string{ch}, index);
+            return Token(TK_Slash, std::string{ch}, index);
         }
     }
 
     else if(ch == '%')
-        return Token(PERCENTAGE, std::string{ch}, index);
+        return Token(TK_Percentage, std::string{ch}, index);
 
     else if(ch == '^')
-        return Token(TILDE, std::string{ch}, index);
+        return Token(TK_Tilde, std::string{ch}, index);
 
     else if(ch == '=')
-        return Token(EQUAL, std::string{ch}, index);
+        return Token(TK_Equal, std::string{ch}, index);
 
     else if(ch == '|')
-        return Token(PIPE, std::string{ch}, index);
+        return Token(TK_Pipe, std::string{ch}, index);
 
     else if(ch == '&')
-        return Token(AMPERSAND, std::string{ch}, index);
+        return Token(TK_Ampersand, std::string{ch}, index);
 
     else if(ch == '.')
-        return Token(PERIOD, std::string{ch}, index);
+        return Token(TK_Period, std::string{ch}, index);
 
     else if(ch == ',')
-        return Token(COMMA, std::string{ch}, index);
+        return Token(TK_Comma, std::string{ch}, index);
 
     else if(ch == ':')
-        return Token(COLON, std::string{ch}, index);
+        return Token(TK_Colon, std::string{ch}, index);
 
     else if(ch == ';')
-        return Token(SEMICOLON, std::string{ch}, index);
+        return Token(TK_Semicolon, std::string{ch}, index);
 
     else if(ch == '(') {
-        Token tk = Token(LPAREN, std::string{ch}, index);
+        Token tk = Token(TK_LeftParen, std::string{ch}, index);
         checkParen(tk);
         return tk;
     }
 
     else if(ch == ')') {
-        Token tk = Token(RPAREN, std::string{ch}, index);
+        Token tk = Token(TK_RightParen, std::string{ch}, index);
         checkParen(tk);
         return tk;
     }
 
     else if(ch == '[') {
-        Token tk = Token(LBRACK, std::string{ch}, index);
+        Token tk = Token(TK_LeftBracket, std::string{ch}, index);
         checkParen(tk);
         return tk;
     }
 
     else if(ch == ']') {
-        Token tk = Token(RBRACK, std::string{ch}, index);
+        Token tk = Token(TK_RightBracket, std::string{ch}, index);
         checkParen(tk);
         return tk;
     }
 
     else if(ch == '<')
-        return Token(LANGBRACK, std::string{ch}, index);
+        return Token(TK_LeftAngleBracket, std::string{ch}, index);
 
     else if(ch == '>')
-        return Token(RANGBRACK, std::string{ch}, index);
+        return Token(TK_RightAngleBracket, std::string{ch}, index);
 
     else if(ch == '{') {
-        Token tk = Token(LBRACE, std::string{ch}, index);
+        Token tk = Token(TK_LeftBrace, std::string{ch}, index);
         checkParen(tk);
         return tk;
     }
 
     else if(ch == '}') {
-        Token tk = Token(RBRACE, std::string{ch}, index);
+        Token tk = Token(TK_RightBrace, std::string{ch}, index);
         checkParen(tk);
         return tk;
     }
@@ -189,7 +189,7 @@ Token Lexer::scan() {
 
         if(source[index + 1] == ' ') {
             index += 1;
-            return Token(INDENT, "  ", index - 1);
+            return Token(TK_Indent, "  ", index - 1);
         } else {
             if(source[index + 1] == ' ') index++;
             Console::error("cerr7903", "invalid indent space", { { "at", Token::getPositionText(options.get("-i"), source, index) } }, false);
@@ -198,7 +198,7 @@ Token Lexer::scan() {
 
     else if(ch == '\n')
         if(source[index - 1] == '\n') return scan();
-        else return Token(NEWLINE, std::string{ch}, index);
+        else return Token(TK_NewLine, std::string{ch}, index);
 
     else if(std::regex_match(std::string{ch}, std::regex("[0-9]"))) {
         std::string num;
@@ -210,7 +210,7 @@ Token Lexer::scan() {
                 num += str;
             else { index--; break; }
         }
-        return Token(NUMBER, num, start);
+        return Token(TK_Number, num, start);
     }
 
     else if(ch == '\'') {
@@ -238,7 +238,7 @@ Token Lexer::scan() {
             }
             return scan();
         }
-        return Token(CHARACTER, std::string{chr}, start);
+        return Token(TK_Character, std::string{chr}, start);
     }
 
     else if(ch == '\"') {
@@ -246,7 +246,7 @@ Token Lexer::scan() {
         int start = index;
         for(index += 1; index < source.length(); index++) {
             if(source[index] != '\"') res += source[index];
-            else return Token(STRING, res, start);
+            else return Token(TK_String, res, start);
         }
         checkParenFinally();
         Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'\"'" } }, true);
@@ -264,28 +264,28 @@ Token Lexer::scan() {
             else { index--; break; }
         }
         if(std::regex_match(res, std::regex("bol|break|byt|default|case|catch|chr|class|continue|dbl|elif|else|false|flt|for|if|import|int|lon|new|null|obj|package|private|public|return|sht|str|switch|true|ubyt|usht|uint|ulon|void"))) {
-            return Token(KEYWORD, res, start);
+            return Token(TK_Keyword, res, start);
         } else {
-            return Token(IDENTIFIER, res, start);
+            return Token(TK_Identifier, res, start);
         }
     }
 
-    return Token(UNKNOWN, std::string{ch});
+    return Token(TK_Unknown, std::string{ch});
 }
 
 void Lexer::checkParen(Token tk) {
-    if(tk.match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
+    if(tk.match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
         nest.at(tk.type).first++;
         nest.at(tk.type).second.push_back(tk);
         openParens.push_back(tk);
-    } else if(tk.match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE })) {
+    } else if(tk.match(std::vector<unsigned char> { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
         if(openParens.size() == 0) {
             Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
         } else {
             Token paren = tk.getOpenParen();
             Token latestOpenParen = openParens.back();
 
-            if(latestOpenParen.type == UNKNOWN) {
+            if(latestOpenParen.type == TK_Unknown) {
                 Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
             } else if(latestOpenParen.type != paren.type) {
                 Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", latestOpenParen.getPositionText(sourcePath, source) }, { "expected", "'" + latestOpenParen.getCloseParen().string + "'" } }, false);

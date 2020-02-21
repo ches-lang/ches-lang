@@ -74,7 +74,7 @@ private:
     std::vector<Token> tokens;
     std::vector<Line> lines;
     Options options;
-    Node tree = Node(N_ROOT);
+    Node tree = Node(ND_Root);
 
     int lineIndex = 0;
 
@@ -92,11 +92,11 @@ private:
 
     Node scanNextLine();
 
-    Node scanNextNest(unsigned char nodeType = N_ROOT);
+    Node scanNextNest(unsigned char nodeType = ND_Root);
 
-    Node getNode(Line line, unsigned char defaultType = N_ROOT);
+    Node getNode(Line line, unsigned char defaultType = ND_Root);
 
-    Node getNode(std::vector<Token> tokens, int nest = -1, unsigned char defaultType = N_TOKEN);
+    Node getNode(std::vector<Token> tokens, int nest = -1, unsigned char defaultType = ND_Token);
 
     Node getLogicalExpressionNode(std::vector<Token> tokens);
 

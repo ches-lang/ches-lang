@@ -8,7 +8,7 @@
 #include <uuid/uuid.h>
 #include <vector>
 #include "parser.cpp"
-#include "syntax.hpp"
+#include "syntax.cpp"
 
 #define LN(i)       (bytecode.at(i))
 #define TK(i, j)    (bytecode.at(i).at(j))
@@ -94,7 +94,7 @@ private:
 
     Bytecode toBytecode(Node tree);
 
-    void nodeToBytecode(Node node);
+    void addBytecodeToNode(Node node);
 
     unsigned char generateUUID();
 };

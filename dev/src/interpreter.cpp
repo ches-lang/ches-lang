@@ -14,12 +14,12 @@ void Interpreter::run() {
 }
 
 void Interpreter::runProgram(Bytecode src) {
-    for(unsigned char c : src.source) std::cout << (int)c << " "; std::cout << std::endl << std::endl;
+    //for(unsigned char c : src.source) std::cout << std::hex << (int)c << " "; std::cout << std::endl << std::endl;
 
     try {
         setFuncData(src);
         stacks.push_back(std::stack<void*>());
-        runInst({ { I_CALL }, FuncData::findByName(funcdata, { 0x6D, 0x61, 0x69, 0x6E }).id });
+        runInst({ { IT_Jump }, FuncData::findByName(funcdata, { 0x6D, 0x61, 0x69, 0x6E }).id });
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
@@ -40,11 +40,11 @@ void Interpreter::setFuncData(Bytecode src) {
         Console::error("cerr8732", "invalid magic number", { { "path", options.get("-i") } }, true);
 
     for(int i = 1; i < lines.size(); i++) {
-        if(CH(i, 0, 0) == I_GROUP) {
+        if(CH(i, 0, 0) == IT_Label) {
             int funcend = -1;
 
             for(int j = i + 1; j < lines.size(); j++) {
-                if(CH(j, 0, 0) == I_GROUP) {
+                if(CH(j, 0, 0) == IT_Label) {
                     funcend = j - 1;
                     break;
                 }
@@ -71,18 +71,18 @@ void Interpreter::runInst(Tokens inst) {
 
     try {
         switch(inst.at(0).at(0)) {
-            case I_CALL: {
+            case IT_Jump: {//
                 //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
                 for(Tokens tks : FuncData::findById(funcdata, inst.at(1)).source)
                 runInst(tks);
             } break;
 
-            case I_LSPUSH: {
+            case IT_LocalStackPush: {
                 //std::cout << "Push: " << (int)inst.at(1).at(0) << std::endl;
                 stacks.at(0).push((void*)&inst.at(1));
             } break;
 
-            case I_UNKNOWN: {
+            case IT_Unknown: {
                 //std::cout << "Unknown" << std::endl;
             } break;
         }

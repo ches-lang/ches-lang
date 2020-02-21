@@ -43,7 +43,8 @@ Bytecode::Bytecode(Node tree) {
 Bytecode::Bytecode(std::vector<Bytecode> source) {
     for(Bytecode bc : source) {
         append(Bytecode("compiled_ches"));
-        append(Bytecode(std::vector<unsigned char> { SI_LNDIV, SI_BCSTART, SI_LNDIV }));
+        //append(Bytecode(std::vector<unsigned char> { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
+        append(Bytecode(IT_LineDivide));
         append(Bytecode(bc));
     }
 }
@@ -52,15 +53,15 @@ Bytecode::Bytecode(std::vector<std::vector<std::vector<unsigned char>>> source) 
     for(int ln = 0; ln < source.size(); ln++) {
         for(int tk = 0; tk < source[ln].size(); tk++) {
             for(int ch = 0; ch < source[ln][tk].size(); ch++) {
-                if(source[ln][tk][ch] == SI_LNDIV) this->append(SI_LNDIV);
-                else if(source[ln][tk][ch] == SI_TKDIV) this->append(SI_TKDIV);
+                if(source[ln][tk][ch] == IT_LineDivide) this->append(IT_LineDivide);
+                else if(source[ln][tk][ch] == IT_TokenDivide) this->append(IT_TokenDivide);
                 this->append(source[ln][tk][ch]);
             }
 
-            if(tk != source[ln].size() - 1) this->append(SI_TKDIV);
+            if(tk != source[ln].size() - 1) this->append(IT_TokenDivide);
         }
 
-        if(ln != source.size() - 1) this->append(SI_LNDIV);
+        if(ln != source.size() - 1) this->append(IT_LineDivide);
     }
 }
 
@@ -97,18 +98,18 @@ std::vector<std::vector<std::vector<unsigned char>>> Bytecode::divide() {
 
     for(int i = 0; i < source.size(); i++) {
         switch(this->source[i]) {
-            case SI_LNDIV:
-            if(i + 1 < this->source.size() && this->source[i + 1] == SI_LNDIV) {
-                res.back().back().push_back(SI_LNDIV);
+            case IT_LineDivide:
+            if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDivide) {
+                res.back().back().push_back(IT_LineDivide);
                 i++;
             } else {
                 res.push_back({{}});
             }
             break;
 
-            case SI_TKDIV:
-            if(i + 1 < this->source.size() && this->source[i + 1] == SI_TKDIV) {
-                res.back().back().push_back(SI_TKDIV);
+            case IT_TokenDivide:
+            if(i + 1 < this->source.size() && this->source[i + 1] == IT_TokenDivide) {
+                res.back().back().push_back(IT_TokenDivide);
                 i++;
             } else {
                 res.back().push_back({});
@@ -128,54 +129,60 @@ Bytecode Bytecode::toBytecode(Node tree) {
     this->lines.push_back({ { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 } });
 
     for(Node node : tree.children)
-        if(node.type == N_DEFFUNC)
+        if(node.type == ND_DefFunction)
             funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
     while(index < tree.children.size()) {
-        nodeToBytecode(tree.childAt(index));
+        this->addBytecodeToNode(tree.childAt(index));
         index++;
     }
 
     return Bytecode(lines);
 }
 
-void Bytecode::nodeToBytecode(Node node) {
+void Bytecode::addBytecodeToNode(Node node) {
     try {
 
         switch(node.type) {
-            case N_CALLFUNC: {
+            case ND_CallFunction: {
                 std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
-                this->lines.push_back({ { I_CALL }, FuncData::findByName(funcdata, funcname).id });
+                this->lines.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
             } break;
 
-            case N_DEFFUNC: {
+            case ND_DefFunction: {
                 std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
                 std::vector<unsigned char> funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
-                this->lines.push_back({ { I_GROUP }, funcid, funcname });
+                this->lines.push_back({ { IT_Label }, funcid, funcname });
+
                 if(node.children.size() > 1)
                     lllen += node.childAt(0).children.size();
             } break;
 
-            case N_DEFVAR: {
-                this->lines.push_back({ { I_LSPUSH }, {} });
+            case ND_DefVariable: {
+                this->lines.push_back({ { IT_LocalStackPush }, {} });
                 lslen++;
             } break;
 
-            case N_IF: {/*
-                    for(; index < node.children.size(); index++)
-                    lines.push_back(node.childAt(index));
+            case ND_If: {
+                this->lines.push_back({ { IT_IFJump }, {  } });
+
+                for(; index < node.childAt(1).children.size(); index++)
+                    //this->lines.push_back(this->nodeToBytecode(node.childAt(1).childAt(index)));
+                    this->addBytecodeToNode(node.childAt(1).childAt(index));
+
                 index--;
-                lines.push_back({ { I_IFJUMP }, {  } });*/
             } break;
 
-            case N_INITVAR: {
+            case ND_InitVariable: {
                 Token token = node.tokenAt(2);
                 std::vector<unsigned char> value;
-                if(token.type == NUMBER)
+
+                if(token.type == TK_Number)
                     value = Bytecode(std::stoi(token.string)).source;
-                else if(token.type == STRING)
+                else if(token.type == TK_String)
                     value = Bytecode(token.string).source;
-                this->lines.push_back({ { I_LSPUSH }, value });
+
+                this->lines.push_back({ { IT_LocalStackPush }, value });
                 lslen++;
             } break;
         }

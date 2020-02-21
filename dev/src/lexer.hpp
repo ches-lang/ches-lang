@@ -39,7 +39,7 @@ private:
     Options options;
 
     int index = -1;
-    std::unordered_map<unsigned char, std::pair<int, std::vector<Token>>> nest = { { LPAREN, {} }, { LBRACK, {} }, { LBRACE, {} } };
+    std::unordered_map<unsigned char, std::pair<int, std::vector<Token>>> nest = { { TK_LeftParen, {} }, { TK_LeftBracket, {} }, { TK_LeftBrace, {} } };
     std::deque<Token> openParens;
 
 public:

@@ -7,9 +7,7 @@
 #include "console.cpp"
 #include "parser.cpp"
 
-// todo: 番号の定義をマクロから列挙体に変更
-
-/* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
+/*
 #define ENDOFFILE   0
 #define UNKNOWN     1
 #define INDENT      2
@@ -50,7 +48,7 @@
 #define N_TOKEN     0x02
 #define N_DEFVAR    0x03
 #define N_INITVAR   0x04
-#define N_FREEVAR   0x05
+#define N_FREEVAR   0x05    // 不明
 #define N_DEFFUNC   0x06
 #define N_CALLFUNC  0x07
 #define N_ARGS      0x08
@@ -64,8 +62,8 @@
 #define N_COUNT     0x16
 #define N_LOGIC     0x17
 #define N_COMP      0x18
-#define N_EXPRESS   0x19
-#define N_ITEM      0x20
+#define N_EXPRESS   0x19    // 不明
+#define N_ITEM      0x20    // 不要？
 #define N_OPE       0x21
 #define N_EQUAL     0x22
 #define N_LESS      0x23
@@ -73,41 +71,120 @@
 #define N_LESSEQL   0x25
 #define N_GRTREQL   0x26
 
-#define SI_BCSTART  0x00
+#define SI_BCSTART  0x00    // 不明
 #define SI_LNDIV    0x01
 #define SI_TKDIV    0x02
-#define SI_LLPREF   0x03
-
-/*
-enum BytecodeInsts : unsigned char {
-    unknown,
-    group,
-    lspush,
-    llpush
-};
-*/
+#define SI_LLPREF   0x03    // 不明
 
 #define I_UNKNOWN   0x04
 #define I_GROUP     0x05
 #define I_LSPUSH    0x06
 #define I_LLPUSH    0x07
-#define I_CALL      0x08 // todo: change it from I_CALL to I_JUMP : it can jump to group and the specified line
-#define I_RETURN    0x09 // todo: remove it
-#define I_LAND      0x10
-#define I_LOR       0x11
+#define I_LAND      0x08
+#define I_LOR       0x09
 #define I_NADD      0x12
 #define I_NSUB      0x13
 #define I_NMUL      0x14
 #define I_NDIV      0x15
-#define I_IFJUMP    0x16
-#define I_GOTO      0x17
+#define I_JUMP      0x16
+#define I_IFJUMP    0x17
+*/
+
+
+
+/* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
+enum TokenType : unsigned char {
+    TK_Unknown,
+    TK_EndOfFile,
+    TK_Indent,
+    TK_NewLine,
+    TK_CommentOut,
+    TK_Keyword,
+    TK_Identifier,
+    TK_Number,
+    TK_Character,
+    TK_String,
+    TK_Exclamation,
+    TK_Question,
+    TK_Tilde,
+    TK_Plus,
+    TK_Hyphen,
+    TK_Asterisk,
+    TK_Slash,
+    TK_Percentage,
+    TK_Caret,
+    TK_Equal,
+    TK_Pipe,
+    TK_Ampersand,
+    TK_Period,
+    TK_Comma,
+    TK_Colon,
+    TK_Semicolon,
+    TK_LeftParen,
+    TK_RightParen,
+    TK_LeftBracket,
+    TK_RightBracket,
+    TK_LeftAngleBracket,
+    TK_RightAngleBracket,
+    TK_LeftBrace,
+    TK_RightBrace,
+};
+
+
+
+enum NodeType : unsigned char {
+    ND_Unknown,
+    ND_Root,
+    ND_Token,
+    ND_DefVariable,
+    ND_InitVariable,
+    ND_DefFunction,
+    ND_CallFunction,
+    ND_Args,
+    ND_If,
+    ND_Else,
+    ND_ElseIf,
+    ND_Loop,
+    ND_Loop_Condition,
+    ND_Loop_Init,
+    ND_Loop_Change,
+    ND_Count,
+    ND_Logic,
+    ND_Compare,
+    ND_Expression,
+    ND_Operator,
+    ND_Equal,
+    ND_Less,
+    ND_Greater,
+    ND_LessEqual,
+    ND_GreaterEqual,
+};
+
+
+
+enum InstType : unsigned char {
+    IT_Unknown,
+    IT_LineDivide,
+    IT_TokenDivide,
+    IT_Label,
+    IT_LocalStackPush,
+    IT_LocalListPush,
+    IT_Logic_And,
+    IT_Logic_Or,
+    IT_Calc_Add,
+    IT_Calc_Subtract,
+    IT_Calc_Multiplicate,
+    IT_Calc_Divide,
+    IT_Jump,
+    IT_IFJump,
+};
 
 
 
 struct Token {
 
     int index = 0;
-    unsigned char type = UNKNOWN;
+    unsigned char type = TK_Unknown;
     std::string string = "";
 
     Token();
@@ -166,7 +243,7 @@ struct Token {
 
 struct Node {
 
-    unsigned char type = N_UNKNOWN;
+    unsigned char type = ND_Unknown;
     std::vector<Node> children;
     std::vector<Token> tokens;
     std::string prefix = "||";

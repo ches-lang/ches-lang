@@ -32,17 +32,17 @@ bool Token::compare(Token token) {
 
 Token Token::getCloseParen() {
     switch (this->type) {
-        case LPAREN:
-        return Token(RPAREN, ")", this->index);
+        case TK_LeftParen:
+        return Token(TK_RightParen, ")", this->index);
 
-        case LBRACK:
-        return Token(RBRACK, "]", this->index);
+        case TK_LeftBracket:
+        return Token(TK_RightBracket, "]", this->index);
 
-        case LBRACE:
-        return Token(RBRACE, "}", this->index);
+        case TK_LeftBrace:
+        return Token(TK_RightBrace, "}", this->index);
 
-        case LANGBRACK:
-        return Token(RANGBRACK, ">", this->index);
+        case TK_LeftAngleBracket:
+        return Token(TK_RightAngleBracket, ">", this->index);
     }
 
     return Token();
@@ -50,17 +50,17 @@ Token Token::getCloseParen() {
 
 Token Token::getOpenParen() {
     switch (this->type) {
-        case RPAREN:
-        return Token(LPAREN, "(", this->index);
+        case TK_RightParen:
+        return Token(TK_LeftParen, "(", this->index);
 
-        case RBRACK:
-        return Token(LBRACK, "[", this->index);
+        case TK_RightBracket:
+        return Token(TK_LeftBracket, "[", this->index);
 
-        case RBRACE:
-        return Token(LBRACE, "{", this->index);
+        case TK_RightBrace:
+        return Token(TK_LeftBrace, "{", this->index);
 
-        case RANGBRACK:
-        return Token(LANGBRACK, "<", this->index);
+        case TK_RightAngleBracket:
+        return Token(TK_LeftAngleBracket, "<", this->index);
     }
 
     return Token();
@@ -88,15 +88,15 @@ std::string Token::getPositionText(std::string filePath, std::string source) {
 }
 
 bool Token::isParen() {
-    return this->match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE, RPAREN, RBRACK, RBRACE });
+    return this->match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace, TK_RightParen, TK_RightBracket, TK_RightBrace });
 }
 
 bool Token::isCloseParen() {
-    return this->match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE });
+    return this->match(std::vector<unsigned char> { TK_RightParen, TK_RightBracket, TK_RightBrace });
 }
 
 bool Token::isOpenParen() {
-    return this->match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE });
+    return this->match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace });
 }
 
 bool Token::match(std::vector<unsigned char> matches) {
@@ -174,3 +174,90 @@ void Node::print(std::string level) {
     for(Node node : this->children)
         node.print(level + this->prefix);
 }
+
+/*
+enum TokenType::Items : unsigned char {
+    Unknown,
+    Indent,
+    NewLine,
+    CommentOut,
+    Keyword,
+    Identifier,
+    Number,
+    Character,
+    String,
+    Exclamation,
+    Question,
+    Tilde,
+    Plus,
+    Hyphen,
+    Asterisk,
+    Slash,
+    Percentage,
+    Caret,
+    Equal,
+    Pipe,
+    Ampersand,
+    Period,
+    Comma,
+    Colon,
+    Semicolon,
+    LeftParen,
+    RightParen,
+    LeftBracket,
+    RightBracket,
+    LeftAngleBracket,
+    RightAngleBracket,
+    LeftBrace,
+    RightBrace,
+};
+
+
+
+enum NodeType::Items : unsigend char {
+    Unknown,
+    Root,
+    Token,
+    DefVariable,
+    InitVariable,
+    DefFunction,
+    CallFunction,
+    Args,
+    If,
+    Else,
+    ElseIf,
+    Loop,
+    Loop_Condition,
+    Loop_Init,
+    Loop_Change,
+    Count,
+    Logic,
+    Compare,
+    Expression,
+    Operator,
+    Equal,
+    Less,
+    Greater,
+    LessEqual,
+    GreaterEqual,
+};
+
+
+
+enum InstType::Items : unsigned char {
+    Unknown,
+    LineDivide,
+    TokenDivide,
+    Label,
+    LocalStackPush,
+    LocalListPush,
+    Logic_And,
+    Logic_Or,
+    Calc_Add,
+    Calc_Subtract,
+    Calc_Multiplicate,
+    Calc_Divide,
+    Jump,
+    IFJump,
+};
+*/
