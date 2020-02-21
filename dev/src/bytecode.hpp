@@ -10,9 +10,16 @@
 #include "parser.cpp"
 #include "syntax.cpp"
 
-#define LN(i)       (bytecode.at(i))
-#define TK(i, j)    (bytecode.at(i).at(j))
-#define CH(i, j, k) (bytecode.at(i).at(j).at(k))
+typedef unsigned char           Byte;
+typedef std::vector<Byte>       ByteSeq;
+typedef std::vector<ByteSeq>    TokenSeq;
+typedef std::vector<TokenSeq>   LineSeq;
+
+#define LN(i)           (bytecode.at(i))
+#define TK(i, j)        (bytecode.at(i).at(j))
+#define CH(i, j, k)     (bytecode.at(i).at(j).at(k))
+
+#define MAGIC_NUMBER    ByteSeq { 0x63, 0x6F, 0x6D, 0x70, 0x69, 0x6C, 0x65, 0x64, 0x5F, 0x63, 0x68, 0x65, 0x73 }
 
 
 

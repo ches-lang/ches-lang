@@ -15,10 +15,6 @@
 #define TK(i, j)    (lines.at(i).at(j))
 #define CH(i, j, k) (lines.at(i).at(j).at(k))
 
-#define Lines       std::vector<std::vector<std::vector<unsigned char>>>
-#define Tokens      std::vector<std::vector<unsigned char>>
-#define Code        std::vector<unsigned char>
-
 
 
 class Interpreter {
@@ -40,7 +36,7 @@ private:
 
     void setFuncData(Bytecode src);
 
-    void runInst(Tokens inst);
+    void runInst(TokenSeq inst);
 
-    std::string joinCode(Code src);
+    std::string joinCode(ByteSeq src);
 };

@@ -126,7 +126,8 @@ std::vector<std::vector<std::vector<unsigned char>>> Bytecode::divide() {
 }
 
 Bytecode Bytecode::toBytecode(Node tree) {
-    this->lines.push_back({ { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 } });
+    // マジックナンバーを追加
+    this->lines.push_back({ MAGIC_NUMBER });
 
     for(Node node : tree.children)
         if(node.type == ND_DefFunction)

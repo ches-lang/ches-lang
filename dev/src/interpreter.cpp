@@ -26,8 +26,9 @@ void Interpreter::runProgram(Bytecode src) {
 }
 
 void Interpreter::setFuncData(Bytecode src) {
-    Lines lines = src.divide();
+    LineSeq lines = src.divide();
 
+    std::cout<<std::hex;
     for(auto a : lines) {
         for(auto b : a) {
             for(auto c : b) {
@@ -36,7 +37,7 @@ void Interpreter::setFuncData(Bytecode src) {
         } std::cout << std::endl;
     }
 
-    if(TK(0, 0) != Code { 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65, 0x64, 0x5f, 0x63, 0x68, 0x65, 0x73 })
+    if(TK(0, 0) != MAGIC_NUMBER)
         Console::error("cerr8732", "invalid magic number", { { "path", options.get("-i") } }, true);
 
     for(int i = 1; i < lines.size(); i++) {
@@ -63,17 +64,18 @@ void Interpreter::setFuncData(Bytecode src) {
         }
     }
 
-    for(FuncData fd : funcdata) std::cout << fd.name[0] << std::endl; std::cout << std::endl;
+    // 関数一覧を出力
+    std::cout << std::endl; for(FuncData fd : funcdata) { std::cout << "funclist: "; for(unsigned char name : fd.name) { std::cout << name; } std::cout << std::endl; }
 }
 
-void Interpreter::runInst(Tokens inst) {
+void Interpreter::runInst(TokenSeq inst) {
     //for(auto a : inst) for(auto b : a) std::cout << std::to_string(b) << " "; } std::cout << "| "; } std::cout << std::endl;
 
     try {
         switch(inst.at(0).at(0)) {
             case IT_Jump: {//
                 //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
-                for(Tokens tks : FuncData::findById(funcdata, inst.at(1)).source)
+                for(TokenSeq tks : FuncData::findById(funcdata, inst.at(1)).source)
                 runInst(tks);
             } break;
 
@@ -91,7 +93,7 @@ void Interpreter::runInst(Tokens inst) {
     }
 }
 
-std::string Interpreter::joinCode(Code src) {
+std::string Interpreter::joinCode(ByteSeq src) {
     std::string res;
     for(unsigned char uc : src)
         res += std::to_string((int)uc) + " ";
