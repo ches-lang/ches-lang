@@ -27,15 +27,15 @@ Line::Line(std::vector<Token> tokens) {
 
 
 
-ParenNest::ParenNest() {}
+ParenSeq::ParenSeq() {}
 
-ParenNest::ParenNest(std::string sourcePath, std::string source) {
+ParenSeq::ParenSeq(std::string sourcePath, std::string source) {
     this->sourcePath = sourcePath;
     this->source = source;
 }
 
 // 括弧が渡されたら開き括弧と閉じ括弧を判断する
-std::vector<Token> ParenNest::getOrderedParens(std::vector<Token> tokens) {
+std::vector<Token> ParenSeq::getOrderedParens(std::vector<Token> tokens) {
     for(int i = 0; i < tokens.size(); i++) {
         if(tokens[i].match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
             this->addOpenParen(tokens[i]);
@@ -49,7 +49,7 @@ std::vector<Token> ParenNest::getOrderedParens(std::vector<Token> tokens) {
 }
 
 // 閉じ括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
-void ParenNest::addCloseParen(Token token) {
+void ParenSeq::addCloseParen(Token token) {
     Token expectingCloseParen = this->latestOpenParen.getOpenParen();
     int nest = this->nestOfParens[this->getNestIndex(token.type)];
 
@@ -70,14 +70,14 @@ void ParenNest::addCloseParen(Token token) {
 }
 
 // 開き括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
-void ParenNest::addOpenParen(Token token) {
+void ParenSeq::addOpenParen(Token token) {
     this->latestOpenParen = token;
     this->parens.push_back(token);
     this->nestOfParens[this->getNestIndex(token.type)]++;
 }
 
 // 一番最後に閉じられてない括弧がないかチェック
-void ParenNest::checkCloseParensFinally() {
+void ParenSeq::checkCloseParensFinally() {
     // parensを表示
     /*for(int i = 0; i < parens.size(); i++)
         std::cout<<parens[i].string<<std::endl;*/
@@ -97,7 +97,7 @@ void ParenNest::checkCloseParensFinally() {
 
 // 外側を取り除いた括弧が不正でないかチェックする
 // もし不正ならば取り除いていない状態の括弧を返す
-std::vector<Token> ParenNest::removeSurroundingParens(std::vector<Token> tokens) {
+std::vector<Token> ParenSeq::removeSurroundingParens(std::vector<Token> tokens) {
     // 渡された括弧の数が1以下ならばtokensを返す
     if(tokens.size() <= 1)
         return tokens;
@@ -118,10 +118,10 @@ std::vector<Token> ParenNest::removeSurroundingParens(std::vector<Token> tokens)
         return tokens;
 
     // 括弧が不正でなければチェックを繰り返す
-    return ParenNest::removeSurroundingParens(insideParens);
+    return ParenSeq::removeSurroundingParens(insideParens);
 }
 
-int ParenNest::getNestIndex(unsigned char type) {
+int ParenSeq::getNestIndex(unsigned char type) {
     switch(type) {
         case TK_LeftParen:
         case TK_RightParen:
@@ -400,8 +400,8 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
 
         /* 括弧チェック */
 
-        ParenNest parenNest(this->sourcePath, this->source);
-        std::vector<Token> orderedTokens = parenNest.getOrderedParens(tokens);
+        ParenSeq parenSeq(this->sourcePath, this->source);
+        std::vector<Token> orderedTokens = parenSeq.getOrderedParens(tokens);
 
         len = tokens.size();
         bool enclosed;

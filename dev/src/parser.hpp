@@ -36,17 +36,16 @@ struct Line {
 
 
 
-// todo: change struct name to ParenList
-struct ParenNest {
+struct ParenSeq {
     std::vector<int> nestOfParens = std::vector<int>(3, 0);
     std::vector<Token> parens;
     std::string sourcePath;
     std::string source;
     Token latestOpenParen;
 
-    ParenNest();
+    ParenSeq();
 
-    ParenNest(std::string sourcePath, std::string source);
+    ParenSeq(std::string sourcePath, std::string source);
 
     std::vector<Token> getOrderedParens(std::vector<Token> tokens);
 
