@@ -91,7 +91,6 @@ public:
 
 private:
 
-    int index = 0;
     std::vector<std::vector<std::vector<unsigned char>>> lines;
     std::vector<FuncData> funcdata;
     std::string spaceName;
@@ -101,7 +100,9 @@ private:
 
     Bytecode toBytecode(Node tree);
 
-    void addBytecodeToNode(Node node);
+    void scanNode(Node node);
+
+    void scanNode(Node node, int &index);
 
     unsigned char generateUUID();
 };

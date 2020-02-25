@@ -185,7 +185,7 @@ Node Parser::parse() {
     for(; this->lineIndex < this->lines.size(); this->lineIndex++)
         this->tree.addChild(this->scanNextLine());
 
-    //this->tree.print();
+    this->tree.print();
     return this->tree;
 }
 

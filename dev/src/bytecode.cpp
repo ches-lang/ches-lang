@@ -133,48 +133,52 @@ Bytecode Bytecode::toBytecode(Node tree) {
         if(node.type == ND_DefFunction)
             funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
-    while(index < tree.children.size()) {
-        this->addBytecodeToNode(tree.childAt(index));
-        index++;
-    }
+    this->scanNode(tree);
 
     return Bytecode(lines);
 }
 
-void Bytecode::addBytecodeToNode(Node node) {
+// 基本的にある階層のノードを調べます
+void Bytecode::scanNode(Node node) {
+    int index = 0;
+
+    for(; index < node.children.size(); index++)
+        this->scanNode(node.children[index], index);
+}
+
+// ノードを調べてバイトコードに変換し、this->lines に行を追加します
+// 基本的に scanNode(Node) により呼ばれます
+void Bytecode::scanNode(Node node, int &index) {std::cout<<index<<std::endl;
     try {
 
         switch(node.type) {
-            case ND_CallFunction: {
+            case ND_CallFunction: {std::cout<<"callfunc"<<std::endl;
                 std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
                 this->lines.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
             } break;
 
-            case ND_DefFunction: {
+            case ND_DefFunction: {std::cout<<"deffunc"<<std::endl;
                 std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
                 std::vector<unsigned char> funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
                 this->lines.push_back({ { IT_Label }, funcid, funcname });
 
-                if(node.children.size() > 1)
-                    lllen += node.childAt(0).children.size();
+                lllen += node.childAt(0).children.size();
+
+                this->scanNode(node.childAt(1).childAt(index), index);
             } break;
 
-            case ND_DefVariable: {
+            case ND_DefVariable: {std::cout<<"deffunc"<<std::endl;
                 this->lines.push_back({ { IT_LocalStackPush }, {} });
+                this->scanNode(node.childAt(1));
                 lslen++;
             } break;
 
-            case ND_If: {
+            case ND_If: {std::cout<<"if"<<std::endl;
                 this->lines.push_back({ { IT_IFJump }, {  } });
 
-                for(; index < node.childAt(1).children.size(); index++)
-                    //this->lines.push_back(this->nodeToBytecode(node.childAt(1).childAt(index)));
-                    this->addBytecodeToNode(node.childAt(1).childAt(index));
-
-                index--;
             } break;
 
-            case ND_InitVariable: {
+            case ND_InitVariable: {std::cout<<"initvar"<<std::endl;
                 Token token = node.tokenAt(2);
                 std::vector<unsigned char> value;
 
