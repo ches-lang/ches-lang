@@ -6,7 +6,7 @@
 
 Token::Token() {}
 
-Token::Token(unsigned char type) {
+Token::Token(Byte type) {
     this->type = type;
 }
 
@@ -14,12 +14,12 @@ Token::Token(std::string string) {
     this->string = string;
 }
 
-Token::Token(unsigned char type, std::string string) {
+Token::Token(Byte type, std::string string) {
     this->type = type;
     this->string = string;
 }
 
-Token::Token(unsigned char type, std::string string, int index) {
+Token::Token(Byte type, std::string string, int index) {
     this->type = type;
     this->string = string;
     this->index = index;
@@ -88,18 +88,18 @@ std::string Token::getPositionText(std::string filePath, std::string source) {
 }
 
 bool Token::isParen() {
-    return this->match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace, TK_RightParen, TK_RightBracket, TK_RightBrace });
+    return this->match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace, TK_RightParen, TK_RightBracket, TK_RightBrace });
 }
 
 bool Token::isCloseParen() {
-    return this->match(std::vector<unsigned char> { TK_RightParen, TK_RightBracket, TK_RightBrace });
+    return this->match(ByteSeq { TK_RightParen, TK_RightBracket, TK_RightBrace });
 }
 
 bool Token::isOpenParen() {
-    return this->match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace });
+    return this->match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace });
 }
 
-bool Token::match(std::vector<unsigned char> matches) {
+bool Token::match(ByteSeq matches) {
     bool res = false;
 
     for(int i = 0; i < matches.size(); i++) {
@@ -119,21 +119,21 @@ bool Token::match(std::string regexp) {
 
 Node::Node() {}
 
-Node::Node(unsigned char type) {
+Node::Node(Byte type) {
     this->type = type;
 }
 
-Node::Node(unsigned char type, std::vector<Node> children) {
+Node::Node(Byte type, std::vector<Node> children) {
     this->type = type;
     this->children = children;
 }
 
-Node::Node(unsigned char type, std::vector<Token> tokens) {
+Node::Node(Byte type, std::vector<Token> tokens) {
     this->type = type;
     this->tokens = tokens;
 }
 
-Node::Node(unsigned char type, std::vector<Node> children, std::vector<Token> tokens) {
+Node::Node(Byte type, std::vector<Node> children, std::vector<Token> tokens) {
     this->type = type;
     this->children = children;
     this->tokens = tokens;

@@ -14,7 +14,7 @@ void Interpreter::run() {
 }
 
 void Interpreter::runProgram(Bytecode src) {
-    //for(unsigned char c : src.source) std::cout << std::hex << (int)c << " "; std::cout << std::endl << std::endl;
+    //for(Byte c : src.source) std::cout << std::hex << (int)c << " "; std::cout << std::endl << std::endl;
 
     try {
         setFuncData(src);
@@ -65,7 +65,7 @@ void Interpreter::setFuncData(Bytecode src) {
     }
 
     // 関数一覧を出力
-    std::cout << std::endl; for(FuncData fd : funcdata) { std::cout << "funclist: "; for(unsigned char name : fd.name) { std::cout << name; } std::cout << std::endl; }
+    std::cout << std::endl; for(FuncData fd : funcdata) { std::cout << "funclist: "; for(Byte name : fd.name) { std::cout << name; } std::cout << std::endl; }
 }
 
 void Interpreter::runInst(TokenSeq inst) {
@@ -95,7 +95,7 @@ void Interpreter::runInst(TokenSeq inst) {
 
 std::string Interpreter::joinCode(ByteSeq src) {
     std::string res;
-    for(unsigned char uc : src)
+    for(Byte uc : src)
         res += std::to_string((int)uc) + " ";
     res.pop_back();
     return res;

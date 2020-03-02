@@ -37,9 +37,9 @@ ParenSeq::ParenSeq(std::string sourcePath, std::string source) {
 // 括弧が渡されたら開き括弧と閉じ括弧を判断する
 std::vector<Token> ParenSeq::getOrderedParens(std::vector<Token> tokens) {
     for(int i = 0; i < tokens.size(); i++) {
-        if(tokens[i].match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
+        if(tokens[i].match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
             this->addOpenParen(tokens[i]);
-        } else if(tokens[i].match(std::vector<unsigned char> { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
+        } else if(tokens[i].match(ByteSeq { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
             this->addCloseParen(tokens[i]);
         }
     }
@@ -121,7 +121,7 @@ std::vector<Token> ParenSeq::removeSurroundingParens(std::vector<Token> tokens) 
     return ParenSeq::removeSurroundingParens(insideParens);
 }
 
-int ParenSeq::getNestIndex(unsigned char type) {
+int ParenSeq::getNestIndex(Byte type) {
     switch(type) {
         case TK_LeftParen:
         case TK_RightParen:
@@ -196,7 +196,7 @@ Node Parser::scanNextLine() {
     return node;
 }
 
-Node Parser::scanNextNest(unsigned char nodeType) {
+Node Parser::scanNextNest(Byte nodeType) {
     Node node(nodeType);
     Line baseLine = CURR_LINE;
 
@@ -232,11 +232,11 @@ Node Parser::scanNextNest(unsigned char nodeType) {
     return node;
 }
 
-Node Parser::getNode(Line line, unsigned char defaultType) {
+Node Parser::getNode(Line line, Byte defaultType) {
     return this->getNode(line.tokens, line.nest, defaultType);
 }
 
-Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultType) {
+Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
     try {
         int len = tokens.size();
 
@@ -266,9 +266,9 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, unsigned char defaultT
                     } else if(i == len - 2) {
                         ag.push_back(A(i));
                     } else {
-                        if(A(i).match(std::vector<unsigned char> { TK_LeftParen, TK_LeftBracket, TK_LeftBrace }))
+                        if(A(i).match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace }))
                             nestInArgs++;
-                        else if(A(i).match(std::vector<unsigned char> { TK_RightParen, TK_RightBracket, TK_RightBrace }))
+                        else if(A(i).match(ByteSeq { TK_RightParen, TK_RightBracket, TK_RightBrace }))
                             nestInArgs--;
                         ag.push_back(A(i));
                     }
@@ -490,7 +490,7 @@ Node Parser::getLogicalExpressionNode(std::vector<Token> tokens) {
 
 Node Parser::getCompareExpressionNode(std::vector<Token> tokens) {
     Node node(ND_Compare);
-    unsigned char opeType = ND_Unknown;
+    Byte opeType = ND_Unknown;
     std::vector<Token> leftside;
     std::vector<Token> rightside;
     int len = tokens.size();
@@ -547,14 +547,14 @@ Node Parser::getCompareExpressionNode(std::vector<Token> tokens) {
 }
 
 // 引数名'tokens' および 変数'len' を変更しないでください (マクロ'A(i)' を使用するため)
-unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
+Byte Parser::getOpeType(std::vector<Token> tokens, int index) {
     int len = tokens.size();
-    unsigned char tokenType = TA(index);
+    Byte tokenType = TA(index);
 
     if(index < len - 1) {
         // 2文字の演算子
 
-        unsigned char secondTokenType = TA(index + 1);
+        Byte secondTokenType = TA(index + 1);
 
         if(tokenType == TK_Equal && secondTokenType == TK_Equal)
             return ND_Equal;
@@ -585,11 +585,11 @@ unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
         nest = 0;
 
         for(int i = 0; i < len; i++) {
-            if(A(i).match(std::vector<unsigned char> { PIPE, AMPERSAND })) {
+            if(A(i).match(ByteSeq { PIPE, AMPERSAND })) {
                 if(nest == 0) ismatch = true;
-            } else if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
+            } else if(A(i).match(ByteSeq { LPAREN, LBRACK, LBRACE })) {
                 nest++;
-            } else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE })) {
+            } else if(A(i).match(ByteSeq { RPAREN, RBRACK, RBRACE })) {
                 nest--;
             }
         }
@@ -600,7 +600,7 @@ unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
             nest = 0;
 
             for(int i = 0; i < len; i++) {
-                if(A(i).match(std::vector<unsigned char> { PIPE, AMPERSAND }) && nest == 0) {
+                if(A(i).match(ByteSeq { PIPE, AMPERSAND }) && nest == 0) {
                     node.addChild(getNode(side, N_ITEM));
                     side.clear();
 
@@ -634,18 +634,18 @@ unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
         nest = 0;
 
         for(int i = 0; i < len; i++) {
-            if(A(i).match(std::vector<unsigned char> { LANGBRACK, RANGBRACK, EQUAL })) {
+            if(A(i).match(ByteSeq { LANGBRACK, RANGBRACK, EQUAL })) {
                 if(nest == 0) ismatch = true;
-            } else if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
+            } else if(A(i).match(ByteSeq { LPAREN, LBRACK, LBRACE })) {
                 nest++;
-            } else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE })) {
+            } else if(A(i).match(ByteSeq { RPAREN, RBRACK, RBRACE })) {
                 nest--;
             }
         }
 
         if(len >= 3 && ismatch) {
             Node node(N_COMP);
-            unsigned char type = N_UNKNOWN;
+            Byte type = N_UNKNOWN;
             std::vector<Token> leftside;
             std::vector<Token> rightside;
 
@@ -681,11 +681,11 @@ unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
         nest = 0;
 
         for(int i = 0; i < len; i++) {
-            if(A(i).match(std::vector<unsigned char> { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
+            if(A(i).match(ByteSeq { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
                 if(nest == 0) ismatch = true;
-            } else if(A(i).match(std::vector<unsigned char> { LPAREN, LBRACK, LBRACE })) {
+            } else if(A(i).match(ByteSeq { LPAREN, LBRACK, LBRACE })) {
                 nest++;
-            } else if(A(i).match(std::vector<unsigned char> { RPAREN, RBRACK, RBRACE })) {
+            } else if(A(i).match(ByteSeq { RPAREN, RBRACK, RBRACE })) {
                 nest--;
                 if(nest == 0 && i != len - 1) enclosed = false;
             }
@@ -719,7 +719,7 @@ unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
                             inParen.push_back(A(i));
                         }
                     }
-                } else if(A(i).match(std::vector<unsigned char> { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
+                } else if(A(i).match(ByteSeq { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
                     if(stack.size() == 0) {
                         //スタックの要素数が0 → スタックに積む
                         stack.push(A(i));
@@ -738,7 +738,7 @@ unsigned char Parser::getOpeType(std::vector<Token> tokens, int index) {
                     }
                 } else {
                     for(int j = i; j <= len; j++) {
-                        if(j != len && !A(j).match(std::vector<unsigned char> { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
+                        if(j != len && !A(j).match(ByteSeq { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
                             item.push_back(A(j));
                         } else {
                             if(j == len) i = j + 1;

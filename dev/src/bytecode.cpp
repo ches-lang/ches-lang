@@ -6,12 +6,12 @@
 
 FuncData_::FuncData_() {}
 
-FuncData_::FuncData_(std::vector<unsigned char> i, std::vector<unsigned char> nm) {
+FuncData_::FuncData_(ByteSeq i, ByteSeq nm) {
     id = i;
     name = nm;
 }
 
-FuncData_::FuncData_(std::vector<unsigned char> i, std::vector<unsigned char> nm, int st, int ed) {
+FuncData_::FuncData_(ByteSeq i, ByteSeq nm, int st, int ed) {
     id = i;
     name = nm;
     st = start;
@@ -22,17 +22,17 @@ FuncData_::FuncData_(std::vector<unsigned char> i, std::vector<unsigned char> nm
 
 Bytecode::Bytecode() {}
 
-Bytecode::Bytecode(std::vector<unsigned char> source) {
+Bytecode::Bytecode(ByteSeq source) {
     this->source = source;
 }
 
 Bytecode::Bytecode(int source) {
     // todo: 256以上の数字にも対応させる
-    this->source.push_back((unsigned char)source);
+    this->source.push_back((Byte)source);
 }
 
 Bytecode::Bytecode(std::string source) {
-    for(unsigned char src : source)
+    for(Byte src : source)
         this->source.push_back(src);
 }
 
@@ -43,13 +43,13 @@ Bytecode::Bytecode(Node tree) {
 Bytecode::Bytecode(std::vector<Bytecode> source) {
     for(Bytecode bc : source) {
         append(Bytecode("compiled_ches"));
-        //append(Bytecode(std::vector<unsigned char> { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
+        //append(Bytecode(ByteSeq { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
         append(Bytecode(IT_LineDivide));
         append(Bytecode(bc));
     }
 }
 
-Bytecode::Bytecode(std::vector<std::vector<std::vector<unsigned char>>> source) {
+Bytecode::Bytecode(LineSeq source) {
     for(int ln = 0; ln < source.size(); ln++) {
         for(int tk = 0; tk < source[ln].size(); tk++) {
             for(int ch = 0; ch < source[ln][tk].size(); ch++) {
@@ -65,13 +65,13 @@ Bytecode::Bytecode(std::vector<std::vector<std::vector<unsigned char>>> source) 
     }
 }
 
-Bytecode Bytecode::append(unsigned char source) {
+Bytecode Bytecode::append(Byte source) {
     this->source.push_back(source);
     return this->source;
 }
 
 Bytecode Bytecode::append(Bytecode source) {
-    for(unsigned char srcChar : source.source)
+    for(Byte srcChar : source.source)
         this->source.push_back(srcChar);
     return this->source;
 }
@@ -87,14 +87,14 @@ int Bytecode::toInt() {
 
 std::string Bytecode::toString() {
     std::string res;
-    for(unsigned char srcChar : this->source)
+    for(Byte srcChar : this->source)
         res.push_back(srcChar);
     return res;
 }
 
-// vector型の命令を取得
-std::vector<std::vector<std::vector<unsigned char>>> Bytecode::divide() {
-    std::vector<std::vector<std::vector<unsigned char>>> res = {{{}}};
+// LineSeq型の命令を取得
+LineSeq Bytecode::divide() {
+    LineSeq res = {{{}}};
 
     for(int i = 0; i < source.size(); i++) {
         switch(this->source[i]) {
@@ -138,66 +138,74 @@ Bytecode Bytecode::toBytecode(Node tree) {
     return Bytecode(lines);
 }
 
-// 基本的にある階層のノードを調べます
+// ある階層の中の全ノードを調べます
 void Bytecode::scanNode(Node node) {
     int index = 0;
 
-    for(; index < node.children.size(); index++)
-        this->scanNode(node.children[index], index);
+    for(; index < node.children.size(); index++) {
+        LineSeq resLines = this->nodeToBytecode(node.children[index], index);
+        std::cout << "bc: " << std::endl; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
+        std::copy(resLines.begin(), resLines.end(), std::back_inserter(this->lines));
+    }std::cout<<"size: "<<this->lines.size()<<std::endl;
 }
 
-// ノードを調べてバイトコードに変換し、this->lines に行を追加します
+// ノードを調べてバイトコードに変換し、LineSeq型の行列を返します
 // 基本的に scanNode(Node) により呼ばれます
-void Bytecode::scanNode(Node node, int &index) {std::cout<<index<<std::endl;
+LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<index<<std::endl;
+    LineSeq result;
+
     try {
 
         switch(node.type) {
             case ND_CallFunction: {std::cout<<"callfunc"<<std::endl;
-                std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
-                this->lines.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
+                ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
+                result.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
             } break;
 
             case ND_DefFunction: {std::cout<<"deffunc"<<std::endl;
-                std::vector<unsigned char> funcname = Bytecode(node.tokenAt(0).string).source;
-                std::vector<unsigned char> funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
-                this->lines.push_back({ { IT_Label }, funcid, funcname });
+                ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
+                ByteSeq funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
+                result.push_back({ { IT_Label }, funcid, funcname });
 
                 lllen += node.childAt(0).children.size();
 
-                this->scanNode(node.childAt(1).childAt(index), index);
+                this->nodeToBytecode(node.childAt(1).childAt(index), index);
             } break;
 
             case ND_DefVariable: {std::cout<<"deffunc"<<std::endl;
-                this->lines.push_back({ { IT_LocalStackPush }, {} });
+                result.push_back({ { IT_LocalStackPush }, {} });
                 this->scanNode(node.childAt(1));
                 lslen++;
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;
-                this->lines.push_back({ { IT_IFJump }, {  } });
-
+                result.push_back({ { IT_IFJump }, {  } });
+                for(TokenSeq ts : result) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
             } break;
 
             case ND_InitVariable: {std::cout<<"initvar"<<std::endl;
                 Token token = node.tokenAt(2);
-                std::vector<unsigned char> value;
+                ByteSeq value;
 
                 if(token.type == TK_Number)
                     value = Bytecode(std::stoi(token.string)).source;
                 else if(token.type == TK_String)
                     value = Bytecode(token.string).source;
 
-                this->lines.push_back({ { IT_LocalStackPush }, value });
+                result.push_back({ { IT_LocalStackPush }, value });
                 lslen++;
             } break;
         }
 
+        return result;
+
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
+        return result;
     }
 }
 
-unsigned char Bytecode::generateUUID() {
+Byte Bytecode::generateUUID() {
     uuid_t uuid;
     uuid_generate(uuid);
     return *uuid;

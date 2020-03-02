@@ -10,10 +10,7 @@
 #include "parser.cpp"
 #include "syntax.cpp"
 
-typedef unsigned char           Byte;
-typedef std::vector<Byte>       ByteSeq;
-typedef std::vector<ByteSeq>    TokenSeq;
-typedef std::vector<TokenSeq>   LineSeq;
+
 
 #define LN(i)           (bytecode.at(i))
 #define TK(i, j)        (bytecode.at(i).at(j))
@@ -25,26 +22,26 @@ typedef std::vector<TokenSeq>   LineSeq;
 
 typedef struct FuncData_ {
 
-    std::vector<unsigned char> id;
-    std::vector<unsigned char> name;
-    std::vector<std::vector<std::vector<unsigned char>>> source;
+    ByteSeq id;
+    ByteSeq name;
+    LineSeq source;
     int start;
     int end;
 
     FuncData_();
 
-    FuncData_(std::vector<unsigned char> i, std::vector<unsigned char> nm);
+    FuncData_(ByteSeq i, ByteSeq nm);
 
-    FuncData_(std::vector<unsigned char> i, std::vector<unsigned char> nm, int st, int ed);
+    FuncData_(ByteSeq i, ByteSeq nm, int st, int ed);
 
-    static FuncData_ findById(std::vector<FuncData_> fd, std::vector<unsigned char> id) {
+    static FuncData_ findById(std::vector<FuncData_> fd, ByteSeq id) {
         for(FuncData_ f : fd)
             if(f.id == id)
                 return f;
         return FuncData_();
     }
 
-    static FuncData_ findByName(std::vector<FuncData_> fd, std::vector<unsigned char> nm) {
+    static FuncData_ findByName(std::vector<FuncData_> fd, ByteSeq nm) {
         for(FuncData_ f : fd)
             if(f.name == nm)
                 return f;
@@ -60,11 +57,11 @@ class Bytecode {
 
 public:
 
-    std::vector<unsigned char> source;
+    ByteSeq source;
 
     Bytecode();
 
-    Bytecode(std::vector<unsigned char> src);
+    Bytecode(ByteSeq src);
 
     Bytecode(int src);
 
@@ -74,9 +71,9 @@ public:
 
     Bytecode(std::vector<Bytecode> src);
 
-    Bytecode(std::vector<std::vector<std::vector<unsigned char>>> src);
+    Bytecode(LineSeq src);
 
-    Bytecode append(unsigned char src);
+    Bytecode append(Byte src);
 
     Bytecode append(Bytecode src);
 
@@ -86,12 +83,11 @@ public:
 
     std::string toString();
 
-    // vector型の命令を取得
-    std::vector<std::vector<std::vector<unsigned char>>> divide();
+    LineSeq divide();
 
 private:
 
-    std::vector<std::vector<std::vector<unsigned char>>> lines;
+    LineSeq lines;
     std::vector<FuncData> funcdata;
     std::string spaceName;
     std::string className;
@@ -102,7 +98,7 @@ private:
 
     void scanNode(Node node);
 
-    void scanNode(Node node, int &index);
+    LineSeq nodeToBytecode(Node node, int &index);
 
-    unsigned char generateUUID();
+    Byte generateUUID();
 };

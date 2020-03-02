@@ -9,8 +9,15 @@
 
 
 
+typedef unsigned char           Byte;
+typedef std::vector<Byte>       ByteSeq;
+typedef std::vector<ByteSeq>    TokenSeq;
+typedef std::vector<TokenSeq>   LineSeq;
+
+
+
 /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */
-enum TokenType : unsigned char {
+enum TokenType : Byte {
     TK_Unknown,
     TK_EndOfFile,
     TK_Indent,
@@ -49,7 +56,7 @@ enum TokenType : unsigned char {
 
 
 
-enum NodeType : unsigned char {
+enum NodeType : Byte {
     ND_Unknown,
     ND_Root,
     ND_Token,
@@ -79,7 +86,7 @@ enum NodeType : unsigned char {
 
 
 
-enum InstType : unsigned char {
+enum InstType : Byte {
     IT_Unknown,
     IT_LineDivide,
     IT_TokenDivide,
@@ -101,18 +108,18 @@ enum InstType : unsigned char {
 struct Token {
 
     int index = 0;
-    unsigned char type = TK_Unknown;
+    Byte type = TK_Unknown;
     std::string string = "";
 
     Token();
 
-    Token(unsigned char type);
+    Token(Byte type);
 
     Token(std::string string);
 
-    Token(unsigned char type, std::string string);
+    Token(Byte type, std::string string);
 
-    Token(unsigned char type, std::string string, int index);
+    Token(Byte type, std::string string, int index);
 
     bool compare(Token token);
 
@@ -151,7 +158,7 @@ struct Token {
 
     bool isOpenParen();
 
-    bool match(std::vector<unsigned char> matches);
+    bool match(ByteSeq matches);
 
     bool match(std::string regexp);
 };
@@ -160,20 +167,20 @@ struct Token {
 
 struct Node {
 
-    unsigned char type = ND_Unknown;
+    Byte type = ND_Unknown;
     std::vector<Node> children;
     std::vector<Token> tokens;
     std::string prefix = "||";
 
     Node();
 
-    Node(unsigned char type);
+    Node(Byte type);
 
-    Node(unsigned char type, std::vector<Node> children);
+    Node(Byte type, std::vector<Node> children);
 
-    Node(unsigned char type, std::vector<Token> tokens);
+    Node(Byte type, std::vector<Token> tokens);
 
-    Node(unsigned char type, std::vector<Node> children, std::vector<Token> tokens);
+    Node(Byte type, std::vector<Node> children, std::vector<Token> tokens);
 
     void addChild(Node node);
 

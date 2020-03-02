@@ -59,7 +59,7 @@ private:
 
     std::vector<Token> removeSurroundingParens(std::vector<Token> tokens);
 
-    int getNestIndex(unsigned char type);
+    int getNestIndex(Byte type);
 };
 
 
@@ -91,17 +91,17 @@ private:
 
     Node scanNextLine();
 
-    Node scanNextNest(unsigned char nodeType = ND_Root);
+    Node scanNextNest(Byte nodeType = ND_Root);
 
-    Node getNode(Line line, unsigned char defaultType = ND_Root);
+    Node getNode(Line line, Byte defaultType = ND_Root);
 
-    Node getNode(std::vector<Token> tokens, int nest = -1, unsigned char defaultType = ND_Token);
+    Node getNode(std::vector<Token> tokens, int nest = -1, Byte defaultType = ND_Token);
 
     Node getLogicalExpressionNode(std::vector<Token> tokens);
 
     Node getCompareExpressionNode(std::vector<Token> tokens);
 
-    unsigned char getOpeType(std::vector<Token> tokens, int index);
+    Byte getOpeType(std::vector<Token> tokens, int index);
 
     // 優先度高い             優先度低い
     // true → ope1 < ope2   false → ope1 >= ope2
