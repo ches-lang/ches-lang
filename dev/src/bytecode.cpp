@@ -138,15 +138,13 @@ Bytecode Bytecode::toBytecode(Node tree) {
     return Bytecode(lines);
 }
 
-// ある階層の中の全ノードを調べます
+// ある階層内のすべての子ノードを調べます
 void Bytecode::scanNode(Node node) {
-    int index = 0;
-
-    for(; index < node.children.size(); index++) {
-        LineSeq resLines = this->nodeToBytecode(node.children[index], index);
-        std::cout << "bc: " << std::endl; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
+    for(int i = 0; i < node.children.size(); i++) {
+        LineSeq resLines = this->nodeToBytecode(node.children[i], i);
+        //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
         std::copy(resLines.begin(), resLines.end(), std::back_inserter(this->lines));
-    }std::cout<<"size: "<<this->lines.size()<<std::endl;
+    }
 }
 
 // ノードを調べてバイトコードに変換し、LineSeq型の行列を返します
@@ -169,7 +167,11 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
 
                 lllen += node.childAt(0).children.size();
 
-                this->nodeToBytecode(node.childAt(1).childAt(index), index);
+                // ROOTノードの階層をチェックし、resultに追加していく
+                for(int i = 0; i < node.childAt(1).children.size(); i++) {
+                    LineSeq resLines = this->nodeToBytecode(node.childAt(1).childAt(i), index);
+                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(result));
+                }
             } break;
 
             case ND_DefVariable: {std::cout<<"deffunc"<<std::endl;
@@ -179,8 +181,7 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;
-                result.push_back({ { IT_IFJump }, {  } });
-                for(TokenSeq ts : result) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
+                result.push_back({ { IT_IFJump }, {} }); 
             } break;
 
             case ND_InitVariable: {std::cout<<"initvar"<<std::endl;
