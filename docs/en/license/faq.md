@@ -11,7 +11,7 @@ If you violate the license, as the case may be cope with it and punish.
 
 ### I have a thing I don't understand in the license.
 
-If you don't understand even if you read [Chestnut License](/docs/en/license/items.md) and [FAQ](https://github.com/Garnet3106/chestnut/tree/develop/en/license/faq.md), please contact me [here](/docs/en/license/items.md#Contact).
+If you don't understand even if you read [Chestnut License](/docs/en/license/items.md) and [FAQ](/docs/en/license/faq.md), please contact me [here](/docs/en/license/items.md#Contact).
 
 ---
 

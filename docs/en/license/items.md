@@ -8,7 +8,7 @@ Please make an appropriate decision if not described in the license.
 
 
 
-ご不明な点などがあれば [ライセンスFAQ](/docs/en/license/faq.md) を確認の上 [ご連絡](#連絡先) ください。
+ご不明な点などがあれば [ライセンスFAQ](/docs/en/license/faq.md) を確認の上 [ご連絡](#Contact) ください。
 
 ## Items
 
