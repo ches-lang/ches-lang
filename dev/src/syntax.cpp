@@ -166,11 +166,18 @@ void Node::print() {
 }
 
 void Node::print(std::string level) {
-    std::cout << "\033[31m" << level << "\033[m" << std::hex << (int)this->type << std::endl;
+    std::cout << "\033[44m" << level << "\033[m" << " " << "\033[94m" << this->typeToString() << "\033[m" << std::endl;
 
     for(Token token : this->tokens)
-        std::cout << "\033[31m" << level << this->prefix << "\033[m" << ((token.string == "|") ? "[pipe]" : token.string) << std::endl;
+        std::cout << "\033[44m" << level << this->prefix << "\033[m" << " " << token.string << std::endl;
 
     for(Node node : this->children)
         node.print(level + this->prefix);
+}
+
+std::string Node::typeToString() {
+    if(nodeTypeMap.count(this->type) == 1)
+        return nodeTypeMap[this->type];
+    else
+        return "???";
 }

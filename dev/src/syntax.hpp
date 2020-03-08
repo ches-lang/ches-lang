@@ -165,6 +165,36 @@ struct Token {
 
 
 
+std::unordered_map<Byte, std::string> nodeTypeMap {
+    { ND_Unknown, "Unknown" },
+    { ND_Root, "Root" },
+    { ND_Token, "Token" },
+    { ND_DefVariable, "DefVar" },
+    { ND_InitVariable, "InitVar" },
+    { ND_DefFunction, "DefFunc" },
+    { ND_CallFunction, "CallFunc" },
+    { ND_Args, "Args" },
+    { ND_If, "If" },
+    { ND_Else, "Else" },
+    { ND_ElseIf, "ElseIf" },
+    { ND_Loop, "Loop" },
+    { ND_Loop_Condition, "Loop_Cond" },
+    { ND_Loop_Init, "Loop_Init" },
+    { ND_Loop_Change, "Loop_Change" },
+    { ND_Count, "Count" },
+    { ND_Logic, "Logic" },
+    { ND_Compare, "Comp" },
+    { ND_Expression, "Exp" },
+    { ND_Operator, "Ope" },
+    { ND_Equal, "Equal" },
+    { ND_Less, "Less" },
+    { ND_Greater, "Greater" },
+    { ND_LessEqual, "LessEqual" },
+    { ND_GreaterEqual, "GreaterEqual" },
+};
+
+
+
 struct Node {
 
     Byte type = ND_Unknown;
@@ -193,4 +223,6 @@ struct Node {
     void print();
 
     void print(std::string level);
+
+    std::string typeToString();
 };
