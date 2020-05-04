@@ -11,13 +11,14 @@
 #include "lexer.cpp"
 #include "syntax.cpp"
 
-#define A(i)        (tokens.at(i >= 0 ? i : len + i))
+#define A(i)        (tokens.at(i >= 0 ? i : tokens.size() + i))
 #define M(i, t, s)  (Token(t, s).compare(A(i)))
 #define IA(i)       (A(i).index)
 #define LA(i)       (this->lines.at(i))
 #define CURR_LINE   (LA(this->lineIndex))
 #define TA(i)       (A(i).type)
 #define TM(i, c)    (TA(i) == c)
+#define TMR(i, c)   (A(i).match(c))
 #define SA(i)       (A(i).string)
 #define SM(i, s)    (SA(i) == s)
 #define SMR(i, s)   (std::regex_match(SA(i), std::regex(s)))

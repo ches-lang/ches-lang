@@ -36,11 +36,23 @@ ParenSeq::ParenSeq(std::string sourcePath, std::string source) {
 
 // 括弧が渡されたら開き括弧と閉じ括弧を判断する
 std::vector<Token> ParenSeq::getOrderedParens(std::vector<Token> tokens) {
+    //int len = tokens.size();
+    ByteSeq leftParens = { TK_LeftParen, TK_LeftBracket, TK_LeftBrace };
+    ByteSeq rightParens = { TK_RightParen, TK_RightBracket, TK_RightBrace };
+
     for(int i = 0; i < tokens.size(); i++) {
-        if(tokens[i].match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
+        /*if(tokens[i].match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
             this->addOpenParen(tokens[i]);
         } else if(tokens[i].match(ByteSeq { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
             this->addCloseParen(tokens[i]);
+        } else if(TM())*/
+
+        if(TMR(i, leftParens)) {
+            this->addOpenParen(tokens[i]);
+        } else if(TMR(i, rightParens)) {
+            this->addCloseParen(tokens[i]);
+        } else if(TM(i, TK_Comma)) {
+            std::cout << "..." << std::endl;
         }
     }
 

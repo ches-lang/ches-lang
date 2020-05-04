@@ -155,9 +155,27 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
     try {
 
         switch(node.type) {
-            case ND_CallFunction: {std::cout<<"callfunc"<<std::endl;
-                ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
-                result.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
+            case ND_Unknown: {
+                result.push_back({ { IT_Unknown } });
+            } break;
+
+            case ND_DefVariable: {std::cout<<"deffunc"<<std::endl;
+                result.push_back({ { IT_LocalStackPush }, {} });
+                this->scanNode(node.childAt(1));
+                lslen++;
+            } break;
+
+            case ND_InitVariable: {std::cout<<"initvar"<<std::endl;
+                Token token = node.tokenAt(2);
+                ByteSeq value;
+
+                if(token.type == TK_Number)
+                    value = Bytecode(std::stoi(token.string)).source;
+                else if(token.type == TK_String)
+                    value = Bytecode(token.string).source;
+
+                result.push_back({ { IT_LocalStackPush }, value });
+                lslen++;
             } break;
 
             case ND_DefFunction: {std::cout<<"deffunc"<<std::endl;
@@ -174,27 +192,44 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
                 }
             } break;
 
-            case ND_DefVariable: {std::cout<<"deffunc"<<std::endl;
-                result.push_back({ { IT_LocalStackPush }, {} });
-                this->scanNode(node.childAt(1));
-                lslen++;
+            case ND_CallFunction: {std::cout<<"callfunc"<<std::endl;
+                ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
+                result.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;
-                result.push_back({ { IT_IFJump }, {} }); 
-            } break;
+                // 次のノードに else / elseif がくれば
 
-            case ND_InitVariable: {std::cout<<"initvar"<<std::endl;
-                Token token = node.tokenAt(2);
-                ByteSeq value;
+                std::cout << index << std::endl;
 
-                if(token.type == TK_Number)
-                    value = Bytecode(std::stoi(token.string)).source;
-                else if(token.type == TK_String)
-                    value = Bytecode(token.string).source;
+                if(node.children.size() < index) {
+                    Byte nextNodeType = node.childAt(index + 1).type;
 
-                result.push_back({ { IT_LocalStackPush }, value });
-                lslen++;
+                    if(nextNodeType == ND_ElseIf || nextNodeType == ND_Else) {
+                        //
+                    }
+                }
+
+                // 条件式をチェック
+
+                LineSeq condLines = this->nodeToBytecode(node.childAt(0), index);
+                for(Node n : node.childAt(0).children) std::cout << (int)n.type << " "; std::cout << std::endl;
+
+                // ROOTノードの階層をチェックし、resultに追加していく
+                LineSeq procLines;
+
+                for(int i = 0; i < node.childAt(1).children.size(); i++) {
+                    LineSeq resLines = this->nodeToBytecode(node.childAt(1).childAt(i), index);
+                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(procLines));
+                }
+
+                // procLinesなどのサイズも考慮してジャンプ先を出す
+                result.push_back({ { IT_IFJump }, {} });
+
+                // condLinesとprocLinesをresultに結合
+                std::copy(condLines.begin(), condLines.end(), std::back_inserter(result));
+                std::copy(procLines.begin(), procLines.end(), std::back_inserter(result));
+
             } break;
         }
 
