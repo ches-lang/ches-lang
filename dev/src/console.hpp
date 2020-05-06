@@ -22,6 +22,8 @@ public:
     static int displayCount;
     static int displayCountLimit;   // No limit: 0
 
+    static bool errored;
+    static bool noticed;
     static bool warned;
 
     static void log(int type = LogType_Error, std::string code = "0000", std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
@@ -29,7 +31,7 @@ public:
         if(Console::hasDisplayed())
             std::cout << std::endl;
 
-        Console::displayCount++;
+        Console::recordLogHistory(type);
 
         std::string msgName = getLogMessageName(type, code);
         std::string prefix = getLogCodePrefix(type);
@@ -51,8 +53,7 @@ public:
                 Console::log(LogType_Notice, "4247", {}, true);
         }
 
-        if(terminate)
-            exit(-1);
+        if(terminate) exit(-1);
     }
 
     static void write(std::string str) {
@@ -94,6 +95,24 @@ public:
     static bool hasDisplayed() {
         return Console::displayCount > 0;
     }
+
+    static void recordLogHistory(int type) {
+        Console::displayCount++;
+
+        switch(type) {
+            case LogType_Error:
+            Console::errored = true;
+            break;
+
+            case LogType_Notice:
+            Console::noticed = true;
+            break;
+
+            case LogType_Warning:
+            Console::warned = true;
+            break;
+        }
+    }
 };
 
 
@@ -101,4 +120,6 @@ public:
 int Console::displayCount;
 int Console::displayCountLimit;
 
+bool Console::errored;
+bool Console::noticed;
 bool Console::warned;
