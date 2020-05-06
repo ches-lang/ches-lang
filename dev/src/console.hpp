@@ -6,6 +6,14 @@
 
 
 
+enum LogType : int {
+    LogType_Error,
+    LogType_Notice,
+    LogType_Warning
+};
+
+
+
 class Console {
 
 public:
@@ -13,71 +21,83 @@ public:
     static int displayCount;
     static int displayCountLimit;   // No limit: 0
 
-    static bool errored;
     static bool warned;
-    static bool noticed;
 
-    static void error(std::string code, std::string msg, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
-        if(Console::hasDisplayed()) std::cout << std::endl;
+    static void log(int type = LogType_Error, std::string code = "0000", std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
+        // ログの履歴があれば改行を入れる
+        if(Console::hasDisplayed())
+            std::cout << std::endl;
 
-        Console::errored = true;
         Console::displayCount++;
 
-        std::cout << "\033[31m" << "|" << code << "|" << "\033[m" << " " << msg << std::endl;
+        std::string msgName = getLogMessageName(type, code);
+        std::string prefix = getLogCodePrefix(type);
 
-        for(auto det : details)
-            std::cout << "\t" << det.first << ": " << det.second << std::endl;
+        //std::cout << "\033[31m" << "|" << prefix << code << "|" << "\033[m" << " " << msg << std::endl;
+        Console::write("\033[31m|" + prefix + code + "|\033[m {$" + msgName + "}\n");
+
+        for(auto dtl : details)
+            //std::cout << "\t" << dtl.first << ": " << dtl.second << std::endl;
+            Console::write("\t{$LogDetailName_" + dtl.first + "}: " + dtl.second + "\n");
 
         if(Console::displayCount == Console::displayCountLimit)
-            Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(Console::displayCountLimit) } }, true);
+            Console::log(LogType_Notice, "7148", { { "Limit", std::to_string(Console::displayCountLimit) } }, true);
 
-        if(terminate) exit(-1);
+        if(type == LogType_Warning) {
+            Console::warned = true;
+
+            if(!Console::warned)
+                Console::log(LogType_Notice, "4247", {}, true);
+        }
+
+        if(terminate)
+            exit(-1);
     }
 
-    static void warn(std::string code, std::string msg, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
-        if(Console::hasDisplayed()) std::cout << std::endl;
-
-        Console::warned = true;
-        Console::displayCount++;
-
-        std::cout << "\033[35m" << "|" << code << "|" << "\033[m" << " " << msg << std::endl;
-
-        for(std::pair<std::string, std::string> det : details)
-            std::cout << "\t" << det.first << ": " << det.second << std::endl;
-
-        Console::notice("cnote4247", "[-miss] to continue forcibly", {}, false);
-
-        if(Console::displayCount == Console::displayCountLimit)
-            Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(Console::displayCountLimit) } }, true);
-
-        if(terminate) exit(-1);
+    static void write(std::string str) {
+        std::cout << str;
     }
 
-    static void notice(std::string code, std::string msg, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
-        if(Console::hasDisplayed()) std::cout << std::endl;
+    static std::string getLogMessageName(int type = LogType_Error, std::string code = "0000", int lang = Lang_English) {
+        std::string logType = "CError";
 
-        Console::noticed = true;
-        Console::displayCount++;
+        switch(type) {
+            case LogType_Error:
+            logType = "CError";
 
-        std::cout << "\033[36m" << "|" << code << "|" << "\033[m" << " " << msg << std::endl;
+            case LogType_Notice:
+            logType = "CNote";
 
-        for(std::pair<std::string, std::string> det : details)
-            std::cout << "\t" << det.first << ": " << det.second << std::endl;
+            case LogType_Warning:
+            logType = "CWarn";
+        }
 
-        if(Console::displayCount == Console::displayCountLimit)
-            Console::notice("cnote7148", "[-limit] to change display limit", { { "limit", std::to_string(Console::displayCountLimit) } }, true);
+        return Language::getText(lang, "CError_" + code + "_Message");
+    }
 
-        if(terminate) exit(-1);
+    static std::string getLogCodePrefix(int type) {
+        switch(type) {
+        case LogType_Error:
+            return "cerr";
+
+        case LogType_Notice:
+            return "cnote";
+
+        case LogType_Warning:
+            return "cwarn";
+        }
+
+        return "cerr";
     }
 
     static bool hasDisplayed() {
-        return (Console::errored || Console::warned || Console::noticed);
+        return Console::displayCount > 0;
     }
 };
+
+
 
 int Console::displayCount;
 int Console::displayCountLimit;
 
-bool Console::errored;
 bool Console::warned;
-bool Console::noticed;
