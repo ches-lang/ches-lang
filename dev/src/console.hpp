@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include "language.hpp"
 
 
 
@@ -58,7 +59,7 @@ public:
         std::cout << str;
     }
 
-    static std::string getLogMessageName(int type = LogType_Error, std::string code = "0000", int lang = Lang_English) {
+    static std::string getLogMessageName(int type = LogType_Error, std::string code = "0000") {
         std::string logType = "CError";
 
         switch(type) {
@@ -72,7 +73,7 @@ public:
             logType = "CWarn";
         }
 
-        return Language::getText(lang, "CError_" + code + "_Message");
+        return "CError_" + code + "_Message";
     }
 
     static std::string getLogCodePrefix(int type) {
