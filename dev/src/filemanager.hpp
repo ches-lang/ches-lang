@@ -41,8 +41,10 @@ public:
     static std::string readText(std::string path) {
         try {
             std::ifstream ifs(path);
+
             if(!ifs.is_open())
                 Console::error("cerr0327", "file not found", { { "path", path } }, true);
+
             if(ifs.fail())
                 Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
 
@@ -53,7 +55,33 @@ public:
         } catch(std::exception excep) {
             Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
         }
+
         return "";
+    }
+
+    static std::vector<std::string> readTextLine(std::string path) {
+        try {
+            std::ifstream ifs(path);
+
+            if(!ifs.is_open())
+                Console::error("cerr0327", "file not found", { { "path", path } }, true);
+
+            if(ifs.fail())
+                Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+
+            std::vector<std::string> res;
+            std::string line;
+
+            while(std::getline(ifs, line))
+                res.push_back(line);
+
+            ifs.close();
+            return res;
+        } catch(std::exception excep) {
+            Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+        }
+
+        return {};
     }
 
     static void writeBytecode(std::string path, Bytecode src) {
@@ -123,6 +151,11 @@ public:
         }
 
         return filepaths;
+    }
+
+    static std::string getFileName(std::string path) {
+        std::filesystem::path convedPath = path;
+        return convedPath.filename();
     }
 
     static std::string getPathExt(std::string path) {
