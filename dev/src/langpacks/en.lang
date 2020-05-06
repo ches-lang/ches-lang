@@ -10,7 +10,7 @@ CError_5352_Message file writing fail
 CError_5899_Message no input file
 CError_5916_Message expected closing parenthesis or bracket
 CError_6845_Message file reading fail
-CError_7903_Message invalid indent space
+CError_7903_Message invalid indent
 CError_7904_Message unexpected closing parenthesis or bracket
 CError_8194_Message invalid command option
 CError_8732_Message invalid magic number
