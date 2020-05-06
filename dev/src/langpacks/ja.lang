@@ -1,0 +1,26 @@
+CError_0000_Message 不明なエラー
+CError_0327_Message ファイルが見つかりません
+CError_1064_Message 不明なコマンド
+CError_1562_Message EOFがありません
+CError_2471_Message 長すぎる文字数
+CError_3681_Message 無効なログ表示制限
+CError_4139_Message 短すぎる文字数
+CError_4890_Message コンパイラ内部エラー
+CError_5352_Message ファイル書き込み失敗
+CError_5899_Message 入力ファイルがありません
+CError_5916_Message 閉じ括弧がありません
+CError_6845_Message ファイル読み込み失敗
+CError_7903_Message 無効なインデント
+CError_7904_Message 予期しない閉じ括弧
+CError_8194_Message 無効なコマンドオプション
+CError_8732_Message 無効なマジックナンバー
+
+CNote_4247_Message -miss で警告を無視
+CNote_7148_Message -limit でログ表示制限を変更
+
+CWarn_3405_Message 重複した出力ファイル
+
+LogDetailName_Index インデックス
+LogDetailName_Source ソース
+LogDetailName_SourceCode ソースコード
+LogDetailName_Type 型

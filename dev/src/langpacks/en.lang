@@ -1,0 +1,26 @@
+CError_0000_Message unknown error
+CError_0327_Message file not found
+CError_1064_Message unknown command
+CError_1562_Message expected EOF
+CError_2471_Message too long character length
+CError_3681_Message invalid log display limit
+CError_4139_Message too short character length
+CError_4890_Message internal compiler error
+CError_5352_Message file writing fail
+CError_5899_Message no input file
+CError_5916_Message expected closing parenthesis or bracket
+CError_6845_Message file reading fail
+CError_7903_Message invalid indent space
+CError_7904_Message unexpected closing parenthesis or bracket
+CError_8194_Message invalid command option
+CError_8732_Message invalid magic number
+
+CNote_4247_Message -miss to miss warnings
+CNote_7148_Message -limit to change log display limit
+
+CWarn_3405_Message duplicated output file
+
+LogDetailName_Index index
+LogDetailName_Source source
+LogDetailName_SourceCode sourceCode
+LogDetailName_Type type
