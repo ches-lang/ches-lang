@@ -10,6 +10,7 @@ CError_5352_Message file writing fail
 CError_5899_Message no input file
 CError_5916_Message expected closing parenthesis or bracket
 CError_6845_Message file reading fail
+CError_6923_Message unknown language
 CError_7903_Message invalid indent
 CError_7904_Message unexpected closing parenthesis or bracket
 CError_8194_Message invalid command option
@@ -20,7 +21,22 @@ CNote_7148_Message -limit to change log display limit
 
 CWarn_3405_Message duplicated output file
 
+HelpMessage_CompileSpecifiedFiles compile specified file(s)
+HelpMessage_SeeOrChangeSettings see or change settings
+HelpMessage_ShowChestnutVersion show chestnut version
+HelpMessage_ShowHelpMessage show help message
+
+LogDetailName_At at
+LogDetailName_Command command
+LogDetailName_Directory directory
+LogDetailName_Expected expected
 LogDetailName_Index index
+LogDetailName_Input input
+LogDetailName_Limit limit
+LogDetailName_Path path
 LogDetailName_Source source
 LogDetailName_SourceCode sourceCode
 LogDetailName_Type type
+LogDetailName_Unexpected unexpected
+
+Message_CompilationSucceeded Compilation succeeded.
