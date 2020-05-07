@@ -3,9 +3,9 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include "language.hpp"
+//#include "language.cpp"
 
-
+class Language{public:static void loadLangPacks(std::string lang){}};
 
 enum LogType : int {
     LogType_Error,
@@ -29,7 +29,7 @@ public:
     static void log(int type = LogType_Error, std::string code = "0000", std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
         // ログの履歴があれば改行を入れる
         if(Console::hasDisplayed())
-            std::cout << std::endl;
+            Console::write("\n");
 
         Console::recordLogHistory(type);
 
@@ -46,11 +46,8 @@ public:
         if(Console::displayCount == Console::displayCountLimit)
             Console::log(LogType_Notice, "7148", { { "Limit", std::to_string(Console::displayCountLimit) } }, true);
 
-        if(type == LogType_Warning) {
-            Console::warned = true;
-
-            if(!Console::warned)
-                Console::log(LogType_Notice, "4247", {}, true);
+        if(type == LogType_Warning && !Console::warned) {
+            Console::log(LogType_Notice, "4247", {}, true);
         }
 
         if(terminate) exit(-1);

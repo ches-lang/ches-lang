@@ -38,7 +38,7 @@ void Interpreter::setFuncData(Bytecode src) {
     }
 
     if(TK(0, 0) != MAGIC_NUMBER)
-        Console::error("cerr8732", "invalid magic number", { { "path", options.get("-i") } }, true);
+        Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);
 
     for(int i = 1; i < lines.size(); i++) {
         if(CH(i, 0, 0) == IT_Label) {

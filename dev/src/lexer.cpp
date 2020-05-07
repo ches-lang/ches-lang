@@ -95,7 +95,7 @@ Token Lexer::scan() {
                 } else res += std::string{source[index]};
             }
             checkParenFinally();
-            Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'*/'" } }, true);
+            Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "'*/'" } }, true);
         } else if(source[index + 1] == '/') {
             std::string res;
             int start = index;
@@ -192,7 +192,7 @@ Token Lexer::scan() {
             return Token(TK_Indent, "  ", index - 1);
         } else {
             if(source[index + 1] == ' ') index++;
-            Console::error("cerr7903", "invalid indent space", { { "at", Token::getPositionText(options.get("-i"), source, index) } }, false);
+            Console::log(LogType_Error, "7903", { { "At", Token::getPositionText(options.get("-i"), source, index) } });
         }
     }
 
@@ -223,7 +223,7 @@ Token Lexer::scan() {
             chr = "\\" + std::string{source[index + 2]};
             index += 3;
         } else if(source[index + 1] == '\'') {
-            Console::error("cerr4139", "too short character length", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "a character" } }, false);
+            Console::log(LogType_Error, "4139", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "a character" } });
             index += 1;
         } else {
             bool contain = false;
@@ -231,10 +231,10 @@ Token Lexer::scan() {
             for(index += 1; index < source.length(); index++)
                 if(source[index] == '\'') { contain = true; break; }
             if(contain) {
-                Console::error("cerr2471", "too long character length", { { "at", Token::getPositionText(options.get("-i"), source, index) } }, false);
+                Console::log(LogType_Error, "2471", { { "At", Token::getPositionText(options.get("-i"), source, index) } });
             } else {
                 checkParenFinally();
-                Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'''" } }, true);
+                Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "'''" } }, true);
             }
             return scan();
         }
@@ -249,7 +249,7 @@ Token Lexer::scan() {
             else return Token(TK_String, res, start);
         }
         checkParenFinally();
-        Console::error("cerr1562", "expected EOF", { { "at", Token::getPositionText(options.get("-i"), source, index) }, { "expected", "'\"'" } }, true);
+        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "'\"'" } }, true);
     }
 
     else {
@@ -280,21 +280,21 @@ void Lexer::checkParen(Token tk) {
         openParens.push_back(tk);
     } else if(tk.match(std::vector<unsigned char> { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
         if(openParens.size() == 0) {
-            Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+            Console::log(LogType_Error, "7904", { { "At", tk.getPositionText(sourcePath, source) }, { "Unexpected", "'" + tk.string + "'" } });
         } else {
             Token paren = tk.getOpenParen();
             Token latestOpenParen = openParens.back();
 
             if(latestOpenParen.type == TK_Unknown) {
-                Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+                Console::log(LogType_Error, "7904", { { "At", tk.getPositionText(sourcePath, source) }, { "Unexpected", "'" + tk.string + "'" } });
             } else if(latestOpenParen.type != paren.type) {
-                Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", latestOpenParen.getPositionText(sourcePath, source) }, { "expected", "'" + latestOpenParen.getCloseParen().string + "'" } }, false);
+                Console::log(LogType_Error, "7904", { { "At", latestOpenParen.getPositionText(sourcePath, source) }, { "Expected", "'" + latestOpenParen.getCloseParen().string + "'" } });
                 nest.at(paren.type).first--;
                 nest.at(latestOpenParen.type).first--;
                 openParens.pop_back();
                 openParens.pop_back();
             } else if(nest.at(paren.type).first < 0) {
-                Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", tk.getPositionText(sourcePath, source) }, { "unexpected", "'" + tk.string + "'" } }, false);
+                Console::log(LogType_Error, "7904", { { "At", tk.getPositionText(sourcePath, source) }, { "Unexpected", "'" + tk.string + "'" } });
             } else {
                 nest.at(paren.type).first--;
                 openParens.pop_back();
@@ -305,6 +305,6 @@ void Lexer::checkParen(Token tk) {
 
 void Lexer::checkParenFinally() {
     for(Token paren : openParens) {
-        Console::error("cerr7904", "expected closing parenthesis or bracket", { { "at", paren.getPositionText(sourcePath, source) }, { "expected", "'" + paren.getCloseParen().string + "'" } }, false);
+        Console::log(LogType_Error, "7904", { { "At", paren.getPositionText(sourcePath, source) }, { "Expected", "'" + paren.getCloseParen().string + "'" } });
     }
 }

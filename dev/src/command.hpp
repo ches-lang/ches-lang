@@ -19,19 +19,27 @@ private:
 
     static void c_ches() {
         if(options.exists("-help")) {
-            std::cout << "-help" << "\t" << "show help message" << std::endl;
-            std::cout << "-ver" << "\t" << "show chestnut version" << std::endl;
-            std::cout << std::endl;
-            std::cout << "cmp" << "\t" << "compile specified file(s)" << std::endl;
-            std::cout << "set" << "\t" << "see or change settings" << std::endl;
+            Console::write("-help\t{$HelpMessage_ShowHelpMessage}");
+            Console::write("-ver\t{$HelpMessage_ShowChestnutVersion}");
+            Console::write("\n");
+            Console::write("cmp\t{$HelpMessage_CompileSpecifiedFiles}");
+            Console::write("set\t{$HelpMessage_SeeOrChangeSettings}");
+            //std::cout << "-help" << "\t" << "show help message" << std::endl;
+            //std::cout << "-ver" << "\t" << "show chestnut version" << std::endl;
+            //std::cout << std::endl;
+            //std::cout << "cmp" << "\t" << "compile specified file(s)" << std::endl;
+            //std::cout << "set" << "\t" << "see or change settings" << std::endl;
         }
     }
 
     static void c_cmp() {
         if(options.exists("-help")) {
-            std::cout << "-help" << "\t" << "show help message" << std::endl;
-            std::cout << std::endl;
-            std::cout << "<filepath>" << "\t" << "compile a specified file" << std::endl;
+            //std::cout << "-help" << "\t" << "show help message" << std::endl;
+            //std::cout << std::endl;
+            //std::cout << "<filepath>" << "\t" << "compile a specified file" << std::endl;
+            Console::write("-help\t{$HelpMessage_ShowHelpMessage}");
+            Console::write("\n");
+            Console::write("<filepath>\t{$HelpMessage_CompileSpecifiedFiles}");
             return;
         }
 
@@ -39,13 +47,14 @@ private:
             Compiler cmp(options);
             cmp.compile();
         } else {
-            Console::error("cerr5899", "no input file", {}, false);
+            Console::log(LogType_Error, "5899", {}, true);
         }
     }
 
     static void c_run() {
         if(options.exists("-help")) {
-            std::cout << "-help" << "\t" << "show help message" << std::endl;
+            Console::write("-help\t{$HelpMessage_ShowHelpMessage}");
+            //std::cout << "-help" << "\t" << "show help message" << std::endl;
             return;
         }
 
@@ -53,7 +62,7 @@ private:
             Interpreter itp(options);
             itp.run();
         } else {
-            Console::error("cerr5899", "no input file", {}, false);
+            Console::log(LogType_Error, "5899", {}, true);
         }
     }
 

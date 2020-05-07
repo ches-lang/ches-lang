@@ -19,9 +19,9 @@ public:
 
             std::ifstream ifs(path);
             if(!ifs.is_open())
-                Console::error("cerr0327", "file not found", { { "path", path } }, true);
+                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
             if(ifs.fail())
-                Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
 
             unsigned char uc;
             do {
@@ -33,7 +33,7 @@ public:
             ifs.close();
             return res;
         } catch(std::exception excep) {
-            Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
         }
         return Bytecode();
     }
@@ -43,17 +43,17 @@ public:
             std::ifstream ifs(path);
 
             if(!ifs.is_open())
-                Console::error("cerr0327", "file not found", { { "path", path } }, true);
+                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
 
             if(ifs.fail())
-                Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
 
             std::string res = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
             ifs.close();
             return res;
         } catch(std::exception excep) {
-            Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
         }
 
         return "";
@@ -64,10 +64,10 @@ public:
             std::ifstream ifs(path);
 
             if(!ifs.is_open())
-                Console::error("cerr0327", "file not found", { { "path", path } }, true);
+                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
 
             if(ifs.fail())
-                Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
 
             std::vector<std::string> res;
             std::string line;
@@ -78,7 +78,7 @@ public:
             ifs.close();
             return res;
         } catch(std::exception excep) {
-            Console::error("cerr6845", "file reading fail", { { "path", path } }, true);
+            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
         }
 
         return {};
@@ -90,14 +90,14 @@ public:
             ofs.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
 
             if (!ofs)
-                Console::error("cerr5352", "file writing fail", { { "path", path } }, true);
+                Console::log(LogType_Error, "5352", { { "Path", path } }, true);
 
             for(unsigned char uc : src.source)
                 ofs.write((char*)&uc, sizeof(char));
 
             ofs.close();
         } catch(std::exception excep) {
-            Console::error("cerr5352", "file writing fail", { { "path", path } }, true);
+            Console::log(LogType_Error, "5352", { { "Path", path } }, true);
         }
     }
 
@@ -136,7 +136,7 @@ public:
             std::error_code err;
 
             if(!FileManager::exists(dirpath))
-                Console::error("cerr0327", "file not found", { { "path", dirpath } }, true);
+                Console::log(LogType_Error, "0327", { { "Path", dirpath } }, true);
 
             for(; iter != end && !err; iter.increment(err)) {
                 const std::filesystem::directory_entry entry = *iter;
@@ -144,10 +144,10 @@ public:
             }
 
             if(err)
-                Console::error("cerr6845", "file reading fail", { { "directory", dirpath }, { "message", err.message() }}, true);
+                Console::log(LogType_Error, "6845", { { "Directory", dirpath }, { "message", err.message() }}, true);
 
         } catch(std::filesystem::filesystem_error fse) {
-            Console::error("cerr6845", "file reading fail", { { "directory", dirpath } }, true);
+            Console::log(LogType_Error, "6845", { { "Directory", dirpath } }, true);
         }
 
         return filepaths;

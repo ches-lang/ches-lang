@@ -22,11 +22,11 @@ void Command::runCommand(std::string cmd, Options opt) {
             int limit = std::stoi(input);
 
             if(limit <= 0)
-                Console::error("cerr3681", "invalid display limit", { { "input", input } }, true);
+                Console::log(LogType_Error, "3681", { { "Input", input } }, true);
 
             Console::displayCountLimit = limit;
         } catch(std::invalid_argument) {
-            Console::error("cerr3681", "invalid display limit", { { "input", input } }, true);
+            Console::log(LogType_Error, "3681", { { "Input", input } }, true);
         }
     }
 
@@ -39,5 +39,5 @@ void Command::runCommand(std::string cmd, Options opt) {
     if(it != procs.end())
         it->second();
     else
-        Console::error("cerr1064", "unknown command", { { "command", cmd } }, true);
+        Console::log(LogType_Error, "1064", { { "Command", cmd } }, true);
 }

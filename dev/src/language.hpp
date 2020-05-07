@@ -1,10 +1,10 @@
 #pragma once
 
-#include <filemanager.hpp>
 #include <iostream>
 #include <map>
 #include <string>
-#include "console.hpp"
+#include "console.cpp"
+#include "filemanager.cpp"
 
 
 
@@ -24,8 +24,8 @@ public:
     static void loadLangPacks(std::string lang = "en") {
         std::string filePath = "./langpacks/" + lang + ".lang";
 
-        if(!FileManager::exists()) {
-            Console::log(LogType_Notice, "", {});
+        if(!FileManager::exists(filePath)) {
+            Console::log(LogType_Notice, "6923");
             lang = "en";
         }
 

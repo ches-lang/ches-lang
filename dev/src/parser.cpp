@@ -67,13 +67,13 @@ void ParenSeq::addCloseParen(Token token) {
 
     // 階層が0以下なのでエラー
     if(nest <= 0) {
-        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", token.getPositionText(this->sourcePath, this->source) }, { "unexpected", token.string } });
+        Console::log(LogType_Error, "7904", { { "At", token.getPositionText(this->sourcePath, this->source) }, { "Unexpected", token.string } });
         return;
     }
 
     // 最後に開いた括弧の種類が異なるのでエラー
     if(token.type == expectingCloseParen.type) {
-        Console::error("cerr7904", "unexpected closing parenthesis or bracket", { { "at", token.getPositionText(this->sourcePath, this->source) }, { "unexpected", token.string }, { "expected", expectingCloseParen.string } });
+        Console::log(LogType_Error, "7904", { { "At", token.getPositionText(this->sourcePath, this->source) }, { "Unexpected", token.string }, { "Expected", expectingCloseParen.string } });
         return;
     }
 
@@ -104,7 +104,7 @@ void ParenSeq::checkCloseParensFinally() {
         expectedParen = "}";
 
     if(expectedParen != "")
-        Console::error("cerr5916", "expected closing parenthesis or bracket", { { "expected", expectedParen } });
+        Console::log(LogType_Error, "5916", { { "Expected", expectedParen } });
 }
 
 // 外側を取り除いた括弧が不正でないかチェックする

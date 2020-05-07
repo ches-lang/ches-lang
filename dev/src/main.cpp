@@ -18,11 +18,12 @@ int main(int argc, char *argv[]) {
 
     Options options;
     Console::displayCountLimit = 20;
+    Language::loadLangPacks("en");
     std::string cmd = ((argc >= 2 && argv[1][0] != '-') ? argv[1] : "ches");
 
     for(int i = ((cmd == "ches") ? 1 : 2); i < argc; i++) {
         if(argv[i][0] != '-') {
-            Console::error("cerr8732", "invalid command option", { { "at", "'" + std::string{ argv[i] } + "'" }}, true);
+            Console::log(LogType_Error, "8732", { { "At", "'" + std::string{ argv[i] } + "'" }}, true);
         } else if(i + 1 < argc && argv[i + 1][0] != '-') {
             options.set(argv[i], argv[i + 1]);
             i++;

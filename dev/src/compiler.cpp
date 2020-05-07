@@ -13,7 +13,7 @@ Compiler::Compiler(Options opt) {
 void Compiler::compile() {
     if(options.exists("-o"))
         if(FileManager::getFullPath(options.get("-i")) == FileManager::getFullPath(options.get("-o")))
-            Console::warn("cwarn3405", "duplicate output file", { { "path", FileManager::getFullPath(options.get("-o")) } }, !options.exists("-miss"));
+            Console::log(LogType_Warning, "3405", { { "Path", FileManager::getFullPath(options.get("-o")) } }, !options.exists("-miss"));
 
     if(!FileManager::isDirectory(options.get("-i"))) {
         if(options.exists("-o")) {
@@ -52,7 +52,7 @@ void Compiler::compile() {
     }
 
     if(!Console::hasDisplayed())
-        std::cout << "Compilation succeeded." << std::endl;
+        std::cout << "{$Message_CompilationSucceeded}" << std::endl;
 }
 
 Bytecode Compiler::getBytecode() {
