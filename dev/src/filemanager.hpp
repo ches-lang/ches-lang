@@ -158,7 +158,7 @@ public:
         return convedPath.filename();
     }
 
-    static std::string getPathExt(std::string path) {
+    static std::string getFileExt(std::string path) {
         std::string ext;
 
         for(int i = path.length() - 1; i >= 0; i--)
@@ -174,7 +174,7 @@ public:
 
     static std::string renamePathExt(std::string path, std::string newext) {
         std::string newpath;
-        std::string oldext = FileManager::getPathExt(path);
+        std::string oldext = FileManager::getFileExt(path);
 
         if(path == newext) newpath = path + "." + oldext;
         else newpath = path.substr(0, path.length() - oldext.length()) + newext;

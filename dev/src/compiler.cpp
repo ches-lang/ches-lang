@@ -26,7 +26,7 @@ void Compiler::compile() {
         std::vector<Bytecode> bytecodes;
 
         for(int i = 0; i < filepaths.size(); i++) {
-            if(FileManager::getPathExt(filepaths[i]) == "ches") {
+            if(FileManager::getFileExt(filepaths[i]) == "ches") {
                 bytecodes.push_back(Compiler(Options({ { "-i", filepaths[i] } })).getBytecode());
             } else {
                 filepaths.erase(filepaths.begin() + i);
