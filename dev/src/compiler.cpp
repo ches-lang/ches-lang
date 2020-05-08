@@ -52,7 +52,7 @@ void Compiler::compile() {
     }
 
     if(!Console::hasDisplayed())
-        std::cout << "{$Message_CompilationSucceeded}" << std::endl;
+        Console::write("{$Message_CompilationSucceeded}\n");
 }
 
 Bytecode Compiler::getBytecode() {

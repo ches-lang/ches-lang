@@ -1,12 +1,19 @@
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-#include "command.cpp"
-#include "compiler.cpp"
 #include "console.cpp"
+#include "syntax.cpp"
+#include "lexer.cpp"
+#include "bytecode.cpp"
+#include "filemanager.cpp"
+#include "parser.cpp"
+#include "compiler.cpp"
+#include "interpreter.cpp"
+#include "command.cpp"
 
 
 
@@ -18,7 +25,7 @@ int main(int argc, char *argv[]) {
 
     Options options;
     Console::displayCountLimit = 20;
-    Language::loadLangPacks("en");
+    Console::loadLangPacks("en");
     std::string cmd = ((argc >= 2 && argv[1][0] != '-') ? argv[1] : "ches");
 
     for(int i = ((cmd == "ches") ? 1 : 2); i < argc; i++) {

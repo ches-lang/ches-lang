@@ -3,9 +3,8 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-//#include "language.cpp"
 
-class Language{public:static void loadLangPacks(std::string lang){}};
+
 
 enum LogType : int {
     LogType_Error,
@@ -18,6 +17,8 @@ enum LogType : int {
 class Console {
 
 public:
+
+    static std::map<std::string, std::string> langPackProperties;
 
     static int displayCount;
     static int displayCountLimit;   // No limit: 0
@@ -54,7 +55,46 @@ public:
     }
 
     static void write(std::string str) {
-        std::cout << str;
+        std::string output;
+        bool inPropName = false;
+        std::string propName = "";
+
+        for(int i = 0; i < str.length(); i++) {
+            switch(str[i]) {
+                case '{':
+                if(i < str.length() - 1 && str[i + 1] == '$') {
+                    std::cout<<"start"<<std::endl;
+                    inPropName = true;
+                    i++;
+                } else {
+                    std::cout<<"exit"<<std::endl;
+                    output += std::to_string(str[i]);
+                }
+                break;
+
+                case '}':
+                if(inPropName) {
+                    std::cout<<"end"<<std::endl;
+                    output += Console::getText(propName);
+                    propName = "";
+                    inPropName = false;
+                } else {
+                    std::cout<<"noend"<<std::endl;
+                    output += std::to_string(str[i]);
+                }
+                break;
+
+                default:
+                if(inPropName) {
+                    propName += std::to_string(str[i]);
+                } else {
+                    output += std::to_string(str[i]);
+                }
+                break;
+            }
+        }
+
+        std::cout << output;
     }
 
     static std::string getLogMessageName(int type = LogType_Error, std::string code = "0000") {
@@ -110,9 +150,74 @@ public:
             break;
         }
     }
+
+    static std::string getText(std::string propName) {
+        if(Console::langPackProperties.count(propName) == 0)
+            return propName;
+
+        return Console::langPackProperties[propName];
+    }
+
+    static void loadLangPacks(std::string lang = "en") {
+        // リリース時にはパスを直してください
+        std::string filePath = "./chestnut/langpacks/" + lang + ".lang";
+
+        if(!std::filesystem::exists(filePath)) {
+            Console::log(LogType_Notice, "6923");
+            lang = "en";
+        }
+
+        std::vector<std::string> lines = Console::readTextLine(filePath);
+
+        for(std::string ln : lines) {
+            if(ln == "") continue;
+
+            std::string propName = "";
+            std::string propVal = "";
+            bool reachedDiv = false;
+
+            for(char ch : ln) {
+                if(!reachedDiv) {
+                    if(ch == ' ') reachedDiv = true;
+                    else propName += ch;
+                } else {
+                    propVal += ch;
+                }
+            }
+
+            Console::langPackProperties[propName] = propVal;
+        }
+    }
+
+    static std::vector<std::string> readTextLine(std::string path) {
+        try {
+            std::ifstream ifs(path);
+
+            if(!ifs.is_open())
+                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
+
+            if(ifs.fail())
+                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+
+            std::vector<std::string> res;
+            std::string line;
+
+            while(std::getline(ifs, line))
+                res.push_back(line);
+
+            ifs.close();
+            return res;
+        } catch(std::exception excep) {
+            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+        }
+
+        return {};
+    }
 };
 
 
+
+std::map<std::string, std::string> Console::langPackProperties;
 
 int Console::displayCount;
 int Console::displayCountLimit;

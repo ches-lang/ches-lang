@@ -5,9 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "command.cpp"
-#include "console.cpp"
-#include "syntax.cpp"
 
 
 

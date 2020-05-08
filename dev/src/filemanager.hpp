@@ -4,8 +4,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "bytecode.cpp"
-#include "console.cpp"
 
 
 

@@ -7,8 +7,6 @@
 #include <string>
 #include <uuid/uuid.h>
 #include <vector>
-#include "parser.cpp"
-#include "syntax.cpp"
 
 
 

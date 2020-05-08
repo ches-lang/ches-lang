@@ -4,9 +4,6 @@
 #include <vector>
 #include <stack>
 #include <string>
-#include "bytecode.cpp"
-#include "console.cpp"
-#include "filemanager.cpp"
 
 #undef LN
 #undef TK

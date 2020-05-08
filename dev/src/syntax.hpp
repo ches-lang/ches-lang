@@ -4,10 +4,6 @@
 #include <regex>
 #include <string>
 #include <vector>
-#include "console.cpp"
-#include "parser.cpp"
-
-
 
 typedef unsigned char           Byte;
 typedef std::vector<Byte>       ByteSeq;

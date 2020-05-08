@@ -7,9 +7,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "console.cpp"
-#include "lexer.cpp"
-#include "syntax.cpp"
 
 #define A(i)        (tokens.at(i >= 0 ? i : tokens.size() + i))
 #define M(i, t, s)  (Token(t, s).compare(A(i)))

@@ -5,9 +5,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "compiler.cpp"
-#include "console.cpp"
-#include "interpreter.cpp"
 
 
 

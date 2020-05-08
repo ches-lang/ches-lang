@@ -4,12 +4,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "bytecode.cpp"
-#include "command.cpp"
-#include "console.cpp"
-#include "filemanager.cpp"
-#include "lexer.cpp"
-#include "parser.cpp"
 
 
 
