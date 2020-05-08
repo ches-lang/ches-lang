@@ -10,6 +10,7 @@ CError_5352_Message ファイル書き込み失敗
 CError_5899_Message 入力ファイルがありません
 CError_5916_Message 閉じ括弧がありません
 CError_6845_Message ファイル読み込み失敗
+CError_6923_Message 不明な言語
 CError_7903_Message 無効なインデント
 CError_7904_Message 予期しない閉じ括弧
 CError_8194_Message 無効なコマンドオプション
@@ -20,7 +21,22 @@ CNote_7148_Message -limit でログ表示制限を変更
 
 CWarn_3405_Message 重複した出力ファイル
 
+HelpMessage_CompileSpecifiedFiles 指定されたファイルをコンパイルする
+HelpMessage_SeeOrChangeSettings 設定を表示するか変更する
+HelpMessage_ShowChestnutVersion Chestnutバージョンを表示する
+HelpMessage_ShowHelpMessage ヘルプメッセージを表示する
+
+LogDetailName_At 箇所
+LogDetailName_Command コマンド
+LogDetailName_Directory ディレクトリ
+LogDetailName_Expected 期待値
 LogDetailName_Index インデックス
+LogDetailName_Input 入力
+LogDetailName_Limit 制限
+LogDetailName_Path パス
 LogDetailName_Source ソース
 LogDetailName_SourceCode ソースコード
 LogDetailName_Type 型
+LogDetailName_Unexpected 異常値
+
+Message_CompilationSucceeded コンパイルが成功しました。

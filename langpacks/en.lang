@@ -23,7 +23,7 @@ CWarn_3405_Message duplicated output file
 
 HelpMessage_CompileSpecifiedFiles compile specified file(s)
 HelpMessage_SeeOrChangeSettings see or change settings
-HelpMessage_ShowChestnutVersion show chestnut version
+HelpMessage_ShowChestnutVersion show Chestnut version
 HelpMessage_ShowHelpMessage show help message
 
 LogDetailName_At at
