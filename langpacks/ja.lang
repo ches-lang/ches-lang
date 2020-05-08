@@ -16,8 +16,8 @@ CError_7904_Message 予期しない閉じ括弧
 CError_8194_Message 無効なコマンドオプション
 CError_8732_Message 無効なマジックナンバー
 
-CNote_4247_Message -miss で警告を無視
-CNote_7148_Message -limit でログ表示制限を変更
+CNote_4247_Message -miss で警告を無視する
+CNote_7148_Message -limit でログ表示制限を変更する
 
 CWarn_3405_Message 重複した出力ファイル
 

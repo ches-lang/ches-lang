@@ -8,19 +8,35 @@ CError_4139_Message tro mallonga litera longeco
 CError_4890_Message interna kompilera eraro
 CError_5352_Message dosiera skriba malsukceso
 CError_5899_Message neniu eniga dosiero
-CError_5916_Message expected closing parenthesis or bracket
-CError_6845_Message file reading fail
-CError_7903_Message invalid indent
-CError_7904_Message unexpected closing parenthesis or bracket
-CError_8194_Message invalid command option
-CError_8732_Message invalid magic number
+CError_5916_Message atendis ferman krampon
+CError_6845_Message dosiera lega malsukceso
+CError_6923_Message nekonata lingvo
+CError_7903_Message nevalida krommarĝeno
+CError_7904_Message ne atendis ferman krampon
+CError_8194_Message nevalida komando elektemblo
+CError_8732_Message nevalida magia cifero
 
-CNote_4247_Message -miss to miss warnings
-CNote_7148_Message -limit to change log display limit
+CNote_4247_Message ignori avertojn de -miss
+CNote_7148_Message aliigi ĵurnala montra limo de -limit
 
-CWarn_3405_Message duplicated output file
+CWarn_3405_Message duobla eliga dosiero
 
-LogDetailName_Index index
-LogDetailName_Source source
-LogDetailName_SourceCode sourceCode
-LogDetailName_Type type
+HelpMessage_CompileSpecifiedFiles kompili aldifinata(j)n dosiero(j)n
+HelpMessage_SeeOrChangeSettings vidi aŭ aliigi agordon
+HelpMessage_ShowChestnutVersion montri Chestnut'n eldonon
+HelpMessage_ShowHelpMessage montri helpan mesaĝojn
+
+LogDetailName_At de
+LogDetailName_Command komando
+LogDetailName_Directory dosierujo
+LogDetailName_Expected atendis
+LogDetailName_Index indekso
+LogDetailName_Input enigaĵo
+LogDetailName_Limit limigado
+LogDetailName_Path vojo
+LogDetailName_Source fonto
+LogDetailName_SourceCode fontoKodo
+LogDetailName_Type tipo
+LogDetailName_Unexpected neAtendis
+
+Message_CompilationSucceeded Kompilo sukcesis.

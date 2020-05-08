@@ -16,7 +16,7 @@ CError_7904_Message unexpected closing parenthesis or bracket
 CError_8194_Message invalid command option
 CError_8732_Message invalid magic number
 
-CNote_4247_Message -miss to miss warnings
+CNote_4247_Message -miss to ignore warnings
 CNote_7148_Message -limit to change log display limit
 
 CWarn_3405_Message duplicated output file
@@ -24,7 +24,7 @@ CWarn_3405_Message duplicated output file
 HelpMessage_CompileSpecifiedFiles compile specified file(s)
 HelpMessage_SeeOrChangeSettings see or change settings
 HelpMessage_ShowChestnutVersion show Chestnut version
-HelpMessage_ShowHelpMessage show help message
+HelpMessage_ShowHelpMessage show help messages
 
 LogDetailName_At at
 LogDetailName_Command command
