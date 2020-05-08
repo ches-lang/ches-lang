@@ -63,32 +63,28 @@ public:
             switch(str[i]) {
                 case '{':
                 if(i < str.length() - 1 && str[i + 1] == '$') {
-                    std::cout<<"start"<<std::endl;
                     inPropName = true;
                     i++;
                 } else {
-                    std::cout<<"exit"<<std::endl;
-                    output += std::to_string(str[i]);
+                    output += { str[i] };
                 }
                 break;
 
                 case '}':
                 if(inPropName) {
-                    std::cout<<"end"<<std::endl;
                     output += Console::getText(propName);
                     propName = "";
                     inPropName = false;
                 } else {
-                    std::cout<<"noend"<<std::endl;
-                    output += std::to_string(str[i]);
+                    output += { str[i] };
                 }
                 break;
 
                 default:
                 if(inPropName) {
-                    propName += std::to_string(str[i]);
+                    propName += { str[i] };
                 } else {
-                    output += std::to_string(str[i]);
+                    output += { str[i] };
                 }
                 break;
             }
@@ -153,7 +149,7 @@ public:
 
     static std::string getText(std::string propName) {
         if(Console::langPackProperties.count(propName) == 0)
-            return propName;
+            return "{$" + propName + "}";
 
         return Console::langPackProperties[propName];
     }
