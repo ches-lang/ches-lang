@@ -26,7 +26,7 @@ public:
     static void log(int type = LogType_Error, std::string code = "0000", std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
         // ログの履歴があれば改行を入れる
         if(Console::hasDisplayed())
-            Console::write("\n");
+            Console::writeln();
 
         Console::recordLogHistory(type);
 
@@ -35,11 +35,11 @@ public:
         std::string prefix = Console::getLogCodePrefix(type);
 
         //std::cout << "\033[31m" << "|" << prefix << code << "|" << "\033[m" << " " << msg << std::endl;
-        Console::write("\033[" + color + "m|" + prefix + code + "|\033[m {$" + msgName + "}\n");
+        Console::writeln("\033[" + color + "m|" + prefix + code + "|\033[m {$" + msgName + "}");
 
         for(auto dtl : details)
             //std::cout << "\t" << dtl.first << ": " << dtl.second << std::endl;
-            Console::write("\t{$LogDetailName_" + dtl.first + "}: " + dtl.second + "\n");
+            Console::writeln("\t{$LogDetailName_" + dtl.first + "}: " + dtl.second + "");
 
         if(Console::displayCount == Console::displayCountLimit)
             Console::log(LogType_Notice, "7148", { { "Limit", std::to_string(Console::displayCountLimit) } }, true);
@@ -88,6 +88,14 @@ public:
         }
 
         std::cout << output;
+    }
+
+    static void writeln() {
+        Console::write("\n");
+    }
+
+    static void writeln(std::string str) {
+        Console::write(str + "\n");
     }
 
     static std::string getLogTypeColor(int type) {
@@ -220,8 +228,10 @@ public:
             std::vector<std::string> res;
             std::string line;
 
-            while(std::getline(ifs, line))
-                res.push_back(line);
+            while(std::getline(ifs, line)) {
+                if(line == "" || line[0] == '#') continue;
+                else res.push_back(line);
+            }
 
             ifs.close();
             return res;

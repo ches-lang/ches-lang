@@ -52,7 +52,7 @@ void Compiler::compile() {
     }
 
     if(!Console::errored && !Console::warned)
-        Console::write("{$Message_CompilationSucceeded}\n");
+        Console::writeln("{$Message_CompilationSucceeded}");
 }
 
 Bytecode Compiler::getBytecode() {

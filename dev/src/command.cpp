@@ -14,9 +14,10 @@ void Command::runCommand(std::string cmd, Options opt) {
     if(options.exists("-limit")) {
         std::string input = options.get("-limit");
 
-        for(int i = 0; i < input.length() - 1; i++)
+        for(int i = 0; i < input.length() - 1; i++) {
             if(input[0] == '0') input.erase(input.begin());
             else break;
+        }
 
         try {
             int limit = std::stoi(input);
@@ -36,8 +37,10 @@ void Command::runCommand(std::string cmd, Options opt) {
     procs.insert(std::make_pair("set", Command::c_set));
 
     cmdprocs::iterator it = procs.find(cmd);
-    if(it != procs.end())
+
+    if(it != procs.end()) {
         it->second();
-    else
+    } else {
         Console::log(LogType_Error, "1064", { { "Command", cmd } }, true);
+    }
 }

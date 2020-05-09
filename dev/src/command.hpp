@@ -10,51 +10,47 @@ private:
 
     static void c_ches() {
         if(options.exists("-help")) {
-            Console::write("-help\t{$HelpMessage_ShowHelpMessage}");
-            Console::write("-ver\t{$HelpMessage_ShowChestnutVersion}");
-            Console::write("\n");
-            Console::write("cmp\t{$HelpMessage_CompileSpecifiedFiles}");
-            Console::write("set\t{$HelpMessage_SeeOrChangeSettings}");
-            //std::cout << "-help" << "\t" << "show help message" << std::endl;
-            //std::cout << "-ver" << "\t" << "show chestnut version" << std::endl;
-            //std::cout << std::endl;
-            //std::cout << "cmp" << "\t" << "compile specified file(s)" << std::endl;
-            //std::cout << "set" << "\t" << "see or change settings" << std::endl;
+            Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
+            Console::writeln("-ver\t{$HelpMessage_ShowChestnutVersion}");
+            Console::writeln();
+            Console::writeln("cmp\t{$HelpMessage_CompileSpecifiedFiles}");
+            Console::writeln("set\t{$HelpMessage_SeeOrChangeSettings}");
+            return;
         }
+
+        Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
     }
 
     static void c_cmp() {
         if(options.exists("-help")) {
-            //std::cout << "-help" << "\t" << "show help message" << std::endl;
-            //std::cout << std::endl;
-            //std::cout << "<filepath>" << "\t" << "compile a specified file" << std::endl;
-            Console::write("-help\t{$HelpMessage_ShowHelpMessage}");
-            Console::write("\n");
-            Console::write("<filepath>\t{$HelpMessage_CompileSpecifiedFiles}");
+            Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
+            Console::writeln();
+            Console::writeln("<filepath>\t{$HelpMessage_CompileSpecifiedFiles}");
             return;
         }
 
         if(options.exists("-i") && options.get("-i") != "") {
             Compiler cmp(options);
             cmp.compile();
-        } else {
-            Console::log(LogType_Error, "5899", {}, true);
+            return;
         }
+
+        Console::log(LogType_Error, "5899", {}, true);
     }
 
     static void c_run() {
         if(options.exists("-help")) {
-            Console::write("-help\t{$HelpMessage_ShowHelpMessage}");
-            //std::cout << "-help" << "\t" << "show help message" << std::endl;
+            Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
             return;
         }
 
         if(options.exists("-i") && options.get("-i") != "") {
             Interpreter itp(options);
             itp.run();
-        } else {
-            Console::log(LogType_Error, "5899", {}, true);
+            return;
         }
+
+        Console::log(LogType_Error, "5899", {}, true);
     }
 
     static void c_set() {
