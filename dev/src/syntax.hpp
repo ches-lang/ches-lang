@@ -1,10 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <regex>
-#include <string>
-#include <vector>
-
 typedef unsigned char           Byte;
 typedef std::vector<Byte>       ByteSeq;
 typedef std::vector<ByteSeq>    TokenSeq;

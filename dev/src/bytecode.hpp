@@ -1,15 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <limits>
-#include <map>
-#include <random>
-#include <string>
-#include <uuid/uuid.h>
-#include <vector>
-
-
-
 #define LN(i)           (bytecode.at(i))
 #define TK(i, j)        (bytecode.at(i).at(j))
 #define CH(i, j, k)     (bytecode.at(i).at(j).at(k))

@@ -1,13 +1,5 @@
 #pragma once
 
-#include <deque>
-#include <iostream>
-#include <regex>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 #define A(i)        (tokens.at(i >= 0 ? i : tokens.size() + i))
 #define M(i, t, s)  (Token(t, s).compare(A(i)))
 #define IA(i)       (A(i).index)

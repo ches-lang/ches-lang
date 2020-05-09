@@ -1,11 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <string>
-//#include "console.cpp"
-//#include "filemanager.cpp"
-
 
 
 class Language {

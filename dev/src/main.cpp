@@ -1,10 +1,18 @@
 #include <chrono>
+#include <deque>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <map>
+#include <random>
+#include <regex>
+#include <stack>
 #include <string>
+#include <unordered_map>
+#include <uuid/uuid.h>
 #include <vector>
+
 #include "console.cpp"
 #include "syntax.cpp"
 #include "lexer.cpp"
