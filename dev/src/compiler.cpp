@@ -51,7 +51,7 @@ void Compiler::compile() {
         }
     }
 
-    if(!Console::hasDisplayed())
+    if(!Console::errored && !Console::warned)
         Console::write("{$Message_CompilationSucceeded}\n");
 }
 
