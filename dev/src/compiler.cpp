@@ -40,7 +40,7 @@ void Compiler::compile() {
             if(options.exists("-o")) {
                 outpath = options.get("-o");
             } else {
-                outpath = options.get("-i") + "/" + FileManager::getName(options.get("-i")) + ".chesc";
+                outpath = options.get("-i") + "/" + FileManager::getFileName(options.get("-i")) + ".chesc";
             }
 
             FileManager::writeBytecode(outpath, Bytecode(bytecodes));

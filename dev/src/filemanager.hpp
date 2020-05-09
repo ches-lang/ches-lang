@@ -102,26 +102,6 @@ public:
         return std::filesystem::is_directory(path);
     }
 
-    static std::string getName(std::string path) {
-        std::vector<std::string> divided = { "" };
-
-        for(char ch : path) {
-            if(ch == '/') {
-                divided.push_back("");
-            } else {
-                divided[divided.size() - 1] += ch;
-            }
-        }
-
-        for(int i = divided.size() - 1; i > 0; i--) {
-            if(divided[i] != "") {
-                return divided[i];
-            }
-        }
-
-        return "";
-    }
-
     static std::vector<std::string> getFilePaths(std::string dirpath) {
         std::vector<std::string> filepaths;
         try {
