@@ -22,7 +22,7 @@ CNote_7148_Message -limit to change log display limit
 CWarn_3405_Message duplicated output file
 
 HelpMessage_CompileSpecifiedFiles compile specified file(s)
-HelpMessage_SeeOrChangeSettings see or change settings
+HelpMessage_SeeOrChangeSettings see or change options
 HelpMessage_ShowChestnutVersion show Chestnut version
 HelpMessage_ShowHelpMessage show help messages
 

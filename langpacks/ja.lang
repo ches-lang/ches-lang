@@ -22,7 +22,7 @@ CNote_7148_Message -limit でログ表示制限を変更する
 CWarn_3405_Message 重複した出力ファイル
 
 HelpMessage_CompileSpecifiedFiles 指定されたファイルをコンパイルする
-HelpMessage_SeeOrChangeSettings 設定を表示するか変更する
+HelpMessage_SeeOrChangeSettings オプションを見る、変更する
 HelpMessage_ShowChestnutVersion Chestnutバージョンを表示する
 HelpMessage_ShowHelpMessage ヘルプメッセージを表示する
 

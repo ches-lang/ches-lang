@@ -22,9 +22,9 @@ CNote_7148_Message aliigi ĵurnala montra limo de -limit
 CWarn_3405_Message duobla eliga dosiero
 
 HelpMessage_CompileSpecifiedFiles kompili aldifinata(j)n dosiero(j)n
-HelpMessage_SeeOrChangeSettings vidi aŭ aliigi agordon
+HelpMessage_SeeOrChangeSettings vidi aŭ aliigi elekteblojn
 HelpMessage_ShowChestnutVersion montri Chestnut'n eldonon
-HelpMessage_ShowHelpMessage montri helpan mesaĝojn
+HelpMessage_ShowHelpMessage montri helpajn mesaĝojn
 
 LogDetailName_At de
 LogDetailName_Command komando
