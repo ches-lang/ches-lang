@@ -34,11 +34,12 @@ public:
 
         Console::recordLogHistory(type);
 
-        std::string msgName = getLogMessageName(type, code);
-        std::string prefix = getLogCodePrefix(type);
+        std::string color = Console::getLogTypeColor(type);
+        std::string msgName = Console::getLogMessageName(type, code);
+        std::string prefix = Console::getLogCodePrefix(type);
 
         //std::cout << "\033[31m" << "|" << prefix << code << "|" << "\033[m" << " " << msg << std::endl;
-        Console::write("\033[31m|" + prefix + code + "|\033[m {$" + msgName + "}\n");
+        Console::write("\033[" + color + "m|" + prefix + code + "|\033[m {$" + msgName + "}\n");
 
         for(auto dtl : details)
             //std::cout << "\t" << dtl.first << ": " << dtl.second << std::endl;
@@ -91,6 +92,22 @@ public:
         }
 
         std::cout << output;
+    }
+
+    static std::string getLogTypeColor(int type) {
+        switch(type) {
+            case LogType_Error:
+            return "31";
+
+            case LogType_Notice:
+            return "36";
+
+            case LogType_Warning:
+            return "35";
+        }
+
+        // デフォルトでは黒色を返す
+        return "30";
     }
 
     static std::string getLogMessageName(int type = LogType_Error, std::string code = "0000") {
