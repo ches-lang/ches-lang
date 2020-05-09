@@ -154,16 +154,22 @@ public:
         return Console::langPackProperties[propName];
     }
 
-    static void loadLangPacks(std::string lang = "en") {
+    static void loadLangPacks(std::string lang = "en", std::string backupLang = "en") {
         // リリース時にはパスを直してください
-        std::string filePath = "./chestnut/langpacks/" + lang + ".lang";
+        #define LANG_FILE_PATH(path)    "./chestnut/langpacks/" + path + ".lang"
 
-        if(!std::filesystem::exists(filePath)) {
-            Console::log(LogType_Notice, "6923");
-            lang = "en";
+        bool existsLangPack = true;
+
+        if(!std::filesystem::exists(LANG_FILE_PATH(lang))) {
+            if(!std::filesystem::exists(LANG_FILE_PATH(backupLang))) {
+                Console::log(LogType_Notice, "6923", {}, true);
+            } else {
+                existsLangPack = false;
+                lang = backupLang;
+            }
         }
 
-        std::vector<std::string> lines = Console::readTextLine(filePath);
+        std::vector<std::string> lines = Console::readTextLine(LANG_FILE_PATH(lang));
 
         for(std::string ln : lines) {
             if(ln == "") continue;
@@ -183,6 +189,9 @@ public:
 
             Console::langPackProperties[propName] = propVal;
         }
+
+        if(!existsLangPack)
+            Console::log(LogType_Notice, "6923");
     }
 
     static std::vector<std::string> readTextLine(std::string path) {
