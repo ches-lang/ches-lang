@@ -58,7 +58,7 @@ void Compiler::compile() {
 Bytecode Compiler::getBytecode() {
     std::string source = FileManager::readText(options.get("-i"));
     Lexer lexer(options.get("-i"), source, options);
-    std::vector<Token> tokens = lexer.getTokens();
+    std::vector<Token> tokens = lexer.splitTokens();
     Parser parser(options.get("-i"), source, tokens, options);
     Node node = parser.parse();
     return Bytecode(node);

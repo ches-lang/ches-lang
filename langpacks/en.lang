@@ -39,4 +39,6 @@ LogDetailName_SourceCode sourceCode
 LogDetailName_Type type
 LogDetailName_Unexpected unexpected
 
+LogDetailValue_ACharValue a char value
+
 Message_CompilationSucceeded Compilation succeeded.

@@ -39,4 +39,6 @@ LogDetailName_SourceCode fontoKodo
 LogDetailName_Type tipo
 LogDetailName_Unexpected neAtendis
 
+LogDetailValue_ACharValue char'a valoro
+
 Message_CompilationSucceeded Kompilo sukcesis.

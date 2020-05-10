@@ -39,4 +39,6 @@ LogDetailName_SourceCode ソースコード
 LogDetailName_Type 型
 LogDetailName_Unexpected 異常値
 
+LogDetailValue_ACharValue char値
+
 Message_CompilationSucceeded コンパイルが成功しました。

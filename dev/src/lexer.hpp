@@ -39,13 +39,11 @@ public:
 
     Lexer(std::string srcpath, std::string src, Options opt);
 
-    std::vector<Token> getTokens();
+    std::vector<Token> splitTokens();
 
 private:
 
-    Token scan();
+    Token getNextToken();
 
-    void checkParen(Token tk);
-
-    void checkParenFinally();
+    void validateParen(Token tk);
 };
