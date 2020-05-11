@@ -60,8 +60,11 @@ std::vector<Token> Lexer::splitTokens() {
 Token Lexer::getNextToken() {
     index++;
 
-    #define MATCH_STR(ch1)          (source[index] == ch1)
-    #define MATCH_STR_2(ch1, ch2)   (source[index] == ch1 && index < source.length() - 1 && source[index + 1] == ch2)
+    #define MATCH_STR(ch1)                  (source[index] == ch1)
+    #define MATCH_STR_2(ch1, ch2)           (index < source.length() - 1 && source[index] == ch1 && source[index + 1] == ch2)
+    #define MATCH_STR_3(ch1, ch2, ch3)      (index < source.length() - 3 && source[index] == ch1 && source[index + 1] == ch2 && source[index + 2] == ch3)
+    #define MATCH_STR_4(ch1, ch2, ch3, ch4) (index < source.length() - 3 && source[index] == ch1 && source[index + 1] == ch2 && source[index + 2] == ch3 && source[index + 3] == ch4)
+    #define MATCH_STR_M1(ch1)               (index > 0 && source[index - 1] == ch1)
 
     if(index >= source.size())
         return Token(TK_EndOfFile, "", index);
@@ -88,13 +91,13 @@ Token Lexer::getNextToken() {
         std::string comment;
         int start = index;
 
-        for(index += 2; index < source.length() - 1; index++) {
+        for(index += 1; index < source.length() - 1; index++) {
             if(source[index] == '*' && source[index + 1] == '/') {
                 index++;
                 return Token(TK_CommentOut, comment, start);
-            } else {
-                comment += std::string { source[index] };
             }
+
+            comment += std::string { source[index] };
         }
 
         //checkParenFinally();
@@ -107,7 +110,7 @@ Token Lexer::getNextToken() {
         std::string comment;
         int start = index;
 
-        for(index += 2; index < source.length(); index++) {
+        for(index += 1; index < source.length(); index++) {
             if(source[index] == '\n') {
                 index--;
                 break;
@@ -191,30 +194,49 @@ Token Lexer::getNextToken() {
         return tk;
     }
 
-    else if(MATCH_STR_2(' ', ' ')) {
-        index++;
-        return Token(TK_Indent, "  ", index - 1);
-    }
-
     else if(MATCH_STR(' ')) {
+        // インデントでない場合は次のトークンを返す
         for(int i = index - 1; i >= 0; i--) {
             if(source[i] == ' ') {
                 continue;
             } else if(source[i] == '\n') {
                 break;
             } else {
+                std::cout<<"?"<<std::endl;
                 return getNextToken();
             }
         }
 
-        Console::log(LogType_Error, "7903", { { "At", Token::getPositionText(options.get("-i"), source, index) } });
+        int start = index;
+
+        if(MATCH_STR_4(' ', ' ', ' ', ' ')) {
+            // 正しいインデントの場合
+            index += 3;
+            return Token(TK_Indent, "    ", start);
+        } else {
+            // インデントの数が不正な場合
+            for(index++; index < source.length(); index++) {
+                if(!MATCH_STR(' ')) {
+                    index--;
+                    break;
+                }
+            }
+
+            Console::log(LogType_Error, "7903", { { "At", Token::getPositionText(options.get("-i"), source, start) } });
+            return getNextToken();
+        }
     }
 
-    else if(MATCH_STR_2('\n', '\n'))
-        return getNextToken();
+    else if(MATCH_STR('\n')) {
+        for(index++; index < source.length(); index++) {
+            if(!MATCH_STR('\n')) {
+                index--;
+                break;
+            }
+        }
 
-    else if(MATCH_STR('\n'))
         return Token(TK_NewLine, std::string { source[index] }, index);
+    }
 
     else if(std::regex_match(std::string { source[index] }, std::regex("[0-9]"))) {
         std::string num;
