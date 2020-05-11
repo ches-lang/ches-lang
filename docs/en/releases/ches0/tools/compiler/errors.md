@@ -4,6 +4,8 @@
 |:-:|:-:|
 |[cerr 0000](/docs/en/releases/ches0/tools/compiler/errors/cerr0000.md)|unknown error|
 |[cerr 0327](/docs/en/releases/ches0/tools/compiler/errors/cerr0327.md)|file not found|
+|[cerr 0698](/docs/en/releases/ches0/tools/compiler/errors/cerr0698.md)|expected token|
+|[cerr 0699](/docs/en/releases/ches0/tools/compiler/errors/cerr0699.md)|unexpected token|
 |[cerr 1064](/docs/en/releases/ches0/tools/compiler/errors/cerr1064.md)|unknown command|
 |[cerr 1562](/docs/en/releases/ches0/tools/compiler/errors/cerr1562.md)|expected EOF|
 |[cerr 2471](/docs/en/releases/ches0/errors/cerr2471.md)|too long character length|

@@ -84,6 +84,11 @@ Token Lexer::getNextToken() {
     else if(MATCH_STR('-'))
         return Token(TK_Hyphen, std::string { source[index] }, index);
 
+    else if(MATCH_STR_2('*', '/')) {
+        index++;
+        Console::log(LogType_Error, "0699", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Unexpected", "*/" } });
+    }
+
     else if(MATCH_STR('*'))
         return Token(TK_Asterisk, std::string { source[index] }, index);
 
@@ -202,7 +207,6 @@ Token Lexer::getNextToken() {
             } else if(source[i] == '\n') {
                 break;
             } else {
-                std::cout<<"?"<<std::endl;
                 return getNextToken();
             }
         }
