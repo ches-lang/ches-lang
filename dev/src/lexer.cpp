@@ -48,7 +48,7 @@ std::vector<Token> Lexer::splitTokens() {
 
     // 最後に括弧のエラーを出す
     for(Token paren : openParens) {
-        Console::log(LogType_Error, "0698", { { "At", paren.getPositionText(sourcePath, source) }, { "Expected", "'" + paren.getCloseParen().string + "'" } });
+        Console::log(LogType_Error, "0698", { { "At", Token::getPositionText(options.get("-i"), source, paren.index + 1) }, { "Expected", "'" + paren.getCloseParen().string + "'" } });
     }
 
     if(Console::errored || (Console::warned && !options.exists("-miss")))
@@ -94,7 +94,7 @@ Token Lexer::getNextToken() {
         std::string comment;
         int start = index;
 
-        for(index += 1; index < source.length() - 1; index++) {
+        for(index++; index < source.length() - 1; index++) {
             if(source[index] == '*' && source[index + 1] == '/') {
                 index++;
                 return Token(TK_CommentOut, comment, start);
@@ -106,14 +106,14 @@ Token Lexer::getNextToken() {
         //checkParenFinally();
 
         // コメントアウトに閉じがない場合はエラー
-        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "'*/'" } }, true);
+        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, start + 2) }, { "Expected", "'*/'" } }, true);
     }
 
     else if(MATCH_STR_2('/', '/')) {
         std::string comment;
         int start = index;
 
-        for(index += 1; index < source.length(); index++) {
+        for(index++; index < source.length(); index++) {
             if(source[index] == '\n') {
                 index--;
                 break;
@@ -269,14 +269,14 @@ Token Lexer::getNextToken() {
             index += 3;
         } else if(source[index + 1] == '\'') {
             // 文字の入っていない文字値
-            Console::log(LogType_Error, "4139", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "{$LogDetailValue_ACharValue}" } });
+            Console::log(LogType_Error, "4139", { { "At", Token::getPositionText(options.get("-i"), source, start + 1) }, { "Expected", "{$LogDetailValue_ACharValue}" } });
             index += 1;
         } else {
             bool closed = false;
             int i;
 
-            for(index += 1; index < source.length(); index++) {
-                if(source[index] == '\'') {
+            for(index++; index < source.length(); index++) {
+                if(MATCH_STR('\'')) {
                     closed = true;
                     break;
                 }
@@ -284,11 +284,11 @@ Token Lexer::getNextToken() {
 
             if(closed) {
                 // 文字値が2文字以上の場合 (tooLongCharacterLengthエラー)
-                Console::log(LogType_Error, "2471", { { "At", Token::getPositionText(options.get("-i"), source, index) } });
+                Console::log(LogType_Error, "2471", { { "At", Token::getPositionText(options.get("-i"), source, start + 1) } });
             } else {
                 //checkParenFinally();
                 // 閉じクォーテーションがない場合 (EOFエラー)
-                Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "'''" } }, true);
+                Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, start + 2) }, { "Expected", "'''" } }, true);
             }
 
             return getNextToken();
@@ -301,7 +301,7 @@ Token Lexer::getNextToken() {
         std::string str;
         int start = index;
 
-        for(index += 1; index < source.length(); index++) {
+        for(index++; index < source.length(); index++) {
             if(source[index] != '\"') {
                 str += source[index];
             } else {
@@ -310,7 +310,7 @@ Token Lexer::getNextToken() {
         }
 
         //checkParenFinally();
-        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, index) }, { "Expected", "'\"'" } }, true);
+        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(options.get("-i"), source, start + 1) }, { "Expected", "'\"'" } }, true);
     }
 
     else {
@@ -361,11 +361,11 @@ void Lexer::validateParen(Token tk) {
         }
 
         if(latestOpenParen.type != paren.type) {
-            Console::log(LogType_Error, "0698", { { "At", latestOpenParen.getPositionText(sourcePath, source) }, { "Expected", "'" + latestOpenParen.getCloseParen().string + "'" } });
+            Console::log(LogType_Error, "0698", { { "At", Token::getPositionText(options.get("-i"), source, latestOpenParen.index + 1) }, { "Expected", "'" + latestOpenParen.getCloseParen().string + "'" } });
             nest.at(paren.type).first--;
             nest.at(latestOpenParen.type).first--;
             openParens.pop_back();
-            openParens.pop_back();
+            //openParens.pop_back();
             return;
         }
 
