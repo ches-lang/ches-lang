@@ -1,5 +1,7 @@
 CError_0000_Message unknown error
 CError_0327_Message file not found
+CError_0698_Message expected token
+CError_0699_Message unexpected token
 CError_1064_Message unknown command
 CError_1562_Message expected EOF
 CError_2471_Message too long character length
@@ -8,11 +10,9 @@ CError_4139_Message too short character length
 CError_4890_Message internal compiler error
 CError_5352_Message file writing fail
 CError_5899_Message no input file
-CError_5916_Message expected closing parenthesis or bracket
 CError_6845_Message file reading fail
 CError_6923_Message unknown language
 CError_7903_Message invalid indent
-CError_7904_Message unexpected closing parenthesis or bracket
 CError_8194_Message invalid command option
 CError_8732_Message invalid magic number
 

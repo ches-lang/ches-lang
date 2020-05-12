@@ -1,5 +1,7 @@
 CError_0000_Message nekonata eraro
 CError_0327_Message dosiero ne trovita
+CError_0698_Message atendis simbolo
+CError_0699_Message neatendis simbolo
 CError_1064_Message nekonata komando
 CError_1562_Message neatendita EOF
 CError_2471_Message tro longa litera longeco
@@ -8,11 +10,9 @@ CError_4139_Message tro mallonga litera longeco
 CError_4890_Message interna kompilera eraro
 CError_5352_Message dosiera skriba malsukceso
 CError_5899_Message neniu eniga dosiero
-CError_5916_Message atendis ferman krampon
 CError_6845_Message dosiera lega malsukceso
 CError_6923_Message nekonata lingvo
 CError_7903_Message nevalida krommarĝeno
-CError_7904_Message ne atendis ferman krampon
 CError_8194_Message nevalida komando elektemblo
 CError_8732_Message nevalida magia cifero
 
