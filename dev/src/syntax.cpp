@@ -25,13 +25,13 @@ Token::Token(Byte type, std::string string, int index) {
     this->index = index;
 }
 
-// Index won't be compared.
+// インデックスは比較されません
 bool Token::compare(Token token) {
-    return (this->type == token.type && this->string == token.string);
+    return this->type == token.type && this->string == token.string;
 }
 
 Token Token::getCloseParen() {
-    switch (this->type) {
+    switch(this->type) {
         case TK_LeftParen:
         return Token(TK_RightParen, ")", this->index);
 
@@ -102,11 +102,9 @@ bool Token::isOpenParen() {
 bool Token::match(ByteSeq matches) {
     bool res = false;
 
-    for(int i = 0; i < matches.size(); i++) {
-        if(matches[i] == this->type) {
+    for(int i = 0; i < matches.size(); i++)
+        if(matches[i] == this->type)
             res = true;
-        }
-    }
 
     return res;
 }
@@ -176,8 +174,9 @@ void Node::print(std::string level) {
 }
 
 std::string Node::typeToString() {
-    if(nodeTypeMap.count(this->type) == 1)
+    if(nodeTypeMap.count(this->type) == 1) {
         return nodeTypeMap[this->type];
-    else
+    } else {
         return "???";
+    }
 }
