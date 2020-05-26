@@ -44,7 +44,7 @@ Bytecode::Bytecode(std::vector<Bytecode> source) {
     for(Bytecode bc : source) {
         append(Bytecode("compiled_ches"));
         //append(Bytecode(ByteSeq { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
-        append(Bytecode(IT_LineDivide));
+        append(Bytecode(IT_LineDiv));
         append(Bytecode(bc));
     }
 }
@@ -53,15 +53,15 @@ Bytecode::Bytecode(LineSeq source) {
     for(int ln = 0; ln < source.size(); ln++) {
         for(int tk = 0; tk < source[ln].size(); tk++) {
             for(int ch = 0; ch < source[ln][tk].size(); ch++) {
-                if(source[ln][tk][ch] == IT_LineDivide) this->append(IT_LineDivide);
-                else if(source[ln][tk][ch] == IT_TokenDivide) this->append(IT_TokenDivide);
+                if(source[ln][tk][ch] == IT_LineDiv) this->append(IT_LineDiv);
+                else if(source[ln][tk][ch] == IT_TokenDiv) this->append(IT_TokenDiv);
                 this->append(source[ln][tk][ch]);
             }
 
-            if(tk != source[ln].size() - 1) this->append(IT_TokenDivide);
+            if(tk != source[ln].size() - 1) this->append(IT_TokenDiv);
         }
 
-        if(ln != source.size() - 1) this->append(IT_LineDivide);
+        if(ln != source.size() - 1) this->append(IT_LineDiv);
     }
 }
 
@@ -98,18 +98,18 @@ LineSeq Bytecode::divide() {
 
     for(int i = 0; i < source.size(); i++) {
         switch(this->source[i]) {
-            case IT_LineDivide:
-            if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDivide) {
-                res.back().back().push_back(IT_LineDivide);
+            case IT_LineDiv:
+            if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDiv) {
+                res.back().back().push_back(IT_LineDiv);
                 i++;
             } else {
                 res.push_back({{}});
             }
             break;
 
-            case IT_TokenDivide:
-            if(i + 1 < this->source.size() && this->source[i + 1] == IT_TokenDivide) {
-                res.back().back().push_back(IT_TokenDivide);
+            case IT_TokenDiv:
+            if(i + 1 < this->source.size() && this->source[i + 1] == IT_TokenDiv) {
+                res.back().back().push_back(IT_TokenDiv);
                 i++;
             } else {
                 res.back().push_back({});
@@ -130,7 +130,7 @@ Bytecode Bytecode::toBytecode(Node tree) {
     this->lines.push_back({ MAGIC_NUMBER });
 
     for(Node node : tree.children)
-        if(node.type == ND_DefFunction)
+        if(node.type == ND_DefFunc)
             funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
     this->scanNode(tree);
@@ -141,6 +141,7 @@ Bytecode Bytecode::toBytecode(Node tree) {
 // ある階層内のすべての子ノードを調べます
 void Bytecode::scanNode(Node node) {
     for(int i = 0; i < node.children.size(); i++) {
+        std::cout << "a¥upup::     " << i << std::endl;
         LineSeq resLines = this->nodeToBytecode(node.children[i], i);
         //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
         std::copy(resLines.begin(), resLines.end(), std::back_inserter(this->lines));
@@ -159,13 +160,13 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
                 result.push_back({ { IT_Unknown } });
             } break;
 
-            case ND_DefVariable: {std::cout<<"deffunc"<<std::endl;
-                result.push_back({ { IT_LocalStackPush }, {} });
+            case ND_DefVar: {std::cout<<"deffunc"<<std::endl;
+                result.push_back({ { IT_LSPush }, {} });
                 this->scanNode(node.childAt(1));
                 lslen++;
             } break;
 
-            case ND_InitVariable: {std::cout<<"initvar"<<std::endl;
+            case ND_InitVar: {std::cout<<"initvar"<<std::endl;
                 Token token = node.tokenAt(2);
                 ByteSeq value;
 
@@ -174,11 +175,11 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
                 else if(token.type == TK_String)
                     value = Bytecode(token.string).source;
 
-                result.push_back({ { IT_LocalStackPush }, value });
+                result.push_back({ { IT_LSPush }, value });
                 lslen++;
             } break;
 
-            case ND_DefFunction: {std::cout<<"deffunc"<<std::endl;
+            case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
                 ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
                 ByteSeq funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
                 result.push_back({ { IT_Label }, funcid, funcname });
@@ -192,7 +193,7 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
                 }
             } break;
 
-            case ND_CallFunction: {std::cout<<"callfunc"<<std::endl;
+            case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
                 ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
                 result.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
             } break;
@@ -200,7 +201,7 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
             case ND_If: {std::cout<<"if"<<std::endl;
                 // 次のノードに else / elseif がくれば
 
-                std::cout << index << std::endl;
+                std::cout << "if: : : " << index << std::endl;
 
                 if(node.children.size() < index) {
                     Byte nextNodeType = node.childAt(index + 1).type;

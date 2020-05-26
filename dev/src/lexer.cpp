@@ -97,7 +97,7 @@ Token Lexer::getNextToken() {
         for(index++; index < source.length() - 1; index++) {
             if(source[index] == '*' && source[index + 1] == '/') {
                 index++;
-                return Token(TK_CommentOut, comment, start);
+                return Token(TK_Comment, comment, start);
             }
 
             comment += std::string { source[index] };
@@ -122,14 +122,14 @@ Token Lexer::getNextToken() {
             comment += std::string { source[index] };
         }
 
-        return Token(TK_CommentOut, comment, start);
+        return Token(TK_Comment, comment, start);
     }
 
     else if(MATCH_STR('/'))
         return Token(TK_Slash, std::string { source[index] }, index);
 
     else if(MATCH_STR('%'))
-        return Token(TK_Percentage, std::string { source[index] }, index);
+        return Token(TK_Percent, std::string { source[index] }, index);
 
     else if(MATCH_STR('^'))
         return Token(TK_Tilde, std::string { source[index] }, index);
@@ -294,7 +294,7 @@ Token Lexer::getNextToken() {
             return getNextToken();
         }
 
-        return Token(TK_Character, std::string { ch }, start);
+        return Token(TK_Char, std::string { ch }, start);
     }
 
     else if(MATCH_STR('\"')) {

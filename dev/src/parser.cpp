@@ -13,7 +13,7 @@ Line::Line(std::vector<Token> tokens) {
     for(int i = 0; i < tokens.size(); i++) {
         if(tokens[i].type == TK_Indent) {
             nest++;
-        } else if(tokens[i].type == TK_CommentOut) {
+        } else if(tokens[i].type == TK_Comment) {
             continue;
         } else {
             line.push_back(tokens[i]);
@@ -262,7 +262,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
 
         // DEFFUNC
         if(nest == 0 && TM(0, TK_Identifier) && TM(1, TK_LeftParen) && TM(len - 1, TK_RightParen)) {
-            Node node(ND_DefFunction);
+            Node node(ND_DefFunc);
             node.addToken(Token(TK_Identifier, SA(0)));
 
             if(len >= 4) {
@@ -295,7 +295,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
 
         // CALLFUNC
         if(nest >= 1 && len >= 3 && TM(0, TK_Identifier) && TM(1, TK_LeftParen) && TM(-1, TK_RightParen)) {
-            Node node(ND_CallFunction);
+            Node node(ND_CallFunc);
             node.addToken(A(0));
 
             int nest = 0;
@@ -329,7 +329,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
 
         // DEFVAR
         if(len == 2 && (TM(0, TK_Identifier) || TM(0, TK_Keyword)) && TM(1, TK_Identifier)) {
-            Node node(ND_DefVariable);
+            Node node(ND_DefVar);
             node.addToken(A(0));
             node.addToken(A(1));
             return node;
@@ -337,7 +337,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
 
         // DEFVAR (ARRAY)
         if(len == 4 && (TM(0, TK_Identifier) || TM(0, TK_Keyword)) && TM(1, TK_LeftBracket) && TM(2, TK_RightBracket) && TM(3, TK_Identifier)) {
-            Node node(ND_DefVariable);
+            Node node(ND_DefVar);
             node.addToken(A(0));
             node.addToken(A(1));
             node.addToken(A(2));
@@ -362,7 +362,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
 
         // INITVAR todo: 複数トークンの型名にも対応させる
         if(len >= 4 && (TM(0, TK_Identifier) || TM(0, TK_Keyword)) && TM(1, TK_Identifier) && TM(2, TK_Equal)) {
-            Node node(ND_InitVariable);
+            Node node(ND_InitVar);
             node.addToken(A(0));
             node.addToken(A(1));
 
@@ -393,13 +393,13 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
 
             if(semicolonDiv.size() == 1) {
                 // Example: for(true)
-                node.addChild(this->getNode(copy(1, len - 1, tokens), ND_Loop_Condition));
+                node.addChild(this->getNode(copy(1, len - 1, tokens), ND_Loop_Cond));
             } else if(semicolonDiv.size() == 3) {
                 // Example: for(i = 0; i < 5; i++)
                 std::vector<Token> item;
 
                 node.addChild(this->getNode(semicolonDiv[0], ND_Loop_Init));
-                node.addChild(this->getNode(semicolonDiv[1], ND_Loop_Condition));
+                node.addChild(this->getNode(semicolonDiv[1], ND_Loop_Cond));
                 node.addChild(this->getNode(semicolonDiv[2], ND_Loop_Change));
             } else {
                 //構文エラー
@@ -588,190 +588,6 @@ Byte Parser::getOpeType(std::vector<Token> tokens, int index) {
     // unknownの場合は leftside.push_back(A(i)); をする
     return ND_Unknown;
 }
-
-/* 過去のコード */
-
-        /* 論理式 */
-
-        /*ismatch = false;
-        nest = 0;
-
-        for(int i = 0; i < len; i++) {
-            if(A(i).match(ByteSeq { PIPE, AMPERSAND })) {
-                if(nest == 0) ismatch = true;
-            } else if(A(i).match(ByteSeq { LPAREN, LBRACK, LBRACE })) {
-                nest++;
-            } else if(A(i).match(ByteSeq { RPAREN, RBRACK, RBRACE })) {
-                nest--;
-            }
-        }
-
-        if (len >= 3 && ismatch) {
-            Node node(N_LOGIC);
-            std::vector<Token> side;
-            nest = 0;
-
-            for(int i = 0; i < len; i++) {
-                if(A(i).match(ByteSeq { PIPE, AMPERSAND }) && nest == 0) {
-                    node.addChild(getNode(side, N_ITEM));
-                    side.clear();
-
-                    if(TM(i, PIPE) && TM(i + 1, PIPE)) {
-                        node.addChild(Node(N_OPE, {}, { A(i) }));
-                        i++;
-                    } else if(TM(i, AMPERSAND) && TM(i + 1, AMPERSAND)) {
-                        node.addChild(Node(N_OPE, {}, { A(i) }));
-                        i++;
-                    }
-                } else if(TM(i, LPAREN)) {
-                    side.push_back(A(i));
-                    nest++;
-                } else if(TM(i, RPAREN)) {
-                    side.push_back(A(i));
-                    nest--;
-                } else {
-                    side.push_back(A(i));
-                }
-            }
-
-            node.addChild(getNode(side, N_ITEM));
-            side.clear();
-
-            return node;
-        }*/
-
-        /* 比較式 */
-
-        /*ismatch = false;
-        nest = 0;
-
-        for(int i = 0; i < len; i++) {
-            if(A(i).match(ByteSeq { LANGBRACK, RANGBRACK, EQUAL })) {
-                if(nest == 0) ismatch = true;
-            } else if(A(i).match(ByteSeq { LPAREN, LBRACK, LBRACE })) {
-                nest++;
-            } else if(A(i).match(ByteSeq { RPAREN, RBRACK, RBRACE })) {
-                nest--;
-            }
-        }
-
-        if(len >= 3 && ismatch) {
-            Node node(N_COMP);
-            Byte type = N_UNKNOWN;
-            std::vector<Token> leftside;
-            std::vector<Token> rightside;
-
-            for(int i = 0; i < len; i++) {
-                if(type == N_UNKNOWN) {
-                    // 左辺: まだ比較演算子がきていない
-                    if(i < len - 1 && TM(i, EQUAL) && TM(i + 1, EQUAL)) {
-                        type = N_EQUAL;
-                        i++;
-                    } else if(TM(i, LANGBRACK)) {
-                        type = N_LESS;
-                    } else if(TM(i, RANGBRACK)) {
-                        type = N_GREATER;
-                    } else {
-                        leftside.push_back(A(i));
-                    }
-                } else {
-                    // 右辺: 比較演算子がすでにきた
-                    rightside.push_back(A(i));
-                }
-            }
-
-            node.addChild(Node(type, {}, {}));
-            node.addChild(getNode(leftside, N_ITEM));
-            node.addChild(getNode(rightside, N_ITEM));
-
-            return node;
-        }*/
-
-        /* 計算式 */
-
-        /*ismatch = false;
-        nest = 0;
-
-        for(int i = 0; i < len; i++) {
-            if(A(i).match(ByteSeq { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
-                if(nest == 0) ismatch = true;
-            } else if(A(i).match(ByteSeq { LPAREN, LBRACK, LBRACE })) {
-                nest++;
-            } else if(A(i).match(ByteSeq { RPAREN, RBRACK, RBRACE })) {
-                nest--;
-                if(nest == 0 && i != len - 1) enclosed = false;
-            }
-        }
-
-        if(len >= 3 && ismatch) {
-            Node node(N_EXPRESS);
-            std::stack<Token> stack;
-            std::vector<Token> item;
-
-            for(int i = 0; i < len; i++) {
-                if(TM(i, LPAREN)) {
-                    std::vector<Token> inParen;
-                    int nest = 0;
-
-                    for(i++; i < len; i++) {
-                        if(TM(i, RPAREN)) {
-                            if(nest == 0) {
-                                Node nd = getNode(inParen);
-                                for(Node n : nd.children)
-                                    node.addChild(n);
-                                break;
-                            } else {
-                                inParen.push_back(A(i));
-                                nest--;
-                            }
-                        } else if(TM(i, LPAREN)) {
-                            inParen.push_back(A(i));
-                            nest++;
-                        } else {
-                            inParen.push_back(A(i));
-                        }
-                    }
-                } else if(A(i).match(ByteSeq { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
-                    if(stack.size() == 0) {
-                        //スタックの要素数が0 → スタックに積む
-                        stack.push(A(i));
-                    } else if(compareOpe(stack.top().string, SA(i))) {
-                        // 先頭に比べて優先度が高い → スタックに積む
-                        stack.push(A(i));
-                    } else {
-                        // 先頭に比べて優先度が低い → 優先度が低くなるまでaddNode
-                        while(stack.size() != 0) {
-                            if(compareOpe(SA(i), stack.top().string)) {
-                                node.addChild(Node(N_OPE, {}, { stack.top() }));
-                                stack.pop();
-                            } else break;
-                        }
-                        stack.push(A(i));
-                    }
-                } else {
-                    for(int j = i; j <= len; j++) {
-                        if(j != len && !A(j).match(ByteSeq { TILDE, PLUS, HYPHEN, ASTERISK, SLASH, PERCENTAGE, CARET })) {
-                            item.push_back(A(j));
-                        } else {
-                            if(j == len) i = j + 1;
-                            else i += item.size() - 1;
-                            if(item.size() == 1) node.addChild(Node(N_ITEM, {}, { item.at(0) }));
-                            else node.addChild(getNode(item));
-                            item.clear();
-                            break;
-                        }
-                    }
-                }
-            }
-
-            while(stack.size() != 0) {
-                node.addChild(Node(N_OPE, {}, { stack.top() }));
-                stack.pop();
-            }
-
-            return node;
-        }
-*/
 
 // 優先度高い             優先度低い
 // true → ope1 < ope2   false → ope1 >= ope2

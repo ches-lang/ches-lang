@@ -79,7 +79,7 @@ void Interpreter::runInst(TokenSeq inst) {
                 runInst(tks);
             } break;
 
-            case IT_LocalStackPush: {
+            case IT_LSPush: {
                 //std::cout << "Push: " << (int)inst.at(1).at(0) << std::endl;
                 stacks.at(0).push((void*)&inst.at(1));
             } break;
