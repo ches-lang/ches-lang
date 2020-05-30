@@ -141,7 +141,6 @@ Bytecode Bytecode::toBytecode(Node tree) {
 // ある階層内のすべての子ノードを調べます
 void Bytecode::scanNode(Node node) {
     for(int i = 0; i < node.children.size(); i++) {
-        std::cout << "a¥upup::     " << i << std::endl;
         LineSeq resLines = this->nodeToBytecode(node.children[i], i);
         //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
         std::copy(resLines.begin(), resLines.end(), std::back_inserter(this->lines));
@@ -154,6 +153,8 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
     LineSeq result;
 
     try {
+
+        std::cout<<(NodeType)node.type<<std::endl;
 
         switch(node.type) {
             case ND_Unknown: {
@@ -186,11 +187,7 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
 
                 lllen += node.childAt(0).children.size();
 
-                // ROOTノードの階層をチェックし、resultに追加していく
-                for(int i = 0; i < node.childAt(1).children.size(); i++) {
-                    LineSeq resLines = this->nodeToBytecode(node.childAt(1).childAt(i), index);
-                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(result));
-                }
+                this->scanNode(node.childAt(1));
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
@@ -201,13 +198,15 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
             case ND_If: {std::cout<<"if"<<std::endl;
                 // 次のノードに else / elseif がくれば
 
-                std::cout << "if: : : " << index << std::endl;
-
-                if(node.children.size() < index) {
+                if(index < node.children.size() - 1) {
                     Byte nextNodeType = node.childAt(index + 1).type;
 
                     if(nextNodeType == ND_ElseIf || nextNodeType == ND_Else) {
                         //
+                        index++;
+                        std::cout<<"aaaaaaaaa"<<std::endl;
+                    } else {
+                        std::cout << "wignwgwignwignrie"<<std::endl;
                     }
                 }
 
