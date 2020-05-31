@@ -42,10 +42,10 @@ Bytecode::Bytecode(Node tree) {
 
 Bytecode::Bytecode(std::vector<Bytecode> source) {
     for(Bytecode bc : source) {
-        append(Bytecode("compiled_ches"));
-        //append(Bytecode(ByteSeq { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
-        append(Bytecode(IT_LineDiv));
-        append(Bytecode(bc));
+        this->append(Bytecode(MAGIC_NUMBER));
+        //this->append(Bytecode(ByteSeq { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
+        this->append(Bytecode(IT_LineDiv));
+        this->append(Bytecode(bc));
     }
 }
 
