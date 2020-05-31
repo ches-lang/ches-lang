@@ -133,37 +133,49 @@ Bytecode Bytecode::toBytecode(Node tree) {
         if(node.type == ND_DefFunc)
             funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
-    this->scanNode(tree);
+    int index = 0;
+    LineSeq lineSeq = this->toLineSeq(tree, index);
+    std::copy(lineSeq.begin(), lineSeq.end(), std::back_inserter(this->lines));
+    std::cout << std::endl;
 
     return Bytecode(lines);
 }
 
 // ある階層内のすべての子ノードを調べます
-void Bytecode::scanNode(Node node) {
+/*void Bytecode::scanNode(Node node) {
     for(int i = 0; i < node.children.size(); i++) {
-        LineSeq resLines = this->nodeToBytecode(node.children[i], i);
+        LineSeq resLines = this->toLineSeq(node, i);
         //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
         std::copy(resLines.begin(), resLines.end(), std::back_inserter(this->lines));
     }
-}
+}*/
 
 // ノードを調べてバイトコードに変換し、LineSeq型の行列を返します
 // 基本的に scanNode(Node) により呼ばれます
-LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<index<<std::endl;
+LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
+    Node node = parentNode.childAt(index);
+    std::cout << std::endl << index << " > "<< parentNode.children.size() << " | " << (int)node.type << std::endl;
     LineSeq result;
 
     try {
 
-        std::cout<<(NodeType)node.type<<std::endl;
-
         switch(node.type) {
-            case ND_Unknown: {
+            case ND_Unknown: {std::cout<<"unknown"<<std::endl;
                 result.push_back({ { IT_Unknown } });
             } break;
 
-            case ND_DefVar: {std::cout<<"deffunc"<<std::endl;
+            case ND_Root: {std::cout<<"root"<<std::endl;
+                for(int i = 0; i < node.children.size(); i++) {
+                    LineSeq resLines = this->toLineSeq(node, i);
+                    //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
+                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(result));
+                }
+            } break;
+
+            case ND_DefVar: {std::cout<<"defvar"<<std::endl;
                 result.push_back({ { IT_LSPush }, {} });
-                this->scanNode(node.childAt(1));
+                int i = 1;
+                this->toLineSeq(node, i);
                 lslen++;
             } break;
 
@@ -187,7 +199,8 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
 
                 lllen += node.childAt(0).children.size();
 
-                this->scanNode(node.childAt(1));
+                int i = 2;
+                this->toLineSeq(node, i);
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
@@ -198,38 +211,44 @@ LineSeq Bytecode::nodeToBytecode(Node node, int &index) {std::cout<<"index: "<<i
             case ND_If: {std::cout<<"if"<<std::endl;
                 // 次のノードに else / elseif がくれば
 
-                if(index < node.children.size() - 1) {
-                    Byte nextNodeType = node.childAt(index + 1).type;
+                if(index + 1 < parentNode.children.size()) {
+                    int nextNodeType = parentNode.childAt(index + 1).type;
 
-                    if(nextNodeType == ND_ElseIf || nextNodeType == ND_Else) {
+                    if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
                         //
-                        index++;
-                        std::cout<<"aaaaaaaaa"<<std::endl;
+                        std::cout<<"before else or elseif"<<std::endl;
                     } else {
-                        std::cout << "wignwgwignwignrie"<<std::endl;
+                        std::cout << "not before else or elseif"<<nextNodeType<<std::endl;
                     }
                 }
 
                 // 条件式をチェック
 
-                LineSeq condLines = this->nodeToBytecode(node.childAt(0), index);
-                for(Node n : node.childAt(0).children) std::cout << (int)n.type << " "; std::cout << std::endl;
+                //LineSeq condLines = this->toLineSeq(node.childAt(0), index);
+                //for(Node n : node.childAt(0).children) std::cout << (int)n.type << " "; std::cout << std::endl;
+
+                int i = 1;
+                this->toLineSeq(node, i);
 
                 // ROOTノードの階層をチェックし、resultに追加していく
-                LineSeq procLines;
+                /*LineSeq procLines;
 
                 for(int i = 0; i < node.childAt(1).children.size(); i++) {
-                    LineSeq resLines = this->nodeToBytecode(node.childAt(1).childAt(i), index);
+                    LineSeq resLines = this->toLineSeq(node.childAt(1).childAt(i), index);
                     std::copy(resLines.begin(), resLines.end(), std::back_inserter(procLines));
-                }
+                }*/
 
                 // procLinesなどのサイズも考慮してジャンプ先を出す
                 result.push_back({ { IT_IFJump }, {} });
 
                 // condLinesとprocLinesをresultに結合
-                std::copy(condLines.begin(), condLines.end(), std::back_inserter(result));
-                std::copy(procLines.begin(), procLines.end(), std::back_inserter(result));
+                //std::copy(condLines.begin(), condLines.end(), std::back_inserter(result));
+                //std::copy(procLines.begin(), procLines.end(), std::back_inserter(result));
 
+            } break;
+
+            case ND_Else: {std::cout<<"else"<<std::endl;
+                
             } break;
         }
 

@@ -84,9 +84,9 @@ private:
 
     Bytecode toBytecode(Node tree);
 
-    void scanNode(Node node);
+    //void scanNode(Node node);
 
-    LineSeq nodeToBytecode(Node node, int &index);
+    LineSeq toLineSeq(Node parentNode, int &index);
 
     Byte generateUUID();
 };
