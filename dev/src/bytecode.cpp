@@ -90,7 +90,7 @@ Bytecode::Bytecode(Node tree) {
             funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
     int index = 0;
-    std::vector<Instruction> instList = this->toInstList(tree, index);
+    InstList instList = this->toInstList(tree, index);
 
     for(Instruction inst : instList) {
         this->append(inst.bytecode);
@@ -173,10 +173,10 @@ LineSeq Bytecode::divide() {
 
 // ノードを調べてバイトコードに変換し、LineSeq型の行列を返します
 // 基本的に scanNode(Node) により呼ばれます
-std::vector<Instruction> Bytecode::toInstList(Node parentNode, int &index) {
+InstList Bytecode::toInstList(Node parentNode, int &index) {
     Node node = parentNode.childAt(index);
     std::cout << std::endl << index << " > "<< parentNode.children.size() << " | " << (int)node.type << std::endl;
-    std::vector<Instruction> instList;
+    InstList instList;
 
     try {
 
@@ -187,7 +187,7 @@ std::vector<Instruction> Bytecode::toInstList(Node parentNode, int &index) {
 
             case ND_Root: {std::cout<<"root"<<std::endl;
                 int i = 0;
-                std::vector<Instruction> resLines = this->toInstList(node, i);
+                InstList resLines = this->toInstList(node, i);
                 std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
             } break;
 
@@ -219,7 +219,7 @@ std::vector<Instruction> Bytecode::toInstList(Node parentNode, int &index) {
                 lllen += node.childAt(0).children.size();
 
                 int i = 2;
-                std::vector<Instruction> insts = this->toInstList(node, i);
+                InstList insts = this->toInstList(node, i);
                 std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
             } break;
 
@@ -245,7 +245,7 @@ std::vector<Instruction> Bytecode::toInstList(Node parentNode, int &index) {
                 // 条件式をチェック
 
                 int i = 1;
-                std::vector<Instruction> procLines = this->toInstList(node, i);
+                InstList procLines = this->toInstList(node, i);
 
                 // procLineの行数をもとにIFJUMP命令を追加
                 Bytecode lineIndex(IT_VarPref);
@@ -258,7 +258,7 @@ std::vector<Instruction> Bytecode::toInstList(Node parentNode, int &index) {
 
             case ND_Else: {std::cout<<"else"<<std::endl;
                 int i = 0;
-                std::vector<Instruction> insts = this->toInstList(node, i);
+                InstList insts = this->toInstList(node, i);
                 std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
             } break;
         }

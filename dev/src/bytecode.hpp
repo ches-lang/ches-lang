@@ -60,6 +60,10 @@ struct Instruction {
 
 
 
+typedef std::vector<Instruction>    InstList;
+
+
+
 //relpath
 struct Bytecode {
 
@@ -98,7 +102,7 @@ private:
     int lslen = 0;
     int lllen = 0;
 
-    std::vector<Instruction> toInstList(Node parentNode, int &index);
+    InstList toInstList(Node parentNode, int &index);
 
     Byte generateUUID();
 };
