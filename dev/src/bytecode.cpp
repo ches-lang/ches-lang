@@ -165,11 +165,9 @@ LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
             } break;
 
             case ND_Root: {std::cout<<"root"<<std::endl;
-                for(int i = 0; i < node.children.size(); i++) {
-                    LineSeq resLines = this->toLineSeq(node, i);
-                    //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
-                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(result));
-                }
+                int i = 0;
+                LineSeq resLines = this->toLineSeq(node, i);
+                std::copy(resLines.begin(), resLines.end(), std::back_inserter(result));
             } break;
 
             case ND_DefVar: {std::cout<<"defvar"<<std::endl;
@@ -200,7 +198,8 @@ LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
                 lllen += node.childAt(0).children.size();
 
                 int i = 2;
-                this->toLineSeq(node, i);
+                LineSeq lineSeq = this->toLineSeq(node, i);
+                std::copy(lineSeq.begin(), lineSeq.end(), std::back_inserter(result));
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
@@ -224,31 +223,19 @@ LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
 
                 // 条件式をチェック
 
-                //LineSeq condLines = this->toLineSeq(node.childAt(0), index);
-                //for(Node n : node.childAt(0).children) std::cout << (int)n.type << " "; std::cout << std::endl;
-
                 int i = 1;
-                this->toLineSeq(node, i);
+                LineSeq procLine = this->toLineSeq(node, i);
+                std::copy(procLine.begin(), procLine.end(), std::back_inserter(result));
 
-                // ROOTノードの階層をチェックし、resultに追加していく
-                /*LineSeq procLines;
-
-                for(int i = 0; i < node.childAt(1).children.size(); i++) {
-                    LineSeq resLines = this->toLineSeq(node.childAt(1).childAt(i), index);
-                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(procLines));
-                }*/
-
-                // procLinesなどのサイズも考慮してジャンプ先を出す
-                result.push_back({ { IT_IFJump }, {} });
-
-                // condLinesとprocLinesをresultに結合
-                //std::copy(condLines.begin(), condLines.end(), std::back_inserter(result));
-                //std::copy(procLines.begin(), procLines.end(), std::back_inserter(result));
-
+                // procLineの行数をもとにIFJUMP命令を追加
+                result.push_back({ { IT_IFJump }, { IT_VarPref } });
+                result.back().push_back(Bytecode(procLine.size()).source);
             } break;
 
             case ND_Else: {std::cout<<"else"<<std::endl;
-                
+                int i = 0;
+                LineSeq lineSeq = this->toLineSeq(node, i);
+                std::copy(lineSeq.begin(), lineSeq.end(), std::back_inserter(result));
             } break;
         }
 

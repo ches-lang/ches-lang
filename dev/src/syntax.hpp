@@ -81,6 +81,8 @@ enum InstType : Byte {
     IT_Unknown,
     IT_LineDiv,
     IT_TokenDiv,
+    IT_VarPref,
+    IT_LineIndex,
     IT_Label,
     IT_LSPush,
     IT_LLPush,
