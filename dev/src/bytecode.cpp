@@ -4,14 +4,14 @@
 
 
 
-FuncData_::FuncData_() {}
+FuncData::FuncData() {}
 
-FuncData_::FuncData_(ByteSeq i, ByteSeq nm) {
+FuncData::FuncData(ByteSeq i, ByteSeq nm) {
     id = i;
     name = nm;
 }
 
-FuncData_::FuncData_(ByteSeq i, ByteSeq nm, int st, int ed) {
+FuncData::FuncData(ByteSeq i, ByteSeq nm, int st, int ed) {
     id = i;
     name = nm;
     st = start;

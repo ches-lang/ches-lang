@@ -8,7 +8,7 @@
 
 
 
-typedef struct FuncData_ {
+struct FuncData {
 
     ByteSeq id;
     ByteSeq name;
@@ -16,34 +16,32 @@ typedef struct FuncData_ {
     int start;
     int end;
 
-    FuncData_();
+    FuncData();
 
-    FuncData_(ByteSeq i, ByteSeq nm);
+    FuncData(ByteSeq i, ByteSeq nm);
 
-    FuncData_(ByteSeq i, ByteSeq nm, int st, int ed);
+    FuncData(ByteSeq i, ByteSeq nm, int st, int ed);
 
-    static FuncData_ findById(std::vector<FuncData_> fd, ByteSeq id) {
-        for(FuncData_ f : fd)
+    static FuncData findById(std::vector<FuncData> fd, ByteSeq id) {
+        for(FuncData f : fd)
             if(f.id == id)
                 return f;
-        return FuncData_();
+        return FuncData();
     }
 
-    static FuncData_ findByName(std::vector<FuncData_> fd, ByteSeq nm) {
-        for(FuncData_ f : fd)
+    static FuncData findByName(std::vector<FuncData> fd, ByteSeq nm) {
+        for(FuncData f : fd)
             if(f.name == nm)
                 return f;
-        return FuncData_();
+        return FuncData();
     }
 
-} FuncData;
+};
 
 
 
 //relpath
-class Bytecode {
-
-public:
+struct Bytecode {
 
     ByteSeq source;
 
