@@ -20,6 +20,52 @@ FuncData::FuncData(ByteSeq i, ByteSeq nm, int st, int ed) {
 
 
 
+Instruction::Instruction(int opcode) {
+    this->opcode = opcode;
+    this->operand = {};
+    this->setBytecode();
+}
+
+Instruction::Instruction(int opcode, std::unordered_map<std::string, ByteSeq> operand) {
+    this->opcode = opcode;
+    this->operand = operand;
+    this->setBytecode();
+}
+
+void Instruction::setBytecode() {
+    try {
+        switch(this->opcode) {
+            case IT_Unknown: {
+                append(IT_Unknown);
+            } break;
+
+            case IT_Label: {
+                append(IT_Label);
+                append(this->operand["id"]);
+                append(this->operand["name"]);
+            } break;
+
+            case IT_IFJump: {
+                append(IT_IFJump);
+                append(this->operand["index"]);
+            } break;
+        }
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+    }
+}
+
+void Instruction::append(Byte byte) {
+    this->bytecode.push_back(byte);
+}
+
+void Instruction::append(ByteSeq bytes) {
+    for(Byte b : bytes)
+        this->bytecode.push_back(b);
+}
+
+
+
 Bytecode::Bytecode() {}
 
 Bytecode::Bytecode(ByteSeq source) {
@@ -37,7 +83,22 @@ Bytecode::Bytecode(std::string source) {
 }
 
 Bytecode::Bytecode(Node tree) {
-    this->source = this->toBytecode(tree).source;
+    this->append(MAGIC_NUMBER);
+
+    for(Node node : tree.children)
+        if(node.type == ND_DefFunc)
+            funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
+
+    int index = 0;
+    std::vector<Instruction> instList = this->toInstList(tree, index);
+
+    for(Instruction inst : instList) {
+        this->append(inst.bytecode);
+        this->append(IT_LineDiv);
+    }
+
+    this->source.pop_back();
+    std::cout << std::endl;
 }
 
 Bytecode::Bytecode(std::vector<Bytecode> source) {
@@ -49,22 +110,6 @@ Bytecode::Bytecode(std::vector<Bytecode> source) {
     }
 }
 
-Bytecode::Bytecode(LineSeq source) {
-    for(int ln = 0; ln < source.size(); ln++) {
-        for(int tk = 0; tk < source[ln].size(); tk++) {
-            for(int ch = 0; ch < source[ln][tk].size(); ch++) {
-                if(source[ln][tk][ch] == IT_LineDiv) this->append(IT_LineDiv);
-                else if(source[ln][tk][ch] == IT_TokenDiv) this->append(IT_TokenDiv);
-                this->append(source[ln][tk][ch]);
-            }
-
-            if(tk != source[ln].size() - 1) this->append(IT_TokenDiv);
-        }
-
-        if(ln != source.size() - 1) this->append(IT_LineDiv);
-    }
-}
-
 Bytecode Bytecode::append(Byte source) {
     this->source.push_back(source);
     return this->source;
@@ -73,6 +118,7 @@ Bytecode Bytecode::append(Byte source) {
 Bytecode Bytecode::append(Bytecode source) {
     for(Byte srcChar : source.source)
         this->source.push_back(srcChar);
+
     return this->source;
 }
 
@@ -96,84 +142,59 @@ std::string Bytecode::toString() {
 LineSeq Bytecode::divide() {
     LineSeq res = {{{}}};
 
-    for(int i = 0; i < source.size(); i++) {
+    for(int i = 128; i < source.size(); i++) {
         switch(this->source[i]) {
-            case IT_LineDiv:
-            if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDiv) {
-                res.back().back().push_back(IT_LineDiv);
-                i++;
-            } else {
-                res.push_back({{}});
-            }
-            break;
+            case IT_LineDiv: {
+                if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDiv) {
+                    res.back().back().push_back(IT_LineDiv);
+                    i++;
+                } else {
+                    res.push_back({{}});
+                }
+            } break;
 
-            case IT_TokenDiv:
-            if(i + 1 < this->source.size() && this->source[i + 1] == IT_TokenDiv) {
-                res.back().back().push_back(IT_TokenDiv);
-                i++;
-            } else {
-                res.back().push_back({});
-            }
-            break;
+            case IT_TokenDiv: {
+                if(i + 1 < this->source.size() && this->source[i + 1] == IT_TokenDiv) {
+                    res.back().back().push_back(IT_TokenDiv);
+                    i++;
+                } else {
+                    res.back().push_back({});
+                }
+            } break;
 
-            default:
-            res.back().back().push_back(this->source[i]);
-            break;
+            default: {
+                res.back().back().push_back(this->source[i]);
+            } break;
         }
     }
 
     return res;
 }
 
-Bytecode Bytecode::toBytecode(Node tree) {
-    // マジックナンバーを追加
-    this->lines.push_back({ MAGIC_NUMBER });
-
-    for(Node node : tree.children)
-        if(node.type == ND_DefFunc)
-            funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
-
-    int index = 0;
-    LineSeq lineSeq = this->toLineSeq(tree, index);
-    std::copy(lineSeq.begin(), lineSeq.end(), std::back_inserter(this->lines));
-    std::cout << std::endl;
-
-    return Bytecode(lines);
-}
-
-// ある階層内のすべての子ノードを調べます
-/*void Bytecode::scanNode(Node node) {
-    for(int i = 0; i < node.children.size(); i++) {
-        LineSeq resLines = this->toLineSeq(node, i);
-        //std::cout << "bc: "; for(TokenSeq ts : resLines) for(ByteSeq bs : ts) for(Byte b : bs) std::cout << (int)b << " "; ; std::cout << std::endl;
-        std::copy(resLines.begin(), resLines.end(), std::back_inserter(this->lines));
-    }
-}*/
-
 // ノードを調べてバイトコードに変換し、LineSeq型の行列を返します
 // 基本的に scanNode(Node) により呼ばれます
-LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
+std::vector<Instruction> Bytecode::toInstList(Node parentNode, int &index) {
     Node node = parentNode.childAt(index);
     std::cout << std::endl << index << " > "<< parentNode.children.size() << " | " << (int)node.type << std::endl;
-    LineSeq result;
+    std::vector<Instruction> instList;
 
     try {
 
         switch(node.type) {
             case ND_Unknown: {std::cout<<"unknown"<<std::endl;
-                result.push_back({ { IT_Unknown } });
+                instList.push_back(Instruction(IT_Unknown));
             } break;
 
             case ND_Root: {std::cout<<"root"<<std::endl;
                 int i = 0;
-                LineSeq resLines = this->toLineSeq(node, i);
-                std::copy(resLines.begin(), resLines.end(), std::back_inserter(result));
+                std::vector<Instruction> resLines = this->toInstList(node, i);
+                std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
             } break;
 
             case ND_DefVar: {std::cout<<"defvar"<<std::endl;
-                result.push_back({ { IT_LSPush }, {} });
+                instList.push_back(Instruction(IT_LSPush, {}));//{}
                 int i = 1;
-                this->toLineSeq(node, i);
+                this->toInstList(node, i);
                 lslen++;
             } break;
 
@@ -186,25 +207,25 @@ LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
                 else if(token.type == TK_String)
                     value = Bytecode(token.string).source;
 
-                result.push_back({ { IT_LSPush }, value });
+                instList.push_back(Instruction(IT_LSPush, { { "index", value } }));
                 lslen++;
             } break;
 
             case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
                 ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
                 ByteSeq funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
-                result.push_back({ { IT_Label }, funcid, funcname });
+                instList.push_back(Instruction(IT_Label, { { "id", funcid }, { "name", funcname } }));
 
                 lllen += node.childAt(0).children.size();
 
                 int i = 2;
-                LineSeq lineSeq = this->toLineSeq(node, i);
-                std::copy(lineSeq.begin(), lineSeq.end(), std::back_inserter(result));
+                std::vector<Instruction> insts = this->toInstList(node, i);
+                std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
                 ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
-                result.push_back({ { IT_Jump }, FuncData::findByName(funcdata, funcname).id });
+                instList.push_back(Instruction(IT_Jump, { { "id", FuncData::findByName(funcdata, funcname).id } }));
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;
@@ -224,26 +245,29 @@ LineSeq Bytecode::toLineSeq(Node parentNode, int &index) {
                 // 条件式をチェック
 
                 int i = 1;
-                LineSeq procLine = this->toLineSeq(node, i);
-                std::copy(procLine.begin(), procLine.end(), std::back_inserter(result));
+                std::vector<Instruction> procLines = this->toInstList(node, i);
 
                 // procLineの行数をもとにIFJUMP命令を追加
-                result.push_back({ { IT_IFJump }, { IT_VarPref } });
-                result.back().push_back(Bytecode(procLine.size()).source);
+                Bytecode lineIndex(IT_VarPref);
+                lineIndex.append(Bytecode(procLines.size()));
+
+                instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex.source } }));
+
+                std::copy(procLines.begin(), procLines.end(), std::back_inserter(instList));
             } break;
 
             case ND_Else: {std::cout<<"else"<<std::endl;
                 int i = 0;
-                LineSeq lineSeq = this->toLineSeq(node, i);
-                std::copy(lineSeq.begin(), lineSeq.end(), std::back_inserter(result));
+                std::vector<Instruction> insts = this->toInstList(node, i);
+                std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
             } break;
         }
 
-        return result;
+        return instList;
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
-        return result;
+        return instList;
     }
 }
 

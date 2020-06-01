@@ -40,6 +40,26 @@ struct FuncData {
 
 
 
+struct Instruction {
+
+    Byte opcode = IT_Unknown;
+    std::unordered_map<std::string, ByteSeq> operand;
+    ByteSeq bytecode;
+
+    Instruction(int opcode);
+
+    Instruction(int opcode, std::unordered_map<std::string, ByteSeq> operand);
+
+    void setBytecode();
+
+    void append(Byte byte);
+
+    void append(ByteSeq bytes);
+
+};
+
+
+
 //relpath
 struct Bytecode {
 
@@ -56,8 +76,6 @@ struct Bytecode {
     Bytecode(Node tree);
 
     Bytecode(std::vector<Bytecode> src);
-
-    Bytecode(LineSeq src);
 
     Bytecode append(Byte src);
 
@@ -80,11 +98,7 @@ private:
     int lslen = 0;
     int lllen = 0;
 
-    Bytecode toBytecode(Node tree);
-
-    //void scanNode(Node node);
-
-    LineSeq toLineSeq(Node parentNode, int &index);
+    std::vector<Instruction> toInstList(Node parentNode, int &index);
 
     Byte generateUUID();
 };
