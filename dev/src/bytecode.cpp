@@ -45,9 +45,18 @@ void Instruction::setBytecode() {
                 append(this->operand["name"]);
             } break;
 
+            case IT_Jump: {
+                append(IT_Jump);
+                append(this->operand["index"]);
+            } break;
+
             case IT_IFJump: {
                 append(IT_IFJump);
                 append(this->operand["index"]);
+            } break;
+
+            default: {
+                append(IT_Unknown);
             } break;
         }
     } catch(std::out_of_range ignored) {
@@ -297,8 +306,14 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
     }
 }
 
-Byte Bytecode::generateUUID() {
-    uuid_t uuid;
-    uuid_generate(uuid);
-    return *uuid;
+ByteSeq Bytecode::generateUUID() {
+    ByteSeq res;
+    std::random_device rand;
+    std::mt19937 mt(rand());
+    std::uniform_int_distribution<> rand256(0, 255);
+
+    for(int i = 0; i < 16; i++)
+        res.push_back(rand256(mt));
+
+    return res;
 }

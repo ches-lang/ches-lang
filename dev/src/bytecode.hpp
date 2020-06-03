@@ -107,5 +107,5 @@ private:
 
     InstList toInstList(Node parentNode, int &index);
 
-    Byte generateUUID();
+    ByteSeq generateUUID();
 };
