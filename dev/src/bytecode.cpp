@@ -103,8 +103,12 @@ Bytecode::Bytecode(std::string source) {
 }
 
 Bytecode::Bytecode(Node tree) {
+    // ヘッダ部分
+
     this->append(MAGIC_NUMBER);
     this->append(Bytecode(ByteSeq(HEADER_LEN - this->source.size())));
+
+    // ボディ部分
 
     for(Node node : tree.children)
         if(node.type == ND_DefFunc)
@@ -112,6 +116,7 @@ Bytecode::Bytecode(Node tree) {
 
     int index = 0;
     InstList instList = this->toInstList(tree, index);
+    instList.insert(instList.begin(), Instruction(IT_Jump, { { "index", FuncData::findByName(this->funcdata, { 0x6D, 0x61, 0x69, 0x6E }).id } }));
 
     for(Instruction inst : instList) {
         this->append(inst.bytecode);
