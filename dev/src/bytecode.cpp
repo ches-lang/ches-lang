@@ -73,7 +73,18 @@ Bytecode::Bytecode(ByteSeq source) {
 }
 
 Bytecode::Bytecode(int source) {
-    // todo: 256以上の数字にも対応させる
+    std::stringstream ss;
+    ss << std::hex << source;
+    std::string hex = ss.str();
+    ByteSeq hexBytes;
+    bool isEvenDigNum = hex.length() % 2 == 0;
+
+    if(!isEvenDigNum)
+        hexBytes.push_back((Byte)std::stoi("0" + std::string { hex[0] }, nullptr, 16));
+
+    for(int i = isEvenDigNum ? 0 : 1; i < hex.length(); i += 2)
+        hexBytes.push_back((Byte)std::stoi(std::string { hex[i] } + std::string { hex[i + 1] }, nullptr, 16));
+
     this->source.push_back((Byte)source);
 }
 
@@ -250,10 +261,9 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
                 // procLineの行数をもとにIFJUMP命令を追加
                 Bytecode lineIndex(IT_VarPref);
                 lineIndex.append(Bytecode(procLines.size()));
-
                 instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex.source } }));
 
-                std::copy(procLines.begin(), procLines.end(), std::back_inserter(instList));
+                //std::copy(procLines.begin(), procLines.end(), std::back_inserter(instList));
             } break;
 
             case ND_Else: {std::cout<<"else"<<std::endl;
