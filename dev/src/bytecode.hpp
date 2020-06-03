@@ -88,6 +88,8 @@ struct Bytecode {
 
     Bytecode pop();
 
+    std::string toHexString();
+
     int toInt();
 
     std::string toString();

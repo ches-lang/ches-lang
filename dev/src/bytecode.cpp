@@ -139,14 +139,29 @@ Bytecode Bytecode::pop() {
     return this->source;
 }
 
+std::string Bytecode::toHexString() {
+    std::string res;
+
+    for(Byte srcChar : this->source) {
+        std::stringstream ss;
+        ss << std::hex << (int)srcChar;
+        res += ss.str() + " ";
+    }
+
+    res.pop_back();
+    return res;
+}
+
 int Bytecode::toInt() {
     return *(unsigned int *)&this->source;
 }
 
 std::string Bytecode::toString() {
     std::string res;
+
     for(Byte srcChar : this->source)
         res.push_back(srcChar);
+
     return res;
 }
 
@@ -264,7 +279,7 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
                 lineIndex.append(Bytecode(procLines.size()));
                 instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex.source } }));
 
-                //std::copy(procLines.begin(), procLines.end(), std::back_inserter(instList));
+                std::copy(procLines.begin(), procLines.end(), std::back_inserter(instList));
             } break;
 
             case ND_Else: {std::cout<<"else"<<std::endl;
