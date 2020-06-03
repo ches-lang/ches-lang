@@ -4,6 +4,7 @@
 #define TK(i, j)        (bytecode.at(i).at(j))
 #define CH(i, j, k)     (bytecode.at(i).at(j).at(k))
 
+#define HEADER_LEN      128
 #define MAGIC_NUMBER    ByteSeq { 0x4F, 0x52, 0x49, 0x4E, 0x43, 0x48, 0x41, 0x4E }
 
 

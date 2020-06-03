@@ -95,6 +95,7 @@ Bytecode::Bytecode(std::string source) {
 
 Bytecode::Bytecode(Node tree) {
     this->append(MAGIC_NUMBER);
+    this->append(Bytecode(ByteSeq(HEADER_LEN - this->source.size())));
 
     for(Node node : tree.children)
         if(node.type == ND_DefFunc)
