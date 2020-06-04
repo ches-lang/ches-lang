@@ -60,10 +60,11 @@ void Compiler::compile() {
 }
 
 Bytecode Compiler::getBytecode() {
-    std::string source = FileManager::readText(options.get("-i"));
-    Lexer lexer(options.get("-i"), source, options);
+    std::string filePath = options.get("-i");
+    std::string source = FileManager::readText(filePath);
+    Lexer lexer(filePath, source, options);
     std::vector<Token> tokens = lexer.splitTokens();
-    Parser parser(options.get("-i"), source, tokens, options);
+    Parser parser(filePath, source, tokens, options);
     Node node = parser.parse();
-    return Bytecode(node);
+    return Bytecode(node, filePath, source);
 }

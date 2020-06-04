@@ -102,7 +102,10 @@ Bytecode::Bytecode(std::string source) {
         this->source.push_back(src);
 }
 
-Bytecode::Bytecode(Node tree) {
+Bytecode::Bytecode(Node tree, std::string filePath, std::string sourceCode) {
+    this->filePath = filePath;
+    this->sourceCode = sourceCode;
+
     // ヘッダ部分
 
     this->append(MAGIC_NUMBER);
@@ -112,11 +115,11 @@ Bytecode::Bytecode(Node tree) {
 
     for(Node node : tree.children)
         if(node.type == ND_DefFunc)
-            funcdata.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
+            this->funcData.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
     int index = 0;
     InstList instList = this->toInstList(tree, index);
-    instList.insert(instList.begin(), Instruction(IT_Jump, { { "index", FuncData::findByName(this->funcdata, { 0x6D, 0x61, 0x69, 0x6E }).id } }));
+    instList.insert(instList.begin(), Instruction(IT_Jump, { { "index", FuncData::findByName(this->funcData, { 0x6D, 0x61, 0x69, 0x6E }).id } }));
 
     for(Instruction inst : instList) {
         this->append(inst.bytecode);
@@ -253,9 +256,9 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
             } break;
 
             case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
-                ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
-                ByteSeq funcid = Bytecode(FuncData::findByName(funcdata, funcname).id).source;
-                instList.push_back(Instruction(IT_Label, { { "id", funcid }, { "name", funcname } }));
+                ByteSeq funcName = Bytecode(node.tokenAt(0).string).source;
+                ByteSeq funcID = Bytecode(FuncData::findByName(this->funcData, funcName).id).source;
+                instList.push_back(Instruction(IT_Label, { { "id", funcID }, { "name", funcName } }));
 
                 lllen += node.childAt(0).children.size();
 
@@ -265,13 +268,14 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
-                std::string funcname = node.tokenAt(0).string;
-                ByteSeq funcid = FuncData::findByName(this->funcdata, Bytecode(funcname).source).id;
+                Token funcNameToken = node.tokenAt(0);
+                std::string funcName = funcNameToken.string;
+                ByteSeq funcID = FuncData::findByName(this->funcData, Bytecode(funcName).source).id;
 
-                if(funcid.size() == 0)
-                    Console::log(LogType_Error, "1822", { { "Id", funcname } }, false);
+                if(funcID.size() == 0)
+                    Console::log(LogType_Error, "1822", { { "At", funcNameToken.getPositionText(this->filePath, this->sourceCode ) }, { "Id", funcName } }, false);
 
-                instList.push_back(Instruction(IT_Jump, { { "id", funcid } }));
+                instList.push_back(Instruction(IT_Jump, { { "id", funcID } }));
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;

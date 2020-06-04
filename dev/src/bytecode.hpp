@@ -80,7 +80,7 @@ struct Bytecode {
 
     Bytecode(std::string src);
 
-    Bytecode(Node tree);
+    Bytecode(Node tree, std::string filePath, std::string sourceCode);
 
     Bytecode(std::vector<Bytecode> src);
 
@@ -101,7 +101,9 @@ struct Bytecode {
 private:
 
     LineSeq lines;
-    std::vector<FuncData> funcdata;
+    std::string filePath;
+    std::string sourceCode;
+    std::vector<FuncData> funcData;
     std::string spaceName;
     std::string className;
     int lslen = 0;
