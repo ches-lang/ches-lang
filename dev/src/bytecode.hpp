@@ -27,6 +27,7 @@ struct FuncData {
         for(FuncData f : fd)
             if(f.id == id)
                 return f;
+
         return FuncData();
     }
 
@@ -34,6 +35,7 @@ struct FuncData {
         for(FuncData f : fd)
             if(f.name == nm)
                 return f;
+
         return FuncData();
     }
 

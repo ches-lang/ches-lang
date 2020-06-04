@@ -3,6 +3,7 @@
 |Code|Message|
 |:-:|:-:|
 |[cerr 0000](/docs/en/releases/ches0/tools/compiler/errors/cerr0000.md)|unknown error|
+|[cerr 1822](/docs/en/releases/ches0/tools/compiler/errors/cerr1822.md)|unresolved identifier|
 |[cerr 0327](/docs/en/releases/ches0/tools/compiler/errors/cerr0327.md)|file not found|
 |[cerr 0698](/docs/en/releases/ches0/tools/compiler/errors/cerr0698.md)|expected token|
 |[cerr 0699](/docs/en/releases/ches0/tools/compiler/errors/cerr0699.md)|unexpected token|

@@ -1,4 +1,5 @@
 CError_0000_Message unknown error
+CError_1822_Message unresolved identifier
 CError_0327_Message file not found
 CError_0698_Message expected token
 CError_0699_Message unexpected token
@@ -30,6 +31,7 @@ LogDetailName_At at
 LogDetailName_Command command
 LogDetailName_Directory directory
 LogDetailName_Expected expected
+LogDetailName_Id ID
 LogDetailName_Index index
 LogDetailName_Input input
 LogDetailName_Limit limit

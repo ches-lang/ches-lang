@@ -265,8 +265,13 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
-                ByteSeq funcname = Bytecode(node.tokenAt(0).string).source;
-                instList.push_back(Instruction(IT_Jump, { { "id", FuncData::findByName(funcdata, funcname).id } }));
+                std::string funcname = node.tokenAt(0).string;
+                ByteSeq funcid = FuncData::findByName(this->funcdata, Bytecode(funcname).source).id;
+
+                if(funcid.size() == 0)
+                    Console::log(LogType_Error, "1822", { { "Id", funcname } }, false);
+
+                instList.push_back(Instruction(IT_Jump, { { "id", funcid } }));
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;

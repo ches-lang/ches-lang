@@ -15,11 +15,18 @@ void Compiler::compile() {
         if(FileManager::getFullPath(options.get("-i")) == FileManager::getFullPath(options.get("-o")))
             Console::log(LogType_Warning, "3405", { { "Path", FileManager::getFullPath(options.get("-o")) } }, !options.exists("-miss"));
 
+    Bytecode bytecode = getBytecode();
+
     if(!FileManager::isDirectory(options.get("-i"))) {
+        std::cout<<"aaa"<<std::endl;
+
+        if(Console::hasDisplayed())
+            exit(-1);
+
         if(options.exists("-o")) {
-            FileManager::writeBytecode(options.get("-o"), getBytecode());
+            FileManager::writeBytecode(options.get("-o"), bytecode);
         } else {
-            FileManager::writeBytecode(FileManager::renamePathExt(options.get("-i"), "chesc"), getBytecode());
+            FileManager::writeBytecode(FileManager::renamePathExt(options.get("-i"), "chesc"), bytecode);
         }
     } else {
         std::vector<std::string> filepaths = FileManager::getFilePaths(options.get("-i"));

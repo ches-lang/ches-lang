@@ -1,4 +1,5 @@
 CError_0000_Message nekonata eraro
+CError_1822_Message nesolva identigilo
 CError_0327_Message dosiero ne trovita
 CError_0698_Message atendis simbolo
 CError_0699_Message neatendis simbolo
@@ -30,6 +31,7 @@ LogDetailName_At de
 LogDetailName_Command komando
 LogDetailName_Directory dosierujo
 LogDetailName_Expected atendis
+LogDetailName_Id ID
 LogDetailName_Index indekso
 LogDetailName_Input enigaĵo
 LogDetailName_Limit limigado

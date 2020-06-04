@@ -1,4 +1,5 @@
 CError_0000_Message 不明なエラー
+CError_1822_Message 未解決の識別子
 CError_0327_Message ファイルが見つかりません
 CError_0698_Message トークンがありません
 CError_0699_Message 予期しないトークン
@@ -30,6 +31,7 @@ LogDetailName_At 箇所
 LogDetailName_Command コマンド
 LogDetailName_Directory ディレクトリ
 LogDetailName_Expected 期待値
+LogDetailName_Id ID
 LogDetailName_Index インデックス
 LogDetailName_Input 入力
 LogDetailName_Limit 制限
