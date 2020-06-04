@@ -18,10 +18,7 @@ void Compiler::compile() {
     Bytecode bytecode = getBytecode();
 
     if(!FileManager::isDirectory(options.get("-i"))) {
-        std::cout<<"aaa"<<std::endl;
-
-        if(Console::hasDisplayed())
-            exit(-1);
+        Console::exitIfDisplayed();
 
         if(options.exists("-o")) {
             FileManager::writeBytecode(options.get("-o"), bytecode);

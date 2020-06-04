@@ -23,6 +23,11 @@ public:
     static bool noticed;
     static bool warned;
 
+    static void exitIfDisplayed() {
+        if(Console::hasDisplayed())
+            exit(-1);
+    }
+
     static void log(int type = LogType_Error, std::string code = "0000", std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
         // ログの履歴があれば改行を入れる
         if(Console::hasDisplayed())
