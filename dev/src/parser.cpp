@@ -194,7 +194,7 @@ std::vector<Line> Parser::getLines() {
 }
 
 Node Parser::parse() {
-    for(; this->lineIndex < this->lines.size(); this->lineIndex++)
+    for(; this->lineIndex < this->lines.size(); )
         this->tree.addChild(this->scanNextLine());
 
     this->tree.print();
@@ -220,22 +220,19 @@ Node Parser::scanNextNest(Byte nodeType) {
             break;
 
         Line currentLine = CURR_LINE;
+        int nestDeff = baseLine.nest - currentLine.nest;
 
         // ネストがベース行と同じか、それよりも浅い場合
-        if(baseLine.nest >= currentLine.nest) {
+        if(nestDeff >= 0) {
             this->lineIndex--;
             break;
         }
 
         // ネストがチェック中のネストよりも深い場合
-        //scanNextLine内でscanNextNestが呼ばれるべき
+        // scanNextLine内でscanNextNestが呼ばれるべき
         // よりネストの深い行はチェックする必要なし
 
-        /*if(baseLine.nest < CURR_LINE.nest)
-            if(baseLine.nest < LA(this->lineIndex + 1).nest)
-                continue;*/
-//std::cout<<baseLine.nest + 1 <<" "<< currentLine.nest<<" "<<currentLine.tokens.at(0).string<<std::endl;
-        if(baseLine.nest + 1 < currentLine.nest)
+        if(nestDeff < -1)
             continue;
 
         node.addChild(this->getNode(currentLine));
@@ -261,7 +258,7 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
         std::cout << std::endl;*/
 
         // DEFFUNC
-        if(nest == 0 && TM(0, TK_Identifier) && TM(1, TK_LeftParen) && TM(len - 1, TK_RightParen)) {
+        if(nest == 0 && TM(0, TK_Identifier) && TM(1, TK_LeftParen) && TM(-1, TK_RightParen)) {
             Node node(ND_DefFunc);
             node.addToken(Token(TK_Identifier, SA(0)));
 
@@ -287,9 +284,9 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
                 }
 
                 node.addChild(args);
-                node.addChild(this->scanNextNest());
             }
 
+            node.addChild(this->scanNextNest());
             return node;
         }
 
