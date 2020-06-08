@@ -75,6 +75,36 @@ void Instruction::append(ByteSeq bytes) {
 
 
 
+HeaderInfo::HeaderInfo() {}
+
+HeaderInfo::HeaderInfo(ByteSeq bytes) {
+    if(bytes.size() != HEADER_LEN)
+        return;
+
+    // 各データのバイト数変更に対応するためのインデックス管理
+    int index = 0;
+
+    int magicNumSize = MAGIC_NUMBER.size();
+    std::copy(bytes.begin() + index, bytes.begin() + index + magicNumSize, std::back_inserter(this->magicNum));
+    index += magicNumSize;
+}
+
+ByteSeq HeaderInfo::toByteSeq() {
+    ByteSeq bytes;
+
+    this->append(bytes, MAGIC_NUMBER);
+    this->append(bytes, ByteSeq(HEADER_LEN - bytes.size()));
+
+    return bytes;
+}
+
+void HeaderInfo::append(ByteSeq &src, ByteSeq bytes) {
+    for(Byte srcChar : bytes)
+        src.push_back(srcChar);
+}
+
+
+
 Bytecode::Bytecode() {}
 
 Bytecode::Bytecode(ByteSeq source) {
@@ -108,8 +138,9 @@ Bytecode::Bytecode(Node tree, std::string filePath, std::string sourceCode) {
 
     // ヘッダ部分
 
-    this->append(MAGIC_NUMBER);
-    this->append(Bytecode(ByteSeq(HEADER_LEN - this->source.size())));
+    HeaderInfo header;
+    header.magicNum = MAGIC_NUMBER;
+    this->append(header.toByteSeq());
 
     // ボディ部分
 

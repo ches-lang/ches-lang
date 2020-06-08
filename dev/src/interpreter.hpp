@@ -14,6 +14,7 @@ class Interpreter {
 public:
 
     Options options;
+    HeaderInfo headerInfo;
 
     Interpreter(Options opt);
 

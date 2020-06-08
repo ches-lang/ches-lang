@@ -26,9 +26,17 @@ void Interpreter::runProgram(Bytecode src) {
 }
 
 void Interpreter::setFuncData(Bytecode src) {
-    LineSeq lines = src.divide();
+    ByteSeq byteSeqSrc = src.source;
+
+    ByteSeq header, body;
+    std::copy(byteSeqSrc.begin(), byteSeqSrc.begin() + HEADER_LEN, std::back_inserter(header));
+    std::copy(byteSeqSrc.begin() + HEADER_LEN, byteSeqSrc.end(), std::back_inserter(body));
+
+    this->headerInfo = HeaderInfo(header);
+    LineSeq lines = Bytecode(body).divide();
 
     std::cout<<std::hex;
+
     for(auto a : lines) {
         for(auto b : a) {
             for(auto c : b) {
@@ -37,7 +45,7 @@ void Interpreter::setFuncData(Bytecode src) {
         } std::cout << std::endl;
     }
 
-    if(TK(0, 0) != MAGIC_NUMBER)
+    if(this->headerInfo.magicNum != MAGIC_NUMBER)
         Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);
 
     for(int i = 1; i < lines.size(); i++) {

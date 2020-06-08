@@ -63,6 +63,24 @@ struct Instruction {
 
 
 
+struct HeaderInfo {
+
+    ByteSeq magicNum;
+
+    HeaderInfo();
+
+    HeaderInfo(ByteSeq bytes);
+
+    ByteSeq toByteSeq();
+
+private:
+
+    void append(ByteSeq &src, ByteSeq bytes);
+
+};
+
+
+
 typedef std::vector<Instruction>    InstList;
 
 
