@@ -261,9 +261,9 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
         if(nest == 0 && TM(0, TK_Identifier) && TM(1, TK_LeftParen) && TM(-1, TK_RightParen)) {
             Node node(ND_DefFunc);
             node.addToken(Token(TK_Identifier, SA(0)));
+            Node args(ND_Args);
 
             if(len >= 4) {
-                Node args(ND_Args);
                 std::vector<Token> ag;
                 int nestInArgs = 0;
 
@@ -282,10 +282,9 @@ Node Parser::getNode(std::vector<Token> tokens, int nest, Byte defaultType) {
                         ag.push_back(A(i));
                     }
                 }
-
-                node.addChild(args);
             }
 
+            node.addChild(args);
             node.addChild(this->scanNextNest());
             return node;
         }

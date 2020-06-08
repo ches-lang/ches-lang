@@ -117,8 +117,7 @@ Bytecode::Bytecode(Node tree, std::string filePath, std::string sourceCode) {
         if(node.type == ND_DefFunc)
             this->funcData.push_back(FuncData(Bytecode(this->generateUUID()).source, Bytecode(node.tokenAt(0).string).source));
 
-    int index = 0;
-    InstList instList = this->toInstList(tree, index);
+    InstList instList = this->toInstList(tree);
     instList.insert(instList.begin(), Instruction(IT_Jump, { { "index", FuncData::findByName(this->funcData, { 0x6D, 0x61, 0x69, 0x6E }).id } }));
 
     for(Instruction inst : instList) {
@@ -215,11 +214,23 @@ LineSeq Bytecode::divide() {
     return res;
 }
 
+InstList Bytecode::toInstList(Node node) {
+    int index = 0;
+    InstList instList;
+
+    for(int i = 0; i < node.children.size(); i++) {
+        InstList resLines = this->toInstList(node, i);
+        std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
+    }
+
+    return instList;
+}
+
 // ノードを調べてバイトコードに変換し、LineSeq型の行列を返します
 // 基本的に scanNode(Node) により呼ばれます
 InstList Bytecode::toInstList(Node parentNode, int &index) {
     Node node = parentNode.childAt(index);
-    std::cout << std::endl << index << " > "<< parentNode.children.size() << " | " << (int)node.type << std::endl;
+    std::cout << std::endl << (int)index << " > " << parentNode.children.size() << " | " << (int)node.type << std::endl;
     InstList instList;
 
     try {
@@ -230,9 +241,10 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
             } break;
 
             case ND_Root: {std::cout<<"root"<<std::endl;
-                int i = 0;
-                InstList resLines = this->toInstList(node, i);
-                std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
+                for(int i = 0; i < node.children.size(); i++) {
+                    InstList resLines = this->toInstList(node, i);
+                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
+                }
             } break;
 
             case ND_DefVar: {std::cout<<"defvar"<<std::endl;
@@ -262,7 +274,7 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
 
                 lllen += node.childAt(0).children.size();
 
-                int i = 2;
+                int i = 1;
                 InstList insts = this->toInstList(node, i);
                 std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
             } break;

@@ -109,6 +109,8 @@ private:
     int lslen = 0;
     int lllen = 0;
 
+    InstList toInstList(Node node);
+
     InstList toInstList(Node parentNode, int &index);
 
     ByteSeq generateUUID();
