@@ -19,11 +19,11 @@ Instruction::Instruction(ByteSeq bytes) {
             } break;
 
             case IT_Jump: {
-                this->operand["index"] = this->copyBytecode(0, -1);
+                this->operand["index"] = this->copyBytecode(1, -1);
             } break;
 
             case IT_IFJump: {
-                this->operand["index"] = this->copyBytecode(0, -1);
+                this->operand["index"] = this->copyBytecode(1, -1);
             } break;
         }
     } catch(std::out_of_range ignored) {
@@ -51,7 +51,13 @@ std::string Instruction::toText() {
         return "; Unknown";
 
         case IT_Label:
-        return "label " + Bytecode(this->operand["id"]).toHexString(false) + " " + Bytecode(this->operand["id"]).toString();
+        return "label\t" + Bytecode(this->operand["id"]).toHexString(false) + "\t" + Bytecode(this->operand["name"]).toString();
+
+        case IT_Jump:
+        return "jump\t" + Bytecode(this->operand["index"]).toHexString(false);
+
+        case IT_IFJump:
+        return "ifjump\t" + Bytecode(this->operand["index"]).toHexString(false);
 
         default:
         return "; Unknown_";
@@ -261,7 +267,7 @@ std::string Bytecode::toString() {
     std::string res;
 
     for(Byte srcChar : this->source)
-        res.push_back(srcChar);
+        res += (char)srcChar;
 
     return res;
 }
