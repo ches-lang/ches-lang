@@ -45,7 +45,7 @@ private:
         }
 
         if(options.exists("-i") && options.get("-i") != "") {
-            Interpreter itp(options);
+            Interpreter itp(options, FileManager::readBytecode(options.get("-i")));
             itp.run();
             return;
         }

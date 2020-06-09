@@ -4,20 +4,43 @@
 
 
 
-Interpreter::Interpreter(Options opt) {
-    options = opt;
+Interpreter::Interpreter(Options options, Bytecode source) {
+    options = options;
+
+    this->source = source;
+    ByteSeq byteSeqSrc = this->source.source;
+
+    // ヘッダとボディを取得
+    std::copy(byteSeqSrc.begin(), byteSeqSrc.begin() + HEADER_LEN, std::back_inserter(this->header));
+    std::copy(byteSeqSrc.begin() + HEADER_LEN, byteSeqSrc.end(), std::back_inserter(this->body));
+
+    this->headerInfo = HeaderInfo(this->header);
+    TokenSeq lines = Bytecode(this->body).divide();
+
+    // 命令リストを取得
+    for(ByteSeq bytes : lines)
+        this->instList.push_back(Instruction(bytes));
+
+    std::cout << std::hex;
+
+    for(auto a : lines) {
+        for(int b : a) {
+            std::cout << (b < 16 ? "0" : "") << b << " ";
+        } std::cout << std::endl;
+    }
+
+    if(this->headerInfo.magicNum != MAGIC_NUMBER)
+        Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);
 }
 
 void Interpreter::run() {
-    runProgram(FileManager::readBytecode(options.get("-i")));
+    runProgram();
     //バイトコードのチェックも忘れず
 }
 
-void Interpreter::runProgram(Bytecode src) {
-    //for(Byte c : src.source) std::cout << std::hex << (int)c << " "; std::cout << std::endl << std::endl;
-
+void Interpreter::runProgram() {
     try {
-        setFuncData(src);
+        setFuncData();
         stacks.push_back(std::stack<void*>());
         //runInst({ { IT_Jump }, FuncData::findByName(this->funcData, { 0x6D, 0x61, 0x69, 0x6E }).id });
     } catch(std::out_of_range ignored) {
@@ -25,33 +48,8 @@ void Interpreter::runProgram(Bytecode src) {
     }
 }
 
-void Interpreter::setFuncData(Bytecode src) {
-    ByteSeq byteSeqSrc = src.source;
-
-    // ヘッダとボディを取得
-    ByteSeq header, body;
-    std::copy(byteSeqSrc.begin(), byteSeqSrc.begin() + HEADER_LEN, std::back_inserter(header));
-    std::copy(byteSeqSrc.begin() + HEADER_LEN, byteSeqSrc.end(), std::back_inserter(body));
-
-    this->headerInfo = HeaderInfo(header);
-    TokenSeq lines = Bytecode(body).divide();
-
-    // 命令リストを取得
-    for(ByteSeq bytes : lines)
-        this->instList.push_back(Instruction(bytes));
-
-    std::cout<<std::hex;
-
-    for(auto a : lines) {
-        for(auto b : a) {
-            std::cout << (int)b << " ";
-        } std::cout << std::endl;
-    }
-
-    if(this->headerInfo.magicNum != MAGIC_NUMBER)
-        Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);
-
-    for(int i = 0; i < instList.size(); i++) {
+void Interpreter::setFuncData() {
+    for(int i = 0; i < this->instList.size(); i++) {
         Instruction inst = instList[i];
 
         if(inst.opcode == IT_Label) {

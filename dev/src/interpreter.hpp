@@ -14,10 +14,13 @@ class Interpreter {
 public:
 
     Options options;
+    Bytecode source;
+    ByteSeq header;
+    ByteSeq body;
     HeaderInfo headerInfo;
     InstList instList;
 
-    Interpreter(Options opt);
+    Interpreter(Options options, Bytecode source);
 
     void run();
 
@@ -26,9 +29,9 @@ private:
     std::vector<std::stack<void*>> stacks;
     std::vector<FuncData> funcData;
 
-    void runProgram(Bytecode src);
+    void runProgram();
 
-    void setFuncData(Bytecode src);
+    void setFuncData();
 
     void runInst(Instruction instruction);
 
