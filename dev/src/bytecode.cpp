@@ -43,6 +43,21 @@ Instruction::Instruction(int opcode, std::unordered_map<std::string, ByteSeq> op
     this->setBytecode();
 }
 
+std::string Instruction::toText() {
+    std::string text = "";
+
+    switch(this->opcode) {
+        case IT_Unknown:
+        return "; Unknown";
+
+        case IT_Label:
+        return "label " + Bytecode(this->operand["id"]).toHexString(false) + " " + Bytecode(this->operand["id"]).toString();
+
+        default:
+        return "; Unknown_";
+    }
+}
+
 void Instruction::setBytecode() {
     try {
         switch(this->opcode) {
@@ -223,16 +238,18 @@ Bytecode Bytecode::pop() {
     return this->source;
 }
 
-std::string Bytecode::toHexString() {
+std::string Bytecode::toHexString(bool containSpace) {
     std::string res;
 
-    for(Byte srcChar : this->source) {
+    for(int src : this->source) {
         std::stringstream ss;
-        ss << std::hex << (int)srcChar;
-        res += ss.str() + " ";
+        ss << std::hex << src;
+        res += (src < 16 ? "0" : "") + ss.str() + (containSpace ? " " : "");
     }
 
-    res.pop_back();
+    if(containSpace && res.length() > 0)
+        res.pop_back();
+
     return res;
 }
 

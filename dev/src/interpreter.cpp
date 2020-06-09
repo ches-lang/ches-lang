@@ -21,13 +21,12 @@ Interpreter::Interpreter(Options options, Bytecode source) {
     for(ByteSeq bytes : lines)
         this->instList.push_back(Instruction(bytes));
 
-    std::cout << std::hex;
+    for(auto ln : lines) {
+        std::cout << Bytecode(ln).toHexString() << std::endl;
+    } std::cout << std::endl;
 
-    for(auto a : lines) {
-        for(int b : a) {
-            std::cout << (b < 16 ? "0" : "") << b << " ";
-        } std::cout << std::endl;
-    }
+    for(Instruction line : this->instList)
+        std::cout << line.toText() << std::endl;
 
     if(this->headerInfo.magicNum != MAGIC_NUMBER)
         Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);

@@ -21,6 +21,8 @@ struct Instruction {
 
     Instruction(int opcode, std::unordered_map<std::string, ByteSeq> operand);
 
+    std::string toText();
+
     void setBytecode();
 
     ByteSeq copyBytecode(int begin, int end);
@@ -110,7 +112,7 @@ struct Bytecode {
 
     Bytecode pop();
 
-    std::string toHexString();
+    std::string toHexString(bool containSpace = true);
 
     int toInt();
 
