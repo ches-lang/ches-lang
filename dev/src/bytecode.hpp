@@ -25,6 +25,17 @@ struct Instruction {
 
     void setBytecode();
 
+    static ByteSeq escape(ByteSeq source) {
+        for(int i = 0; i < source.size(); i++) {
+            if(source[i] == IT_LineDiv || source[i] == IT_TokenDiv) {
+                source.push_back(source[i]);
+                i++;
+            }
+        }
+
+        return source;
+    }
+
     ByteSeq copyBytecode(int begin, int end);
 
     void append(Byte byte);

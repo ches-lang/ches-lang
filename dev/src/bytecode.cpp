@@ -74,17 +74,17 @@ void Instruction::setBytecode() {
             case IT_Label: {
                 append(IT_Label);
                 append(this->operand["id"]);
-                append(this->operand["name"]);
+                append(Instruction::escape(this->operand["name"]));
             } break;
 
             case IT_Jump: {
                 append(IT_Jump);
-                append(this->operand["index"]);
+                append(Instruction::escape(this->operand["index"]));
             } break;
 
             case IT_IFJump: {
                 append(IT_IFJump);
-                append(this->operand["index"]);
+                append(Instruction::escape(this->operand["index"]));
             } break;
 
             default: {
@@ -277,9 +277,9 @@ TokenSeq Bytecode::divide() {
     TokenSeq lines = {{}};
 
     for(int i = 0; i < source.size(); i++) {
-        if(this->source[i] == IT_LineDiv) {
-            if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDiv) {
-                lines.back().push_back(IT_LineDiv);
+        if(this->source[i] == IT_LineDiv || this->source[i] == IT_TokenDiv) {
+            if(i + 1 < this->source.size() && this->source[i + 1] == this->source[i]) {
+                lines.back().push_back(this->source[i]);
                 i++;
             } else {
                 lines.push_back({});
