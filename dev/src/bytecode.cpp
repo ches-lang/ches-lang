@@ -4,21 +4,32 @@
 
 
 
-FuncData::FuncData() {}
+Instruction::Instruction(ByteSeq bytes) {
+    try {
+        if(bytes.size() == 0)
+            bytes = { IT_Unknown };
 
-FuncData::FuncData(ByteSeq i, ByteSeq nm) {
-    id = i;
-    name = nm;
+        this->bytecode = bytes;
+        this->opcode = bytes[0];
+
+        switch(this->opcode) {
+            case IT_Label: {
+                this->operand["id"] = this->copyBytecode(1, 16);
+                this->operand["name"] = this->copyBytecode(17 , -1);
+            } break;
+
+            case IT_Jump: {
+                this->operand["index"] = this->copyBytecode(0, -1);
+            } break;
+
+            case IT_IFJump: {
+                this->operand["index"] = this->copyBytecode(0, -1);
+            } break;
+        }
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+    }
 }
-
-FuncData::FuncData(ByteSeq i, ByteSeq nm, int st, int ed) {
-    id = i;
-    name = nm;
-    st = start;
-    ed = end;
-}
-
-
 
 Instruction::Instruction(int opcode) {
     this->opcode = opcode;
@@ -64,6 +75,16 @@ void Instruction::setBytecode() {
     }
 }
 
+ByteSeq Instruction::copyBytecode(int begin, int end) {
+    ByteSeq result;
+    auto beginItr = begin >= 0 ? this->bytecode.begin() + begin : this->bytecode.begin() + this->bytecode.size() + begin + 1;
+    auto endItr = end >= 0 ? this->bytecode.end() - this->bytecode.size() + end + 1 : this->bytecode.end() + end + 1;
+
+    std::copy(beginItr, endItr, std::back_inserter(result));
+
+    return result;
+}
+
 void Instruction::append(Byte byte) {
     this->bytecode.push_back(byte);
 }
@@ -101,6 +122,22 @@ ByteSeq HeaderInfo::toByteSeq() {
 void HeaderInfo::append(ByteSeq &src, ByteSeq bytes) {
     for(Byte srcChar : bytes)
         src.push_back(srcChar);
+}
+
+
+
+FuncData::FuncData() {}
+
+FuncData::FuncData(ByteSeq id, ByteSeq name) {
+    this->id = id;
+    this->name = name;
+}
+
+FuncData::FuncData(ByteSeq id, ByteSeq name, int begin, int end) {
+    this->id = id;
+    this->name = name;
+    this->begin = begin;
+    this->end = end;
 }
 
 
@@ -213,36 +250,23 @@ std::string Bytecode::toString() {
 }
 
 // LineSeq型の命令を取得
-LineSeq Bytecode::divide() {
-    LineSeq res = {{{}}};
+TokenSeq Bytecode::divide() {
+    TokenSeq lines = {{}};
 
-    for(int i = 128; i < source.size(); i++) {
-        switch(this->source[i]) {
-            case IT_LineDiv: {
-                if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDiv) {
-                    res.back().back().push_back(IT_LineDiv);
-                    i++;
-                } else {
-                    res.push_back({{}});
-                }
-            } break;
-
-            case IT_TokenDiv: {
-                if(i + 1 < this->source.size() && this->source[i + 1] == IT_TokenDiv) {
-                    res.back().back().push_back(IT_TokenDiv);
-                    i++;
-                } else {
-                    res.back().push_back({});
-                }
-            } break;
-
-            default: {
-                res.back().back().push_back(this->source[i]);
-            } break;
+    for(int i = 0; i < source.size(); i++) {
+        if(this->source[i] == IT_LineDiv) {
+            if(i + 1 < this->source.size() && this->source[i + 1] == IT_LineDiv) {
+                lines.back().push_back(IT_LineDiv);
+                i++;
+            } else {
+                lines.push_back({});
+            }
+        } else {
+            lines.back().push_back(this->source[i]);
         }
     }
 
-    return res;
+    return lines;
 }
 
 InstList Bytecode::toInstList(Node node) {

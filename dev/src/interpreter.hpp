@@ -15,6 +15,7 @@ public:
 
     Options options;
     HeaderInfo headerInfo;
+    InstList instList;
 
     Interpreter(Options opt);
 
@@ -23,13 +24,13 @@ public:
 private:
 
     std::vector<std::stack<void*>> stacks;
-    std::vector<FuncData> funcdata;
+    std::vector<FuncData> funcData;
 
     void runProgram(Bytecode src);
 
     void setFuncData(Bytecode src);
 
-    void runInst(TokenSeq inst);
+    void runInst(Instruction instruction);
 
     std::string joinCode(ByteSeq src);
 };

@@ -9,45 +9,13 @@
 
 
 
-struct FuncData {
-
-    ByteSeq id;
-    ByteSeq name;
-    LineSeq source;
-    int start;
-    int end;
-
-    FuncData();
-
-    FuncData(ByteSeq i, ByteSeq nm);
-
-    FuncData(ByteSeq i, ByteSeq nm, int st, int ed);
-
-    static FuncData findById(std::vector<FuncData> fd, ByteSeq id) {
-        for(FuncData f : fd)
-            if(f.id == id)
-                return f;
-
-        return FuncData();
-    }
-
-    static FuncData findByName(std::vector<FuncData> fd, ByteSeq nm) {
-        for(FuncData f : fd)
-            if(f.name == nm)
-                return f;
-
-        return FuncData();
-    }
-
-};
-
-
-
 struct Instruction {
 
     Byte opcode = IT_Unknown;
     std::unordered_map<std::string, ByteSeq> operand;
     ByteSeq bytecode;
+
+    Instruction(ByteSeq bytes);
 
     Instruction(int opcode);
 
@@ -55,11 +23,15 @@ struct Instruction {
 
     void setBytecode();
 
+    ByteSeq copyBytecode(int begin, int end);
+
     void append(Byte byte);
 
     void append(ByteSeq bytes);
 
 };
+
+typedef std::vector<Instruction>    InstList;
 
 
 
@@ -81,7 +53,37 @@ private:
 
 
 
-typedef std::vector<Instruction>    InstList;
+struct FuncData {
+
+    ByteSeq id;
+    ByteSeq name;
+    InstList instList;
+    int begin;
+    int end;
+
+    FuncData();
+
+    FuncData(ByteSeq id, ByteSeq name);
+
+    FuncData(ByteSeq id, ByteSeq name, int begin, int end);
+
+    static FuncData findById(std::vector<FuncData> fd, ByteSeq id) {
+        for(FuncData f : fd)
+            if(f.id == id)
+                return f;
+
+        return FuncData();
+    }
+
+    static FuncData findByName(std::vector<FuncData> fd, ByteSeq nm) {
+        for(FuncData f : fd)
+            if(f.name == nm)
+                return f;
+
+        return FuncData();
+    }
+
+};
 
 
 
@@ -114,7 +116,7 @@ struct Bytecode {
 
     std::string toString();
 
-    LineSeq divide();
+    TokenSeq divide();
 
 private:
 
