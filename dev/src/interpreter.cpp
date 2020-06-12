@@ -5,31 +5,35 @@
 
 
 Interpreter::Interpreter(Options options, Bytecode source) {
-    options = options;
+    try {
+        options = options;
 
-    this->source = source;
-    ByteSeq byteSeqSrc = this->source.source;
+        this->source = source;
+        ByteSeq byteSeqSrc = this->source.source;
 
-    // ヘッダとボディを取得
-    std::copy(byteSeqSrc.begin(), byteSeqSrc.begin() + HEADER_LEN, std::back_inserter(this->header));
-    std::copy(byteSeqSrc.begin() + HEADER_LEN, byteSeqSrc.end(), std::back_inserter(this->body));
+        // ヘッダとボディを取得
+        this->header = byteSeqSrc.copy(0, HEADER_LEN - 1);
+        this->body = byteSeqSrc.copy(HEADER_LEN, -1);
 
-    this->headerInfo = HeaderInfo(this->header);
-    TokenSeq lines = Bytecode(this->body).divide();
+        this->headerInfo = HeaderInfo(this->header);
+        LineSeq lines = Bytecode(this->body).divide();
 
-    // 命令リストを取得
-    for(ByteSeq bytes : lines)
-        this->instList.push_back(Instruction(bytes));
+        // 命令リストを取得
+        for(ByteSeq bytes : lines)
+            this->instList.push_back(Instruction(bytes));
 
-    for(auto ln : lines) {
-        std::cout << Bytecode(ln).toHexString() << std::endl;
-    } std::cout << std::endl;
+        for(auto ln : lines) {
+            std::cout << Bytecode(ln).toHexString() << std::endl;
+        } std::cout << std::endl;
 
-    for(Instruction line : this->instList)
-        std::cout << line.toText() << std::endl;
+        for(Instruction inst : this->instList)
+            std::cout << inst.toText() << std::endl;
 
-    if(this->headerInfo.magicNum != MAGIC_NUMBER)
-        Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);
+        if(this->headerInfo.magicNum != MAGIC_NUMBER)
+            Console::log(LogType_Error, "8732", { { "Path", options.get("-i") } }, true);
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+    }
 }
 
 void Interpreter::run() {

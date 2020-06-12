@@ -14,16 +14,16 @@ Instruction::Instruction(ByteSeq bytes) {
 
         switch(this->opcode) {
             case IT_Label: {
-                this->operand["id"] = this->copyBytecode(1, 16);
-                this->operand["name"] = this->copyBytecode(17 , -1);
+                this->operand["id"] = this->bytecode.copy(1, 16);
+                this->operand["name"] = this->bytecode.copy(17 , -1);
             } break;
 
             case IT_Jump: {
-                this->operand["index"] = this->copyBytecode(1, -1);
+                this->operand["index"] = this->bytecode.copy(1, -1);
             } break;
 
             case IT_IFJump: {
-                this->operand["index"] = this->copyBytecode(1, -1);
+                this->operand["index"] = this->bytecode.copy(1, -1);
             } break;
         }
     } catch(std::out_of_range ignored) {
@@ -68,51 +68,32 @@ void Instruction::setBytecode() {
     try {
         switch(this->opcode) {
             case IT_Unknown: {
-                append(IT_Unknown);
+                this->bytecode.append(IT_Unknown);
             } break;
 
             case IT_Label: {
-                append(IT_Label);
-                append(this->operand["id"]);
-                append(Instruction::escape(this->operand["name"]));
+                this->bytecode.append(IT_Label);
+                this->bytecode.append(this->operand["id"]);
+                this->bytecode.append(Instruction::escape(this->operand["name"]));
             } break;
 
             case IT_Jump: {
-                append(IT_Jump);
-                append(Instruction::escape(this->operand["index"]));
+                this->bytecode.append(IT_Jump);
+                this->bytecode.append(Instruction::escape(this->operand["index"]));
             } break;
 
             case IT_IFJump: {
-                append(IT_IFJump);
-                append(Instruction::escape(this->operand["index"]));
+                this->bytecode.append(IT_IFJump);
+                this->bytecode.append(Instruction::escape(this->operand["index"]));
             } break;
 
             default: {
-                append(IT_Unknown);
+                this->bytecode.append(IT_Unknown);
             } break;
         }
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
-}
-
-ByteSeq Instruction::copyBytecode(int begin, int end) {
-    ByteSeq result;
-    auto beginItr = begin >= 0 ? this->bytecode.begin() + begin : this->bytecode.begin() + this->bytecode.size() + begin + 1;
-    auto endItr = end >= 0 ? this->bytecode.end() - this->bytecode.size() + end + 1 : this->bytecode.end() + end + 1;
-
-    std::copy(beginItr, endItr, std::back_inserter(result));
-
-    return result;
-}
-
-void Instruction::append(Byte byte) {
-    this->bytecode.push_back(byte);
-}
-
-void Instruction::append(ByteSeq bytes) {
-    for(Byte b : bytes)
-        this->bytecode.push_back(b);
 }
 
 
@@ -127,22 +108,17 @@ HeaderInfo::HeaderInfo(ByteSeq bytes) {
     int index = 0;
 
     int magicNumSize = MAGIC_NUMBER.size();
-    std::copy(bytes.begin() + index, bytes.begin() + index + magicNumSize, std::back_inserter(this->magicNum));
+    this->magicNum = bytes.copy(index, index + magicNumSize - 1);
     index += magicNumSize;
 }
 
 ByteSeq HeaderInfo::toByteSeq() {
     ByteSeq bytes;
 
-    this->append(bytes, MAGIC_NUMBER);
-    this->append(bytes, ByteSeq(HEADER_LEN - bytes.size()));
+    bytes.append(MAGIC_NUMBER);
+    bytes.append(ByteSeq(HEADER_LEN - bytes.size()));
 
     return bytes;
-}
-
-void HeaderInfo::append(ByteSeq &src, ByteSeq bytes) {
-    for(Byte srcChar : bytes)
-        src.push_back(srcChar);
 }
 
 
@@ -220,22 +196,24 @@ Bytecode::Bytecode(Node tree, std::string filePath, std::string sourceCode) {
 
 Bytecode::Bytecode(std::vector<Bytecode> source) {
     for(Bytecode bc : source) {
-        this->append(Bytecode(MAGIC_NUMBER));
-        //this->append(Bytecode(ByteSeq { IT_LineDivide, IT_BytecodeStart, IT_LineDivide }));
-        this->append(Bytecode(IT_LineDiv));
-        this->append(Bytecode(bc));
+        this->append(MAGIC_NUMBER);
+        this->append(IT_LineDiv);
+        this->append(bc);
     }
 }
 
 Bytecode Bytecode::append(Byte source) {
-    this->source.push_back(source);
+    this->source.append(source);
+    return this->source;
+}
+
+Bytecode Bytecode::append(ByteSeq source) {
+    this->source.append(source);
     return this->source;
 }
 
 Bytecode Bytecode::append(Bytecode source) {
-    for(Byte srcChar : source.source)
-        this->source.push_back(srcChar);
-
+    this->source.append(source.source);
     return this->source;
 }
 
@@ -273,20 +251,25 @@ std::string Bytecode::toString() {
 }
 
 // LineSeq型の命令を取得
-TokenSeq Bytecode::divide() {
-    TokenSeq lines = {{}};
+LineSeq Bytecode::divide() {
+    LineSeq lines = {{}};
 
-    for(int i = 0; i < source.size(); i++) {
-        if(this->source[i] == IT_LineDiv || this->source[i] == IT_TokenDiv) {
-            if(i + 1 < this->source.size() && this->source[i + 1] == this->source[i]) {
-                lines.back().push_back(this->source[i]);
-                i++;
+    try {
+        for(int i = 0; i < this->source.size(); i++) {
+            if(this->source.at(i) == IT_LineDiv || this->source.at(i) == IT_TokenDiv) {
+                if(i + 1 < this->source.size() && this->source.at(i + 1) == this->source.at(i)) {
+                    lines.back().append(this->source.at(i));
+                    i++;
+                } else {
+                    lines.append();
+                }
             } else {
-                lines.push_back({});
+                lines.back().append(this->source.at(i));
             }
-        } else {
-            lines.back().push_back(this->source[i]);
         }
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+        return lines;
     }
 
     return lines;
@@ -298,7 +281,7 @@ InstList Bytecode::toInstList(Node node) {
 
     for(int i = 0; i < node.children.size(); i++) {
         InstList resLines = this->toInstList(node, i);
-        std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
+        instList.append(resLines);
     }
 
     return instList;
@@ -321,7 +304,7 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
             case ND_Root: {std::cout<<"root"<<std::endl;
                 for(int i = 0; i < node.children.size(); i++) {
                     InstList resLines = this->toInstList(node, i);
-                    std::copy(resLines.begin(), resLines.end(), std::back_inserter(instList));
+                    instList.append(resLines);
                 }
             } break;
 
@@ -354,7 +337,7 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
 
                 int i = 1;
                 InstList insts = this->toInstList(node, i);
-                std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
+                instList.append(insts);
             } break;
 
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
@@ -392,13 +375,13 @@ InstList Bytecode::toInstList(Node parentNode, int &index) {
                 lineIndex.append(Bytecode(procLines.size()));
                 instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex.source } }));
 
-                std::copy(procLines.begin(), procLines.end(), std::back_inserter(instList));
+                instList.append(procLines);
             } break;
 
             case ND_Else: {std::cout<<"else"<<std::endl;
                 int i = 0;
                 InstList insts = this->toInstList(node, i);
-                std::copy(insts.begin(), insts.end(), std::back_inserter(instList));
+                instList.append(insts);
             } break;
         }
 

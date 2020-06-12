@@ -1,9 +1,5 @@
 #pragma once
 
-#define LN(i)           (bytecode.at(i))
-#define TK(i, j)        (bytecode.at(i).at(j))
-#define CH(i, j, k)     (bytecode.at(i).at(j).at(k))
-
 #define HEADER_LEN      128
 #define MAGIC_NUMBER    ByteSeq { 0x4F, 0x52, 0x49, 0x4E, 0x43, 0x48, 0x41, 0x4E }
 
@@ -36,15 +32,9 @@ struct Instruction {
         return source;
     }
 
-    ByteSeq copyBytecode(int begin, int end);
-
-    void append(Byte byte);
-
-    void append(ByteSeq bytes);
-
 };
 
-typedef std::vector<Instruction>    InstList;
+typedef vector_ext<Instruction> InstList;
 
 
 
@@ -57,10 +47,6 @@ struct HeaderInfo {
     HeaderInfo(ByteSeq bytes);
 
     ByteSeq toByteSeq();
-
-private:
-
-    void append(ByteSeq &src, ByteSeq bytes);
 
 };
 
@@ -119,6 +105,8 @@ struct Bytecode {
 
     Bytecode append(Byte src);
 
+    Bytecode append(ByteSeq source);
+
     Bytecode append(Bytecode src);
 
     Bytecode pop();
@@ -129,7 +117,7 @@ struct Bytecode {
 
     std::string toString();
 
-    TokenSeq divide();
+    LineSeq divide();
 
 private:
 

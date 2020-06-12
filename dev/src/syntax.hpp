@@ -1,9 +1,64 @@
 #pragma once
 
-typedef unsigned char           Byte;
-typedef std::vector<Byte>       ByteSeq;
-typedef std::vector<ByteSeq>    TokenSeq;
-typedef std::vector<TokenSeq>   LineSeq;
+
+
+template<class T>
+
+class vector_ext : public std::vector<T> {
+
+public:
+
+    vector_ext() {}
+
+    vector_ext(std::initializer_list<T> value) {
+        for(T val : value)
+            this->append(val);
+    }
+
+    vector_ext(T value) {
+        this->append(value);
+    }
+
+    vector_ext(std::vector<T> value) {
+        this->append(value);
+    }
+
+    inline void append() {
+        this->push_back(T());
+    }
+
+    inline void append(T value) {
+        this->push_back(value);
+    }
+
+    inline void append(T value[]) {
+        for(T val : value)
+            this->push_back(val);
+    }
+
+    inline void append(vector_ext<T> value) {
+        for(T val : value)
+            this->push_back(val);
+    }
+
+    inline vector_ext<T> copy(int begin, int end) {
+        vector_ext<T> result;
+
+        auto beginItr = begin >= 0 ? this->begin() + begin : this->begin() + this->size() + begin + 1;
+        auto endItr = end >= 0 ? this->end() - this->size() + end + 1 : this->end() + end + 1;
+
+        std::copy(beginItr, endItr, std::back_inserter(result));
+
+        return result;
+    }
+
+};
+
+
+
+typedef unsigned char       Byte;
+typedef vector_ext<Byte>    ByteSeq;
+typedef vector_ext<ByteSeq> LineSeq;
 
 
 
