@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <list>
 #include <map>
 #include <random>
 #include <regex>
@@ -14,9 +15,8 @@
 #include <vector>
 
 #include "console.cpp"
-#include "syntax.cpp"
+#include "utility.cpp"
 #include "lexer.cpp"
-#include "bytecode.cpp"
 #include "filemanager.cpp"
 #include "parser.cpp"
 #include "compiler.cpp"
@@ -40,10 +40,10 @@ int main(int argc, char *argv[]) {
         if(argv[i][0] != '-') {
             Console::log(LogType_Error, "8732", { { "At", "'" + std::string{ argv[i] } + "'" }}, true);
         } else if(i + 1 < argc && argv[i + 1][0] != '-') {
-            options.set(argv[i], argv[i + 1]);
+            options[argv[i]] = argv[i + 1];
             i++;
         } else {
-            options.set(argv[i], "");
+            options[argv[i]] = "";
         }
     }
 
@@ -52,7 +52,10 @@ int main(int argc, char *argv[]) {
 
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;
-    auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-    //std::cout << "dec duration: " << msec << "ms" << std::endl;
-    //std::cout << "hex duration: " << std::dec << msec << "ms" << std::endl;
+    auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+
+    std::cout << std::endl;
+    std::cout << "--- duration ---" << std::endl;
+    std::cout << std::endl;
+    std::cout << msec << "µs" << std::endl;
 }

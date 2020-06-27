@@ -26,7 +26,7 @@ public:
         return convedPath.filename();
     }
 
-    static std::vector<std::string> getFilePaths(std::string dirPath) {
+    inline static std::vector<std::string> getFilePaths(std::string dirPath) {
         std::vector<std::string> filePaths;
 
         try {
@@ -51,17 +51,17 @@ public:
         return filePaths;
     }
 
-    static std::string getFullPath(std::string path) {
+    inline static std::string getFullPath(std::string path) {
         return std::filesystem::absolute(path);
     }
 
-    static bool isDirectory(std::string path) {
+    inline static bool isDirectory(std::string path) {
         return std::filesystem::is_directory(path);
     }
 
-    static Bytecode readBytecode(std::string path) {
+    static ByteSeq readByteSeq(std::string path) {
         try {
-            Bytecode fileCont;
+            ByteSeq fileCont;
 
             std::ifstream ifs(path);
 
@@ -71,21 +71,25 @@ public:
             if(ifs.fail())
                 Console::log(LogType_Error, "6845", { { "Path", path } }, true);
 
-            unsigned char uc;
+            Byte byte;
 
             do {
-                ifs.read((char*)&uc, sizeof(unsigned char));
-                fileCont.source.push_back(uc);
+                ifs.read((char*)&byte, sizeof(char));
+                fileCont.push_back(byte);
             } while(!ifs.eof());
 
-            fileCont.source.pop_back();
+            if(fileCont.size() > 0)
+                fileCont.pop_back();
+
             ifs.close();
+
             return fileCont;
+
         } catch(std::exception excep) {
             Console::log(LogType_Error, "6845", { { "Path", path } }, true);
         }
 
-        return Bytecode();
+        return ByteSeq();
     }
 
     static std::string readText(std::string path) {
@@ -127,6 +131,7 @@ public:
 
             ifs.close();
             return fileCont;
+
         } catch(std::exception excep) {
             Console::log(LogType_Error, "6845", { { "Path", path } }, true);
         }
@@ -147,7 +152,7 @@ public:
         return newPath;
     }
 
-    static void writeBytecode(std::string path, Bytecode src) {
+    static void writeBytecode(std::string path, ByteSeq source) {
         try {
             std::ofstream ofs;
             ofs.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
@@ -155,10 +160,11 @@ public:
             if(!ofs)
                 Console::log(LogType_Error, "5352", { { "Path", path } }, true);
 
-            for(unsigned char uc : src.source)
-                ofs.write((char*)&uc, sizeof(char));
+            for(Byte uc : source)
+                ofs.write((char*)&uc, sizeof(Byte));
 
             ofs.close();
+
         } catch(std::exception excep) {
             Console::log(LogType_Error, "5352", { { "Path", path } }, true);
         }

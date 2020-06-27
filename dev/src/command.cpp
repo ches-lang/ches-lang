@@ -12,7 +12,7 @@ void Command::runCommand(std::string cmd, Options opt) {
     cmdprocs procs;
 
     if(options.exists("-limit")) {
-        std::string input = options.get("-limit");
+        std::string input = options["-limit"];
 
         for(int i = 0; i < input.length() - 1; i++) {
             if(input[0] == '0') input.erase(input.begin());

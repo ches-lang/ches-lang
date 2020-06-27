@@ -29,7 +29,7 @@ private:
             return;
         }
 
-        if(options.exists("-i") && options.get("-i") != "") {
+        if(options.exists("-i") && options["-i"] != "") {
             Compiler cmp(options);
             cmp.compile();
             return;
@@ -44,9 +44,9 @@ private:
             return;
         }
 
-        if(options.exists("-i") && options.get("-i") != "") {
-            Interpreter itp(options, FileManager::readBytecode(options.get("-i")));
-            //itp.run();
+        if(options.exists("-i") && options["-i"] != "") {
+            Interpreter itp(options, FileManager::readByteSeq(options["-i"]));
+            itp.run();
             return;
         }
 

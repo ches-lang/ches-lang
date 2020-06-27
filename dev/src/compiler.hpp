@@ -14,5 +14,5 @@ public:
 
     void compile();
 
-    Bytecode getBytecode();
+    ByteSeq getByteSeq();
 };

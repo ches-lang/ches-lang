@@ -2,19 +2,13 @@
 
 
 
-struct Options {
-
-    std::unordered_map<std::string, std::string> map;
+struct Options : std::unordered_map<std::string, std::string> {
 
     Options();
 
-    Options(std::unordered_map<std::string, std::string> opt);
+    Options(std::unordered_map<std::string, std::string> value);
 
     bool exists(std::string key);
-
-    std::string get(std::string key);
-
-    void set(std::string key, std::string value);
 
     int size();
 };
@@ -25,7 +19,7 @@ class Lexer {
 
 private:
 
-    std::string sourcePath;
+    std::string filePath;
     std::string source;
     Options options;
 
@@ -37,7 +31,7 @@ public:
 
     Lexer();
 
-    Lexer(std::string srcpath, std::string src, Options opt);
+    Lexer(std::string filePath, std::string source, Options options);
 
     std::vector<Token> splitTokens();
 
@@ -45,5 +39,5 @@ private:
 
     Token getNextToken();
 
-    void validateParen(Token tk);
+    void validateParen(Token token);
 };
