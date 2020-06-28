@@ -43,9 +43,14 @@ void Interpreter::run() {
 
 void Interpreter::runProgram() {
     try {
+        // 関数データを設定
         setFuncData();
-        //this->stackList.push_back(Stack());
-        //runInst({ { IT_Jump }, FuncData::findByName(this->funcData, { 0x6D, 0x61, 0x69, 0x6E }).id });
+
+        // エントリポイントの呼び出し
+        ByteSeq bytes = { IT_Jump };
+        bytes.push_back(this->funcList.findByName({ 0x6D, 0x61, 0x69, 0x6E }).id);
+        runInst(Instruction(bytes));
+
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }

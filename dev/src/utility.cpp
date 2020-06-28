@@ -477,30 +477,7 @@ InstList* InstList::toInstList(Node parentNode, int &index) {
 
 
 Instruction::Instruction(ByteSeq bytes) {
-    try {
-        if(bytes.size() == 0)
-            bytes = { IT_Unknown };
-
-        this->bytecode = bytes;
-        this->opcode = bytes[0];
-
-        switch(this->opcode) {
-            case IT_Label: {
-                this->operand["id"] = this->bytecode.copy(1, 16);
-                this->operand["name"] = this->bytecode.copy(17 , -1);
-            } break;
-
-            case IT_Jump: {
-                this->operand["index"] = this->bytecode.copy(1, -1);
-            } break;
-
-            case IT_IFJump: {
-                this->operand["index"] = this->bytecode.copy(1, -1);
-            } break;
-        }
-    } catch(std::out_of_range ignored) {
-        std::cout << "EXCEPTION" << std::endl;
-    }
+    this->init(bytes);
 }
 
 Instruction::Instruction(int opcode) {
@@ -561,6 +538,33 @@ void Instruction::setBytecode() {
 
             default: {
                 this->bytecode.push_back((Byte)IT_Unknown);
+            } break;
+        }
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+    }
+}
+
+void Instruction::init(ByteSeq bytes) {
+    try {
+        if(bytes.size() == 0)
+            bytes = { IT_Unknown };
+
+        this->bytecode = bytes;
+        this->opcode = bytes[0];
+
+        switch(this->opcode) {
+            case IT_Label: {
+                this->operand["id"] = this->bytecode.copy(1, 16);
+                this->operand["name"] = this->bytecode.copy(17 , -1);
+            } break;
+
+            case IT_Jump: {
+                this->operand["index"] = this->bytecode.copy(1, -1);
+            } break;
+
+            case IT_IFJump: {
+                this->operand["index"] = this->bytecode.copy(1, -1);
             } break;
         }
     } catch(std::out_of_range ignored) {

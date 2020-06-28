@@ -399,6 +399,10 @@ struct Instruction {
     std::string toText();
 
     void setBytecode();
+
+private:
+
+    void init(ByteSeq bytes);
 };
 
 
