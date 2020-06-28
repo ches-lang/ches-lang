@@ -43,12 +43,12 @@ void Interpreter::run() {
 
 void Interpreter::runProgram() {
     try {
-        // 関数データを設定
-        setFuncData();
+        // ラベルデータを設定
+        setLabelData();
 
         // エントリポイントの呼び出し
         ByteSeq bytes = { IT_Jump };
-        bytes.push_back(this->funcList.findByName({ 0x6D, 0x61, 0x69, 0x6E }).id);
+        bytes.push_back(this->labelList.findByName({ 0x6D, 0x61, 0x69, 0x6E }).id);
         runInst(Instruction(bytes));
 
     } catch(std::out_of_range ignored) {
@@ -56,7 +56,7 @@ void Interpreter::runProgram() {
     }
 }
 
-void Interpreter::setFuncData() {
+void Interpreter::setLabelData() {
     try {
         for(int i = 0; i < this->instList.size(); i++) {
             Instruction inst = this->instList.at(i);
@@ -81,14 +81,21 @@ void Interpreter::setFuncData() {
                 // ラベルリストにデータを追加
                 Function label = Function(inst.operand["id"], inst.operand["name"], labelStartIndex, --i);
                 label.instList = labelCont;
-                this->funcList.push_back(label);
+                this->labelList.push_back(label);
             } else {
                 // ラベル外の処理
             }
         }
 
-        // 関数一覧を出力
-        std::cout << std::endl; for(Function func : this->funcList) { std::cout << "funclist: "; for(Byte name : func.name) { std::cout << name; } std::cout << std::endl; }
+        // ラベル一覧を出力 /---/
+
+        std::cout << std::endl;
+        std::cout << "--- label list ---";
+        std::cout << std::endl;
+        std::cout << std::endl;
+
+        for(int i = 0; i < this->labelList.size(); i++)
+            std::cout << "[" << i << "] " << this->labelList.at(0).name.toHexString() << std::endl;
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
@@ -105,7 +112,7 @@ void Interpreter::runInst(Instruction instruction) {
 
             case IT_Jump: {std::cout<<"Jump"<<std::endl;//
                 //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
-                for(Instruction inst : this->funcList.findById(instruction.operand["id"]).instList)
+                for(Instruction inst : this->labelList.findById(instruction.operand["id"]).instList)
                     runInst(inst);
             } break;
 

@@ -348,12 +348,12 @@ InstList::InstList(Node tree, std::string filePath, std::string source) {
 
     for(Node node : tree.children)
         if(node.type == ND_DefFunc)
-            this->funcList->push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
+            this->labelList->push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
 
     for(int i = 0; i < tree.children.size(); i++)
         this->push_back(*this->toInstList(tree, i));
 
-    this->push_front(Instruction(IT_Jump, { { "index", this->funcList->findByName({ 0x6D, 0x61, 0x69, 0x6E }).id } }));
+    this->push_front(Instruction(IT_Jump, { { "index", this->labelList->findByName({ 0x6D, 0x61, 0x69, 0x6E }).id } }));
 }
 
 ByteSeq* InstList::toByteSeq() {
@@ -411,9 +411,9 @@ InstList* InstList::toInstList(Node parentNode, int &index) {
 
             case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
                 ByteSeq funcName = ByteSeq(node.tokenAt(0).string);
-                ByteSeq funcID = ByteSeq(this->funcList->findByName(funcName).id);
-                instList->push_back(Instruction(IT_Label, { { "id", funcID }, { "name", funcName } }));
+                ByteSeq funcID = ByteSeq(this->labelList->findByName(funcName).id);
 
+                instList->push_back(Instruction(IT_Label, { { "id", funcID }, { "name", funcName } }));
                 this->localListLen += node.childAt(0).children.size();
 
                 int i = 1;
@@ -424,7 +424,7 @@ InstList* InstList::toInstList(Node parentNode, int &index) {
             case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
                 Token funcNameToken = node.tokenAt(0);
                 std::string funcName = funcNameToken.string;
-                ByteSeq funcID = this->funcList->findByName(ByteSeq(funcName)).id;
+                ByteSeq funcID = this->labelList->findByName(ByteSeq(funcName)).id;
 
                 if(funcID.size() == 0)
                     Console::log(LogType_Error, "1822", { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);

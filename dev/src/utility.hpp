@@ -428,7 +428,7 @@ private:
     LineSeq *lines;
     std::string filePath;
     std::string source;
-    FuncList *funcList;
+    FuncList *labelList;
     std::string spaceName;
     std::string className;
     int localStackLen = 0;

@@ -27,11 +27,11 @@ public:
 private:
 
     StackList stackList = {};
-    FuncList funcList;
+    FuncList labelList;
 
     void runProgram();
 
-    void setFuncData();
+    void setLabelData();
 
     void runInst(Instruction instruction);
 
