@@ -44,7 +44,7 @@ void Interpreter::run() {
 void Interpreter::runProgram() {
     try {
         setFuncData();
-        //this->stackList->push_back(Stack());
+        //this->stackList.push_back(Stack());
         //runInst({ { IT_Jump }, FuncData::findByName(this->funcData, { 0x6D, 0x61, 0x69, 0x6E }).id });
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
@@ -59,45 +59,31 @@ void Interpreter::setFuncData() {
             if(inst.opcode == IT_Label) {
                 // ラベルの終了インデックスと内容を取得
                 InstList labelCont;
-                int labelEndIndex = i + 1;
+                int labelStartIndex = i++;
 
-                while(labelEndIndex < this->instList.size()) {
-                    Instruction instLine = this->instList.at(labelEndIndex);
+                // ラベルの終了位置を取得
+                while(i < this->instList.size()) {
+                    Instruction instLine = this->instList.at(i);
 
                     if(instLine.opcode != IT_Label) {
                         labelCont.push_back(instLine);
-                        labelEndIndex++;
+                        i++;
                     } else {
                         break;
                     }
                 }
 
                 // ラベルリストにデータを追加
-                Function label = Function(inst.operand["id"], inst.operand["name"], i + 1, labelEndIndex);
+                Function label = Function(inst.operand["id"], inst.operand["name"], labelStartIndex, --i);
                 label.instList = labelCont;
-                std::cout<<"this->funcList->size()"<<std::endl;
-                std::cout<<this->funcList->size()<<std::endl;
-                //this->funcList->push_back(label);
-
-                i = labelEndIndex + 1;
+                this->funcList.push_back(label);
             } else {
                 // ラベル外の処理
             }
         }
 
         // 関数一覧を出力
-        /*std::cout << std::endl; for(Function func : *this->funcList) { std::cout << "funclist: "; for(Byte name : func.name) { std::cout << name; } std::cout << std::endl; }
-
-        std::cout << std::endl;
-
-        for(Function func : *this->funcList) {
-            std::cout << "funclist: ";
-
-            for(Byte name : func.name)
-                std::cout << name;
-            
-            std::cout << std::endl;
-        }*/
+        std::cout << std::endl; for(Function func : this->funcList) { std::cout << "funclist: "; for(Byte name : func.name) { std::cout << name; } std::cout << std::endl; }
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
@@ -114,14 +100,14 @@ void Interpreter::runInst(Instruction instruction) {
 
             case IT_Jump: {std::cout<<"Jump"<<std::endl;//
                 //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
-                for(Instruction inst : this->funcList->findById(instruction.operand["id"]).instList)
+                for(Instruction inst : this->funcList.findById(instruction.operand["id"]).instList)
                     runInst(inst);
             } break;
 
             case IT_LSPush: {std::cout<<"LSPush"<<std::endl;
                 //std::cout << "Push: " << (int)inst.at(1).at(0) << std::endl;
                 //stacks.at(0).push((void*)&inst.at(1));
-                this->stackList->begin()->push((void*)&instruction.operand["value"]);
+                this->stackList.begin()->push((void*)&instruction.operand["value"]);
             } break;
 
             default: {std::cout<<"Unknown_"<<std::endl;

@@ -26,8 +26,8 @@ public:
 
 private:
 
-    StackList *stackList;
-    FuncList *funcList;
+    StackList stackList;
+    FuncList funcList;
 
     void runProgram();
 
