@@ -22,14 +22,12 @@ public:
 
     Interpreter(Options options, ByteSeq source);
 
-    void run();
+    void runProgram();
 
 private:
 
     StackList stackList = {};
     FuncList labelList;
-
-    void runProgram();
 
     void setLabelData();
 

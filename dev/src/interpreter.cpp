@@ -36,11 +36,6 @@ Interpreter::Interpreter(Options options, ByteSeq source) {
     }
 }
 
-void Interpreter::run() {
-    runProgram();
-    //バイトコードのチェックも忘れず
-}
-
 void Interpreter::runProgram() {
     try {
         // ラベルデータを設定
