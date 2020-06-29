@@ -45,6 +45,7 @@ private:
         }
 
         if(options.exists("-i") && options["-i"] != "") {
+            // プログラムを実行
             Interpreter itp(options, FileManager::readByteSeq(options["-i"]));
             itp.runProgram();
             return;

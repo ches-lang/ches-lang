@@ -22,13 +22,33 @@ Interpreter::Interpreter(Options options, ByteSeq source) {
         for(ByteSeq bytes : lines)
             this->instList.push_back(Instruction(bytes));
 
-        for(auto ln : lines) {
-            std::cout << ByteSeq(ln).toHexString(" ") << std::endl;
-        } std::cout << std::endl;
+        // バイトコード&アセンブリコードのログを出力
 
-        for(Instruction inst : this->instList)
-            std::cout << inst.toText() << std::endl;
+        std::vector<std::string> rawLines;
+        std::vector<std::string> asmLines;
 
+        for(int i = 0; i < lines.size(); i++) {
+            std::string index = std::to_string(i);
+
+            while(index.length() < 3)
+                index = "0" + index;
+
+            rawLines.push_back(index + "| " + lines.at(i).toHexString(" "));
+        }
+
+        for(int i = 0; i < this->instList.size(); i++) {
+            std::string index = std::to_string(i);
+
+            while(index.length() < 3)
+                index = "0" + index;
+
+            asmLines.push_back(index + "| " + this->instList.at(i).toText());
+        }
+
+        Console::printDebugLog("raw bytecode", rawLines);
+        Console::printDebugLog("assembly code", asmLines);
+
+        // マジックナンバーをチェック
         if(this->headerInfo.magicNum != MAGIC_NUMBER)
             Console::log(LogType_Error, "8732", { { "Path", options["-i"] } }, true);
     } catch(std::out_of_range ignored) {
@@ -40,6 +60,15 @@ void Interpreter::runProgram() {
     try {
         // ラベルデータを設定
         setLabelData();
+
+        // ラベル一覧のログを出力
+
+        std::vector<std::string> logLines;
+
+        for(int i = 0; i < this->labelList.size(); i++)
+            logLines.push_back("[" + std::to_string(i) + "] " + this->labelList.at(0).name.toHexString());
+
+        Console::printDebugLog("label list", logLines);
 
         // エントリポイントの呼び出し
         ByteSeq bytes = { IT_Jump };
@@ -81,17 +110,6 @@ void Interpreter::setLabelData() {
                 // ラベル外の処理
             }
         }
-
-        // ラベル一覧を出力 /---/
-
-        std::cout << std::endl;
-        std::cout << "--- label list ---";
-        std::cout << std::endl;
-        std::cout << std::endl;
-
-        for(int i = 0; i < this->labelList.size(); i++)
-            std::cout << "[" << i << "] " << this->labelList.at(0).name.toHexString() << std::endl;
-
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }

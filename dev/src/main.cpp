@@ -31,6 +31,9 @@ int main(int argc, char *argv[]) {
     std::ios::sync_with_stdio(false);
     std::cin.tie(0);
 
+    // 開始時のログを出力
+    Console::printDebugLog("start debugger");
+
     Options options;
     Console::displayCountLimit = 20;
     Console::loadLangPacks("ja", "en");
@@ -54,8 +57,10 @@ int main(int argc, char *argv[]) {
     auto dur = end - start;
     auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
 
-    std::cout << std::endl;
-    std::cout << "--- duration ---" << std::endl;
-    std::cout << std::endl;
-    std::cout << msec << "µs" << std::endl;
+    // 計測時間のログを出力
+    Console::printDebugLog("process duration", { "whole: " + std::to_string(msec) + "µs" });
+
+    // 終了時のログを出力
+    Console::printDebugLog("finish debugger");
+    Console::writeln();
 }

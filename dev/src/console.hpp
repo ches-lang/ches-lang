@@ -246,6 +246,21 @@ public:
 
         return {};
     }
+
+    static void printDebugLog(std::string title) {
+        Console::writeln();
+        Console::writeln("--- " + title + " ---");
+    }
+
+    static void printDebugLog(std::string title, std::vector<std::string> lines) {
+        Console::printDebugLog(title);
+
+        if(lines.size() > 0)
+            Console::writeln();
+
+        for(std::string ln : lines)
+            Console::writeln(ln);
+    }
 };
 
 
