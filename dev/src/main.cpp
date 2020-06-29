@@ -52,13 +52,14 @@ int main(int argc, char *argv[]) {
     std::ios::sync_with_stdio(false);
     std::cin.tie(0);
 
-    // 開始時のログを出力
-    Console::printDebugLog("start debugger");
-
     Console::displayCountLimit = 20;
     Console::loadLangPacks("ja", "en");
 
     g_cmd_data = getCmdData(argc, argv);
+
+    // 開始時のログを出力
+    Console::writeln();
+    Console::printDebugLog("start debugger");
 
     Command command;
     command.runCommand();

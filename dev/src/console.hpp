@@ -53,7 +53,11 @@ public:
             Console::log(LogType_Notice, "4247", {}, true);
         }
 
-        if(terminate) exit(-1);
+        if(terminate) {
+            Console::writeln();
+            Console::printDebugLog("end debugger with error");
+            exit(-1);
+        }
     }
 
     static void write(std::string str) {
@@ -251,8 +255,8 @@ public:
         if(!g_cmd_data.exists("-deb"))
             return;
 
-        Console::writeln();
         Console::writeln("--- " + title + " ---");
+        Console::writeln();
     }
 
     static void printDebugLog(std::string title, std::vector<std::string> lines) {
@@ -261,11 +265,11 @@ public:
 
         Console::printDebugLog(title);
 
-        if(lines.size() > 0)
-            Console::writeln();
-
         for(std::string ln : lines)
             Console::writeln(ln);
+
+        if(lines.size() > 0)
+            Console::writeln();
     }
 };
 
