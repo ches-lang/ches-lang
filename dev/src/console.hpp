@@ -39,11 +39,9 @@ public:
         std::string msgName = Console::getLogMessageName(type, code);
         std::string prefix = Console::getLogCodePrefix(type);
 
-        //std::cout << "\033[31m" << "|" << prefix << code << "|" << "\033[m" << " " << msg << std::endl;
         Console::writeln("\033[" + color + "m|" + prefix + code + "|\033[m {$" + msgName + "}");
 
         for(auto dtl : details)
-            //std::cout << "\t" << dtl.first << ": " << dtl.second << std::endl;
             Console::writeln("\t{$LogDetailName_" + dtl.first + "}: " + dtl.second + "");
 
         if(Console::displayCount == Console::displayCountLimit)
@@ -255,7 +253,7 @@ public:
         if(!g_cmd_data.exists("-deb"))
             return;
 
-        Console::writeln("--- " + title + " ---");
+        Console::writeln("\033[1m--- " + title + " ---\033[m");
         Console::writeln();
     }
 
@@ -266,7 +264,7 @@ public:
         Console::printDebugLog(title);
 
         for(std::string ln : lines)
-            Console::writeln(ln);
+            Console::writeln("\033[2m  " + ln + "\033[m");
 
         if(lines.size() > 0)
             Console::writeln();

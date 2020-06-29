@@ -58,8 +58,10 @@ int main(int argc, char *argv[]) {
     g_cmd_data = getCmdData(argc, argv);
 
     // 開始時のログを出力
-    Console::writeln();
-    Console::printDebugLog("start debugger");
+    if(g_cmd_data.exists("-deb")) {
+        Console::writeln();
+        Console::printDebugLog("start debugger");
+    }
 
     Command command;
     command.runCommand();
@@ -73,5 +75,4 @@ int main(int argc, char *argv[]) {
 
     // 終了時のログを出力
     Console::printDebugLog("finish debugger");
-    Console::writeln();
 }
