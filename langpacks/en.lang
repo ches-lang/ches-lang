@@ -9,6 +9,7 @@ CError_2471_Message too long character length
 CError_3681_Message invalid log display limit
 CError_4139_Message too short character length
 CError_4890_Message internal compiler error
+CError_5173_Message invalid header length
 CError_5352_Message file writing fail
 CError_5899_Message no input file
 CError_6845_Message file reading fail

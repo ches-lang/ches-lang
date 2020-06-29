@@ -9,6 +9,7 @@ CError_2471_Message 長すぎる文字数
 CError_3681_Message 無効なログ表示制限
 CError_4139_Message 短すぎる文字数
 CError_4890_Message コンパイラ内部エラー
+CError_5173_Message 無効なヘッダ長
 CError_5352_Message ファイル書き込み失敗
 CError_5899_Message 入力ファイルがありません
 CError_6845_Message ファイル読み込み失敗

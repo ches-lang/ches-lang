@@ -7,11 +7,13 @@
 Interpreter::Interpreter(std::string filePath, ByteSeq source) {
     try {
         this->source = source;
-        ByteSeq byteSeqSrc = this->source;
+
+        if(this->source.size() < HEADER_LEN)
+            Console::log(LogType_Error, "5173", { { "Path", filePath } });
 
         // ヘッダとボディを取得
-        this->header = byteSeqSrc.copy(0, HEADER_LEN - 1);
-        this->body = byteSeqSrc.copy(HEADER_LEN, -1);
+        this->header = this->source.copy(0, HEADER_LEN - 1);
+        this->body = this->source.copy(HEADER_LEN, -1);
 
         this->headerInfo = HeaderInfo(this->header);
         LineSeq lines = ByteSeq(this->body).toLineSeq();
