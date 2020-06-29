@@ -4,10 +4,8 @@
 
 
 
-Interpreter::Interpreter(Options options, ByteSeq source) {
+Interpreter::Interpreter(std::string filePath, ByteSeq source) {
     try {
-        options = options;
-
         this->source = source;
         ByteSeq byteSeqSrc = this->source;
 
@@ -50,7 +48,7 @@ Interpreter::Interpreter(Options options, ByteSeq source) {
 
         // マジックナンバーをチェック
         if(this->headerInfo.magicNum != MAGIC_NUMBER)
-            Console::log(LogType_Error, "8732", { { "Path", options["-i"] } }, true);
+            Console::log(LogType_Error, "8732", { { "Path", filePath } }, true);
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }

@@ -6,51 +6,51 @@
 
 Compiler::Compiler() {}
 
-Compiler::Compiler(Options opt) {
-    options = opt;
-}
+void Compiler::compile(std::string path) {
+    this->path = path;
 
-void Compiler::compile() {
-    if(options.exists("-o"))
-        if(FileManager::getFullPath(options["-i"]) == FileManager::getFullPath(options["-o"]))
-            Console::log(LogType_Warning, "3405", { { "Path", FileManager::getFullPath(options["-o"]) } }, !options.exists("-miss"));
+    if(g_cmd_data.exists("-o"))
+        if(FileManager::getFullPath(path) == FileManager::getFullPath(g_cmd_data["-o"]))
+            Console::log(LogType_Warning, "3405", { { "Path", FileManager::getFullPath(g_cmd_data["-o"]) } }, !g_cmd_data.exists("-miss"));
 
     ByteSeq byteSeq = this->getByteSeq();
 
-    if(!FileManager::isDirectory(options["-i"])) {
+    if(!FileManager::isDirectory(path)) {
         Console::exitIfDisplayed();
 
-        if(options.exists("-o")) {
-            FileManager::writeBytecode(options["-o"], byteSeq);
+        if(g_cmd_data.exists("-o")) {
+            FileManager::writeBytecode(g_cmd_data["-o"], byteSeq);
         } else {
-            FileManager::writeBytecode(FileManager::renamePathExt(options["-i"], "chesc"), byteSeq);
+            FileManager::writeBytecode(FileManager::renamePathExt(path, "chesc"), byteSeq);
         }
     } else {
-        std::vector<std::string> filepaths = FileManager::getFilePaths(options["-i"]);
+        std::vector<std::string> dirFilePaths = FileManager::getFilePaths(path);
         LineSeq binSeq;
 
-        for(int i = 0; i < filepaths.size(); i++) {
-            if(FileManager::getFileExt(filepaths[i]) == "ches") {
-                binSeq.push_back(Compiler(Options({ { "-i", filepaths[i] } })).getByteSeq());
+        for(int i = 0; i < dirFilePaths.size(); i++) {
+            if(FileManager::getFileExt(dirFilePaths[i]) == "ches") {
+                Compiler cmp;
+                cmp.compile(dirFilePaths[i]);
+                binSeq.push_back(cmp.getByteSeq());
             } else {
-                filepaths.erase(filepaths.begin() + i);
+                dirFilePaths.erase(dirFilePaths.begin() + i);
                 i--;
             }
         }
 
-        if(options.exists("-merge")) {
+        if(g_cmd_data.exists("-merge")) {
             std::string outpath;
 
-            if(options.exists("-o")) {
-                outpath = options["-o"];
+            if(g_cmd_data.exists("-o")) {
+                outpath = g_cmd_data["-o"];
             } else {
-                outpath = options["-i"] + "/" + FileManager::getFileName(options["-i"]) + ".chesc";
+                outpath = path + "/" + FileManager::getFileName(path) + ".chesc";
             }
 
             //FileManager::writeBytecode(outpath, Bytecode(bytecodes));
         } else {
             for(int i = 0; i < binSeq.size(); i++)
-                FileManager::writeBytecode(FileManager::renamePathExt(filepaths[i], "chesc"), binSeq.at(i));
+                FileManager::writeBytecode(FileManager::renamePathExt(dirFilePaths[i], "chesc"), binSeq.at(i));
         }
     }
 
@@ -59,11 +59,11 @@ void Compiler::compile() {
 }
 
 ByteSeq Compiler::getByteSeq() {
-    std::string filePath = options["-i"];
+    std::string filePath = this->path;
     std::string source = FileManager::readText(filePath);
-    Lexer lexer(filePath, source, options);
+    Lexer lexer(filePath, source);
     std::vector<Token> tokens = lexer.splitTokens();
-    Parser parser(filePath, source, tokens, options);
+    Parser parser(filePath, source, tokens);
     Node node = parser.parse();
     return ByteSeq(node, filePath, source);
 }

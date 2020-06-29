@@ -156,12 +156,11 @@ int ParenSeq::getNestIndex(Byte type) {
 
 Parser::Parser() {}
 
-Parser::Parser(std::string sourcePath, std::string source, std::vector<Token> tokens, Options options) {
+Parser::Parser(std::string sourcePath, std::string source, std::vector<Token> tokens) {
     this->sourcePath = sourcePath;
     this->source = source;
     this->tokens = tokens;
     this->lines = this->getLines();
-    this->options = options;
 }
 
 std::vector<Line> Parser::getLines() {

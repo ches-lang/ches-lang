@@ -62,7 +62,6 @@ private:
     std::string source;
     std::vector<Token> tokens;
     std::vector<Line> lines;
-    Options options;
     Node tree = Node(ND_Root);
 
     int lineIndex = 0;
@@ -71,7 +70,7 @@ public:
 
     Parser();
 
-    Parser(std::string srcpath, std::string src, std::vector<Token> tk, Options opt);
+    Parser(std::string srcpath, std::string src, std::vector<Token> tk);
 
     Node parse();
 

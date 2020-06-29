@@ -6,10 +6,8 @@ class Command {
 
 private:
 
-    static Options options;
-
     static void c_ches() {
-        if(options.exists("-help")) {
+        if(g_cmd_data.exists("-help")) {
             Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
             Console::writeln("-ver\t{$HelpMessage_ShowChestnutVersion}");
             Console::writeln();
@@ -22,16 +20,16 @@ private:
     }
 
     static void c_cmp() {
-        if(options.exists("-help")) {
+        if(g_cmd_data.exists("-help")) {
             Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
             Console::writeln();
             Console::writeln("<filepath>\t{$HelpMessage_CompileSpecifiedFiles}");
             return;
         }
 
-        if(options.exists("-i") && options["-i"] != "") {
-            Compiler cmp(options);
-            cmp.compile();
+        if(g_cmd_data.exists("-i") && g_cmd_data["-i"] != "") {
+            Compiler cmp;
+            cmp.compile(g_cmd_data["-i"]);
             return;
         }
 
@@ -39,14 +37,14 @@ private:
     }
 
     static void c_run() {
-        if(options.exists("-help")) {
+        if(g_cmd_data.exists("-help")) {
             Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
             return;
         }
 
-        if(options.exists("-i") && options["-i"] != "") {
+        if(g_cmd_data.exists("-i") && g_cmd_data["-i"] != "") {
             // プログラムを実行
-            Interpreter itp(options, FileManager::readByteSeq(options["-i"]));
+            Interpreter itp(g_cmd_data["-i"], FileManager::readByteSeq(g_cmd_data["-i"]));
             itp.runProgram();
             return;
         }
@@ -61,7 +59,5 @@ public:
 
     Command();
 
-    void runCommand(std::string cmd, Options opt);
+    void runCommand();
 };
-
-Options Command::options;

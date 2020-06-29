@@ -14,6 +14,7 @@
 #include <uuid/uuid.h>
 #include <vector>
 
+#include "cmddata.cpp"
 #include "console.cpp"
 #include "utility.cpp"
 #include "lexer.cpp"
@@ -22,6 +23,26 @@
 #include "compiler.cpp"
 #include "interpreter.cpp"
 #include "command.cpp"
+
+
+
+CommandData getCmdData(int argc, char *args[]) {
+    std::string cmdName = ((argc >= 2 && args[1][0] != '-') ? args[1] : "ches");
+    std::unordered_map<std::string, std::string> cmdArgs;
+
+    for(int i = ((cmdName == "ches") ? 1 : 2); i < argc; i++) {
+        if(args[i][0] != '-') {
+            Console::log(LogType_Error, "8732", { { "At", "'" + std::string { args[i] } + "'" }}, true);
+        } else if(i + 1 < argc && args[i + 1][0] != '-') {
+            cmdArgs[args[i]] = std::string { args[i + 1] };
+            i++;
+        } else {
+            cmdArgs[std::string { args[i] }] = "";
+        }
+    }
+
+    return CommandData(cmdName, cmdArgs);
+}
 
 
 
@@ -34,24 +55,13 @@ int main(int argc, char *argv[]) {
     // 開始時のログを出力
     Console::printDebugLog("start debugger");
 
-    Options options;
     Console::displayCountLimit = 20;
     Console::loadLangPacks("ja", "en");
-    std::string cmd = ((argc >= 2 && argv[1][0] != '-') ? argv[1] : "ches");
 
-    for(int i = ((cmd == "ches") ? 1 : 2); i < argc; i++) {
-        if(argv[i][0] != '-') {
-            Console::log(LogType_Error, "8732", { { "At", "'" + std::string{ argv[i] } + "'" }}, true);
-        } else if(i + 1 < argc && argv[i + 1][0] != '-') {
-            options[argv[i]] = argv[i + 1];
-            i++;
-        } else {
-            options[argv[i]] = "";
-        }
-    }
+    g_cmd_data = getCmdData(argc, argv);
 
     Command command;
-    command.runCommand(cmd, options);
+    command.runCommand();
 
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;

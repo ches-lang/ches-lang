@@ -13,14 +13,13 @@ class Interpreter {
 
 public:
 
-    Options options;
     ByteSeq source;
     ByteSeq header;
     ByteSeq body;
     HeaderInfo headerInfo;
     InstList instList;
 
-    Interpreter(Options options, ByteSeq source);
+    Interpreter(std::string filePath, ByteSeq source);
 
     void runProgram();
 

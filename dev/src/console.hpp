@@ -248,11 +248,17 @@ public:
     }
 
     static void printDebugLog(std::string title) {
+        if(!g_cmd_data.exists("-deb"))
+            return;
+
         Console::writeln();
         Console::writeln("--- " + title + " ---");
     }
 
     static void printDebugLog(std::string title, std::vector<std::string> lines) {
+        if(!g_cmd_data.exists("-deb"))
+            return;
+
         Console::printDebugLog(title);
 
         if(lines.size() > 0)

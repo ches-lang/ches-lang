@@ -6,13 +6,11 @@ class Compiler {
 
 public:
 
-    Options options;
+    std::string path;
 
     Compiler();
 
-    Compiler(Options opt);
-
-    void compile();
+    void compile(std::string path);
 
     ByteSeq getByteSeq();
 };

@@ -6,13 +6,12 @@
 
 Command::Command() {}
 
-void Command::runCommand(std::string cmd, Options opt) {
-    options = opt;
+void Command::runCommand() {
     typedef std::map<std::string, void(*)()> cmdprocs;
     cmdprocs procs;
 
-    if(options.exists("-limit")) {
-        std::string input = options["-limit"];
+    if(g_cmd_data.exists("-limit")) {
+        std::string input = g_cmd_data["-limit"];
 
         for(int i = 0; i < input.length() - 1; i++) {
             if(input[0] == '0') input.erase(input.begin());
@@ -36,11 +35,11 @@ void Command::runCommand(std::string cmd, Options opt) {
     procs.insert(std::make_pair("run", Command::c_run));
     procs.insert(std::make_pair("set", Command::c_set));
 
-    cmdprocs::iterator it = procs.find(cmd);
+    cmdprocs::iterator itr = procs.find(g_cmd_data.cmdName);
 
-    if(it != procs.end()) {
-        it->second();
+    if(itr != procs.end()) {
+        itr->second();
     } else {
-        Console::log(LogType_Error, "1064", { { "Command", cmd } }, true);
+        Console::log(LogType_Error, "1064", { { "Command", g_cmd_data.cmdName } }, true);
     }
 }
