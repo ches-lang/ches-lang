@@ -21,7 +21,7 @@ void Compiler::compile(std::string path) {
         if(g_cmd_data.exists("-o")) {
             FileManager::writeBytecode(g_cmd_data["-o"], byteSeq);
         } else {
-            FileManager::writeBytecode(FileManager::renamePathExt(path, "chesc"), byteSeq);
+            FileManager::writeBytecode(FileManager::replacePathExt(path, "chesc"), byteSeq);
         }
     } else {
         std::vector<std::string> dirFilePaths = FileManager::getFilePaths(path);
@@ -50,7 +50,7 @@ void Compiler::compile(std::string path) {
             //FileManager::writeBytecode(outpath, Bytecode(bytecodes));
         } else {
             for(int i = 0; i < binSeq.size(); i++)
-                FileManager::writeBytecode(FileManager::renamePathExt(dirFilePaths[i], "chesc"), binSeq.at(i));
+                FileManager::writeBytecode(FileManager::replacePathExt(dirFilePaths[i], "chesc"), binSeq.at(i));
         }
     }
 

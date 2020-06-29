@@ -139,7 +139,7 @@ public:
         return {};
     }
 
-    static std::string renamePathExt(std::string path, std::string newExt) {
+    static std::string replacePathExt(std::string path, std::string newExt) {
         std::string newPath;
         std::string oldExt = FileManager::getFileExt(path);
 
