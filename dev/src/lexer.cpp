@@ -23,7 +23,7 @@ std::vector<Token> Lexer::splitTokens() {
 
     // 最後に括弧のエラーを出す
     for(Token paren : openParens) {
-        Console::log(LogType_Error, "0698", { { "At", Token::getPositionText(g_cmd_data["-i"], source, paren.index + 1) }, { "Expected", "'" + paren.getCloseParen().string + "'" } });
+        Console::log(LogType_Error, 698, { { "At", Token::getPositionText(g_cmd_data["-i"], source, paren.index + 1) }, { "Expected", "'" + paren.getCloseParen().string + "'" } });
     }
 
     if(Console::errored || (Console::warned && !g_cmd_data.exists("-miss")))
@@ -60,7 +60,7 @@ Token Lexer::getNextToken() {
         return Token(TK_Hyphen, std::string { source[index] }, index);
 
     else if(MATCH_STR_2('*', '/'))
-        Console::log(LogType_Error, "0699", { { "At", Token::getPositionText(g_cmd_data["-i"], source, index++) }, { "Unexpected", "*/" } });
+        Console::log(LogType_Error, 699, { { "At", Token::getPositionText(g_cmd_data["-i"], source, index++) }, { "Unexpected", "*/" } });
 
     else if(MATCH_STR('*'))
         return Token(TK_Asterisk, std::string { source[index] }, index);
@@ -81,7 +81,7 @@ Token Lexer::getNextToken() {
         //checkParenFinally();
 
         // コメントアウトに閉じがない場合はエラー
-        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 2) }, { "Expected", "'*/'" } }, true);
+        Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 2) }, { "Expected", "'*/'" } }, true);
     }
 
     else if(MATCH_STR_2('/', '/')) {
@@ -199,7 +199,7 @@ Token Lexer::getNextToken() {
                 }
             }
 
-            Console::log(LogType_Error, "7903", { { "At", Token::getPositionText(g_cmd_data["-i"], source, start) } });
+            Console::log(LogType_Error, 7903, { { "At", Token::getPositionText(g_cmd_data["-i"], source, start) } });
             return getNextToken();
         }
     }
@@ -244,7 +244,7 @@ Token Lexer::getNextToken() {
             index += 3;
         } else if(source[index + 1] == '\'') {
             // 文字の入っていない文字値
-            Console::log(LogType_Error, "4139", { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 1) }, { "Expected", "{$LogDetailValue_ACharValue}" } });
+            Console::log(LogType_Error, 4139, { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 1) }, { "Expected", "{$LogDetailValue_ACharValue}" } });
             index += 1;
         } else {
             bool closed = false;
@@ -259,11 +259,11 @@ Token Lexer::getNextToken() {
 
             if(closed) {
                 // 文字値が2文字以上の場合 (tooLongCharacterLengthエラー)
-                Console::log(LogType_Error, "2471", { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 1) } });
+                Console::log(LogType_Error, 2471, { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 1) } });
             } else {
                 //checkParenFinally();
                 // 閉じクォーテーションがない場合 (EOFエラー)
-                Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 2) }, { "Expected", "'''" } }, true);
+                Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 2) }, { "Expected", "'''" } }, true);
             }
 
             return getNextToken();
@@ -285,7 +285,7 @@ Token Lexer::getNextToken() {
         }
 
         //checkParenFinally();
-        Console::log(LogType_Error, "1562", { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 1) }, { "Expected", "'\"'" } }, true);
+        Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd_data["-i"], source, start + 1) }, { "Expected", "'\"'" } }, true);
     }
 
     else {
@@ -323,7 +323,7 @@ void Lexer::validateParen(Token token) {
 
     if(token.match(ByteSeq { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
         if(openParens.size() == 0) {
-            Console::log(LogType_Error, "0699", { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
+            Console::log(LogType_Error, 699, { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
             return;
         }
 
@@ -331,12 +331,12 @@ void Lexer::validateParen(Token token) {
         Token latestOpenParen = openParens.back();
 
         if(latestOpenParen.type == TK_Unknown) {
-            Console::log(LogType_Error, "0699", { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
+            Console::log(LogType_Error, 699, { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
             return;
         }
 
         if(latestOpenParen.type != paren.type) {
-            Console::log(LogType_Error, "0698", { { "At", Token::getPositionText(g_cmd_data["-i"], source, latestOpenParen.index + 1) }, { "Expected", "'" + latestOpenParen.getCloseParen().string + "'" } });
+            Console::log(LogType_Error, 698, { { "At", Token::getPositionText(g_cmd_data["-i"], source, latestOpenParen.index + 1) }, { "Expected", "'" + latestOpenParen.getCloseParen().string + "'" } });
             nest.at(paren.type).first--;
             nest.at(latestOpenParen.type).first--;
             openParens.pop_back();
@@ -345,7 +345,7 @@ void Lexer::validateParen(Token token) {
         }
 
         if(nest.at(paren.type).first < 0) {
-            Console::log(LogType_Error, "0699", { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
+            Console::log(LogType_Error, 699, { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
             return;
         }
 

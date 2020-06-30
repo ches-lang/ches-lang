@@ -3,9 +3,10 @@
 
 
 enum LogType : int {
+    LogType_Unknown,
     LogType_Error,
     LogType_Notice,
-    LogType_Warning
+    LogType_Warning,
 };
 
 
@@ -28,7 +29,7 @@ public:
             exit(-1);
     }
 
-    static void log(int type = LogType_Error, std::string code = "0000", std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
+    static void log(int type = LogType_Unknown, int code = 0, std::unordered_map<std::string, std::string> details = {}, bool terminate = false) {
         // ログの履歴があれば改行を入れる
         if(Console::hasDisplayed())
             Console::writeln();
@@ -36,19 +37,20 @@ public:
         Console::recordLogHistory(type);
 
         std::string color = Console::getLogTypeColor(type);
-        std::string msgName = Console::getLogMessageName(type, code);
-        std::string prefix = Console::getLogCodePrefix(type);
+        std::string propName = Console::getLogPropertyName(type, code);
+        std::string logType = Console::getLogType(type);
+        std::string logCode = Console::getLogCode(code);
 
-        Console::writeln("\033[" + color + "m|" + prefix + code + "|\033[m {$" + msgName + "}");
+        Console::writeln("\033[" + color + "m|" + logType + logCode + "|\033[m {$" + propName + "}");
 
-        for(auto dtl : details)
-            Console::writeln("\t{$LogDetailName_" + dtl.first + "}: " + dtl.second + "");
+        for(auto det : details)
+            Console::writeln("\t{$LogDetailName_" + det.first + "}: " + det.second + "");
 
         if(Console::displayCount == Console::displayCountLimit)
-            Console::log(LogType_Notice, "7148", { { "Limit", std::to_string(Console::displayCountLimit) } }, true);
+            Console::log(LogType_Notice, 7148, { { "Limit", std::to_string(Console::displayCountLimit) } }, true);
 
         if(type == LogType_Warning && !Console::warned) {
-            Console::log(LogType_Notice, "4247", {}, true);
+            Console::log(LogType_Notice, 4247, {}, true);
         }
 
         if(terminate) {
@@ -105,6 +107,7 @@ public:
         Console::write(str + "\n");
     }
 
+    // ANSIエスケープの文字色を返します。
     static std::string getLogTypeColor(int type) {
         switch(type) {
             case LogType_Error:
@@ -117,40 +120,56 @@ public:
             return "35";
         }
 
-        // デフォルトでは黒色を返す
-        return "30";
+        // デフォルトでは白色を返す
+        return "37";
     }
 
-    static std::string getLogMessageName(int type = LogType_Error, std::string code = "0000") {
-        std::string logType = "CError";
+    // ログの言語パックのプロパティ名を取得します。
+    static std::string getLogPropertyName(int type = LogType_Unknown, int code = 0) {
+        // ログの種類を取得
+
+        std::string logType = "Unknown";
 
         switch(type) {
             case LogType_Error:
-            logType = "CError";
+            logType = "Error";
+            break;
 
             case LogType_Notice:
-            logType = "CNote";
+            logType = "Note";
+            break;
 
             case LogType_Warning:
-            logType = "CWarn";
+            logType = "Warn";
+            break;
         }
 
-        return "CError_" + code + "_Message";
+        std::string logCode = Console::getLogCode(code);
+        return logType + "_" + logCode + "_Message";
     }
 
-    static std::string getLogCodePrefix(int type) {
+    static std::string getLogType(int type) {
         switch(type) {
-        case LogType_Error:
-            return "cerr";
+            case LogType_Error:
+            return "err";
 
-        case LogType_Notice:
-            return "cnote";
+            case LogType_Notice:
+            return "note";
 
-        case LogType_Warning:
-            return "cwarn";
+            case LogType_Warning:
+            return "warn";
         }
 
-        return "cerr";
+        return "unknown";
+    }
+
+    static std::string getLogCode(int code) {
+        std::string logCode = std::to_string(code);
+
+        while(logCode.length() < 4)
+            logCode = "0" + logCode;
+
+        return logCode;
     }
 
     static bool hasDisplayed() {
@@ -190,7 +209,7 @@ public:
 
         if(!std::filesystem::exists(LANG_FILE_PATH(lang))) {
             if(!std::filesystem::exists(LANG_FILE_PATH(backupLang))) {
-                Console::log(LogType_Notice, "6923", {}, true);
+                Console::log(LogType_Notice, 6923, {}, true);
             } else {
                 existsLangPack = false;
                 lang = backupLang;
@@ -219,7 +238,7 @@ public:
         }
 
         if(!existsLangPack)
-            Console::log(LogType_Notice, "6923");
+            Console::log(LogType_Notice, 6923);
     }
 
     static std::vector<std::string> readTextLine(std::string path) {
@@ -227,10 +246,10 @@ public:
             std::ifstream ifs(path);
 
             if(!ifs.is_open())
-                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
+                Console::log(LogType_Error, 327, { { "Path", path } }, true);
 
             if(ifs.fail())
-                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+                Console::log(LogType_Error, 6845, { { "Path", path } }, true);
 
             std::vector<std::string> res;
             std::string line;
@@ -243,7 +262,7 @@ public:
             ifs.close();
             return res;
         } catch(std::exception excep) {
-            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+            Console::log(LogType_Error, 6845, { { "Path", path } }, true);
         }
 
         return {};

@@ -11,7 +11,7 @@ void Compiler::compile(std::string path) {
 
     if(g_cmd_data.exists("-o"))
         if(FileManager::getFullPath(path) == FileManager::getFullPath(g_cmd_data["-o"]))
-            Console::log(LogType_Warning, "3405", { { "Path", FileManager::getFullPath(g_cmd_data["-o"]) } }, !g_cmd_data.exists("-miss"));
+            Console::log(LogType_Warning, 3405, { { "Path", FileManager::getFullPath(g_cmd_data["-o"]) } }, !g_cmd_data.exists("-miss"));
 
     ByteSeq byteSeq = this->getByteSeq();
 

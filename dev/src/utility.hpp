@@ -12,7 +12,7 @@ struct HeaderInfo;
 
 
 
-typedef unsigned char       Byte;
+typedef unsigned char   Byte;
 
 
 

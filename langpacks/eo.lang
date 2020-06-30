@@ -1,27 +1,27 @@
-CError_0000_Message nekonata eraro
-CError_1822_Message nesolva identigilo
-CError_0327_Message dosiero ne trovita
-CError_0698_Message atendis simbolo
-CError_0699_Message neatendis simbolo
-CError_1064_Message nekonata komando
-CError_1562_Message neatendita EOF
-CError_2471_Message tro longa litera longeco
-CError_3681_Message nevalida ĵurnala montra limo
-CError_4139_Message tro mallonga litera longeco
-CError_4890_Message interna kompilera eraro
-CError_5173_Message nevalida kapa longeco
-CError_5352_Message dosiera skriba malsukceso
-CError_5899_Message neniu eniga dosiero
-CError_6845_Message dosiera lega malsukceso
-CError_6923_Message nekonata lingvo
-CError_7903_Message nevalida krommarĝeno
-CError_8194_Message nevalida komando elektemblo
-CError_8732_Message nevalida magia cifero
+Error_0000_Message nekonata eraro
+Error_1822_Message nesolva identigilo
+Error_0327_Message dosiero ne trovita
+Error_0698_Message atendis simbolo
+Error_0699_Message neatendis simbolo
+Error_1064_Message nekonata komando
+Error_1562_Message neatendita EOF
+Error_2471_Message tro longa litera longeco
+Error_3681_Message nevalida ĵurnala montra limo
+Error_4139_Message tro mallonga litera longeco
+Error_4890_Message interna kompilera eraro
+Error_5173_Message nevalida kapa longeco
+Error_5352_Message dosiera skriba malsukceso
+Error_5899_Message neniu eniga dosiero
+Error_6845_Message dosiera lega malsukceso
+Error_6923_Message nekonata lingvo
+Error_7903_Message nevalida krommarĝeno
+Error_8194_Message nevalida komando elektemblo
+Error_8732_Message nevalida magia cifero
 
-CNote_4247_Message ignori avertojn de -miss
-CNote_7148_Message aliigi ĵurnala montra limo de -limit
+Note_4247_Message ignori avertojn de -miss
+Note_7148_Message aliigi ĵurnala montra limo de -limit
 
-CWarn_3405_Message duobla eliga dosiero
+Warn_3405_Message duobla eliga dosiero
 
 HelpMessage_CompileSpecifiedFiles kompili aldifinata(j)n dosiero(j)n
 HelpMessage_SeeOrChangeSettings vidi aŭ aliigi elekteblojn

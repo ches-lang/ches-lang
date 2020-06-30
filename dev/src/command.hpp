@@ -33,7 +33,7 @@ private:
             return;
         }
 
-        Console::log(LogType_Error, "5899", {}, true);
+        Console::log(LogType_Error, 5899, {}, true);
     }
 
     static void c_run() {
@@ -49,7 +49,7 @@ private:
             return;
         }
 
-        Console::log(LogType_Error, "5899", {}, true);
+        Console::log(LogType_Error, 5899, {}, true);
     }
 
     static void c_set() {

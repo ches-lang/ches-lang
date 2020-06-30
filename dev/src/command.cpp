@@ -22,11 +22,11 @@ void Command::runCommand() {
             int limit = std::stoi(input);
 
             if(limit <= 0)
-                Console::log(LogType_Error, "3681", { { "Input", input } }, true);
+                Console::log(LogType_Error, 3681, { { "Input", input } }, true);
 
             Console::displayCountLimit = limit;
         } catch(std::invalid_argument) {
-            Console::log(LogType_Error, "3681", { { "Input", input } }, true);
+            Console::log(LogType_Error, 3681, { { "Input", input } }, true);
         }
     }
 
@@ -40,6 +40,6 @@ void Command::runCommand() {
     if(itr != procs.end()) {
         itr->second();
     } else {
-        Console::log(LogType_Error, "1064", { { "Command", g_cmd_data.cmdName } }, true);
+        Console::log(LogType_Error, 1064, { { "Command", g_cmd_data.cmdName } }, true);
     }
 }

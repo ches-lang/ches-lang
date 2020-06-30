@@ -34,7 +34,7 @@ public:
             std::error_code err;
 
             if(!FileManager::exists(dirPath))
-                Console::log(LogType_Error, "0327", { { "Path", dirPath } }, true);
+                Console::log(LogType_Error, 327, { { "Path", dirPath } }, true);
 
             for(; itr != end && !err; itr.increment(err)) {
                 const std::filesystem::directory_entry entry = *itr;
@@ -42,10 +42,10 @@ public:
             }
 
             if(err)
-                Console::log(LogType_Error, "6845", { { "Directory", dirPath }, { "message", err.message() }}, true);
+                Console::log(LogType_Error, 6845, { { "Directory", dirPath }, { "message", err.message() }}, true);
 
         } catch(std::filesystem::filesystem_error fse) {
-            Console::log(LogType_Error, "6845", { { "Directory", dirPath } }, true);
+            Console::log(LogType_Error, 6845, { { "Directory", dirPath } }, true);
         }
 
         return filePaths;
@@ -66,10 +66,10 @@ public:
             std::ifstream ifs(path);
 
             if(!ifs.is_open())
-                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
+                Console::log(LogType_Error, 327, { { "Path", path } }, true);
 
             if(ifs.fail())
-                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+                Console::log(LogType_Error, 6845, { { "Path", path } }, true);
 
             Byte byte;
 
@@ -86,7 +86,7 @@ public:
             return fileCont;
 
         } catch(std::exception excep) {
-            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+            Console::log(LogType_Error, 6845, { { "Path", path } }, true);
         }
 
         return ByteSeq();
@@ -97,17 +97,17 @@ public:
             std::ifstream ifs(path);
 
             if(!ifs.is_open())
-                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
+                Console::log(LogType_Error, 327, { { "Path", path } }, true);
 
             if(ifs.fail())
-                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+                Console::log(LogType_Error, 6845, { { "Path", path } }, true);
 
             std::string fileCont = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
             ifs.close();
             return fileCont;
         } catch(std::exception excep) {
-            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+            Console::log(LogType_Error, 6845, { { "Path", path } }, true);
         }
 
         return "";
@@ -118,10 +118,10 @@ public:
             std::ifstream ifs(path);
 
             if(!ifs.is_open())
-                Console::log(LogType_Error, "0327", { { "Path", path } }, true);
+                Console::log(LogType_Error, 327, { { "Path", path } }, true);
 
             if(ifs.fail())
-                Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+                Console::log(LogType_Error, 6845, { { "Path", path } }, true);
 
             std::vector<std::string> fileCont;
             std::string line;
@@ -133,7 +133,7 @@ public:
             return fileCont;
 
         } catch(std::exception excep) {
-            Console::log(LogType_Error, "6845", { { "Path", path } }, true);
+            Console::log(LogType_Error, 6845, { { "Path", path } }, true);
         }
 
         return {};
@@ -158,7 +158,7 @@ public:
             ofs.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
 
             if(!ofs)
-                Console::log(LogType_Error, "5352", { { "Path", path } }, true);
+                Console::log(LogType_Error, 5352, { { "Path", path } }, true);
 
             for(Byte uc : source)
                 ofs.write((char*)&uc, sizeof(Byte));
@@ -166,7 +166,7 @@ public:
             ofs.close();
 
         } catch(std::exception excep) {
-            Console::log(LogType_Error, "5352", { { "Path", path } }, true);
+            Console::log(LogType_Error, 5352, { { "Path", path } }, true);
         }
     }
 };

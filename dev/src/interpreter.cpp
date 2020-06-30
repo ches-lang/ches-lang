@@ -8,8 +8,9 @@ Interpreter::Interpreter(std::string filePath, ByteSeq source) {
     try {
         this->source = source;
 
+        // ヘッダ長が足りない場合
         if(this->source.size() < HEADER_LEN)
-            Console::log(LogType_Error, "5173", { { "Path", filePath } });
+            Console::log(LogType_Error, 5173, { { "Path", filePath } });
 
         // ヘッダとボディを取得
         this->header = this->source.copy(0, HEADER_LEN - 1);
@@ -50,7 +51,7 @@ Interpreter::Interpreter(std::string filePath, ByteSeq source) {
 
         // マジックナンバーをチェック
         if(this->headerInfo.magicNum != MAGIC_NUMBER)
-            Console::log(LogType_Error, "8732", { { "Path", filePath } }, true);
+            Console::log(LogType_Error, 8732, { { "Path", filePath } }, true);
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }

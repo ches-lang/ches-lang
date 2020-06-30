@@ -32,7 +32,7 @@ CommandData getCmdData(int argc, char *args[]) {
 
     for(int i = ((cmdName == "ches") ? 1 : 2); i < argc; i++) {
         if(args[i][0] != '-') {
-            Console::log(LogType_Error, "8732", { { "At", "'" + std::string { args[i] } + "'" }}, true);
+            Console::log(LogType_Error, 8732, { { "At", "'" + std::string { args[i] } + "'" }}, true);
         } else if(i + 1 < argc && args[i + 1][0] != '-') {
             cmdArgs[args[i]] = std::string { args[i + 1] };
             i++;

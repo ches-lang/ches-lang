@@ -427,7 +427,7 @@ InstList* InstList::toInstList(Node parentNode, int &index) {
                 ByteSeq funcID = this->labelList->findByName(ByteSeq(funcName)).id;
 
                 if(funcID.size() == 0)
-                    Console::log(LogType_Error, "1822", { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
+                    Console::log(LogType_Error, 1822, { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
 
                 instList->push_back(Instruction(IT_Jump, { { "id", funcID } }));
             } break;
