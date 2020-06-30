@@ -41,7 +41,7 @@ public:
         std::string logType = Console::getLogType(type);
         std::string logCode = Console::getLogCode(code);
 
-        Console::writeln("\033[" + color + "m|" + logType + logCode + "|\033[m {$" + propName + "}");
+        Console::writeln("\033[" + color + "m|" + logType + (type != LogType_Unknown ? logCode : "") + "|\033[m {$" + propName + "}");
 
         for(auto det : details)
             Console::writeln("\t{$LogDetailName_" + det.first + "}: " + det.second + "");
@@ -126,8 +126,6 @@ public:
 
     // ログの言語パックのプロパティ名を取得します。
     static std::string getLogPropertyName(int type = LogType_Unknown, int code = 0) {
-        // ログの種類を取得
-
         std::string logType = "Unknown";
 
         switch(type) {
@@ -145,7 +143,7 @@ public:
         }
 
         std::string logCode = Console::getLogCode(code);
-        return logType + "_" + logCode + "_Message";
+        return logType + (type != LogType_Unknown ? "_" + logCode : "") + "_Message";
     }
 
     static std::string getLogType(int type) {

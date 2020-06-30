@@ -1,10 +1,12 @@
+Unknown_Message 不明なログ
+
 Error_0000_Message 不明なエラー
-Error_1822_Message 未解決の識別子
 Error_0327_Message ファイルが見つかりません
 Error_0698_Message トークンがありません
 Error_0699_Message 予期しないトークン
 Error_1064_Message 不明なコマンド
 Error_1562_Message EOFがありません
+Error_1822_Message 未解決の識別子
 Error_2471_Message 長すぎる文字数
 Error_3681_Message 無効なログ表示制限
 Error_4139_Message 短すぎる文字数

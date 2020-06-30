@@ -1,10 +1,12 @@
+Unknown_Message unknown log
+
 Error_0000_Message unknown error
-Error_1822_Message unresolved identifier
 Error_0327_Message file not found
 Error_0698_Message expected token
 Error_0699_Message unexpected token
 Error_1064_Message unknown command
 Error_1562_Message expected EOF
+Error_1822_Message unresolved identifier
 Error_2471_Message too long character length
 Error_3681_Message invalid log display limit
 Error_4139_Message too short character length
