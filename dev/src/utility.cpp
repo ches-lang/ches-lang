@@ -224,8 +224,8 @@ ByteSeq::ByteSeq(Node tree, std::string filePath, std::string source) {
     // ボディ部分
 
     InstList instList = InstList(tree, filePath, source);
-    ByteSeq *byteSeq = instList.toByteSeq();
-    this->push_back(*byteSeq);
+    ByteSeq byteSeq = instList.toByteSeq();
+    this->push_back(byteSeq);
 
     std::cout << std::endl;
 }
@@ -245,11 +245,11 @@ ByteSeq ByteSeq::escape() {
     ByteSeq result;
 
     for(int i = 0; i < this->size(); i++) {
+        result.push_back(this->at(i));
+
         if(this->at(i) == IT_LineDiv || this->at(i) == IT_TokenDiv) {
-            this->push_back(ByteSeq(this->at(i), 2));
+            result.push_back(this->at(i));
             i++;
-        } else {
-            this->push_back(this->at(i));
         }
     }
 
@@ -327,155 +327,6 @@ LineSeq::LineSeq(std::vector<ByteSeq> value) {
 
 
 
-InstList::InstList() {}
-
-InstList::InstList(Instruction value) {
-    this->push_back(value);
-}
-
-InstList::InstList(std::initializer_list<Instruction> value) {
-    for(Instruction val : value)
-        this->push_back(val);
-}
-
-InstList::InstList(std::vector<Instruction> value) {
-    this->push_back(value);
-}
-
-InstList::InstList(Node tree, std::string filePath, std::string source) {
-    this->filePath = filePath;
-    this->source = source;
-
-    for(Node node : tree.children)
-        if(node.type == ND_DefFunc)
-            this->labelList->push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
-
-    for(int i = 0; i < tree.children.size(); i++)
-        this->push_back(*this->toInstList(tree, i));
-
-    this->push_front(Instruction(IT_Jump, { { "index", this->labelList->findByName({ 0x6D, 0x61, 0x69, 0x6E }).id } }));
-}
-
-ByteSeq* InstList::toByteSeq() {
-    ByteSeq *byteSeq;
-
-    for(Instruction inst : *this) {
-        byteSeq->push_back(inst.bytecode);
-        byteSeq->push_back((Byte)IT_LineDiv);
-    }
-
-    if(this->size() > 0)
-        byteSeq->pop_back();
-
-    return byteSeq;
-}
-
-InstList* InstList::toInstList(Node parentNode, int &index) {
-    Node node = parentNode.childAt(index);
-    std::cout << std::endl << (int)index << " > " << parentNode.children.size() << " | " << (int)node.type << std::endl;
-    InstList *instList;
-
-    try {
-
-        switch(node.type) {
-            case ND_Unknown: {std::cout<<"unknown"<<std::endl;
-                instList->push_back(Instruction(IT_Unknown));
-            } break;
-
-            case ND_Root: {std::cout<<"root"<<std::endl;
-                for(int i = 0; i < node.children.size(); i++) {
-                    InstList *resLines = this->toInstList(node, i);
-                    instList->push_back(*resLines);
-                }
-            } break;
-
-            case ND_DefVar: {std::cout<<"defvar"<<std::endl;
-                instList->push_back(Instruction(IT_LSPush, {}));//{}
-                int i = 1;
-                this->toInstList(node, i);
-                this->localStackLen++;
-            } break;
-
-            case ND_InitVar: {std::cout<<"initvar"<<std::endl;
-                Token token = node.tokenAt(2);
-                ByteSeq value;
-
-                if(token.type == TK_Number)
-                    value = ByteSeq(std::stoi(token.string));
-                else if(token.type == TK_String)
-                    value = ByteSeq(token.string);
-
-                instList->push_back(Instruction(IT_LSPush, { { "index", value } }));
-                this->localStackLen++;
-            } break;
-
-            case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
-                ByteSeq funcName = ByteSeq(node.tokenAt(0).string);
-                ByteSeq funcID = ByteSeq(this->labelList->findByName(funcName).id);
-
-                instList->push_back(Instruction(IT_Label, { { "id", funcID }, { "name", funcName } }));
-                this->localListLen += node.childAt(0).children.size();
-
-                int i = 1;
-                InstList *insts = this->toInstList(node, i);
-                instList->push_back(*insts);
-            } break;
-
-            case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
-                Token funcNameToken = node.tokenAt(0);
-                std::string funcName = funcNameToken.string;
-                ByteSeq funcID = this->labelList->findByName(ByteSeq(funcName)).id;
-
-                if(funcID.size() == 0)
-                    Console::log(LogType_Error, 1822, { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
-
-                instList->push_back(Instruction(IT_Jump, { { "id", funcID } }));
-            } break;
-
-            case ND_If: {std::cout<<"if"<<std::endl;
-                // 次のノードに else / elseif がくれば
-
-                if(index + 1 < parentNode.children.size()) {
-                    int nextNodeType = parentNode.childAt(index + 1).type;
-
-                    if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
-                        //
-                        std::cout<<"before else or elseif"<<std::endl;
-                    } else {
-                        std::cout << "not before else or elseif"<<nextNodeType<<std::endl;
-                    }
-                }
-
-                // 条件式をチェック
-
-                int i = 1;
-                InstList procLines = *this->toInstList(node, i);
-
-                // procLineの行数をもとにIFJUMP命令を追加
-                ByteSeq lineIndex(IT_VarPref);
-                lineIndex.push_back(ByteSeq((int)procLines.size()));
-                instList->push_back(Instruction(IT_IFJump, { { "index", lineIndex } }));
-
-                instList->push_back(procLines);
-            } break;
-
-            case ND_Else: {std::cout<<"else"<<std::endl;
-                int i = 0;
-                InstList insts = *this->toInstList(node, i);
-                instList->push_back(insts);
-            } break;
-        }
-
-        return instList;
-
-    } catch(std::out_of_range ignored) {
-        std::cout << "EXCEPTION" << std::endl;
-        return instList;
-    }
-}
-
-
-
 Instruction::Instruction(ByteSeq bytes) {
     this->init(bytes);
 }
@@ -512,6 +363,8 @@ std::string Instruction::toText() {
         return "; Unknown_";
     }
 }
+
+
 
 void Instruction::setBytecode() {
     try {
@@ -569,6 +422,164 @@ void Instruction::init(ByteSeq bytes) {
         }
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
+    }
+}
+
+
+
+InstList::InstList() {
+    FuncList tmp;
+    this->labelList = &tmp;
+}
+
+InstList::InstList(Instruction value) {
+    FuncList tmp;
+    this->labelList = &tmp;
+    this->push_back(value);
+}
+
+InstList::InstList(std::initializer_list<Instruction> value) {
+    FuncList tmp;
+    this->labelList = &tmp;
+
+    for(Instruction val : value)
+        this->push_back(val);
+}
+
+InstList::InstList(std::vector<Instruction> value) {
+    FuncList tmp;
+    this->labelList = &tmp;
+    this->push_back(value);
+}
+
+InstList::InstList(Node tree, std::string filePath, std::string source) {
+    FuncList tmp;
+    this->labelList = &tmp;
+    this->filePath = filePath;
+    this->source = source;
+
+    for(Node node : tree.children)
+        if(node.type == ND_DefFunc)
+            this->labelList->push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
+
+    for(int i = 0; i < tree.children.size(); i++)
+        this->push_back(this->toInstList(tree, i));
+}
+
+ByteSeq InstList::toByteSeq() {
+    ByteSeq byteSeq;
+
+    for(Instruction inst : *this) {
+        byteSeq.push_back(inst.bytecode);
+        byteSeq.push_back((Byte)IT_LineDiv);
+    }
+
+    if(this->size() > 0)
+        byteSeq.pop_back();
+
+    return byteSeq;
+}
+
+InstList InstList::toInstList(Node parentNode, int &index) {
+    Node node = parentNode.childAt(index);
+    std::cout << std::endl << (int)index << " > " << parentNode.children.size() << " | " << (int)node.type << std::endl;
+    InstList instList;
+
+    try {
+
+        switch(node.type) {
+            case ND_Unknown: {std::cout<<"unknown"<<std::endl;
+                instList.push_back(Instruction(IT_Unknown));
+            } break;
+
+            case ND_Root: {std::cout<<"root"<<std::endl;
+                for(int i = 0; i < node.children.size(); i++) {
+                    InstList resLines = this->toInstList(node, i);
+                    instList.push_back(resLines);
+                }
+            } break;
+
+            case ND_DefVar: {std::cout<<"defvar"<<std::endl;
+                instList.push_back(Instruction(IT_LSPush, {}));//{}
+                int i = 1;
+                this->toInstList(node, i);
+                this->localStackLen++;
+            } break;
+
+            case ND_InitVar: {std::cout<<"initvar"<<std::endl;
+                Token token = node.tokenAt(2);
+                ByteSeq value;
+
+                if(token.type == TK_Number)
+                    value = ByteSeq(std::stoi(token.string));
+                else if(token.type == TK_String)
+                    value = ByteSeq(token.string);
+
+                instList.push_back(Instruction(IT_LSPush, { { "index", value } }));
+                this->localStackLen++;
+            } break;
+
+            case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
+                ByteSeq funcName = ByteSeq(node.tokenAt(0).string);
+                ByteSeq funcID = ByteSeq(this->labelList->findByName(funcName).id);
+                instList.push_back(Instruction(IT_Label, { { "id", funcID }, { "name", funcName } }));
+                this->localListLen += node.childAt(0).children.size();
+
+                int i = 1;
+                InstList insts = this->toInstList(node, i);
+                instList.push_back(insts);
+            } break;
+
+            case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
+                Token funcNameToken = node.tokenAt(0);
+                std::string funcName = funcNameToken.string;
+                ByteSeq funcID = this->labelList->findByName(ByteSeq(funcName)).id;
+
+                if(funcID.size() == 0)
+                    Console::log(LogType_Error, 1822, { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
+
+                instList.push_back(Instruction(IT_Jump, { { "id", funcID } }));
+            } break;
+
+            case ND_If: {std::cout<<"if"<<std::endl;
+                // 次のノードに else / elseif がくれば
+
+                if(index + 1 < parentNode.children.size()) {
+                    int nextNodeType = parentNode.childAt(index + 1).type;
+
+                    if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
+                        //
+                        std::cout<<"before else or elseif"<<std::endl;
+                    } else {
+                        std::cout << "not before else or elseif"<<nextNodeType<<std::endl;
+                    }
+                }
+
+                // 条件式をチェック
+
+                int i = 1;
+                InstList procLines = this->toInstList(node, i);
+
+                // procLineの行数をもとにIFJUMP命令を追加
+                ByteSeq lineIndex(IT_VarPref);
+                lineIndex.push_back(ByteSeq((int)procLines.size()));
+                instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex } }));
+
+                instList.push_back(procLines);
+            } break;
+
+            case ND_Else: {std::cout<<"else"<<std::endl;
+                int i = 0;
+                InstList insts = this->toInstList(node, i);
+                instList.push_back(insts);
+            } break;
+        }
+
+        return instList;
+
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+        return instList;
     }
 }
 
