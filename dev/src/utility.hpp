@@ -250,10 +250,6 @@ struct vector_ext : public std::vector<T> {
         this->push_back(value);
     }
 
-    inline T at(int index) {
-        return std::vector<T>::at(index);
-    }
-
     inline void pop_back() {
         std::vector<T>::pop_back();
     }
@@ -314,10 +310,6 @@ struct ByteSeq : public vector_ext<Byte> {
     ByteSeq(std::string source);
 
     ByteSeq(Node tree, std::string filePath, std::string sourceCode);
-
-    inline Byte at(int index) {
-        return vector_ext<Byte>::at(index);
-    }
 
     // vector_ext<T>::copy() のカプセル化 (セグフォ防止のため)
     ByteSeq copy(int begin, int end);

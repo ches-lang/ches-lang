@@ -660,7 +660,7 @@ ByteSeq HeaderInfo::toByteSeq() {
     ByteSeq result;
 
     result.push_back(MAGIC_NUMBER);
-    result.push_back(ByteSeq((int)(HEADER_LEN - result.size())));
+    result.push_back(ByteSeq(0, (int)(HEADER_LEN - result.size())));
 
     return result;
 }
