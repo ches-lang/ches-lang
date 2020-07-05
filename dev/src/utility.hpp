@@ -94,6 +94,7 @@ enum InstType : Byte {
     IT_LineIndex,
     IT_Label,
     IT_LSPush,
+    IT_LSPop,
     IT_LLPush,
     IT_Logic_And,
     IT_Logic_Or,
@@ -312,6 +313,9 @@ struct ByteSeq : public vector_ext<Byte> {
     ByteSeq(Node tree, std::string filePath, std::string sourceCode);
 
     // vector_ext<T>::copy() のカプセル化 (セグフォ防止のため)
+
+    ByteSeq copy(int begin);
+
     ByteSeq copy(int begin, int end);
 
     ByteSeq escape();

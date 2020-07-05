@@ -197,16 +197,12 @@ ByteSeq::ByteSeq(int source) {
     std::stringstream ss;
     ss << std::hex << source;
     std::string hex = ss.str();
-    ByteSeq hexBytes;
-    bool isEvenDigNum = hex.length() % 2 == 0;
 
-    if(!isEvenDigNum)
-        hexBytes.push_back((Byte)std::stoi("0" + std::string { hex[0] }, nullptr, 16));
+    if(hex.length() % 2 != 0)
+        hex = "0" + hex;
 
-    for(int i = isEvenDigNum ? 0 : 1; i < hex.length(); i += 2)
-        hexBytes.push_back((Byte)std::stoi(std::string { hex[i] } + std::string { hex[i + 1] }, nullptr, 16));
-
-    this->push_back((Byte)source);
+    for(int i = 0; i < hex.length(); i += 2)
+        this->push_back((Byte)std::stoi(hex.substr(i, 2), nullptr, 10));
 }
 
 ByteSeq::ByteSeq(std::string source) {
@@ -228,6 +224,10 @@ ByteSeq::ByteSeq(Node tree, std::string filePath, std::string source) {
     this->push_back(byteSeq);
 
     std::cout << std::endl;
+}
+
+ByteSeq ByteSeq::copy(int begin) {
+    return this->copy(begin, -1);
 }
 
 ByteSeq ByteSeq::copy(int begin, int end) {
@@ -272,7 +272,7 @@ std::string ByteSeq::toHexString(std::string sep) {
 }
 
 int ByteSeq::toInt() {
-    return *(unsigned int*)&(*this);///
+    return std::stoi(this->toHexString(), nullptr, 16);
 }
 
 LineSeq ByteSeq::toLineSeq() {
@@ -333,7 +333,6 @@ Instruction::Instruction(ByteSeq bytes) {
 
 Instruction::Instruction(int opcode) {
     this->opcode = opcode;
-    this->operand = {};
     this->setBytecode();
 }
 
@@ -351,13 +350,68 @@ std::string Instruction::toText() {
         return "; Unknown";
 
         case IT_Label:
-        return "label\t" + (this->operand["id"]).toHexString() + "\t" + ByteSeq(this->operand["name"]).toString();
+        return "label\t" + this->operand["id"].toHexString() + "\t" + ByteSeq(this->operand["name"]).toString();
+
+        case IT_LSPush: {
+            // IT_VarPref のエスケープを逆変換
+
+            std::string prefix = "";
+            ByteSeq index;
+
+            if(this->operand["index"].at(0) == IT_VarPref && (
+                this->operand["index"].size() <= 1 ||
+                this->operand["index"].at(1) != IT_VarPref)) {
+                    prefix = "$";
+                    index = this->operand["index"].copy(1);
+            } else {
+                index = this->operand["index"];
+            }
+
+            return "lspush\t" + prefix + index.toHexString();
+        }
+
+        case IT_LSPop:
+        return "lspop";
+        break;
+
+        case IT_LLPush: {
+            // IT_VarPref のエスケープを逆変換
+
+            std::string prefix = "";
+            ByteSeq index;
+
+            if(this->operand["index"].at(0) == IT_VarPref && (
+                this->operand["index"].size() < 2 ||
+                this->operand["index"].at(1) != IT_VarPref)) {
+                    prefix = "$";
+                    index = this->operand["index"].copy(1);
+            } else {
+                index = this->operand["index"];
+            }
+
+            return "llpush\t" + prefix + index.toHexString();
+        }
 
         case IT_Jump:
-        return "jump\t" + ByteSeq(this->operand["index"]).toHexString();
+        return "jump\t" + this->operand["index"].toHexString();
 
-        case IT_IFJump:
-        return "ifjump\t" + ByteSeq(this->operand["index"]).toHexString();
+        case IT_IFJump: {
+            // IT_VarPref のエスケープを逆変換
+
+            std::string prefix = "";
+            ByteSeq index;
+
+            if(this->operand["index"].at(0) == IT_VarPref && (
+                this->operand["index"].size() <= 1 ||
+                this->operand["index"].at(1) != IT_VarPref)) {
+                    prefix = "$";
+                    index = this->operand["index"].copy(1);
+            } else {
+                index = this->operand["index"];
+            }
+
+            return "ifjump\t" + prefix + std::to_string(index.toInt());
+        }
 
         default:
         return "; Unknown_";
@@ -377,6 +431,20 @@ void Instruction::setBytecode() {
                 this->bytecode.push_back((Byte)IT_Label);
                 this->bytecode.push_back(this->operand["id"]);
                 this->bytecode.push_back(this->operand["name"].escape());
+            } break;
+
+            case IT_LSPush: {
+                this->bytecode.push_back((Byte)IT_LSPush);
+                this->bytecode.push_back(this->operand["index"].escape());
+            } break;
+
+            case IT_LSPop: {
+                this->bytecode.push_back((Byte)IT_LSPop);
+            } break;
+
+            case IT_LLPush: {
+                this->bytecode.push_back((Byte)IT_LLPush);
+                this->bytecode.push_back(this->operand["index"].escape());
             } break;
 
             case IT_Jump: {
@@ -412,6 +480,17 @@ void Instruction::init(ByteSeq bytes) {
                 this->operand["name"] = this->bytecode.copy(17 , -1);
             } break;
 
+            case IT_LSPush: {
+                this->operand["index"] = this->bytecode.copy(1, -1);
+            } break;
+
+            case IT_LSPop:
+            break;
+
+            case IT_LLPush: {
+                this->operand["index"] = this->bytecode.copy(1, -1);
+            } break;
+
             case IT_Jump: {
                 this->operand["index"] = this->bytecode.copy(1, -1);
             } break;
@@ -428,17 +507,20 @@ void Instruction::init(ByteSeq bytes) {
 
 
 InstList::InstList() {
+    // セグフォ防止のため非ポインタ変数で初期化する
     FuncList tmp;
     this->labelList = &tmp;
 }
 
 InstList::InstList(Instruction value) {
+    // セグフォ防止のため非ポインタ変数で初期化する
     FuncList tmp;
     this->labelList = &tmp;
     this->push_back(value);
 }
 
 InstList::InstList(std::initializer_list<Instruction> value) {
+    // セグフォ防止のため非ポインタ変数で初期化する
     FuncList tmp;
     this->labelList = &tmp;
 
@@ -447,12 +529,14 @@ InstList::InstList(std::initializer_list<Instruction> value) {
 }
 
 InstList::InstList(std::vector<Instruction> value) {
+    // セグフォ防止のため非ポインタ変数で初期化する
     FuncList tmp;
     this->labelList = &tmp;
     this->push_back(value);
 }
 
 InstList::InstList(Node tree, std::string filePath, std::string source) {
+    // セグフォ防止のため非ポインタ変数で初期化する
     FuncList tmp;
     this->labelList = &tmp;
     this->filePath = filePath;
@@ -470,8 +554,10 @@ ByteSeq InstList::toByteSeq() {
     ByteSeq byteSeq;
 
     for(Instruction inst : *this) {
-        byteSeq.push_back(inst.bytecode);
-        byteSeq.push_back((Byte)IT_LineDiv);
+        if(inst.bytecode.size() >= 1) {
+            byteSeq.push_back(inst.bytecode);
+            byteSeq.push_back((Byte)IT_LineDiv);
+        }
     }
 
     if(this->size() > 0)
@@ -538,34 +624,38 @@ InstList InstList::toInstList(Node parentNode, int &index) {
                 if(funcID.size() == 0)
                     Console::log(LogType_Error, 1822, { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
 
-                instList.push_back(Instruction(IT_Jump, { { "id", funcID } }));
+                instList.push_back(Instruction(IT_Jump, { { "index", funcID } }));
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;
                 // 次のノードに else / elseif がくれば
+                int nextNodeType = index + 1 < parentNode.children.size() ? parentNode.childAt(index + 1).type : ND_Unknown;
 
-                if(index + 1 < parentNode.children.size()) {
-                    int nextNodeType = parentNode.childAt(index + 1).type;
+                if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
+                    std::cout<<"before else or elseif"<<std::endl;
+                } else {
+                    // ifのみの場合
+                    std::cout<<"not before else or elseif"<<std::endl;
 
-                    if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
-                        //
-                        std::cout<<"before else or elseif"<<std::endl;
-                    } else {
-                        std::cout << "not before else or elseif"<<nextNodeType<<std::endl;
-                    }
+                    // 条件式をチェック
+
+                    // 条件式の結果をスタックにプッシュ
+                    int i = 0;
+                    InstList insts = this->toInstList(node, i);
+
+                    i = 1;
+                    InstList procLines = this->toInstList(node, i);
+
+                    // procLineの行数をもとにIFJUMP命令を追加
+                    ByteSeq lineIndex((Byte)IT_VarPref);
+                    lineIndex.push_back(ByteSeq((int)procLines.size()));
+
+                    instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex } }));
+                    instList.push_back(procLines);
+
+                    // プッシュした条件式の結果をポップ
+                    instList.push_back(Instruction(IT_LSPop));
                 }
-
-                // 条件式をチェック
-
-                int i = 1;
-                InstList procLines = this->toInstList(node, i);
-
-                // procLineの行数をもとにIFJUMP命令を追加
-                ByteSeq lineIndex(IT_VarPref);
-                lineIndex.push_back(ByteSeq((int)procLines.size()));
-                instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex } }));
-
-                instList.push_back(procLines);
             } break;
 
             case ND_Else: {std::cout<<"else"<<std::endl;
