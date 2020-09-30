@@ -98,6 +98,7 @@ enum InstType : Byte {
     IT_LLPush,
     IT_Logic_And,
     IT_Logic_Or,
+    IT_Compare,
     IT_Calc_Add,
     IT_Calc_Sub,
     IT_Calc_Multi,
@@ -309,6 +310,8 @@ struct ByteSeq : public vector_ext<Byte> {
     ByteSeq(int source);
 
     ByteSeq(std::string source);
+
+    ByteSeq(Token token);
 
     ByteSeq(Node tree, std::string filePath, std::string sourceCode);
 

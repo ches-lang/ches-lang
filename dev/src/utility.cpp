@@ -210,6 +210,18 @@ ByteSeq::ByteSeq(std::string source) {
         this->push_back(src);
 }
 
+ByteSeq::ByteSeq(Token token) {
+    switch(token.type) {
+        case TK_Number:
+        this->push_back(std::stoi(token.string));
+        break;
+
+        case TK_String:
+        this->push_back(token.string);
+        break;
+    }
+}
+
 ByteSeq::ByteSeq(Node tree, std::string filePath, std::string source) {
     // ヘッダ部分
 
@@ -372,7 +384,6 @@ std::string Instruction::toText() {
 
         case IT_LSPop:
         return "lspop";
-        break;
 
         case IT_LLPush: {
             // IT_VarPref のエスケープを逆変換
@@ -391,6 +402,9 @@ std::string Instruction::toText() {
 
             return "llpush\t" + prefix + index.toHexString();
         }
+
+        case IT_Compare:
+        return "comp";
 
         case IT_Jump:
         return "jump\t" + this->operand["index"].toHexString();
@@ -447,6 +461,10 @@ void Instruction::setBytecode() {
                 this->bytecode.push_back(this->operand["index"].escape());
             } break;
 
+            case IT_Compare: {
+                this->bytecode.push_back((Byte)IT_Compare);
+            } break;
+
             case IT_Jump: {
                 this->bytecode.push_back((Byte)IT_Jump);
                 this->bytecode.push_back(this->operand["index"].escape());
@@ -490,6 +508,9 @@ void Instruction::init(ByteSeq bytes) {
             case IT_LLPush: {
                 this->operand["index"] = this->bytecode.copy(1, -1);
             } break;
+
+            case IT_Compare:
+            break;
 
             case IT_Jump: {
                 this->operand["index"] = this->bytecode.copy(1, -1);
@@ -586,7 +607,7 @@ InstList InstList::toInstList(Node parentNode, int &index) {
             } break;
 
             case ND_DefVar: {std::cout<<"defvar"<<std::endl;
-                instList.push_back(Instruction(IT_LSPush, {}));//{}
+                instList.push_back(Instruction(IT_LSPush));
                 int i = 1;
                 this->toInstList(node, i);
                 this->localStackLen++;
@@ -628,32 +649,31 @@ InstList InstList::toInstList(Node parentNode, int &index) {
             } break;
 
             case ND_If: {std::cout<<"if"<<std::endl;
-                // 次のノードに else / elseif がくれば
                 int nextNodeType = index + 1 < parentNode.children.size() ? parentNode.childAt(index + 1).type : ND_Unknown;
 
                 if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
-                    std::cout<<"before else or elseif"<<std::endl;
                 } else {
-                    // ifのみの場合
-                    std::cout<<"not before else or elseif"<<std::endl;
+                    // ifelse / else が後に続かない場合
 
-                    // 条件式をチェック
-
-                    // 条件式の結果をスタックにプッシュ
-                    int i = 0;
-                    InstList insts = this->toInstList(node, i);
-
-                    i = 1;
+                    // 処理部分を取得
+                    int i = 1;
                     InstList procLines = this->toInstList(node, i);
 
-                    // procLineの行数をもとにIFJUMP命令を追加
+                    // IFスコープに処理がない場合は弾く
+                    if(procLines.size() == 1)
+                        break;
+
+                    // 条件部分をスタックにプッシュ
+                    i = 0;
+                    InstList insts = this->toInstList(node, i);
+
+                    // 処理部分の行数をもとにIFJUMP命令を追加
                     ByteSeq lineIndex((Byte)IT_VarPref);
                     lineIndex.push_back(ByteSeq((int)procLines.size()));
-
                     instList.push_back(Instruction(IT_IFJump, { { "index", lineIndex } }));
                     instList.push_back(procLines);
 
-                    // プッシュした条件式の結果をポップ
+                    // プッシュした条件部分をポップ
                     instList.push_back(Instruction(IT_LSPop));
                 }
             } break;
@@ -663,6 +683,28 @@ InstList InstList::toInstList(Node parentNode, int &index) {
                 InstList insts = this->toInstList(node, i);
                 instList.push_back(insts);
             } break;
+
+            case ND_Compare: {
+                ByteSeq item;
+
+                if(node.childAt(0).type == ND_Token) {
+                    item = ByteSeq(node.childAt(0).tokens.at(0));
+                    instList.push_back(Instruction((Byte)IT_LSPush, { { "value", item } }));
+                } else {
+                    int i = 0;
+                    instList.push_back(this->toInstList(node, i));
+                }
+
+                if(node.childAt(0).type == ND_Token) {
+                    item = ByteSeq(node.childAt(0).tokens.at(0));
+                    instList.push_back(Instruction((Byte)IT_LSPush, { { "value", item } }));
+                } else {
+                    int i = 1;
+                    instList.push_back(this->toInstList(node, i));
+                }
+
+                instList.push_back(Instruction((Byte)IT_Compare));
+            }
         }
 
         return instList;
