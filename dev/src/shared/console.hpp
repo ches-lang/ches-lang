@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 enum LogType : int {
     LogType_Unknown,
     LogType_Error,
@@ -55,7 +54,7 @@ public:
 
         if(terminate) {
             Console::writeln();
-            Console::printDebugLog("end debugger with error");
+            Console::printDebugLog("end debugger with error", cmd);
             exit(-1);
         }
     }
@@ -266,19 +265,19 @@ public:
         return {};
     }
 
-    static void printDebugLog(std::string title) {
-        if(!g_cmd_data.exists("-deb"))
+    static void printDebugLog(std::string title, Command *cmd) {
+        if(!cmd->existsKey("-deb"))
             return;
 
         Console::writeln("\033[1m--- " + title + " ---\033[m");
         Console::writeln();
     }
 
-    static void printDebugLog(std::string title, std::vector<std::string> lines) {
-        if(!g_cmd_data.exists("-deb"))
+    static void printDebugLog(std::string title, std::vector<std::string> lines, Command cmd) {
+        if(!cmd->existsKey("-deb"))
             return;
 
-        Console::printDebugLog(title);
+        Console::printDebugLog(title, &cmd);
 
         for(std::string ln : lines)
             Console::writeln("\033[2m  " + ln + "\033[m");

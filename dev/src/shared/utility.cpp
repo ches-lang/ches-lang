@@ -3,7 +3,6 @@
 #include "utility.hpp"
 
 
-
 Token::Token() {}
 
 Token::Token(Byte type) {

@@ -13,7 +13,6 @@
 #define SMR(i, s)   (std::regex_match(SA(i), std::regex(s)))
 
 
-
 struct Line {
     std::vector<Token> tokens;
     int nest;

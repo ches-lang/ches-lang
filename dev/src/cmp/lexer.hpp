@@ -6,6 +6,7 @@ class Lexer {
 
 private:
 
+    Command cmd;
     std::string filePath;
     std::string source;
 
@@ -17,7 +18,7 @@ public:
 
     Lexer();
 
-    Lexer(std::string filePath, std::string source);
+    Lexer(std::string filePath, std::string source, Command cmd);
 
     std::vector<Token> splitTokens();
 

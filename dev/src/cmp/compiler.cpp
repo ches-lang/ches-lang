@@ -6,20 +6,24 @@
 
 Compiler::Compiler() {}
 
+Compiler::Compiler(Command cmd) {
+    this->cmd = cmd;
+}
+
 void Compiler::compile(std::string path) {
     this->path = path;
 
-    if(g_cmd_data.exists("-o"))
-        if(FileManager::getFullPath(path) == FileManager::getFullPath(g_cmd_data["-o"]))
-            Console::log(LogType_Warning, 3405, { { "Path", FileManager::getFullPath(g_cmd_data["-o"]) } }, !g_cmd_data.exists("-miss"));
+    if(this->cmd.existsKey("-o"))
+        if(FileManager::getFullPath(path) == FileManager::getFullPath(this->cmd.at("-o")))
+            Console::log(LogType_Warning, 3405, { { "Path", FileManager::getFullPath(this->cmd.at("-o")) } }, !this->cmd.existsKey("-miss"));
 
     ByteSeq byteSeq = this->getByteSeq();
 
     if(!FileManager::isDirectory(path)) {
         Console::exitIfDisplayed();
 
-        if(g_cmd_data.exists("-o")) {
-            FileManager::writeBytecode(g_cmd_data["-o"], byteSeq);
+        if(this->cmd.existsKey("-o")) {
+            FileManager::writeBytecode(this->cmd.at("-o"), byteSeq);
         } else {
             FileManager::writeBytecode(FileManager::replacePathExt(path, "chesc"), byteSeq);
         }
@@ -38,11 +42,11 @@ void Compiler::compile(std::string path) {
             }
         }
 
-        if(g_cmd_data.exists("-merge")) {
+        if(this->cmd.existsKey("-merge")) {
             std::string outpath;
 
-            if(g_cmd_data.exists("-o")) {
-                outpath = g_cmd_data["-o"];
+            if(this->cmd.existsKey("-o")) {
+                outpath = this->cmd.at("-o");
             } else {
                 outpath = path + "/" + FileManager::getFileName(path) + ".chesc";
             }
@@ -59,11 +63,10 @@ void Compiler::compile(std::string path) {
 }
 
 ByteSeq Compiler::getByteSeq() {
-    std::string filePath = this->path;
-    std::string source = FileManager::readText(filePath);
-    Lexer lexer(filePath, source);
+    std::string source = FileManager::readText(this->path);
+    Lexer lexer(this->path, source);
     std::vector<Token> tokens = lexer.splitTokens();
-    Parser parser(filePath, source, tokens);
+    Parser parser(this->path, source, tokens);
     Node node = parser.parse();
-    return ByteSeq(node, filePath, source);
+    return ByteSeq(node, this->path, source);
 }
