@@ -14,9 +14,9 @@ Error_4890_Message コンパイラ内部エラー
 Error_5173_Message 無効なヘッダ長
 Error_5352_Message ファイル書き込み失敗
 Error_5899_Message 入力ファイルがありません
+Error_5900_Message 出力ファイルがありません
 Error_6845_Message ファイル読み込み失敗
 Error_6923_Message 不明な言語
-Error_7903_Message 無効なインデント
 Error_8194_Message 無効なコマンドオプション
 Error_8732_Message 無効なマジックナンバー
 

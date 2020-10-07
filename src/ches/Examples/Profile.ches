@@ -1,0 +1,7 @@
+main(str[] args)
+
+  if(args.size() <= 1)
+    println("oops...")
+    return
+
+  println("Hello, world, " + args[1] + "!")

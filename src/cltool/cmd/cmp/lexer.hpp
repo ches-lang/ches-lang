@@ -4,7 +4,6 @@
 namespace ches::cmd {
     class Lexer {
     private:
-        Command cmd;
         std::string filePath;
         std::string source;
 
@@ -15,7 +14,7 @@ namespace ches::cmd {
     public:
         Lexer();
 
-        Lexer(std::string filePath, std::string source, Command cmd);
+        Lexer(std::string filePath, std::string source);
 
         std::vector<Token> splitTokens();
 
@@ -23,4 +22,5 @@ namespace ches::cmd {
         Token getNextToken();
 
         void validateParen(Token token);
-};
+    };
+}

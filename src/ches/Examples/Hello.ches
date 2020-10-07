@@ -1,0 +1,12 @@
+main(str[] args)
+    if args.len <= 1
+        println("Please input me your name...")
+    end
+end
+
+println()
+    exit()
+end
+
+exit()
+end
