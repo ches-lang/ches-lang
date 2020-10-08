@@ -65,7 +65,7 @@ ches::Token ches::Token::getOpenParen() {
     return Token();
 }
 
-std::pair<int, int> ches::Token::getPosition(std::string source) {
+std::pair<int, int> ches::Token::getPosition(std::string &source) {
     int line = 0;
     int pos = 0;
 
@@ -81,7 +81,7 @@ std::pair<int, int> ches::Token::getPosition(std::string source) {
     return { line, pos };
 }
 
-std::string ches::Token::getPositionText(std::string filePath, std::string source) {
+std::string ches::Token::getPositionText(std::string filePath, std::string &source) {
     std::pair pos = this->getPosition(source);
     return filePath + ":" + std::to_string(pos.first + 1) + ":" + std::to_string(pos.second + 1);
 }

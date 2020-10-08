@@ -18,7 +18,6 @@ namespace ches {
     enum TokenType : Byte {
         TK_Unknown,
         TK_EndOfFile,
-        TK_Indent,
         TK_NewLine,
         TK_Comment,
         TK_Keyword,
@@ -157,9 +156,9 @@ namespace ches {
 
         Token getOpenParen();
 
-        std::pair<int, int> getPosition(std::string source);
+        std::pair<int, int> getPosition(std::string &source);
 
-        static std::pair<int, int> getPosition(std::string source, int index) {
+        static std::pair<int, int> getPosition(std::string &source, int index) {
             int line = 0;
             int pos = 0;
 
@@ -175,12 +174,12 @@ namespace ches {
             return { line, pos };
         }
 
-        static std::string getPositionText(std::string filePath, std::string source, int index) {
+        static std::string getPositionText(std::string filePath, std::string &source, int index) {
             std::pair pos = Token::getPosition(source, index);
             return filePath + ":" + std::to_string(pos.first + 1) + ":" + std::to_string(pos.second + 1);
         }
 
-        std::string getPositionText(std::string filePath, std::string source);
+        std::string getPositionText(std::string filePath, std::string &source);
 
         bool isParen();
 

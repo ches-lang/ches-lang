@@ -1,11 +1,26 @@
 #pragma once
 
+// getNextToken用のマクロ
+
+#define MATCH_STR(ch1)                  (this->source[index] == ch1)
+#define MATCH_STR_2(ch1, ch2)           (index < this->source.length() - 1 && this->source[index] == ch1 && this->source[index + 1] == ch2)
+#define MATCH_STR_3(ch1, ch2, ch3)      (index < this->source.length() - 3 && this->source[index] == ch1 && this->source[index + 1] == ch2 && this->source[index + 2] == ch3)
+#define MATCH_STR_4(ch1, ch2, ch3, ch4) (index < this->source.length() - 3 && this->source[index] == ch1 && this->source[index + 1] == ch2 && this->source[index + 2] == ch3 && this->source[index + 3] == ch4)
+
+#define MATCH_STR_M1(ch1)               (index > 0 && this->source[index - 1] == ch1)
+
+#define GET_TOKEN(type)                 Token(type, std::string { this->source[index] }, index)
+#define JUDGE_TOKEN(char, type)         if(MATCH_STR(char)) return GET_TOKEN(type);
+#define JUDGE_PAREN_TOKEN(char, type)   if(MATCH_STR(char)) { Token token = GET_TOKEN(type); validateParen(token); return token; }
+
+typedef std::unordered_map<unsigned char, std::pair<int, std::vector<ches::Token>>>   nest_map;
+
 #include "lexer.hpp"
 
 
 ches::cmd::Lexer::Lexer() {}
 
-ches::cmd::Lexer::Lexer(std::string filePath, std::string source) {
+ches::cmd::Lexer::Lexer(std::string filePath, std::string &source) {
     this->filePath = filePath;
     this->source = source;
 }
@@ -17,12 +32,15 @@ std::vector<ches::Token> ches::cmd::Lexer::splitTokens() {
     do {
         token = getNextToken();
         tokenList.push_back(token);
-        std::cout << (int)token.type << "\t" << ((token.string == "\n") ? "\\n" : token.string) << std::endl;//
+        std::cout << (int)token.type << "\t" << ((token.string == "\n") ? "\\n" : token.string) << std::endl;///
     } while(token.type != TK_EndOfFile);
 
-    // 最後に括弧のエラーを出す
-    for(Token paren : openParens) {
-        Console::log(LogType_Error, 698, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, paren.index + 1) }, { "Expected", "'" + paren.getCloseParen().string + "'" } });
+    // 括弧が閉じられていない場合はまとめてエラーを出力
+    for(Token paren : this->openParens) {
+        std::string position = Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, paren.index + 1);
+        std::string expected = "'" + paren.getCloseParen().string + "'";
+
+        Console::log(LogType_Error, 698, { { "At", position }, { "Expected", expected } });
     }
 
     if(Console::errored || (Console::warned && !g_cmd.existsArgKey("-miss")))
@@ -34,147 +52,76 @@ std::vector<ches::Token> ches::cmd::Lexer::splitTokens() {
 ches::Token ches::cmd::Lexer::getNextToken() {
     index++;
 
-    #define MATCH_STR(ch1)                  (source[index] == ch1)
-    #define MATCH_STR_2(ch1, ch2)           (index < source.length() - 1 && source[index] == ch1 && source[index + 1] == ch2)
-    #define MATCH_STR_3(ch1, ch2, ch3)      (index < source.length() - 3 && source[index] == ch1 && source[index + 1] == ch2 && source[index + 2] == ch3)
-    #define MATCH_STR_4(ch1, ch2, ch3, ch4) (index < source.length() - 3 && source[index] == ch1 && source[index + 1] == ch2 && source[index + 2] == ch3 && source[index + 3] == ch4)
-    #define MATCH_STR_M1(ch1)               (index > 0 && source[index - 1] == ch1)
-
-    if(index >= source.size())
+    if(index >= this->source.size())
         return Token(TK_EndOfFile, "", index);
 
-    else if(MATCH_STR('!'))
-        return Token(TK_Exclamation, std::string { source[index] }, index);
+    if(MATCH_STR_2('*', '/'))
+        Console::log(LogType_Error, 699, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, index++) }, { "Unexpected", "*/" } });
 
-    else if(MATCH_STR('?'))
-        return Token(TK_Question, std::string { source[index] }, index);
-
-    else if(MATCH_STR('~'))
-        return Token(TK_Tilde, std::string { source[index] }, index);
-
-    else if(MATCH_STR('+'))
-        return Token(TK_Plus, std::string { source[index] }, index);
-
-    else if(MATCH_STR('-'))
-        return Token(TK_Hyphen, std::string { source[index] }, index);
-
-    else if(MATCH_STR_2('*', '/'))
-        Console::log(LogType_Error, 699, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, index++) }, { "Unexpected", "*/" } });
-
-    else if(MATCH_STR('*'))
-        return Token(TK_Asterisk, std::string { source[index] }, index);
-
-    else if(MATCH_STR_2('/', '*')) {
+    if(MATCH_STR_2('/', '*')) {
         std::string comment;
-        int start = index;
+        int startIndex = index;
 
-        for(index++; index < source.length() - 1; index++) {
-            if(source[index] == '*' && source[index + 1] == '/') {
+        for(index += 2; index < this->source.length() - 1; index++) {
+            if(this->source[index] == '*' && this->source[index + 1] == '/') {
                 index++;
-                return Token(TK_Comment, comment, start);
+                return Token(TK_Comment, comment, startIndex);
             }
 
-            comment += std::string { source[index] };
+            comment += std::string { this->source[index] };
         }
 
         //checkParenFinally();
 
         // コメントアウトに閉じがない場合はエラー
-        Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, start + 2) }, { "Expected", "'*/'" } }, true);
+        Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, startIndex + 2) }, { "Expected", "'*/'" } }, true);
     }
 
     else if(MATCH_STR_2('/', '/')) {
         std::string comment;
-        int start = index;
+        int startIndex = index;
 
-        for(index++; index < source.length(); index++) {
-            if(source[index] == '\n') {
+        for(index++; index < this->source.length(); index++) {
+            if(this->source[index] == '\n') {
                 index--;
                 break;
             }
 
-            comment += std::string { source[index] };
+            comment += std::string { this->source[index] };
         }
 
-        return Token(TK_Comment, comment, start);
+        return Token(TK_Comment, comment, startIndex);
     }
 
-    else if(MATCH_STR('/'))
-        return Token(TK_Slash, std::string { source[index] }, index);
+    JUDGE_TOKEN('!', TK_Exclamation);
+    JUDGE_TOKEN('?', TK_Question);
+    JUDGE_TOKEN('~', TK_Tilde);
+    JUDGE_TOKEN('+', TK_Plus);
+    JUDGE_TOKEN('-', TK_Hyphen);
+    JUDGE_TOKEN('*', TK_Asterisk);
+    JUDGE_TOKEN('/', TK_Slash);
+    JUDGE_TOKEN('%', TK_Percent);
+    JUDGE_TOKEN('^', TK_Tilde);
+    JUDGE_TOKEN('=', TK_Equal);
+    JUDGE_TOKEN('|', TK_Pipe);
+    JUDGE_TOKEN('&', TK_Ampersand);
+    JUDGE_TOKEN('.', TK_Period);
+    JUDGE_TOKEN(',', TK_Comma);
+    JUDGE_TOKEN(':', TK_Colon);
+    JUDGE_TOKEN(';', TK_Semicolon);
+    JUDGE_PAREN_TOKEN('(', TK_LeftParen);
+    JUDGE_PAREN_TOKEN(')', TK_RightParen);
+    JUDGE_PAREN_TOKEN('[', TK_LeftBracket);
+    JUDGE_PAREN_TOKEN(']', TK_RightBracket);
+    JUDGE_TOKEN('<', TK_LeftAngleBracket);
+    JUDGE_TOKEN('>', TK_RightAngleBracket);
+    JUDGE_PAREN_TOKEN('{', TK_LeftBrace);
+    JUDGE_PAREN_TOKEN('}', TK_RightBrace);
 
-    else if(MATCH_STR('%'))
-        return Token(TK_Percent, std::string { source[index] }, index);
-
-    else if(MATCH_STR('^'))
-        return Token(TK_Tilde, std::string { source[index] }, index);
-
-    else if(MATCH_STR('='))
-        return Token(TK_Equal, std::string { source[index] }, index);
-
-    else if(MATCH_STR('|'))
-        return Token(TK_Pipe, std::string { source[index] }, index);
-
-    else if(MATCH_STR('&'))
-        return Token(TK_Ampersand, std::string { source[index] }, index);
-
-    else if(MATCH_STR('.'))
-        return Token(TK_Period, std::string { source[index] }, index);
-
-    else if(MATCH_STR(','))
-        return Token(TK_Comma, std::string { source[index] }, index);
-
-    else if(MATCH_STR(':'))
-        return Token(TK_Colon, std::string { source[index] }, index);
-
-    else if(MATCH_STR(';'))
-        return Token(TK_Semicolon, std::string { source[index] }, index);
-
-    else if(MATCH_STR('(')) {
-        Token tk = Token(TK_LeftParen, std::string { source[index] }, index);
-        validateParen(tk);
-        return tk;
-    }
-
-    else if(MATCH_STR(')')) {
-        Token tk = Token(TK_RightParen, std::string { source[index] }, index);
-        validateParen(tk);
-        return tk;
-    }
-
-    else if(MATCH_STR('[')) {
-        Token tk = Token(TK_LeftBracket, std::string { source[index] }, index);
-        validateParen(tk);
-        return tk;
-    }
-
-    else if(MATCH_STR(']')) {
-        Token tk = Token(TK_RightBracket, std::string { source[index] }, index);
-        validateParen(tk);
-        return tk;
-    }
-
-    else if(MATCH_STR('<'))
-        return Token(TK_LeftAngleBracket, std::string { source[index] }, index);
-
-    else if(MATCH_STR('>'))
-        return Token(TK_RightAngleBracket, std::string { source[index] }, index);
-
-    else if(MATCH_STR('{')) {
-        Token tk = Token(TK_LeftBrace, std::string { source[index] }, index);
-        validateParen(tk);
-        return tk;
-    }
-
-    else if(MATCH_STR('}')) {
-        Token tk = Token(TK_RightBrace, std::string { source[index] }, index);
-        validateParen(tk);
-        return tk;
-    }
-
-    else if(MATCH_STR(' ')) {
+    if(MATCH_STR(' ')) {
         // インデントでない場合は次のトークンを返す
         for(int i = index - 1; i >= 0; i--) {
-            if(source[i] == ' ') {
+            if(this->source[i] == ' ') {
                 continue;
             } else {
                 return getNextToken();
@@ -183,52 +130,53 @@ ches::Token ches::cmd::Lexer::getNextToken() {
     }
 
     else if(MATCH_STR('\n')) {
-        for(index++; index < source.length(); index++) {
+        for(index++; index < this->source.length(); index++) {
             if(!MATCH_STR('\n')) {
                 index--;
                 break;
             }
         }
 
-        return Token(TK_NewLine, std::string { source[index] }, index);
+        return GET_TOKEN(TK_NewLine);
     }
 
-    else if(std::regex_match(std::string { source[index] }, std::regex("[0-9]"))) {
+    else if(std::regex_match(std::string { this->source[index] }, std::regex("[0-9]"))) {
         std::string num;
-        int start = index;
+        int startIndex = index;
 
-        for(; index < source.length(); index++) {
-            if(std::regex_match(std::string { source[index] }, std::regex("[0-9]"))) {
-                num += std::string { source[index] };
+        for(; index < this->source.length(); index++) {
+            if(std::regex_match(std::string { this->source[index] }, std::regex("[0-9]"))) {
+                num += std::string { this->source[index] };
             } else {
-                index--; break;
+                index--;
+                break;
             }
         }
 
-        return Token(TK_Number, num, start);
+        return Token(TK_Number, num, startIndex);
     }
 
     else if(MATCH_STR('\'')) {
-        std::string ch = "";
-        int start = index;
+        std::string tokenChar = "";
+        int startIndex = index;
 
-        if(source[index + 2] == '\'') {
+        if(this->source[index + 2] == '\'') {
             // 普通のchar値
-            ch = std::string { source[index + 1] };
+            tokenChar = std::string { this->source[index + 1] };
             index += 2;
-        } else if(source[index + 1] == '\\' && source[index + 3] == '\'') {
+        } else if(this->source[index + 1] == '\\' && this->source[index + 3] == '\'') {
             // エスケープを含むchar値
-            ch = "\\" + std::string { source[index + 2] };
+            tokenChar = "\\" + std::string { this->source[index + 2] };
             index += 3;
-        } else if(source[index + 1] == '\'') {
+        } else if(this->source[index + 1] == '\'') {
             // 文字の入っていない文字値
-            Console::log(LogType_Error, 4139, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, start + 1) }, { "Expected", "{$LogDetailValue_ACharValue}" } });
+            Console::log(LogType_Error, 4139, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, startIndex + 1) }, { "Expected", "{$LogDetailValue_ACharValue}" } });
             index += 1;
         } else {
             bool closed = false;
             int i;
 
-            for(index++; index < source.length(); index++) {
+            for(index++; index < this->source.length(); index++) {
                 if(MATCH_STR('\'')) {
                     closed = true;
                     break;
@@ -237,43 +185,43 @@ ches::Token ches::cmd::Lexer::getNextToken() {
 
             if(closed) {
                 // 文字値が2文字以上の場合 (tooLongCharacterLengthエラー)
-                Console::log(LogType_Error, 2471, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, start + 1) } });
+                Console::log(LogType_Error, 2471, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, startIndex + 1) } });
             } else {
                 //checkParenFinally();
                 // 閉じクォーテーションがない場合 (EOFエラー)
-                Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, start + 2) }, { "Expected", "'''" } }, true);
+                Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, startIndex + 2) }, { "Expected", "'''" } }, true);
             }
 
             return getNextToken();
         }
 
-        return Token(TK_Char, std::string { ch }, start);
+        return Token(TK_Char, std::string { tokenChar }, startIndex);
     }
 
     else if(MATCH_STR('\"')) {
         std::string str;
-        int start = index;
+        int startIndex = index;
 
-        for(index++; index < source.length(); index++) {
-            if(source[index] != '\"') {
-                str += source[index];
+        for(index++; index < this->source.length(); index++) {
+            if(this->source[index] != '\"') {
+                str += this->source[index];
             } else {
-                return Token(TK_String, str, start);
+                return Token(TK_String, str, startIndex);
             }
         }
 
         //checkParenFinally();
-        Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, start + 1) }, { "Expected", "'\"'" } }, true);
+        Console::log(LogType_Error, 1562, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), this->source, startIndex + 1) }, { "Expected", "'\"'" } }, true);
     }
 
     else {
-        std::string tk;
-        int start = index;
+        std::string tokenChars;
+        int startIndex = index;
 
-        while(index < source.length()) {
+        while(index < this->source.length()) {
             // 正規表現では字句解析で判定済みの文字のみを使用してください (無限ループ防止)
-            if(!std::regex_match(std::string { source[index] }, std::regex("[!?~+\\-*/%^=&|.,:;()\\[\\]<>{}'\" \n]"))) {
-                tk += source[index];
+            if(!std::regex_match(std::string { this->source[index] }, std::regex("[!?~+\\-*/%^=&|.,:;()\\[\\]<>{}'\" \n]"))) {
+                tokenChars += this->source[index];
                 index++;
             } else {
                 index--;
@@ -281,53 +229,58 @@ ches::Token ches::cmd::Lexer::getNextToken() {
             }
         }
 
-        if(std::regex_match(tk, std::regex("bol|break|byt|default|case|catch|chr|class|continue|dbl|elif|else|false|flt|for|if|import|int|lon|new|null|obj|package|private|public|return|sht|str|switch|true|ubyt|usht|uint|ulon|void"))) {
-            return Token(TK_Keyword, tk, start);
+        if(std::regex_match(tokenChars, std::regex("bol|break|byt|case|catch|chr|class|continue|default|dbl|elif|else|end|false|flt|for|if|import|int|lon|new|null|obj|package|private|public|return|sht|str|switch|true|ubyt|usht|uint|ulon|void"))) {
+            return Token(TK_Keyword, tokenChars, startIndex);
         } else {
-            return Token(TK_Identifier, tk, start);
+            return Token(TK_Identifier, tokenChars, startIndex);
         }
     }
 
-    return Token(TK_Unknown, std::string { source[index] });
+    return GET_TOKEN(TK_Unknown);
 }
 
 void ches::cmd::Lexer::validateParen(Token token) {
     if(token.match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
-        nest.at(token.type).first++;
-        nest.at(token.type).second.push_back(token);
-        openParens.push_back(token);
+        this->nestMap.at(token.type).first++;
+        this->nestMap.at(token.type).second.push_back(token);
+        this->openParens.push_back(token);
         return;
     }
 
     if(token.match(ByteSeq { TK_RightParen, TK_RightBracket, TK_RightBrace })) {
-        if(openParens.size() == 0) {
-            Console::log(LogType_Error, 699, { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
+        // エラーの詳細用のマクロ
+        #define DET_EXPECTED            "'" + latestOpenParen.getCloseParen().string + "'"
+        #define DET_EXPECTED_POSITION   Token::getPositionText(g_cmd.argKeyAt("-i")
+        #define DET_UNEXPECTED          "'" + token.string + "'"
+        #define DET_UNEXPECTED_POSITION token.getPositionText(this->filePath, this->source)
+
+        if(this->openParens.size() == 0) {
+            Console::log(LogType_Error, 699, { { "At", DET_UNEXPECTED_POSITION }, { "Unexpected", DET_UNEXPECTED } });
             return;
         }
 
         Token paren = token.getOpenParen();
-        Token latestOpenParen = openParens.back();
+        Token latestOpenParen = this->openParens.back();
 
         if(latestOpenParen.type == TK_Unknown) {
-            Console::log(LogType_Error, 699, { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
+            Console::log(LogType_Error, 699, { { "At", DET_UNEXPECTED_POSITION }, { "Unexpected", DET_UNEXPECTED } });
             return;
         }
 
         if(latestOpenParen.type != paren.type) {
-            Console::log(LogType_Error, 698, { { "At", Token::getPositionText(g_cmd.argKeyAt("-i"), source, latestOpenParen.index + 1) }, { "Expected", "'" + latestOpenParen.getCloseParen().string + "'" } });
-            nest.at(paren.type).first--;
-            nest.at(latestOpenParen.type).first--;
-            openParens.pop_back();
-            //openParens.pop_back();
+            Console::log(LogType_Error, 698, { { "At", DET_EXPECTED_POSITION, this->source, latestOpenParen.index + 1) }, { "Expected", DET_EXPECTED } });
+            this->nestMap.at(paren.type).first--;
+            this->nestMap.at(latestOpenParen.type).first--;
+            this->openParens.pop_back();
             return;
         }
 
-        if(nest.at(paren.type).first < 0) {
-            Console::log(LogType_Error, 699, { { "At", token.getPositionText(filePath, source) }, { "Unexpected", "'" + token.string + "'" } });
+        if(this->nestMap.at(paren.type).first < 0) {
+            Console::log(LogType_Error, 699, { { "At", DET_UNEXPECTED_POSITION }, { "Unexpected", DET_UNEXPECTED } });
             return;
         }
 
-        nest.at(paren.type).first--;
-        openParens.pop_back();
+        this->nestMap.at(paren.type).first--;
+        this->openParens.pop_back();
     }
 }

@@ -56,7 +56,7 @@ ches::ByteSeq ches::cmd::Compiler::toBytecode() {
     Node node;*/
 
     for(std::string path : this->inputFilePaths) {
-        source = FileManager::readText(path);
+        FileManager::readText(path, source);
         lexer = ches::cmd::Lexer(path, source);
         tokens = lexer.splitTokens();
         /*parser = Parser(this->path, source, tokens);

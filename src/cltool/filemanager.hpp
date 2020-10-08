@@ -93,7 +93,7 @@ namespace ches {
             return ByteSeq();
         }
 
-        static std::string readText(std::string filePath) {
+        static void readText(std::string filePath, std::string &fileCont) {
             try {
                 std::ifstream ifs(filePath);
 
@@ -103,15 +103,11 @@ namespace ches {
                 if(ifs.fail())
                     Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
 
-                std::string fileCont = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-
+                fileCont = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
                 ifs.close();
-                return fileCont;
             } catch(std::exception excep) {
                 Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
             }
-
-            return "";
         }
 
         static std::vector<std::string> readTextLine(std::string filePath) {
