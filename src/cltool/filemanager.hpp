@@ -61,9 +61,9 @@ namespace ches {
             return std::filesystem::is_directory(path);
         }
 
-        static ByteSeq readByteSeq(std::string filePath) {
+        static void readByteSeq(std::string filePath, ByteSeq &fileCont) {
             try {
-                ByteSeq fileCont;
+                ByteSeq tmpFileCont;
                 std::ifstream ifs(filePath);
 
                 if(!ifs.is_open())
@@ -76,21 +76,17 @@ namespace ches {
 
                 do {
                     ifs.read((char*)&byte, sizeof(char));
-                    fileCont.push_back(byte);
+                    tmpFileCont.push_back(byte);
                 } while(!ifs.eof());
 
-                if(fileCont.size() > 0)
-                    fileCont.pop_back();
+                if(tmpFileCont.size() > 0)
+                    tmpFileCont.pop_back();
 
                 ifs.close();
-
-                return fileCont;
-
+                fileCont = tmpFileCont;
             } catch(std::exception excep) {
                 Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
             }
-
-            return ByteSeq();
         }
 
         static void readText(std::string filePath, std::string &fileCont) {
@@ -110,7 +106,7 @@ namespace ches {
             }
         }
 
-        static std::vector<std::string> readTextLine(std::string filePath) {
+        static void readTextLine(std::string filePath, std::vector<std::string> &fileCont) {
             try {
                 std::ifstream ifs(filePath);
 
@@ -120,20 +116,17 @@ namespace ches {
                 if(ifs.fail())
                     Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
 
-                std::vector<std::string> fileCont;
+                std::vector<std::string> tmpFileCont;
                 std::string line;
 
                 while(std::getline(ifs, line))
-                    fileCont.push_back(line);
+                    tmpFileCont.push_back(line);
 
                 ifs.close();
-                return fileCont;
-
+                tmpFileCont = fileCont;
             } catch(std::exception excep) {
                 Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
             }
-
-            return {};
         }
 
         static std::string replacePathExt(std::string filePath, std::string newExt) {
@@ -149,7 +142,7 @@ namespace ches {
             return newFilePath;
         }
 
-        static void writeBytecode(std::string filePath, ByteSeq source) {
+        static void writeBytecode(std::string filePath, ByteSeq &source) {
             try {
                 std::ofstream ofs;
                 ofs.open(filePath, std::ios::out | std::ios::binary | std::ios::trunc);
