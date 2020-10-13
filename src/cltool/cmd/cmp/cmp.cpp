@@ -1,5 +1,6 @@
 #pragma once
 
+#include "parser.cpp"
 #include "compiler.cpp"
 
 #include "cmp.hpp"

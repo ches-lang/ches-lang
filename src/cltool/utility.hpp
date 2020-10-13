@@ -5,13 +5,12 @@ namespace ches {
     #define HEADER_LEN      128
     #define MAGIC_NUMBER    ByteSeq { 0x4F, 0x52, 0x49, 0x4E, 0x43, 0x48, 0x41, 0x4E }
 
+    typedef unsigned char   Byte;
+
     struct ByteSeq;
     struct LineSeq;
     struct FuncList;
     struct HeaderInfo;
-
-
-    typedef unsigned char   Byte;
 
 
     /* ! ? ~ + - * / % ^ = | & . , : ; ( ) [ ] < > { } */

@@ -52,16 +52,16 @@ ches::ByteSeq ches::cmd::Compiler::toBytecode() {
     std::string source;
     Lexer lexer;
     std::vector<Token> tokens;
-    /*Parser parser;
-    Node node;*/
+    Parser parser;
+    Node node;
 
     for(std::string path : this->inputFilePaths) {
         FileManager::readText(path, source);
         lexer = ches::cmd::Lexer(path, source);
         tokens = lexer.splitTokens();
-        /*parser = Parser(this->path, source, tokens);
+        parser = Parser(path, source, tokens);
         node = parser.parse();
-        bytecodes.push_back(ByteSeq(node, this->path, source));*/
+        /*bytecodes.push_back(ByteSeq(node, this->path, source));*/
     }
 
     //return ches::ByteSeq::join(bytecodes, ByteSeq(0x00, 5));
