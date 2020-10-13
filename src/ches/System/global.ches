@@ -1,21 +1,24 @@
-ConsoleStream _cs = new()
+global
+
+
+var _cs = ConsoleStream()
 
 
 print(str s)
-
-  _cs.write(s)
+    _cs.write(s)
+end
 
 
 println(str s)
-
-  println(s ~ "\n")
+    println(s ~ "\n")
+end
 
 
 str read()
-
-  return _cs.read()
+    return _cs.read()
+end
 
 
 str readln()
-
-  return _cs.readln()
+    return _cs.readln()
+end
