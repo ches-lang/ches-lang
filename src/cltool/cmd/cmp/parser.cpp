@@ -154,83 +154,102 @@ ches::cmd::Parser::Parser(std::string sourcePath, std::string source, std::vecto
 
 std::vector<ches::cmd::Line> ches::cmd::Parser::getLines() {
     std::vector<Line> lines;
-    int index = 0;
+    int tokenIndex = 0;
 
     while(true) {
         std::vector<Token> line;
 
         while(true) {
-            Token token = this->tokens[index];
+            Token token = this->tokens.at(tokenIndex);
+            tokenIndex++;
 
-            if(token.type == TK_EndOfFile || token.type == TK_NewLine) {
-                index++;
+            if(token.type == TK_EndOfFile)
                 break;
-            } else {
-                line.push_back(token);
-                index++;
+
+            if(token.type == TK_NewLine) {
+                if(line.size() == 0)
+                    line.push_back(token);
+
+                break;
             }
+
+            line.push_back(token);
         }
+
+        Console::writeln("line: " + std::to_string(line.size()));
 
         if(line.size() > 0)
             lines.push_back(Line(line));
 
-        if(index >= this->tokens.size())
+        if(tokenIndex >= this->tokens.size())
             break;
     }
+
+    Console::writeln("line len: " + std::to_string(lines.size()));
 
     return lines;
 }
 
 ches::Node ches::cmd::Parser::parse() {
-    for(; this->lineIndex < this->lines.size(); )
+    while(this->lineIndex < this->lines.size())
         this->tree.addChild(this->scanNextLine());
+
+    // ブロックが開いたままである場合はエラー
+    int blockNestDiff = std::abs(0 - this->blockNest);
+
+    while(blockNestDiff > 0) {
+        Console::log(LogType_Error, 4952, { { "At", T_AT(-1).getPositionText(this->sourcePath, this->source) }, { "Expected", "end" } });
+        blockNestDiff--;
+    }
 
     this->tree.print();///
     return this->tree;
 }
 
 ches::Node ches::cmd::Parser::scanNextLine() {
-    Node node = this->getNode(CURR_LINE);
+    Node node = this->getNode(CURR_LINE.tokens, ND_Root);
     // lineIndexはノード取得後に変更してください
     this->lineIndex++;
     return node;
 }
 
 ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
-    Node node(nodeType);
+    Node n_root(nodeType);
     Line baseLine = CURR_LINE;
 
     this->blockNest++;
+    Console::writeln("v");
 
     while(true) {
         this->lineIndex++;
-        Line line = T_LINE_AT(this->lineIndex);
-        std::vector<Token> tokens = line.tokens;
+        Console::writeln(std::to_string(this->lineIndex));
+        Console::writeln(std::to_string(this->lines.size()));
 
         // 行インデックスがLineのサイズを超える場合
         if(this->lineIndex >= this->lines.size())
             break;
 
-        // endTokenがendキーワードである場合はbreakする
-        if(tokens.size() == 1 && T_MATCH(0, TK_Keyword, "end")) {
-            this->lineIndex++;
-            break;
-        }
+        std::vector<Token> tokens = CURR_LINE.tokens;
 
         std::cout << "ln:   ";
         for(Token tk : tokens)
             std::cout << tk.string << " ";
         std::cout << std::endl;///
 
-        node.addChild(this->getNode(CURR_LINE));
+        // ブロックの終わりが来たらbreakする
+        if(tokens.size() == 1) {
+            if(T_MATCH(0, TK_Keyword, "end") ||
+                    T_MATCH(0, TK_Keyword, "elif") ||
+                    T_MATCH(0, TK_Keyword, "else")) {
+                this->blockNest--;
+                break;
+            }
+        }
+
+        n_root.addChild(this->getNode(CURR_LINE.tokens, ND_Root));
     }
 
-    this->blockNest--;
-    return node;
-}
-
-ches::Node ches::cmd::Parser::getNode(Line line, Byte defaultType) {
-    return this->getNode(line.tokens, defaultType);
+    return n_root;
 }
 
 ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultType) {
@@ -240,16 +259,41 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         if(len == 0)
             return Node(ND_Unknown);
 
-        std::cout << "tk: ";
+        std::cout << "tk(" << this->lineIndex << ";n" + std::to_string(this->blockNest) + "): ";
         for(Token tk : tokens)
-            std::cout << tk.string << " ";
+            std::cout << (tk.string == "\n" ? "\\n" : tk.string) << " ";
         std::cout << std::endl;///
+
+        // DEFCLASSNAME
+        if(this->blockNest == 0 && T_TYPE_MATCH(0, TK_Identifier)) {
+            if(this->className == "") {
+                this->className = T_AT(0).string;
+                this->lineIndex++;
+                return this->scanNextLine();
+            }
+        }
+
+        // クラス名が定義されていない場合はエラー
+        if(this->className == "")
+            Console::log(LogType_Error, 4952, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Expected", "<class-name>" } }, true);
+
+        // 改行は無視する (行数保持のために改行文字のみの行が残してある)
+        if(T_TYPE_MATCH(0, TK_NewLine)) {
+            Console::writeln("breakline: " + std::to_string(this->lineIndex));
+            this->lineIndex++;
+            return this->scanNextLine();
+        }
+
+        // endキーワードはscanNextNest()内で処理される
+        // ブロック外でendキーワードが来た場合はエラー
+        if(T_MATCH(0, TK_Keyword, "end"))
+            Console::log(LogType_Error, 7904, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", "end" } });
 
         // DEFFUNC
         if(this->blockNest == 0 && T_TYPE_MATCH(0, TK_Identifier) && T_TYPE_MATCH(1, TK_LeftParen) && T_TYPE_MATCH(-1, TK_RightParen)) {
             Node n_root(ND_DefFunc);
-            n_root.addToken(Token(TK_Identifier, T_AT(0).string));
             Node n_args(ND_Args);
+            n_root.addToken(Token(TK_Identifier, T_AT(0).string));
 
             if(len >= 4) {
                 std::vector<Token> args;
@@ -258,10 +302,11 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
                 for(int i = 2; i < len - 1; i++) {
                     // todo: コンマを括弧チェック後に変換させる？
                     if(T_TYPE_MATCH(i, TK_Comma) && nestInArgs == 0) {
-                        n_root.addChild(this->getNode(args));
+                        n_args.addChild(this->getNode(args));
                         args.clear();
                     } else if(i == len - 2) {
                         args.push_back(T_AT(i));
+                        n_args.addChild(this->getNode(args));
                     } else {
                         if(T_AT(i).match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace }))
                             nestInArgs++;
@@ -279,94 +324,107 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
 
         // CALLFUNC
         if(this->blockNest >= 1 && len >= 3 && T_TYPE_MATCH(0, TK_Identifier) && T_TYPE_MATCH(1, TK_LeftParen) && T_TYPE_MATCH(-1, TK_RightParen)) {
-            Node node(ND_CallFunc);
-            node.addToken(T_AT(0));
-
-            int nest = 0;
+            Node n_root(ND_CallFunc);
+            Node n_args(ND_Args);
+            n_root.addToken(T_AT(0));
 
             if(len >= 4) {
-                Node args(ND_Args);
-                std::vector<Token> ag;
+                std::vector<Token> args;
+                int parenNest = 0;
 
                 for(int i = 2; i < len - 1; i++) {
-                    if(T_TYPE_MATCH(i, TK_Comma) && nest == 0) {
-                        args.addChild(this->getNode(ag));
-                        ag.clear();
+                    if(T_TYPE_MATCH(i, TK_Comma) && parenNest == 0) {
+                        n_args.addChild(this->getNode(args));
+                        args.clear();
                     } else if(i == len - 2) {
-                        ag.push_back(T_AT(i));
-                        args.addChild(getNode(ag));
+                        args.push_back(T_AT(i));
+                        n_args.addChild(getNode(args));
                     } else {
                         if(T_AT(i).isOpenParen())
-                            nest++;
+                            parenNest++;
                         else if(T_AT(i).isCloseParen())
-                            nest--;
+                            parenNest--;
 
-                        ag.push_back(T_AT(i));
+                        args.push_back(T_AT(i));
                     }
                 }
-
-                node.addChild(args);
             }
 
-            return node;
+            n_root.addChild(n_args);
+            return n_root;
         }
 
         // DEFVAR
         if(len == 2 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_Identifier)) {
-            Node node(ND_DefVar);
-            node.addToken(T_AT(0));
-            node.addToken(T_AT(1));
-            return node;
+            Node n_root(ND_DefVar);
+            n_root.addToken(T_AT(0));
+            n_root.addToken(T_AT(1));
+            return n_root;
         }
 
         // DEFVAR (ARRAY)
         if(len == 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_LeftBracket) && T_TYPE_MATCH(2, TK_RightBracket) && T_TYPE_MATCH(3, TK_Identifier)) {
-            Node node(ND_DefVar);
-            node.addToken(T_AT(0));
-            node.addToken(T_AT(1));
-            node.addToken(T_AT(2));
-            node.addToken(T_AT(3));
-            return node;
+            Node n_root(ND_DefVar);
+            n_root.addToken(T_AT(0));
+            n_root.addToken(T_AT(1));
+            n_root.addToken(T_AT(2));
+            n_root.addToken(T_AT(3));
+            return n_root;
         }
 
         // IF
         if(len >= 2 && T_MATCH(0, TK_Keyword, "if")) {
-            Node node(ND_If);
-            node.addChild(this->getNode(this->copy(1, len - 1, tokens)));
-            node.addChild(this->scanNextNest());
-            return node;
+            Node n_root(ND_If);
+            n_root.addChild(this->getNode(this->copy(1, len - 1, tokens)));
+            n_root.addChild(this->scanNextNest());
+
+            while(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "elif"){
+                Console::writeln();
+                Console::writeln(CURR_LINE.tokens.at(0).string);
+                n_root.addChild(this->scanNextNest(ND_ElseIf));
+            }
+
+Console::write("currLineTokens.at(0).string: ");
+Console::writeln(CURR_LINE.tokens.at(0).string);
+
+            if(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "else")
+                n_root.addChild(this->scanNextNest(ND_Else));
+
+            return n_root;
         }
 
         // ELSE
         if(len == 1 && T_MATCH(0, TK_Keyword, "else")) {
-            Node node(ND_Else);
-            node.addChild(this->scanNextNest());
-            return node;
+            Console::log(LogType_Error, 7904, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
         }
 
-        // INITVAR todo: 複数トークンの型名にも対応させる
-        if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
-            Node node(ND_InitVar);
-            node.addToken(T_AT(0));
-            node.addToken(T_AT(1));
+        // ELSEIF
+        if(len == 1 && T_MATCH(0, TK_Keyword, "elif")) {
+            Console::log(LogType_Error, 7904, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
+        }
 
-            node.addChild(this->getNode(copy(3, len - 1, tokens)));
+        // INITVAR todo: 複数トークンの型名 (e.g. ジェネリック) にも対応させる
+        if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
+            Node n_root(ND_InitVar);
+            n_root.addToken(T_AT(0));
+            n_root.addToken(T_AT(1));
+            n_root.addChild(this->getNode(this->copy(3, len - 3, tokens)));
 
             /*if(len == 4) {
-                node.addToken(T_AT(3));
+                n_root.addToken(T_AT(3));
             } else {
                 std::vector<Token> rs;
                 for(int i = 3; i < len; i++)
                     rs.push_back(T_AT(i));
-                node.addChild(getNode(rs));
+                n_root.addChild(getNode(rs));
             }*/
 
-            return node;
+            return n_root;
         }
 
         // LOOP
         if(len >= 4 && T_MATCH(0, TK_Keyword, "for") && T_TYPE_MATCH(1, TK_LeftParen) && T_TYPE_MATCH(-1, TK_RightParen)) {
-            Node node(ND_Loop);
+            Node n_root(ND_Loop);
             std::vector<std::vector<Token>> semicolonDiv = {};
 
             for(Token tk : tokens)
@@ -377,19 +435,19 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
 
             if(semicolonDiv.size() == 1) {
                 // Example: for(true)
-                node.addChild(this->getNode(copy(1, len - 1, tokens), ND_Loop_Cond));
+                n_root.addChild(this->getNode(this->copy(1, len - 1, tokens), ND_Loop_Cond));
             } else if(semicolonDiv.size() == 3) {
                 // Example: for(i = 0; i < 5; i++)
                 std::vector<Token> item;
 
-                node.addChild(this->getNode(semicolonDiv[0], ND_Loop_Init));
-                node.addChild(this->getNode(semicolonDiv[1], ND_Loop_Cond));
-                node.addChild(this->getNode(semicolonDiv[2], ND_Loop_Change));
+                n_root.addChild(this->getNode(semicolonDiv[0], ND_Loop_Init));
+                n_root.addChild(this->getNode(semicolonDiv[1], ND_Loop_Cond));
+                n_root.addChild(this->getNode(semicolonDiv[2], ND_Loop_Change));
             } else {
                 //構文エラー
             }
 
-            return node;
+            return n_root;
         }
 
 
@@ -410,17 +468,17 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
 
         /* 論理式 */
 
-        Node logicExpNode = this->getLogicalExpressionNode(tokens);
+        Node n_logicExp = this->getLogicalExpressionNode(tokens);
 
-        if(logicExpNode.type != ND_Unknown)
-            return logicExpNode;
+        if(n_logicExp.type != ND_Unknown)
+            return n_logicExp;
 
         /* 比較式 */
 
-        Node compExpNode = this->getCompareExpressionNode(tokens);
+        Node n_compExp = this->getCompareExpressionNode(tokens);
 
-        if(compExpNode.type != ND_Unknown)
-            return compExpNode;
+        if(n_compExp.type != ND_Unknown)
+            return n_compExp;
 
         /* 計算式 */
 

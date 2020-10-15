@@ -130,12 +130,12 @@ ches::Token ches::cmd::Lexer::getNextToken() {
     }
 
     else if(MATCH_STR('\n')) {
-        for(index++; index < this->source.length(); index++) {
-            if(!MATCH_STR('\n')) {
-                index--;
-                break;
-            }
-        }
+        // for(index++; index < this->source.length(); index++) {
+        //     if(!MATCH_STR('\n')) {
+        //         index--;
+        //         break;
+        //     }
+        // }
 
         return GET_TOKEN(TK_NewLine);
     }

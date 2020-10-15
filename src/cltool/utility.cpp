@@ -144,11 +144,11 @@ void ches::Node::addToken(Token token) {
 }
 
 ches::Node ches::Node::childAt(int index) {
-    return this->children[(index >= 0 ? index : this->children.size() + index)];
+    return this->children.at((index >= 0 ? index : this->children.size() + index));
 }
 
 ches::Token ches::Node::tokenAt(int index) {
-    return this->tokens[(index >= 0 ? index : this->tokens.size() + index)];
+    return this->tokens.at((index >= 0 ? index : this->tokens.size() + index));
 }
 
 void ches::Node::print() {

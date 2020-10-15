@@ -54,9 +54,11 @@ namespace ches::cmd {
         std::string source;
         std::vector<Token> tokens;
         std::vector<Line> lines;
-        int blockNest = -1;
         Node tree = Node(ND_Root);
 
+        std::string className = "";
+
+        int blockNest = 0;
         int lineIndex = 0;
 
     public:
@@ -73,8 +75,6 @@ namespace ches::cmd {
         Node scanNextLine();
 
         Node scanNextNest(Byte nodeType = ND_Root);
-
-        Node getNode(Line line, Byte defaultType = ND_Root);
 
         Node getNode(std::vector<Token> tokens, Byte defaultType = ND_Token);
 
