@@ -55,13 +55,13 @@ void ches::cmd::ParenSeq::addCloseParen(Token token) {
 
     // 階層が0以下なのでエラー
     if(parenNest <= 0) {
-        Console::log(LogType_Error, 7904, { { "At", token.getPositionText(this->sourcePath, this->source) }, { "Unexpected", token.string } });
+        Console::log(LogType_Error, 699, { { "At", token.getPositionText(this->sourcePath, this->source) }, { "Unexpected", token.string } });
         return;
     }
 
     // 最後に開いた括弧の種類が異なるのでエラー
     if(token.type == expectingCloseParen.type) {
-        Console::log(LogType_Error, 7904, { { "At", token.getPositionText(this->sourcePath, this->source) }, { "Unexpected", token.string }, { "Expected", expectingCloseParen.string } });
+        Console::log(LogType_Error, 699, { { "At", token.getPositionText(this->sourcePath, this->source) }, { "Unexpected", token.string }, { "Expected", expectingCloseParen.string } });
         return;
     }
 
@@ -94,7 +94,7 @@ void ches::cmd::ParenSeq::checkParensFinally() {
         expectedParen = "}";
 
     if(expectedParen != "")
-        Console::log(LogType_Error, 5916, { { "Expected", expectedParen } });
+        Console::log(LogType_Error, 698, { { "Expected", expectedParen } });
 }
 
 // 外側を取り除いた括弧が不正でないかチェックする
@@ -273,7 +273,7 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         // endキーワードはscanNextNest()内で処理される
         // ブロック外でendキーワードが来た場合はエラー
         if(T_MATCH(0, TK_Keyword, "end"))
-            Console::log(LogType_Error, 7904, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", "end" } });
+            Console::log(LogType_Error, 699, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", "end" } });
 
         // DEFFUNC
         if(this->blockNest == 0 && T_TYPE_MATCH(0, TK_Identifier) && T_TYPE_MATCH(1, TK_LeftParen) && T_TYPE_MATCH(-1, TK_RightParen)) {
@@ -375,12 +375,12 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
 
         // ELSE
         if(len == 1 && T_MATCH(0, TK_Keyword, "else")) {
-            Console::log(LogType_Error, 7904, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
+            Console::log(LogType_Error, 699, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
         }
 
         // ELSEIF
         if(len == 1 && T_MATCH(0, TK_Keyword, "elif")) {
-            Console::log(LogType_Error, 7904, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
+            Console::log(LogType_Error, 699, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
         }
 
         // INITVAR todo: 複数トークンの型名 (e.g. ジェネリック) にも対応させる
