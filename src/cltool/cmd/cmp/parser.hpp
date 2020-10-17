@@ -59,7 +59,7 @@ namespace ches::cmd {
         std::string className = "";
 
         int blockNest = 0;
-        int lineIndex = 0;
+        int lineIndex = -1;
 
     public:
         Parser();

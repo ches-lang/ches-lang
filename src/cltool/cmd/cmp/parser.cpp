@@ -176,8 +176,6 @@ std::vector<ches::cmd::Line> ches::cmd::Parser::getLines() {
             line.push_back(token);
         }
 
-        Console::writeln("line: " + std::to_string(line.size()));
-
         if(line.size() > 0)
             lines.push_back(Line(line));
 
@@ -185,13 +183,11 @@ std::vector<ches::cmd::Line> ches::cmd::Parser::getLines() {
             break;
     }
 
-    Console::writeln("line len: " + std::to_string(lines.size()));
-
     return lines;
 }
 
 ches::Node ches::cmd::Parser::parse() {
-    while(this->lineIndex < this->lines.size())
+    while(this->lineIndex == -1 || this->lineIndex + 1 < this->lines.size())
         this->tree.addChild(this->scanNextLine());
 
     // ブロックが開いたままである場合はエラー
@@ -207,9 +203,8 @@ ches::Node ches::cmd::Parser::parse() {
 }
 
 ches::Node ches::cmd::Parser::scanNextLine() {
-    Node node = this->getNode(CURR_LINE.tokens, ND_Root);
-    // lineIndexはノード取得後に変更してください
     this->lineIndex++;
+    Node node = this->getNode(CURR_LINE.tokens, ND_Root);
     return node;
 }
 
@@ -218,12 +213,9 @@ ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
     Line baseLine = CURR_LINE;
 
     this->blockNest++;
-    Console::writeln("v");
 
     while(true) {
         this->lineIndex++;
-        Console::writeln(std::to_string(this->lineIndex));
-        Console::writeln(std::to_string(this->lines.size()));
 
         // 行インデックスがLineのサイズを超える場合
         if(this->lineIndex >= this->lines.size())
@@ -231,19 +223,17 @@ ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
 
         std::vector<Token> tokens = CURR_LINE.tokens;
 
-        std::cout << "ln:   ";
-        for(Token tk : tokens)
-            std::cout << tk.string << " ";
-        std::cout << std::endl;///
+        // std::cout << "    ln(" << this->lineIndex << ";" << "n" << this->blockNest << "):   ";
+        // for(Token tk : tokens)
+        //     std::cout << (tk.string == "\n" ? "\\n" : tk.string) << " ";
+        // std::cout << std::endl;///
 
         // ブロックの終わりが来たらbreakする
-        if(tokens.size() == 1) {
-            if(T_MATCH(0, TK_Keyword, "end") ||
-                    T_MATCH(0, TK_Keyword, "elif") ||
-                    T_MATCH(0, TK_Keyword, "else")) {
-                this->blockNest--;
-                break;
-            }
+        if(T_MATCH(0, TK_Keyword, "end") ||
+                T_MATCH(0, TK_Keyword, "elif") ||
+                T_MATCH(0, TK_Keyword, "else")) {
+            this->blockNest--;
+            break;
         }
 
         n_root.addChild(this->getNode(CURR_LINE.tokens, ND_Root));
@@ -265,12 +255,10 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         std::cout << std::endl;///
 
         // DEFCLASSNAME
-        if(this->blockNest == 0 && T_TYPE_MATCH(0, TK_Identifier)) {
-            if(this->className == "") {
-                this->className = T_AT(0).string;
-                this->lineIndex++;
-                return this->scanNextLine();
-            }
+        // todo: マッチの条件を変える (名前空間などに対応)
+        if(this->className == "" && this->blockNest == 0 && T_TYPE_MATCH(0, TK_Identifier)) {
+            this->className = T_AT(0).string;
+            return this->scanNextLine();
         }
 
         // クラス名が定義されていない場合はエラー
@@ -279,8 +267,6 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
 
         // 改行は無視する (行数保持のために改行文字のみの行が残してある)
         if(T_TYPE_MATCH(0, TK_NewLine)) {
-            Console::writeln("breakline: " + std::to_string(this->lineIndex));
-            this->lineIndex++;
             return this->scanNextLine();
         }
 
@@ -378,14 +364,8 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
             n_root.addChild(this->getNode(this->copy(1, len - 1, tokens)));
             n_root.addChild(this->scanNextNest());
 
-            while(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "elif"){
-                Console::writeln();
-                Console::writeln(CURR_LINE.tokens.at(0).string);
+            while(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "elif")
                 n_root.addChild(this->scanNextNest(ND_ElseIf));
-            }
-
-Console::write("currLineTokens.at(0).string: ");
-Console::writeln(CURR_LINE.tokens.at(0).string);
 
             if(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "else")
                 n_root.addChild(this->scanNextNest(ND_Else));

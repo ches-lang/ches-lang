@@ -5,13 +5,15 @@ const(str[] args)
     if args.len <= 1
         println("Please input me your name...")
     end
-end
 
+    str h1
+    str h2 = ""
+    str h3
+end
 
 println()
-    exit()
+    print("...")
 end
-
 
 exit()
 end
