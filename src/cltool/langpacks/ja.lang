@@ -19,6 +19,7 @@ Error_6845_Message ファイル読み込み失敗
 Error_6923_Message 不明な言語
 Error_8194_Message 無効なコマンドオプション
 Error_8732_Message 無効なマジックナンバー
+Error_9034_Message 不明な構文
 
 Note_4247_Message -miss で警告を無視する
 Note_7148_Message -limit でログ表示制限を変更する

@@ -473,7 +473,7 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         std::cout << "EXCEPTION" << std::endl;
     }
 
-    // todo: add an error 'unknown syntax'
+    Console::log(LogType_Error, 9034, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) } });
     return Node(ND_Unknown);
 }
 
