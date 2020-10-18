@@ -99,7 +99,7 @@ bool ches::Token::isOpenParen() {
 }
 
 bool ches::Token::isValueType() {
-    return std::regex_match(this->string, std::regex("bol|byt|int|lng|sht"));
+    return std::regex_match(this->string, std::regex("bol|byt|chr|dbl|flt|int|lon|obj|sht|str|ubyt|usht|uint|ulon|void"));
 }
 
 bool ches::Token::match(ches::ByteSeq matches) {
@@ -171,6 +171,10 @@ void ches::Node::addChild(Node node) {
 
 void ches::Node::addToken(Token token) {
     this->tokens.push_back(token);
+}
+
+void ches::Node::addToken(TokenSeq tokenSeq) {
+    this->tokens.push_back(tokenSeq);
 }
 
 ches::Node ches::Node::childAt(int index) {

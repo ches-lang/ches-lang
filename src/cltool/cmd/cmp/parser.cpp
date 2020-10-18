@@ -342,25 +342,21 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
         // DEFVAR
         if(len == 2 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_Identifier)) {
             Node n_root(ND_DefVar);
-            n_root.addToken(T_AT(0));
-            n_root.addToken(T_AT(1));
+            n_root.addToken(tokens.copy(0, 1));
             return n_root;
         }
 
         // DEFVAR (ARRAY)
         if(len == 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_LeftBracket) && T_TYPE_MATCH(2, TK_RightBracket) && T_TYPE_MATCH(3, TK_Identifier)) {
             Node n_root(ND_DefVar);
-            n_root.addToken(T_AT(0));
-            n_root.addToken(T_AT(1));
-            n_root.addToken(T_AT(2));
-            n_root.addToken(T_AT(3));
+            n_root.addToken(tokens.copy(0, 3));
             return n_root;
         }
 
         // IF
         if(len >= 2 && T_MATCH(0, TK_Keyword, "if")) {
             Node n_root(ND_If);
-            n_root.addChild(this->getNode(this->copy(1, len - 1, tokens)));
+            n_root.addChild(this->getNode(tokens.copy(1, len - 1)));
             n_root.addChild(this->scanNextNest());
 
             while(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "elif")
@@ -383,30 +379,19 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
         // INITVAR todo: 複数トークンの型名 (e.g. ジェネリック) にも対応させる
         if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
             Node n_root(ND_InitVar);
-            n_root.addToken(T_AT(0));
-            n_root.addToken(T_AT(1));
-            n_root.addChild(this->getNode(this->copy(3, len - 3, tokens)));
-
-            /*if(len == 4) {
-                n_root.addToken(T_AT(3));
-            } else {
-                TokenSeq rs;
-                for(int i = 3; i < len; i++)
-                    rs.push_back(T_AT(i));
-                n_root.addChild(getNode(rs));
-            }*/
-
+            n_root.addToken(tokens.copy(0, 1));
+            n_root.addChild(this->getNode(tokens.copy(3, len - 3)));
             return n_root;
         }
 
         // LOOP
         if(len >= 2 && T_MATCH(0, TK_Keyword, "for")) {
             Node n_root(ND_Loop);
-            vector_ext<TokenSeq> exprs = this->copy(1, len - 1, tokens).divide(TK_Semicolon);
+            vector_ext<TokenSeq> exprs = tokens.copy(1, len - 1).divide(TK_Semicolon);
 
             if(exprs.size() == 1) {
                 // Example: for(true)
-                n_root.addChild(this->getNode(this->copy(1, len - 1, tokens), ND_Loop_Cond));
+                n_root.addChild(this->getNode(tokens.copy(1, len - 1), ND_Loop_Cond));
             } else if(exprs.size() == 3) {
                 // Example: for(i = 0; i < 5; i++)
                 TokenSeq item;
@@ -614,13 +599,4 @@ bool ches::cmd::Parser::compareOpe(std::string ope1, std::string ope2) {
         return (std::regex_match(ope2, std::regex("[]")));
 
     return false;
-}
-
-ches::TokenSeq ches::cmd::Parser::copy(int begin, int length, TokenSeq src) {
-    TokenSeq res;
-
-    for(int i = begin; i < begin + length; i++)
-        res.push_back(src.at(i));
-
-    return res;
 }

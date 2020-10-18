@@ -140,16 +140,16 @@ namespace ches {
         vector_ext() {}
 
         vector_ext(T value) {
-            std::vector<T>::push_back(value);
+            this->push_back(value);
         }
 
         vector_ext(std::initializer_list<T> value) {
             for(T val : value)
-                std::vector<T>::push_back(val);
+                this->push_back(val);
         }
 
         vector_ext(std::vector<T> value) {
-            std::vector<T>::push_back(value);
+            this->push_back(value);
         }
 
         vector_ext<T> copy(int begin, int end) {
@@ -310,8 +310,8 @@ namespace ches {
 
     struct Node {
         Byte type = ND_Unknown;
-        std::vector<Node> children;
-        std::vector<Token> tokens;
+        vector_ext<Node> children;
+        vector_ext<Token> tokens;
         std::string prefix = "||";
 
         Node();
@@ -327,6 +327,8 @@ namespace ches {
         void addChild(Node node);
 
         void addToken(Token token);
+
+        void addToken(TokenSeq tokenSeq);
 
         Node childAt(int index);
 
