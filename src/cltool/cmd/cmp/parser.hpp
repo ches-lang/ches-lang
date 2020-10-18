@@ -13,18 +13,18 @@
 
 namespace ches::cmd {
     struct Line {
-        std::vector<Token> tokens;
+        TokenSeq tokens;
         int beginIndex;
 
         Line();
 
-        Line(std::vector<Token> tokens);
+        Line(TokenSeq tokens);
     };
 
 
     struct ParenSeq {
         std::vector<int> parenNest = std::vector<int>(3, 0);
-        std::vector<Token> parens;
+        TokenSeq parens;
         std::string sourcePath;
         std::string source;
         Token latestOpenParen;
@@ -33,7 +33,7 @@ namespace ches::cmd {
 
         ParenSeq(std::string sourcePath, std::string source);
 
-        std::vector<Token> getOrderedParens(std::vector<Token> tokens);
+        TokenSeq getOrderedParens(TokenSeq tokens);
 
     private:
         void addCloseParen(Token token);
@@ -42,7 +42,7 @@ namespace ches::cmd {
 
         void checkParensFinally();
 
-        std::vector<Token> removeSideParens(std::vector<Token> tokens);
+        TokenSeq removeSideParens(TokenSeq tokens);
 
         int getParenNumber(Byte type);
     };
@@ -52,7 +52,7 @@ namespace ches::cmd {
     private:
         std::string sourcePath;
         std::string source;
-        std::vector<Token> tokens;
+        TokenSeq tokens;
         std::vector<Line> lines;
         Node tree = Node(ND_Root);
 
@@ -64,7 +64,7 @@ namespace ches::cmd {
     public:
         Parser();
 
-        Parser(std::string srcpath, std::string src, std::vector<Token> tk);
+        Parser(std::string srcpath, std::string src, TokenSeq tk);
 
         Node parse();
 
@@ -76,19 +76,19 @@ namespace ches::cmd {
 
         Node scanNextNest(Byte nodeType = ND_Root);
 
-        Node getNode(std::vector<Token> tokens, Byte defaultType = ND_Token);
+        Node getNode(TokenSeq tokens, Byte defaultType = ND_Token);
 
-        Node getLogicalExpressionNode(std::vector<Token> tokens);
+        Node getLogicalExpressionNode(TokenSeq tokens);
 
-        Node getCompareExpressionNode(std::vector<Token> tokens);
+        Node getCompareExpressionNode(TokenSeq tokens);
 
-        Byte getOpeType(std::vector<Token> tokens, int index);
+        Byte getOpeType(TokenSeq tokens, int index);
 
         // 優先度高い             優先度低い
         // true → ope1 < ope2   false → ope1 >= ope2
         bool compareOpe(std::string ope1, std::string ope2);
 
-        std::vector<Token> copy(int begin, int length, std::vector<Token> src);
+        TokenSeq copy(int begin, int length, TokenSeq src);
 
         Line getLine(int startIndex);
     };

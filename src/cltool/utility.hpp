@@ -134,6 +134,82 @@ namespace ches {
     };
 
 
+    template<class T>
+
+    struct vector_ext : public std::vector<T> {
+        vector_ext() {}
+
+        vector_ext(T value) {
+            std::vector<T>::push_back(value);
+        }
+
+        vector_ext(std::initializer_list<T> value) {
+            for(T val : value)
+                std::vector<T>::push_back(val);
+        }
+
+        vector_ext(std::vector<T> value) {
+            std::vector<T>::push_back(value);
+        }
+
+        vector_ext<T> copy(int begin, int end) {
+            vector_ext<T> result;
+
+            auto beginItr = begin >= 0 ? this->begin() + begin : this->begin() + this->size() + begin + 1;
+            auto endItr = end >= 0 ? this->end() - this->size() + end + 1 : this->end() + end + 1;
+
+            std::copy(beginItr, endItr, std::back_inserter(result));
+
+            return result;
+        }
+
+        vector_ext<vector_ext<T>> divide(T separator) {
+            vector_ext<vector_ext<T>> divided = {};
+
+            for(T value : *this) {
+                if(value.type == separator) {
+                    divided.push_back({});
+                } else {
+                    divided[divided.size() - 1].push_back(value);
+                }
+            }
+
+            return divided;
+        }
+
+        inline void pop_back() {
+            std::vector<T>::pop_back();
+        }
+
+        inline void pop_back(int len) {
+            for(int i = 0; i < len; i++)
+                std::vector<T>::pop_back();
+        }
+
+        inline void push_back() {
+            std::vector<T>::push_back(T());
+        }
+
+        inline void push_back(T value) {
+            std::vector<T>::push_back(value);
+        }
+
+        inline void push_back(std::vector<T> value) {
+            for(T val : value)
+                std::vector<T>::push_back(val);
+        }
+
+        inline void push_back(vector_ext<T> value) {
+            for(T val : value)
+                std::vector<T>::push_back(val);
+        }
+
+        inline void push_front(T value) {
+            std::vector<T>::insert(this->begin(), value);
+        }
+    };
+
+
     struct Token {
         int index = 0;
         Byte type = TK_Unknown;
@@ -192,6 +268,44 @@ namespace ches {
     };
 
 
+    struct TokenSeq : vector_ext<Token> {
+        TokenSeq copy(int begin, int end);
+
+        vector_ext<TokenSeq> divide(TokenType separator);
+
+        inline void pop_back() {
+            vector_ext<Token>::pop_back();
+        }
+
+        inline void pop_back(int len) {
+            for(int i = 0; i < len; i++)
+                vector_ext<Token>::pop_back();
+        }
+
+        inline void push_back() {
+            vector_ext<Token>::push_back(Token());
+        }
+
+        inline void push_back(Token value) {
+            vector_ext<Token>::push_back(value);
+        }
+
+        inline void push_back(TokenSeq value) {
+            for(Token val : value)
+                vector_ext<Token>::push_back(val);
+        }
+
+        inline void push_back(vector_ext<Token> value) {
+            for(Token val : value)
+                vector_ext<Token>::push_back(val);
+        }
+
+        inline void push_front(Token value) {
+            vector_ext<Token>::insert(this->begin(), value);
+        }
+    };
+
+
     struct Node {
         Byte type = ND_Unknown;
         std::vector<Node> children;
@@ -221,68 +335,6 @@ namespace ches {
         void print(std::string level);
 
         std::string typeToString();
-    };
-
-
-    template<class T>
-
-    struct vector_ext : public std::vector<T> {
-        vector_ext() {}
-
-        vector_ext(T value) {
-            this->push_back(value);
-        }
-
-        vector_ext(std::initializer_list<T> value) {
-            for(T val : value)
-                this->push_back(val);
-        }
-
-        vector_ext(std::vector<T> value) {
-            this->push_back(value);
-        }
-
-        inline void pop_back() {
-            std::vector<T>::pop_back();
-        }
-
-        inline void pop_back(int len) {
-            for(int i = 0; i < len; i++)
-                std::vector<T>::pop_back();
-        }
-
-        inline void push_back() {
-            std::vector<T>::push_back(T());
-        }
-
-        inline void push_back(T value) {
-            std::vector<T>::push_back(value);
-        }
-
-        inline void push_back(std::vector<T> value) {
-            for(T val : value)
-                std::vector<T>::push_back(val);
-        }
-
-        inline void push_back(vector_ext<T> value) {
-            for(T val : value)
-                std::vector<T>::push_back(val);
-        }
-
-        inline void push_front(T value) {
-            std::vector<T>::insert(this->begin(), value);
-        }
-
-        vector_ext<T> copy(int begin, int end) {
-            vector_ext<T> result;
-
-            auto beginItr = begin >= 0 ? this->begin() + begin : this->begin() + this->size() + begin + 1;
-            auto endItr = end >= 0 ? this->end() - this->size() + end + 1 : this->end() + end + 1;
-
-            std::copy(beginItr, endItr, std::back_inserter(result));
-
-            return result;
-        }
     };
 
 

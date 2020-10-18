@@ -15,7 +15,7 @@ namespace ches::cmd {
 
         Lexer(std::string filePath, std::string &source);
 
-        std::vector<Token> splitTokens();
+        TokenSeq splitTokens();
 
     private:
         void initTokenPairs();

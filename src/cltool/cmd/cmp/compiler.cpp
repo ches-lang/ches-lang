@@ -51,7 +51,7 @@ ches::ByteSeq ches::cmd::Compiler::toBytecode() {
 
     std::string source;
     Lexer lexer;
-    std::vector<Token> tokens;
+    TokenSeq tokens;
     Parser parser;
     Node node;
 

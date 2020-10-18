@@ -113,6 +113,33 @@ bool ches::Token::match(std::string regexp) {
 }
 
 
+ches::TokenSeq ches::TokenSeq::copy(int begin, int end) {
+    TokenSeq result;
+
+    auto beginItr = begin >= 0 ? this->begin() + begin : this->begin() + this->size() + begin + 1;
+    auto endItr = end >= 0 ? this->end() - this->size() + end + 1 : this->end() + end + 1;
+
+    std::copy(beginItr, endItr, std::back_inserter(result));
+
+    return result;
+}
+
+
+ches::vector_ext<ches::TokenSeq> ches::TokenSeq::divide(ches::TokenType separator) {
+    vector_ext<TokenSeq> divided = {{}};
+
+    for(Token value : *this) {
+        if(value.type == separator) {
+            divided.push_back((TokenSeq){});
+        } else {
+            divided.at(divided.size() - 1).push_back(value);
+        }
+    }
+
+    return divided;
+}
+
+
 ches::Node::Node() {}
 
 ches::Node::Node(Byte type) {

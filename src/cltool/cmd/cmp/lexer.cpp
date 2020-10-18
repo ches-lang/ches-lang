@@ -13,7 +13,7 @@
 #define JUDGE_TOKEN(char, type)         if(MATCH_STR(char)) return GET_TOKEN(type);
 #define JUDGE_PAREN_TOKEN(char, type)   if(MATCH_STR(char)) { Token token = GET_TOKEN(type); validateParen(token); return token; }
 
-typedef std::unordered_map<unsigned char, std::pair<int, std::vector<ches::Token>>>   nest_map;
+typedef std::unordered_map<unsigned char, std::pair<int, ches::TokenSeq>>   nest_map;
 
 #include "lexer.hpp"
 
@@ -25,8 +25,8 @@ ches::cmd::Lexer::Lexer(std::string filePath, std::string &source) {
     this->source = source;
 }
 
-std::vector<ches::Token> ches::cmd::Lexer::splitTokens() {
-    std::vector<Token> tokenList;
+ches::TokenSeq ches::cmd::Lexer::splitTokens() {
+    TokenSeq tokenList;
     Token token;
 
     do {

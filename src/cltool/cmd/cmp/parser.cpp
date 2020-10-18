@@ -5,8 +5,8 @@
 
 ches::cmd::Line::Line() {}
 
-ches::cmd::Line::Line(std::vector<Token> tokens) {
-    std::vector<Token> line;
+ches::cmd::Line::Line(TokenSeq tokens) {
+    TokenSeq line;
     int nest = 0;
 
     for(int i = 0; i < tokens.size(); i++) {
@@ -29,7 +29,7 @@ ches::cmd::ParenSeq::ParenSeq(std::string sourcePath, std::string source) {
 }
 
 // 括弧が渡されたら開き括弧と閉じ括弧を判断する
-std::vector<ches::Token> ches::cmd::ParenSeq::getOrderedParens(std::vector<Token> tokens) {
+ches::TokenSeq ches::cmd::ParenSeq::getOrderedParens(TokenSeq tokens) {
     //int len = tokens.size();
     ByteSeq leftParens = { TK_LeftParen, TK_LeftBracket, TK_LeftBrace };
     ByteSeq rightParens = { TK_RightParen, TK_RightBracket, TK_RightBrace };
@@ -99,12 +99,12 @@ void ches::cmd::ParenSeq::checkParensFinally() {
 
 // 外側を取り除いた括弧が不正でないかチェックする
 // もし不正ならば取り除いていない状態の括弧を返す
-std::vector<ches::Token> ches::cmd::ParenSeq::removeSideParens(std::vector<Token> tokens) {
+ches::TokenSeq ches::cmd::ParenSeq::removeSideParens(TokenSeq tokens) {
     // 渡された括弧の数が1以下ならばtokensを返す
     if(tokens.size() <= 1)
         return tokens;
 
-    std::vector<Token> insideParens;
+    TokenSeq insideParens;
 
     // 内側の括弧を取り出す
     for(int i = 1; i < tokens.size() - 1; i++)
@@ -145,7 +145,7 @@ int ches::cmd::ParenSeq::getParenNumber(Byte type) {
 
 ches::cmd::Parser::Parser() {}
 
-ches::cmd::Parser::Parser(std::string sourcePath, std::string source, std::vector<Token> tokens) {
+ches::cmd::Parser::Parser(std::string sourcePath, std::string source, TokenSeq tokens) {
     this->sourcePath = sourcePath;
     this->source = source;
     this->tokens = tokens;
@@ -157,7 +157,7 @@ std::vector<ches::cmd::Line> ches::cmd::Parser::getLines() {
     int tokenIndex = 0;
 
     while(true) {
-        std::vector<Token> line;
+        TokenSeq line;
 
         while(true) {
             Token token = this->tokens.at(tokenIndex);
@@ -221,7 +221,7 @@ ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
         if(this->lineIndex >= this->lines.size())
             break;
 
-        std::vector<Token> tokens = CURR_LINE.tokens;
+        TokenSeq tokens = CURR_LINE.tokens;
 
         // std::cout << "    ln(" << this->lineIndex << ";" << "n" << this->blockNest << "):   ";
         // for(Token tk : tokens)
@@ -242,7 +242,7 @@ ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
     return n_root;
 }
 
-ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultType) {
+ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
     try {
         int len = tokens.size();
 
@@ -266,9 +266,8 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
             Console::log(LogType_Error, 4952, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Expected", "<class-name>" } }, true);
 
         // 改行は無視する (行数保持のために改行文字のみの行が残してある)
-        if(T_TYPE_MATCH(0, TK_NewLine)) {
+        if(T_TYPE_MATCH(0, TK_NewLine))
             return this->scanNextLine();
-        }
 
         // endキーワードはscanNextNest()内で処理される
         // ブロック外でendキーワードが来た場合はエラー
@@ -282,7 +281,7 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
             n_root.addToken(Token(TK_Identifier, T_AT(0).string));
 
             if(len >= 4) {
-                std::vector<Token> args;
+                TokenSeq args;
                 int nestInArgs = 0;
 
                 for(int i = 2; i < len - 1; i++) {
@@ -315,7 +314,7 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
             n_root.addToken(T_AT(0));
 
             if(len >= 4) {
-                std::vector<Token> args;
+                TokenSeq args;
                 int parenNest = 0;
 
                 for(int i = 2; i < len - 1; i++) {
@@ -374,14 +373,12 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         }
 
         // ELSE
-        if(len == 1 && T_MATCH(0, TK_Keyword, "else")) {
+        if(len == 1 && T_MATCH(0, TK_Keyword, "else"))
             Console::log(LogType_Error, 699, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
-        }
 
         // ELSEIF
-        if(len == 1 && T_MATCH(0, TK_Keyword, "elif")) {
+        if(len == 1 && T_MATCH(0, TK_Keyword, "elif"))
             Console::log(LogType_Error, 699, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
-        }
 
         // INITVAR todo: 複数トークンの型名 (e.g. ジェネリック) にも対応させる
         if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
@@ -393,7 +390,7 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
             /*if(len == 4) {
                 n_root.addToken(T_AT(3));
             } else {
-                std::vector<Token> rs;
+                TokenSeq rs;
                 for(int i = 3; i < len; i++)
                     rs.push_back(T_AT(i));
                 n_root.addChild(getNode(rs));
@@ -403,39 +400,33 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         }
 
         // LOOP
-        if(len >= 4 && T_MATCH(0, TK_Keyword, "for") && T_TYPE_MATCH(1, TK_LeftParen) && T_TYPE_MATCH(-1, TK_RightParen)) {
+        if(len >= 2 && T_MATCH(0, TK_Keyword, "for")) {
             Node n_root(ND_Loop);
-            std::vector<std::vector<Token>> semicolonDiv = {};
+            vector_ext<TokenSeq> exprs = this->copy(1, len - 1, tokens).divide(TK_Semicolon);
 
-            for(Token tk : tokens)
-                if(tk.type == TK_Semicolon)
-                    semicolonDiv.push_back({});
-                else
-                    semicolonDiv[semicolonDiv.size() - 1].push_back(tk);
-
-            if(semicolonDiv.size() == 1) {
+            if(exprs.size() == 1) {
                 // Example: for(true)
                 n_root.addChild(this->getNode(this->copy(1, len - 1, tokens), ND_Loop_Cond));
-            } else if(semicolonDiv.size() == 3) {
+            } else if(exprs.size() == 3) {
                 // Example: for(i = 0; i < 5; i++)
-                std::vector<Token> item;
+                TokenSeq item;
 
-                n_root.addChild(this->getNode(semicolonDiv[0], ND_Loop_Init));
-                n_root.addChild(this->getNode(semicolonDiv[1], ND_Loop_Cond));
-                n_root.addChild(this->getNode(semicolonDiv[2], ND_Loop_Change));
+                n_root.addChild(this->getNode(exprs[0], ND_Loop_Init));
+                n_root.addChild(this->getNode(exprs[1], ND_Loop_Cond));
+                n_root.addChild(this->getNode(exprs[2], ND_Loop_Change));
             } else {
                 //構文エラー
             }
 
+            n_root.addChild(this->scanNextNest());
             return n_root;
         }
-
 
 
         /* 括弧チェック */
 
         ParenSeq parenSeq(this->sourcePath, this->source);
-        std::vector<Token> orderedTokens = parenSeq.getOrderedParens(tokens);
+        TokenSeq orderedTokens = parenSeq.getOrderedParens(tokens);
 
         len = tokens.size();
         bool enclosed;
@@ -463,7 +454,6 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
         /* 計算式 */
 
 
-
         // トークンの長さが１かどうかは、最後にチェックしてください
         // (最初にチェックすると、else文などが弾かれてしまうため)
         if(len == 1)
@@ -480,9 +470,9 @@ ches::Node ches::cmd::Parser::getNode(std::vector<Token> tokens, Byte defaultTyp
 // 式でなかった場合のtypeはUNKNOWN
 // ここで判断
 // 変数'len' および 引数名'tokens' は変更しないでください (T_AT(i)を使用するため)
-ches::Node ches::cmd::Parser::getLogicalExpressionNode(std::vector<Token> tokens) {
+ches::Node ches::cmd::Parser::getLogicalExpressionNode(TokenSeq tokens) {
     Node node(ND_Logic);
-    std::vector<Token> side;
+    TokenSeq side;
     int len = tokens.size();
     int nest = 0;
 
@@ -522,11 +512,11 @@ ches::Node ches::cmd::Parser::getLogicalExpressionNode(std::vector<Token> tokens
         return Node(ND_Unknown);
 }
 
-ches::Node ches::cmd::Parser::getCompareExpressionNode(std::vector<Token> tokens) {
+ches::Node ches::cmd::Parser::getCompareExpressionNode(TokenSeq tokens) {
     Node node(ND_Compare);
     Byte opeType = ND_Unknown;
-    std::vector<Token> leftside;
-    std::vector<Token> rightside;
+    TokenSeq leftside;
+    TokenSeq rightside;
     int len = tokens.size();
     int nest = 0;
 
@@ -581,7 +571,7 @@ ches::Node ches::cmd::Parser::getCompareExpressionNode(std::vector<Token> tokens
 }
 
 // 引数名'tokens' および 変数'len' を変更しないでください (マクロ'T_AT(i)' を使用するため)
-ches::Byte ches::cmd::Parser::getOpeType(std::vector<Token> tokens, int index) {
+ches::Byte ches::cmd::Parser::getOpeType(TokenSeq tokens, int index) {
     int len = tokens.size();
     Byte tokenType = T_AT(index).type;
 
@@ -626,8 +616,8 @@ bool ches::cmd::Parser::compareOpe(std::string ope1, std::string ope2) {
     return false;
 }
 
-std::vector<ches::Token> ches::cmd::Parser::copy(int begin, int length, std::vector<Token> src) {
-    std::vector<Token> res;
+ches::TokenSeq ches::cmd::Parser::copy(int begin, int length, TokenSeq src) {
+    TokenSeq res;
 
     for(int i = begin; i < begin + length; i++)
         res.push_back(src.at(i));
