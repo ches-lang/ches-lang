@@ -32,7 +32,7 @@ void runCommand() {
     }));
 
     procs.insert(std::make_pair("run", []() {
-        ches::cmd::Run();
+        ches::run::Run();
     }));
 
     cmdprocs::iterator itr = procs.find(g_cmd.cmdName);

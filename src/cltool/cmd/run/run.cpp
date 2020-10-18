@@ -1,9 +1,11 @@
 #pragma once
 
+#include "interpreter.cpp"
+
 #include "run.hpp"
 
 
-ches::cmd::Run::Run() {
+ches::run::Run::Run() {
     if(g_cmd.existsArgKey("-help")) {
         this->showHelpMessage();
         return;
@@ -17,11 +19,13 @@ ches::cmd::Run::Run() {
     Console::log(LogType_Error, 5899, {}, true);
 }
 
-void ches::cmd::Run::interpretProgram() {
-    //Interpreter itp(g_cmd.argKeyAt("-i"), FileManager::readByteSeq(g_cmd.argKeyAt("-i")));
+void ches::run::Run::interpretProgram() {
+    ByteSeq fileCont;
+    FileManager::readByteSeq(g_cmd.argKeyAt("-i"), fileCont);
+    Interpreter itp(g_cmd.argKeyAt("-i"), fileCont);
     //itp.runProgram();
 }
 
-void ches::cmd::Run::showHelpMessage() {
+void ches::run::Run::showHelpMessage() {
     Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
 }
