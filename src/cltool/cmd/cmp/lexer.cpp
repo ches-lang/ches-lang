@@ -1,6 +1,6 @@
 #pragma once
 
-// getNextToken用のマクロ
+#include "lexer.hpp"
 
 #define MATCH_STR(ch1)                  (this->source[index] == ch1)
 #define MATCH_STR_2(ch1, ch2)           (index < this->source.length() - 1 && this->source[index] == ch1 && this->source[index + 1] == ch2)
@@ -12,10 +12,6 @@
 #define GET_TOKEN(type)                 Token(type, std::string { this->source[index] }, index)
 #define JUDGE_TOKEN(char, type)         if(MATCH_STR(char)) return GET_TOKEN(type);
 #define JUDGE_PAREN_TOKEN(char, type)   if(MATCH_STR(char)) { Token token = GET_TOKEN(type); validateParen(token); return token; }
-
-typedef std::unordered_map<unsigned char, std::pair<int, ches::TokenSeq>>   nest_map;
-
-#include "lexer.hpp"
 
 
 ches::cmd::Lexer::Lexer() {}
@@ -93,30 +89,13 @@ ches::Token ches::cmd::Lexer::getNextToken() {
         return Token(TK_Comment, comment, startIndex);
     }
 
-    JUDGE_TOKEN('!', TK_Exclamation);
-    JUDGE_TOKEN('?', TK_Question);
-    JUDGE_TOKEN('~', TK_Tilde);
-    JUDGE_TOKEN('+', TK_Plus);
-    JUDGE_TOKEN('-', TK_Hyphen);
-    JUDGE_TOKEN('*', TK_Asterisk);
-    JUDGE_TOKEN('/', TK_Slash);
-    JUDGE_TOKEN('%', TK_Percent);
-    JUDGE_TOKEN('^', TK_Tilde);
-    JUDGE_TOKEN('=', TK_Equal);
-    JUDGE_TOKEN('|', TK_Pipe);
-    JUDGE_TOKEN('&', TK_Ampersand);
-    JUDGE_TOKEN('.', TK_Period);
-    JUDGE_TOKEN(',', TK_Comma);
-    JUDGE_TOKEN(':', TK_Colon);
-    JUDGE_TOKEN(';', TK_Semicolon);
-    JUDGE_PAREN_TOKEN('(', TK_LeftParen);
-    JUDGE_PAREN_TOKEN(')', TK_RightParen);
-    JUDGE_PAREN_TOKEN('[', TK_LeftBracket);
-    JUDGE_PAREN_TOKEN(']', TK_RightBracket);
-    JUDGE_TOKEN('<', TK_LeftAngleBracket);
-    JUDGE_TOKEN('>', TK_RightAngleBracket);
-    JUDGE_PAREN_TOKEN('{', TK_LeftBrace);
-    JUDGE_PAREN_TOKEN('}', TK_RightBrace);
+    // 基本的なトークンを判定する
+    for(token_pair pair : tokenPairs)
+        JUDGE_TOKEN(pair.first, pair.second);
+
+    // 括弧トークンを判定する
+    for(token_pair pair : parenTokenPairs)
+        JUDGE_TOKEN(pair.first, pair.second);
 
     if(MATCH_STR(' ')) {
         // インデントでない場合は次のトークンを返す
