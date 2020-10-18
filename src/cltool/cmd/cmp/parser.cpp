@@ -340,7 +340,7 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
         }
 
         // DEFVAR
-        if(len == 2 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_Identifier)) {
+        if(len == 2 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_Identifier)) {
             Node n_root(ND_DefVar);
             n_root.addToken(T_AT(0));
             n_root.addToken(T_AT(1));
@@ -348,7 +348,7 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
         }
 
         // DEFVAR (ARRAY)
-        if(len == 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_LeftBracket) && T_TYPE_MATCH(2, TK_RightBracket) && T_TYPE_MATCH(3, TK_Identifier)) {
+        if(len == 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_LeftBracket) && T_TYPE_MATCH(2, TK_RightBracket) && T_TYPE_MATCH(3, TK_Identifier)) {
             Node n_root(ND_DefVar);
             n_root.addToken(T_AT(0));
             n_root.addToken(T_AT(1));
@@ -381,7 +381,7 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
             Console::log(LogType_Error, 699, { { "At", T_AT(0).getPositionText(this->sourcePath, this->source) }, { "Unexpected", T_AT(0).string } });
 
         // INITVAR todo: 複数トークンの型名 (e.g. ジェネリック) にも対応させる
-        if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
+        if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
             Node n_root(ND_InitVar);
             n_root.addToken(T_AT(0));
             n_root.addToken(T_AT(1));

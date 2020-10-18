@@ -262,6 +262,8 @@ namespace ches {
 
         bool isOpenParen();
 
+        bool isValueType();
+
         bool match(ByteSeq matches);
 
         bool match(std::string regexp);

@@ -98,6 +98,10 @@ bool ches::Token::isOpenParen() {
     return this->match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace });
 }
 
+bool ches::Token::isValueType() {
+    return std::regex_match(this->string, std::regex("bol|byt|int|lng|sht"));
+}
+
 bool ches::Token::match(ches::ByteSeq matches) {
     bool res = false;
 
@@ -123,7 +127,6 @@ ches::TokenSeq ches::TokenSeq::copy(int begin, int end) {
 
     return result;
 }
-
 
 ches::vector_ext<ches::TokenSeq> ches::TokenSeq::divide(ches::TokenType separator) {
     vector_ext<TokenSeq> divided = {{}};
