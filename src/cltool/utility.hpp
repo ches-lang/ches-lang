@@ -380,6 +380,20 @@ namespace ches {
             return result;
         }
 
+        static ByteSeq join(vector_ext<ByteSeq> byteSeqs, ByteSeq separator) {
+            ByteSeq result;
+
+            for(ByteSeq seq : byteSeqs) {
+                result.push_back(seq);
+                result.push_back(separator);
+            }
+
+            if(result.size() > 0)
+                result.pop_back(separator.size());
+
+            return result;
+        }
+
         inline void pop_back() {
             vector_ext<Byte>::pop_back();
         }

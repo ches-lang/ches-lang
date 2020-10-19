@@ -142,7 +142,7 @@ namespace ches {
             return newFilePath;
         }
 
-        static void writeBytecode(std::string filePath, ByteSeq &source) {
+        static void writeBytecode(std::string filePath, ByteSeq source) {
             try {
                 std::ofstream ofs;
                 ofs.open(filePath, std::ios::out | std::ios::binary | std::ios::trunc);

@@ -620,7 +620,6 @@ ches::InstList ches::InstList::toInstList(ches::Node parentNode, int &index) {
     InstList instList;
 
     try {
-
         switch(node.type) {
             case ND_Unknown: {std::cout<<"unknown"<<std::endl;
                 instList.push_back(Instruction(IT_Unknown));
@@ -735,7 +734,6 @@ ches::InstList ches::InstList::toInstList(ches::Node parentNode, int &index) {
         }
 
         return instList;
-
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
         return instList;

@@ -33,7 +33,8 @@ void ches::cmd::Compiler::compile() {
         Console::log(LogType_Error, 5900, {}, true);
     }
 
-    this->toBytecode();
+    ByteSeq bytecode = this->toBytecode();
+    FileManager::writeBytecode(this->outputFilePath, bytecode);
 }
 
 std::vector<std::string> ches::cmd::Compiler::getInputFilePaths() {
@@ -47,7 +48,7 @@ std::vector<std::string> ches::cmd::Compiler::getInputFilePaths() {
 }
 
 ches::ByteSeq ches::cmd::Compiler::toBytecode() {
-    std::vector<ByteSeq> bytecodes;
+    vector_ext<ByteSeq> bytecodes;
 
     std::string source;
     Lexer lexer;
@@ -61,9 +62,8 @@ ches::ByteSeq ches::cmd::Compiler::toBytecode() {
         tokens = lexer.splitTokens();
         parser = Parser(path, source, tokens);
         node = parser.parse();
-        /*bytecodes.push_back(ByteSeq(node, this->path, source));*/
+        bytecodes.push_back(ByteSeq(node, path, source));
     }
 
-    //return ches::ByteSeq::join(bytecodes, ByteSeq(0x00, 5));
-    return {};
+    return ByteSeq::join(bytecodes, ByteSeq(0x00, 5));
 }
