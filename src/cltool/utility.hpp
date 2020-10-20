@@ -449,22 +449,15 @@ namespace ches {
     struct Instruction {
         Byte opcode = IT_Unknown;
         std::unordered_map<std::string, ByteSeq> operand;
-        ByteSeq bytecode;
+
+        Instruction();
 
         Instruction(ByteSeq bytes);
 
         Instruction(int opcode);
 
         Instruction(int opcode, std::unordered_map<std::string, ByteSeq> operand);
-
-        std::string toText();
-
-        void setBytecode();
-
-    private:
-
-        void init(ByteSeq bytes);
-};
+    };
 
 
     struct InstList : public vector_ext<Instruction> {
@@ -476,8 +469,6 @@ namespace ches {
 
         InstList(std::vector<Instruction> value);
 
-        InstList(Node tree, std::string filePath, std::string source);
-
         inline void push_back(Instruction value) {
             vector_ext<Instruction>::push_back(value);
         }
@@ -488,19 +479,211 @@ namespace ches {
         }
 
         ByteSeq toByteSeq();
+    };
 
-    private:
 
-        InstList toInstList(Node parentNode, int &index);
+    class InstConv {
+    public:
+        //InstList instList;
+        int index;
+        Node tree;
 
-        LineSeq *lines;
         std::string filePath;
         std::string source;
+
+        LineSeq *lines;
         FuncList *labelList;
-        std::string spaceName;
+        std::string nameSpaceName;
         std::string className;
+
         int localStackLen = 0;
         int localListLen = 0;
+
+        InstConv();
+
+        InstList toInstList(Node tree);
+
+        InstList toInstList(Node parent, int &index);
+
+        InstList toInstList(Node tree, std::string filePath, std::string source);
+
+        static ByteSeq toByteSeq(Instruction inst) {
+            ByteSeq instBytes;
+
+            try {
+                switch(inst.opcode) {
+                    case IT_Unknown: {
+                        instBytes.push_back((Byte)IT_Unknown);
+                    } break;
+
+                    case IT_Label: {
+                        instBytes.push_back((Byte)IT_Label);
+                        instBytes.push_back(inst.operand["id"]);
+                        instBytes.push_back(inst.operand["name"].escape());
+                    } break;
+
+                    case IT_LSPush: {
+                        instBytes.push_back((Byte)IT_LSPush);
+                        instBytes.push_back(inst.operand["index"].escape());
+                    } break;
+
+                    case IT_LSPop: {
+                        instBytes.push_back((Byte)IT_LSPop);
+                    } break;
+
+                    case IT_LLPush: {
+                        instBytes.push_back((Byte)IT_LLPush);
+                        instBytes.push_back(inst.operand["index"].escape());
+                    } break;
+
+                    case IT_Compare: {
+                        instBytes.push_back((Byte)IT_Compare);
+                    } break;
+
+                    case IT_Jump: {
+                        instBytes.push_back((Byte)IT_Jump);
+                        instBytes.push_back(inst.operand["index"].escape());
+                    } break;
+
+                    case IT_IFJump: {
+                        instBytes.push_back((Byte)IT_IFJump);
+                        instBytes.push_back(inst.operand["index"].escape());
+                    } break;
+
+                    default: {
+                        instBytes.push_back((Byte)IT_Unknown);
+                    } break;
+                }
+            } catch(std::out_of_range ignored) {
+                std::cout << "EXCEPTION" << std::endl;
+            }
+
+            return instBytes;
+        }
+
+        static Instruction toInst(ches::ByteSeq bytes) {
+            Instruction result;
+
+            try {
+                if(bytes.size() == 0)
+                    bytes = { IT_Unknown };
+
+                result.opcode = bytes[0];
+
+                switch(result.opcode) {
+                    case IT_Label: {
+                        result.operand["id"] = bytes.copy(1, 16);
+                        result.operand["name"] = bytes.copy(17 , -1);
+                    } break;
+
+                    case IT_LSPush: {
+                        result.operand["index"] = bytes.copy(1, -1);
+                    } break;
+
+                    case IT_LSPop:
+                    break;
+
+                    case IT_LLPush: {
+                        result.operand["index"] = bytes.copy(1, -1);
+                    } break;
+
+                    case IT_Compare:
+                    break;
+
+                    case IT_Jump: {
+                        result.operand["index"] = bytes.copy(1, -1);
+                    } break;
+
+                    case IT_IFJump: {
+                        result.operand["index"] = bytes.copy(1, -1);
+                    } break;
+                }
+            } catch(std::out_of_range ignored) {
+                std::cout << "EXCEPTION" << std::endl;
+            }
+
+            return result;
+        }
+
+        static std::string toString(Instruction inst) {
+            std::string text = "";
+
+            switch(inst.opcode) {
+                case IT_Unknown:
+                return "; Unknown";
+
+                case IT_Label:
+                return "label\t" + inst.operand["id"].toHexString() + "\t" + ByteSeq(inst.operand["name"]).toString();
+
+                case IT_LSPush: {
+                    // IT_VarPref のエスケープを逆変換
+
+                    std::string prefix = "";
+                    ByteSeq index;
+
+                    if(inst.operand["index"].at(0) == IT_VarPref && (
+                        inst.operand["index"].size() <= 1 ||
+                        inst.operand["index"].at(1) != IT_VarPref)) {
+                            prefix = "$";
+                            index = inst.operand["index"].copy(1);
+                    } else {
+                        index = inst.operand["index"];
+                    }
+
+                    return "lspush\t" + prefix + index.toHexString();
+                }
+
+                case IT_LSPop:
+                return "lspop";
+
+                case IT_LLPush: {
+                    // IT_VarPref のエスケープを逆変換
+
+                    std::string prefix = "";
+                    ByteSeq index;
+
+                    if(inst.operand["index"].at(0) == IT_VarPref && (
+                        inst.operand["index"].size() < 2 ||
+                        inst.operand["index"].at(1) != IT_VarPref)) {
+                            prefix = "$";
+                            index = inst.operand["index"].copy(1);
+                    } else {
+                        index = inst.operand["index"];
+                    }
+
+                    return "llpush\t" + prefix + index.toHexString();
+                }
+
+                case IT_Compare:
+                return "comp";
+
+                case IT_Jump:
+                return "jump\t" + inst.operand["index"].toHexString();
+
+                case IT_IFJump: {
+                    // IT_VarPref のエスケープを逆変換
+
+                    std::string prefix = "";
+                    ByteSeq index;
+
+                    if(inst.operand["index"].at(0) == IT_VarPref && (
+                        inst.operand["index"].size() <= 1 ||
+                        inst.operand["index"].at(1) != IT_VarPref)) {
+                            prefix = "$";
+                            index = inst.operand["index"].copy(1);
+                    } else {
+                        index = inst.operand["index"];
+                    }
+
+                    return "ifjump\t" + prefix + std::to_string(index.toInt());
+                }
+
+                default:
+                return "; Unknown_";
+            }
+
+            return text;
+        }
     };
 
 

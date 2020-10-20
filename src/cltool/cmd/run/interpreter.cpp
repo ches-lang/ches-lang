@@ -42,7 +42,7 @@ ches::run::Interpreter::Interpreter(std::string filePath, ByteSeq source) {
             while(index.length() < 3)
                 index = "0" + index;
 
-            asmLines.push_back(index + "| " + this->instList.at(i).toText());
+            asmLines.push_back(index + "| " + InstConv::toString(this->instList.at(i)));
         }
 
         Console::printDebugLog("raw bytecode", rawLines);
