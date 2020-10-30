@@ -283,12 +283,20 @@ namespace ches {
             std::cout << output;
         }
 
+        static void write(int value) {
+            Console::write(std::to_string(value));
+        }
+
         static void writeln() {
             Console::write("\n");
         }
 
         static void writeln(std::string value) {
             Console::write(value + "\n");
+        }
+
+        static void writeln(int value) {
+            Console::writeln(std::to_string(value));
         }
     };
 
