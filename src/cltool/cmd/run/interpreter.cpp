@@ -103,7 +103,7 @@ void ches::run::Interpreter::setLabelData() {
                 }
 
                 // ラベルリストにデータを追加
-                Function label = Function(inst.operand["id"], inst.operand["name"], labelStartIndex, --i);
+                Function label = Function(inst.operand.at(0), inst.operand.at(1), labelStartIndex, --i);
                 label.instList = labelCont;
                 this->labelList.push_back(label);
             } else {
@@ -125,14 +125,14 @@ void ches::run::Interpreter::runInst(Instruction instruction) {
 
             case IT_Jump: {std::cout<<"Jump"<<std::endl;//
                 //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
-                for(Instruction inst : this->labelList.findById(instruction.operand["id"]).instList)
-                    runInst(inst);
+                //for(Instruction inst : this->labelList.findById(instruction.operand["id"]).instList)
+                    //runInst(inst);
             } break;
 
             case IT_LSPush: {std::cout<<"LSPush"<<std::endl;
                 //std::cout << "Push: " << (int)inst.at(1).at(0) << std::endl;
                 //stacks.at(0).push((void*)&inst.at(1));
-                this->stackList.begin()->push((void*)&instruction.operand["value"]);
+                this->stackList.begin()->push((void*)&instruction.operand.at(0));
             } break;
 
             default: {std::cout<<"Unknown_"<<std::endl;

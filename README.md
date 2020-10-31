@@ -6,15 +6,15 @@ Let's make your own programs easily with Chestnut.
 
 Chestnut是通用的编程语言。
 <br>
-简单设设计你程序。
+简单设计你程序。
 
 Chestnutは汎用的なプログラミング言語です。
 <br>
 Chestnutであなたのプログラムを手軽に作りましょう。
 
-Chestnut es program-linga.
+Chestnut es program-ringa.
 <br>
-Tu mak tu-program via Chestnut.
+Tu invit fasir mak tu-program via Chestnut.
 
 ## Documentation
 
@@ -25,7 +25,7 @@ Select your language...
 - [English](/docs/en/summary.md)
 - [Chinese (中文)](/docs/zh/summary.md)
 - [Japanese (日本語)](/docs/ja/summary.md)
-- [Uncertain Japanese (怪レい日本语)](/docs/uja/summary.md)
+- [Jaρañyʐe (怪レい日本语)](/docs/uja/summary.md)
 - [Baze](/docs/bz/summary.md)
 
 ---

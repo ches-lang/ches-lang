@@ -76,7 +76,7 @@ namespace ches::cmd {
 
         Node scanNextNest(Byte nodeType = ND_Root);
 
-        Node getNode(TokenSeq tokens, Byte defaultType = ND_Token);
+        Node getNode(TokenSeq tokens);
 
         Node getLogicalExpressionNode(TokenSeq tokens);
 

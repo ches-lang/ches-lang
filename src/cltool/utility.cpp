@@ -117,6 +117,10 @@ bool ches::Token::match(std::string regexp) {
 }
 
 
+ches::TokenSeq ches::TokenSeq::copy(int begin) {
+    return this->copy(begin, this->size() - 1);
+}
+
 ches::TokenSeq ches::TokenSeq::copy(int begin, int end) {
     TokenSeq result;
 
@@ -253,6 +257,46 @@ ches::ByteSeq::ByteSeq(Token token) {
     }
 }
 
+ches::ByteSeq::ByteSeq(Node node) {
+    try {
+        if(node.type != ND_Value)
+            return;
+
+        if(node.tokens.size() < 2)
+            return;
+
+        Token t_type = node.tokenAt(1);
+        std::string type = t_type.string;
+
+        Token t_value = node.tokenAt(0);
+        std::string value = t_value.string;
+
+        if(t_value.match("bol")) {
+            bool isTrue = value == "true";
+            this->push_back(ByteSeq(isTrue));
+            return;
+        }
+
+        if(t_value.match("str")) {
+            this->push_back(ByteSeq(value));
+            return;
+        }
+
+        if(t_value.match("byt|ubyt|sht|usht|int|uint|lng|ulng")) {
+            this->push_back(ByteSeq(std::stoi(value)));
+            return;
+        }
+
+        // 浮動小数点型
+        // if(t_value.match("dec")) {
+        //     this->push_back(ByteSeq(std::stod(value)));
+        //     return;
+        // }
+    } catch(std::out_of_range ignored) {
+        std::cout << "EXCEPTION" << std::endl;
+    }
+}
+
 ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string source) {
     // ヘッダ部分
 
@@ -381,7 +425,7 @@ ches::Instruction::Instruction(int opcode) {
     this->opcode = opcode;
 }
 
-ches::Instruction::Instruction(int opcode, std::unordered_map<std::string, ches::ByteSeq> operand) {
+ches::Instruction::Instruction(int opcode, std::vector<ches::ByteSeq> operand) {
     this->opcode = opcode;
     this->operand = operand;
 }
@@ -426,16 +470,17 @@ ches::InstList ches::InstConv::toInstList(Node tree) {
     InstList result;
     this->tree = tree;
 
-    // セグフォ防止のため非ポインタ変数で初期化する
-    FuncList tmp;
-    this->labelList = &tmp;
-
     for(Node node : tree.children)
         if(node.type == ND_DefFunc)
-            this->labelList->push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
+            this->labelList.push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
 
     for(int i = 0; i < tree.children.size(); i++)
         result.push_back(this->toInstList(tree, i));
+
+    Console::writeln();
+
+    for(Instruction inst : result)
+        Console::writeln(std::to_string(inst.opcode));
 
     return result;
 }
@@ -448,46 +493,51 @@ ches::InstList ches::InstConv::toInstList(Node tree, std::string filePath, std::
 
 ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
     Node node = parent.childAt(index);
-    std::cout << std::endl << (int)index << " > " << parent.children.size() << " | " << (int)node.type << std::endl;
     InstList result;
 
     try {
+        Console::writeln();
+        Console::writeln(std::to_string((int)node.type) + ": " + node.typeToString());
+        Console::writeln("    " + std::to_string((int)index) + " > " + std::to_string(parent.children.size()));
+
         switch(node.type) {
-            case ND_Unknown: {std::cout<<"unknown"<<std::endl;
+            case ND_Unknown: {
                 result.push_back(Instruction(IT_Unknown));
             } break;
 
-            case ND_Root: {std::cout<<"root"<<std::endl;
+            case ND_Root: {
                 for(int i = 0; i < node.children.size(); i++) {
                     InstList resLines = this->toInstList(node, i);
                     result.push_back(resLines);
                 }
             } break;
 
-            case ND_DefVar: {std::cout<<"defvar"<<std::endl;
-                result.push_back(Instruction(IT_LSPush));
+            case ND_DefVar: {
+                //result.push_back(Instruction(IT_LLPush, {  }));
                 int i = 1;
                 this->toInstList(node, i);
                 this->localStackLen++;
             } break;
 
-            case ND_InitVar: {std::cout<<"initvar"<<std::endl;
-                Token token = node.tokenAt(2);
+            case ND_InitVar: {
                 ByteSeq value;
+                Node n_value = node.childAt(0);
+                Token t_type = n_value.tokenAt(0);
+                Token t_value = n_value.tokenAt(1);
 
-                if(token.type == TK_Number)
-                    value = ByteSeq(std::stoi(token.string));
-                else if(token.type == TK_String)
-                    value = ByteSeq(token.string);
+                if(t_type.string == "int")
+                    value = ByteSeq(std::stoi(t_value.string));
+                else if(t_type.string == "str")
+                    value = ByteSeq(t_value.string);
 
-                result.push_back(Instruction(IT_LSPush, { { "index", value } }));
+                result.push_back(Instruction(IT_LSPush, { value.escape() }));
                 this->localStackLen++;
             } break;
 
-            case ND_DefFunc: {std::cout<<"deffunc"<<std::endl;
+            case ND_DefFunc: {
                 ByteSeq funcName = ByteSeq(node.tokenAt(0).string);
-                ByteSeq funcID = ByteSeq(this->labelList->findByName(funcName).id);
-                result.push_back(Instruction(IT_Label, { { "id", funcID }, { "name", funcName } }));
+                ByteSeq funcID = ByteSeq(this->labelList.findByName(funcName).id).escape();
+                result.push_back(Instruction(IT_Label, { funcID, funcName }));
                 this->localListLen += node.childAt(0).children.size();
 
                 int i = 1;
@@ -495,18 +545,19 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 result.push_back(insts);
             } break;
 
-            case ND_CallFunc: {std::cout<<"callfunc"<<std::endl;
+            case ND_CallFunc: {
                 Token funcNameToken = node.tokenAt(0);
                 std::string funcName = funcNameToken.string;
-                ByteSeq funcID = this->labelList->findByName(ByteSeq(funcName)).id;
+
+                ByteSeq funcID = this->labelList.findByName(ByteSeq(funcName)).id;
 
                 if(funcID.size() == 0)
                     Console::log(LogType_Error, 1822, { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
 
-                result.push_back(Instruction(IT_Jump, { { "index", funcID } }));
+                result.push_back(Instruction(IT_Jump, { funcID }));
             } break;
 
-            case ND_If: {std::cout<<"if"<<std::endl;
+            case ND_If: {
                 int nextNodeType = index + 1 < parent.children.size() ? parent.childAt(index + 1).type : ND_Unknown;
 
                 if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
@@ -528,7 +579,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                     // 処理部分の行数をもとにIFJUMP命令を追加
                     ByteSeq lineIndex((Byte)IT_VarPref);
                     lineIndex.push_back(ByteSeq((int)procLines.size()));
-                    result.push_back(Instruction(IT_IFJump, { { "index", lineIndex } }));
+                    result.push_back(Instruction(IT_IFJump, { lineIndex }));
                     result.push_back(procLines);
 
                     // プッシュした条件部分をポップ
@@ -536,26 +587,62 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 }
             } break;
 
-            case ND_Else: {std::cout<<"else"<<std::endl;
+            case ND_Else: {
                 int i = 0;
                 InstList insts = this->toInstList(node, i);
                 result.push_back(insts);
             } break;
 
+            case ND_Loop: {
+                int index = 0;
+                InstList process = this->toInstList(node.childAt(1), index);
+                Node exprs = node.childAt(0);
+
+                switch(exprs.children.size()) {
+                    case 1: {
+                        //ByteSeq(exprs.childAt(0).tokenAt(0))
+
+                        // インデクサの値を追加
+                        result.push_back(Instruction(IT_LSPush, { ByteSeq((int)0).escape() }));
+
+                        int startIndex = result.size();
+
+                        result.push_back(Instruction(IT_LSPush, { ByteSeq(startIndex).escape() }));
+                        result.push_back(Instruction(IT_IFJump));
+
+                        // インデックスを加算
+                        result.push_back(Instruction(IT_LSPush, { ByteSeq((int)1).escape() }));
+                        result.push_back(Instruction(IT_Add));
+
+                        // インデックスの条件を判定
+                        int endIndex = result.size();
+                        result.push_back(Instruction(IT_Compare));
+                        result.push_back(Instruction(IT_LSPush, { ByteSeq(endIndex - startIndex).escape() }));
+                        result.push_back(Instruction(IT_IFJump));
+                    } break;
+
+                    case 3: {
+                        result.push_back(this->toInstList(exprs.childAt(0)));
+                        result.push_back(this->toInstList(exprs.childAt(1)));
+                        result.push_back(this->toInstList(exprs.childAt(2)));
+                    } break;
+                }
+            } break;
+
             case ND_Compare: {
                 ByteSeq item;
 
-                if(node.childAt(0).type == ND_Token) {
+                if(node.childAt(0).type == ND_Value) {
                     item = ByteSeq(node.childAt(0).tokens.at(0));
-                    result.push_back(Instruction((Byte)IT_LSPush, { { "value", item } }));
+                    result.push_back(Instruction((Byte)IT_LSPush, { item.escape() }));
                 } else {
                     int i = 0;
                     result.push_back(this->toInstList(node, i));
                 }
 
-                if(node.childAt(0).type == ND_Token) {
+                if(node.childAt(0).type == ND_Value) {
                     item = ByteSeq(node.childAt(0).tokens.at(0));
-                    result.push_back(Instruction((Byte)IT_LSPush, { { "value", item } }));
+                    result.push_back(Instruction((Byte)IT_LSPush, { item.escape() }));
                 } else {
                     int i = 1;
                     result.push_back(this->toInstList(node, i));

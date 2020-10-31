@@ -47,14 +47,15 @@ namespace ches {
         TK_LeftAngleBracket,
         TK_RightAngleBracket,
         TK_LeftBrace,
-        TK_RightBrace,
+        TK_RightBrace
     };
 
 
     enum NodeType : Byte {
         ND_Unknown,
         ND_Root,
-        ND_Token,
+        ND_Value,
+        ND_Object,
         ND_DefVar,
         ND_InitVar,
         ND_DefFunc,
@@ -64,9 +65,6 @@ namespace ches {
         ND_Else,
         ND_ElseIf,
         ND_Loop,
-        ND_Loop_Cond,
-        ND_Loop_Init,
-        ND_Loop_Change,
         ND_Count,
         ND_Logic,
         ND_Compare,
@@ -76,7 +74,7 @@ namespace ches {
         ND_Less,
         ND_Greater,
         ND_LessEqual,
-        ND_GreaterEqual,
+        ND_GreaterEqual
     };
 
 
@@ -84,21 +82,42 @@ namespace ches {
         IT_Unknown,
         IT_LineDiv,
         IT_TokenDiv,
+        IT_SysCall,
         IT_VarPref,
         IT_LineIndex,
         IT_Label,
         IT_LSPush,
         IT_LSPop,
         IT_LLPush,
-        IT_Logic_And,
-        IT_Logic_Or,
+        IT_And,
+        IT_Or,
         IT_Compare,
-        IT_Calc_Add,
-        IT_Calc_Sub,
-        IT_Calc_Multi,
-        IT_Calc_Div,
+        IT_Greater,
+        IT_Less,
+        IT_Add,
+        IT_Sub,
+        IT_Mul,
+        IT_Div,
+        IT_Join,
         IT_Jump,
-        IT_IFJump,
+        IT_IFJump
+    };
+
+
+    enum ValueType : Byte {
+        VT_Unknown,
+        VT_Boolean,
+        VT_Byte,
+        VT_UByte,
+        VT_Short,
+        VT_UShort,
+        VT_Int,
+        VT_UInt,
+        VT_Long,
+        VT_ULong,
+        VT_Char,
+        VT_String,
+        VT_Decimal
     };
 
 
@@ -108,7 +127,7 @@ namespace ches {
     std::unordered_map<Byte, std::string> nodeTypeMap {
         { ND_Unknown, "Unknown" },
         { ND_Root, "Root" },
-        { ND_Token, "Token" },
+        { ND_Value, "Value" },
         { ND_DefVar, "DefVar" },
         { ND_InitVar, "InitVar" },
         { ND_DefFunc, "DefFunc" },
@@ -118,9 +137,6 @@ namespace ches {
         { ND_Else, "Else" },
         { ND_ElseIf, "ElseIf" },
         { ND_Loop, "Loop" },
-        { ND_Loop_Cond, "Loop_Cond" },
-        { ND_Loop_Init, "Loop_Init" },
-        { ND_Loop_Change, "Loop_Change" },
         { ND_Count, "Count" },
         { ND_Logic, "Logic" },
         { ND_Compare, "Comp" },
@@ -131,6 +147,48 @@ namespace ches {
         { ND_Greater, "Greater" },
         { ND_LessEqual, "LessEqual" },
         { ND_GreaterEqual, "GreaterEqual" },
+    };
+
+
+    std::unordered_map<Byte, std::string> instTypeMap {
+        { IT_Unknown, "Unknown" },
+        { IT_LineDiv, "LineDiv" },
+        { IT_TokenDiv, "TokenDiv" },
+        { IT_VarPref, "VarPref" },
+        { IT_LineIndex, "LineIndex" },
+        { IT_Label, "Label" },
+        { IT_LSPush, "LSPush" },
+        { IT_LSPop, "LSPop" },
+        { IT_LLPush, "LLPush" },
+        { IT_And, "And" },
+        { IT_Or, "Or" },
+        { IT_Compare, "Compare" },
+        { IT_Greater, "Greater" },
+        { IT_Less, "Less" },
+        { IT_Add, "Add" },
+        { IT_Sub, "Sub" },
+        { IT_Mul, "Mul" },
+        { IT_Div, "Div" },
+        { IT_Join, "Join" },
+        { IT_Jump, "Jump" },
+        { IT_IFJump, "IFJump" }
+    };
+
+
+    std::unordered_map<Byte, std::string> valueTypeMap {
+        { VT_Unknown, "" },
+        { VT_Boolean, "bol" },
+        { VT_Byte, "byt" },
+        { VT_UByte, "ubyt" },
+        { VT_Short, "sht" },
+        { VT_UShort, "usht" },
+        { VT_Int, "int" },
+        { VT_UInt, "uint" },
+        { VT_Long, "lng" },
+        { VT_ULong, "ulng" },
+        { VT_Char, "chr" },
+        { VT_String, "str" },
+        { VT_Decimal, "dec" }
     };
 
 
@@ -150,6 +208,10 @@ namespace ches {
 
         vector_ext(std::vector<T> value) {
             this->push_back(value);
+        }
+
+        vector_ext<T> copy(int begin) {
+            return this->copy(begin, this->size() - 1);
         }
 
         vector_ext<T> copy(int begin, int end) {
@@ -271,6 +333,8 @@ namespace ches {
 
 
     struct TokenSeq : vector_ext<Token> {
+        TokenSeq copy(int begin);
+
         TokenSeq copy(int begin, int end);
 
         vector_ext<TokenSeq> divide(TokenType separator);
@@ -356,6 +420,8 @@ namespace ches {
         ByteSeq(std::string source);
 
         ByteSeq(Token token);
+
+        ByteSeq(Node node);
 
         ByteSeq(Node tree, std::string filePath, std::string sourceCode);
 
@@ -448,7 +514,7 @@ namespace ches {
 
     struct Instruction {
         Byte opcode = IT_Unknown;
-        std::unordered_map<std::string, ByteSeq> operand;
+        std::vector<ByteSeq> operand;
 
         Instruction();
 
@@ -456,7 +522,7 @@ namespace ches {
 
         Instruction(int opcode);
 
-        Instruction(int opcode, std::unordered_map<std::string, ByteSeq> operand);
+        Instruction(int opcode, std::vector<ByteSeq> operand);
     };
 
 
@@ -479,211 +545,6 @@ namespace ches {
         }
 
         ByteSeq toByteSeq();
-    };
-
-
-    class InstConv {
-    public:
-        //InstList instList;
-        int index;
-        Node tree;
-
-        std::string filePath;
-        std::string source;
-
-        LineSeq *lines;
-        FuncList *labelList;
-        std::string nameSpaceName;
-        std::string className;
-
-        int localStackLen = 0;
-        int localListLen = 0;
-
-        InstConv();
-
-        InstList toInstList(Node tree);
-
-        InstList toInstList(Node parent, int &index);
-
-        InstList toInstList(Node tree, std::string filePath, std::string source);
-
-        static ByteSeq toByteSeq(Instruction inst) {
-            ByteSeq instBytes;
-
-            try {
-                switch(inst.opcode) {
-                    case IT_Unknown: {
-                        instBytes.push_back((Byte)IT_Unknown);
-                    } break;
-
-                    case IT_Label: {
-                        instBytes.push_back((Byte)IT_Label);
-                        instBytes.push_back(inst.operand["id"]);
-                        instBytes.push_back(inst.operand["name"].escape());
-                    } break;
-
-                    case IT_LSPush: {
-                        instBytes.push_back((Byte)IT_LSPush);
-                        instBytes.push_back(inst.operand["index"].escape());
-                    } break;
-
-                    case IT_LSPop: {
-                        instBytes.push_back((Byte)IT_LSPop);
-                    } break;
-
-                    case IT_LLPush: {
-                        instBytes.push_back((Byte)IT_LLPush);
-                        instBytes.push_back(inst.operand["index"].escape());
-                    } break;
-
-                    case IT_Compare: {
-                        instBytes.push_back((Byte)IT_Compare);
-                    } break;
-
-                    case IT_Jump: {
-                        instBytes.push_back((Byte)IT_Jump);
-                        instBytes.push_back(inst.operand["index"].escape());
-                    } break;
-
-                    case IT_IFJump: {
-                        instBytes.push_back((Byte)IT_IFJump);
-                        instBytes.push_back(inst.operand["index"].escape());
-                    } break;
-
-                    default: {
-                        instBytes.push_back((Byte)IT_Unknown);
-                    } break;
-                }
-            } catch(std::out_of_range ignored) {
-                std::cout << "EXCEPTION" << std::endl;
-            }
-
-            return instBytes;
-        }
-
-        static Instruction toInst(ches::ByteSeq bytes) {
-            Instruction result;
-
-            try {
-                if(bytes.size() == 0)
-                    bytes = { IT_Unknown };
-
-                result.opcode = bytes[0];
-
-                switch(result.opcode) {
-                    case IT_Label: {
-                        result.operand["id"] = bytes.copy(1, 16);
-                        result.operand["name"] = bytes.copy(17 , -1);
-                    } break;
-
-                    case IT_LSPush: {
-                        result.operand["index"] = bytes.copy(1, -1);
-                    } break;
-
-                    case IT_LSPop:
-                    break;
-
-                    case IT_LLPush: {
-                        result.operand["index"] = bytes.copy(1, -1);
-                    } break;
-
-                    case IT_Compare:
-                    break;
-
-                    case IT_Jump: {
-                        result.operand["index"] = bytes.copy(1, -1);
-                    } break;
-
-                    case IT_IFJump: {
-                        result.operand["index"] = bytes.copy(1, -1);
-                    } break;
-                }
-            } catch(std::out_of_range ignored) {
-                std::cout << "EXCEPTION" << std::endl;
-            }
-
-            return result;
-        }
-
-        static std::string toString(Instruction inst) {
-            std::string text = "";
-
-            switch(inst.opcode) {
-                case IT_Unknown:
-                return "; Unknown";
-
-                case IT_Label:
-                return "label\t" + inst.operand["id"].toHexString() + "\t" + ByteSeq(inst.operand["name"]).toString();
-
-                case IT_LSPush: {
-                    // IT_VarPref のエスケープを逆変換
-
-                    std::string prefix = "";
-                    ByteSeq index;
-
-                    if(inst.operand["index"].at(0) == IT_VarPref && (
-                        inst.operand["index"].size() <= 1 ||
-                        inst.operand["index"].at(1) != IT_VarPref)) {
-                            prefix = "$";
-                            index = inst.operand["index"].copy(1);
-                    } else {
-                        index = inst.operand["index"];
-                    }
-
-                    return "lspush\t" + prefix + index.toHexString();
-                }
-
-                case IT_LSPop:
-                return "lspop";
-
-                case IT_LLPush: {
-                    // IT_VarPref のエスケープを逆変換
-
-                    std::string prefix = "";
-                    ByteSeq index;
-
-                    if(inst.operand["index"].at(0) == IT_VarPref && (
-                        inst.operand["index"].size() < 2 ||
-                        inst.operand["index"].at(1) != IT_VarPref)) {
-                            prefix = "$";
-                            index = inst.operand["index"].copy(1);
-                    } else {
-                        index = inst.operand["index"];
-                    }
-
-                    return "llpush\t" + prefix + index.toHexString();
-                }
-
-                case IT_Compare:
-                return "comp";
-
-                case IT_Jump:
-                return "jump\t" + inst.operand["index"].toHexString();
-
-                case IT_IFJump: {
-                    // IT_VarPref のエスケープを逆変換
-
-                    std::string prefix = "";
-                    ByteSeq index;
-
-                    if(inst.operand["index"].at(0) == IT_VarPref && (
-                        inst.operand["index"].size() <= 1 ||
-                        inst.operand["index"].at(1) != IT_VarPref)) {
-                            prefix = "$";
-                            index = inst.operand["index"].copy(1);
-                    } else {
-                        index = inst.operand["index"];
-                    }
-
-                    return "ifjump\t" + prefix + std::to_string(index.toInt());
-                }
-
-                default:
-                return "; Unknown_";
-            }
-
-            return text;
-        }
     };
 
 
@@ -715,8 +576,35 @@ namespace ches {
 
         Function findByName(ByteSeq name);
 
+        inline void pop_back() {
+            vector_ext<Function>::pop_back();
+        }
+
+        inline void pop_back(int len) {
+            for(int i = 0; i < len; i++)
+                vector_ext<Function>::pop_back();
+        }
+
+        inline void push_back() {
+            vector_ext<Function>::push_back(Function());
+        }
+
         inline void push_back(Function value) {
-                vector_ext<Function>::push_back(value);
+            vector_ext<Function>::push_back(value);
+        }
+
+        inline void push_back(std::vector<Function> value) {
+            for(Function val : value)
+                vector_ext<Function>::push_back(val);
+        }
+
+        inline void push_back(vector_ext<Function> value) {
+            for(Function val : value)
+                vector_ext<Function>::push_back(val);
+        }
+
+        inline void push_front(Function value) {
+            vector_ext<Function>::insert(this->begin(), value);
         }
 
         inline void push_back(FuncList value) {
@@ -744,5 +632,172 @@ namespace ches {
         HeaderInfo(ByteSeq bytes);
 
         ByteSeq toByteSeq();
+    };
+
+
+    class InstConv {
+    public:
+        //InstList instList;
+        int index;
+        Node tree;
+
+        std::string filePath;
+        std::string source;
+
+        FuncList labelList;
+        std::string nameSpaceName;
+        std::string className;
+
+        int localStackLen = 0;
+        int localListLen = 0;
+
+        InstConv();
+
+        InstList toInstList(Node tree);
+
+        InstList toInstList(Node parent, int &index);
+
+        InstList toInstList(Node tree, std::string filePath, std::string source);
+
+        static ByteSeq toByteSeq(Instruction inst) {
+            ByteSeq instBytes;
+
+            try {
+                instBytes.push_back((Byte)inst.opcode);
+
+                for(ByteSeq operand : inst.operand)
+                    instBytes.push_back(operand);
+
+            } catch(std::out_of_range ignored) {
+                std::cout << "EXCEPTION" << std::endl;
+            }
+
+            return instBytes;
+        }
+
+        static Instruction toInst(ches::ByteSeq bytes) {
+            Instruction result;
+
+            try {
+                if(bytes.size() == 0)
+                    bytes = { IT_Unknown };
+
+                result.opcode = bytes[0];
+
+                switch(result.opcode) {
+                    case IT_Label: {
+                        result.operand.push_back(bytes.copy(1, 16));
+                        result.operand.push_back(bytes.copy(17 , -1));
+                    } break;
+
+                    case IT_LSPush: {
+                        result.operand.push_back(bytes.copy(1, -1));
+                    } break;
+
+                    case IT_LSPop:
+                    break;
+
+                    case IT_LLPush: {
+                        result.operand.push_back(bytes.copy(1, -1));
+                    } break;
+
+                    case IT_Compare:
+                    break;
+
+                    case IT_Jump: {
+                    } break;
+
+                    case IT_IFJump: {
+                    } break;
+                }
+            } catch(std::out_of_range ignored) {
+                std::cout << "EXCEPTION" << std::endl;
+            }
+
+            return result;
+        }
+
+        static std::string toString(Instruction inst) {
+            // Console::writeln(instTypeMap.at(inst.opcode));
+            std::string result = instTypeMap.at(inst.opcode);
+
+            switch(inst.opcode) {
+                case IT_Label: {
+                    result += "\t";
+                    result += inst.operand.at(0).toHexString();
+                    result += "\t";
+                    result += ByteSeq(inst.operand.at(1)).toString();
+                } break;
+
+                case IT_LSPush: {
+                    // IT_VarPref のエスケープを逆変換
+
+                    std::string prefix = "";
+                    ByteSeq index;
+                    ByteSeq value = inst.operand.at(0);
+
+                    if(value.at(0) == IT_VarPref && (
+                            value.size() <= 1 ||
+                            value.at(1) != IT_VarPref)) {
+                        prefix = "$";
+                        index = value.copy(1);
+                    } else {
+                        index = value;
+                    }
+
+                    result += "\t";
+                    result += prefix + index.toHexString();
+                } break;
+
+                case IT_LLPush: {
+                    // IT_VarPref のエスケープを逆変換
+
+                    std::string prefix = "";
+                    ByteSeq index;
+                    ByteSeq value = inst.operand.at(0);
+
+                    if(value.at(0) == IT_VarPref && (
+                        value.size() < 2 ||
+                        value.at(1) != IT_VarPref)) {
+                            prefix = "$";
+                            index = value.copy(1);
+                    } else {
+                        index = value;
+                    }
+
+                    result += "\t";
+                    result += prefix + index.toHexString();
+                }
+            }
+
+            return result;
+        }
+
+        InstList toLSPushInstList(Node parent, int &index);
+
+        static ValueType toValueType(Token token) {
+            switch(token.type) {
+                case TK_Number:
+                return token.match(".") ? VT_Decimal : VT_Int;
+
+                case TK_String:
+                return VT_String;
+
+                case TK_Char:
+                return VT_Char;
+
+                case TK_Keyword:
+                if(token.match("true|false"))
+                    return VT_Boolean;
+                break;
+            }
+
+            return VT_Unknown;
+        }
+
+        static std::string toValueTypeName(Token token) {
+            ValueType type = InstConv::toValueType(token);
+            return valueTypeMap.at(type);
+        }
     };
 }

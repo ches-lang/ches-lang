@@ -204,7 +204,7 @@ ches::Node ches::cmd::Parser::parse() {
 
 ches::Node ches::cmd::Parser::scanNextLine() {
     this->lineIndex++;
-    Node node = this->getNode(CURR_LINE.tokens, ND_Root);
+    Node node = this->getNode(CURR_LINE.tokens);
     return node;
 }
 
@@ -236,13 +236,13 @@ ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
             break;
         }
 
-        n_root.addChild(this->getNode(CURR_LINE.tokens, ND_Root));
+        n_root.addChild(this->getNode(CURR_LINE.tokens));
     }
 
     return n_root;
 }
 
-ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
+ches::Node ches::cmd::Parser::getNode(TokenSeq tokens) {
     try {
         int len = tokens.size();
 
@@ -356,7 +356,7 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
         // IF
         if(len >= 2 && T_MATCH(0, TK_Keyword, "if")) {
             Node n_root(ND_If);
-            n_root.addChild(this->getNode(tokens.copy(1, len - 1)));
+            n_root.addChild(this->getNode(tokens.copy(1)));
             n_root.addChild(this->scanNextNest());
 
             while(CURR_LINE.tokens.size() == 1 && CURR_LINE.tokens.at(0).type == TK_Keyword && CURR_LINE.tokens.at(0).string == "elif")
@@ -380,29 +380,34 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
         if(len >= 4 && (T_TYPE_MATCH(0, TK_Identifier) || T_TYPE_MATCH(0, TK_Keyword)) && T_AT(0).isValueType() && T_TYPE_MATCH(1, TK_Identifier) && T_TYPE_MATCH(2, TK_Equal)) {
             Node n_root(ND_InitVar);
             n_root.addToken(tokens.copy(0, 1));
-            n_root.addChild(this->getNode(tokens.copy(3, len - 3)));
+            n_root.addChild(this->getNode(tokens.copy(3)));
             return n_root;
         }
 
         // LOOP
         if(len >= 2 && T_MATCH(0, TK_Keyword, "for")) {
             Node n_root(ND_Loop);
-            vector_ext<TokenSeq> exprs = tokens.copy(1, len - 1).divide(TK_Semicolon);
+            Node n_exprs(ND_Root);
+            vector_ext<TokenSeq> exprs = tokens.copy(1).divide(TK_Semicolon);
 
             if(exprs.size() == 1) {
                 // Example: for(true)
-                n_root.addChild(this->getNode(tokens.copy(1, len - 1), ND_Loop_Cond));
+
+                if(exprs.at(0).at(0).type == TK_Number) {
+                    n_exprs.addChild(this->getNode(tokens.copy(1)));
+                }
             } else if(exprs.size() == 3) {
                 // Example: for(i = 0; i < 5; i++)
                 TokenSeq item;
 
-                n_root.addChild(this->getNode(exprs[0], ND_Loop_Init));
-                n_root.addChild(this->getNode(exprs[1], ND_Loop_Cond));
-                n_root.addChild(this->getNode(exprs[2], ND_Loop_Change));
+                n_exprs.addChild(this->getNode(exprs[0]));
+                n_exprs.addChild(this->getNode(exprs[1]));
+                n_exprs.addChild(this->getNode(exprs[2]));
             } else {
                 //構文エラー
             }
 
+            n_root.addChild(n_exprs);
             n_root.addChild(this->scanNextNest());
             return n_root;
         }
@@ -440,10 +445,15 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens, Byte defaultType) {
 
 
         // トークンの長さが１かどうかは、最後にチェックしてください
-        // (最初にチェックすると、else文などが弾かれてしまうため)
-        if(len == 1)
-            return Node(defaultType, tokens);
-
+        // (最初にチェックするとelse文などが弾かれてしまうため)
+        if(len == 1) {
+            Node n_value = Node(ND_Value);
+            TokenSeq ts_value;
+            ts_value.push_back(Token(TK_Keyword, InstConv::toValueTypeName(T_AT(0))));
+            n_value.addToken(ts_value);
+            n_value.addToken(tokens);
+            return n_value;
+        }
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
@@ -466,7 +476,7 @@ ches::Node ches::cmd::Parser::getLogicalExpressionNode(TokenSeq tokens) {
             case TK_Ampersand:
             case TK_Pipe:
             if(nest == 0 && i < len - 1 && T_AT(i).type == T_AT(i + 1).type) {
-                node.addChild(this->getNode(side, ND_Root)); // N_ITEM
+                node.addChild(this->getNode(side)); // N_ITEM
                 side.clear();
 
                 // T_AT(i).type と T_AT(i + 1).type は同じなので、ここでチェックする必要なし
