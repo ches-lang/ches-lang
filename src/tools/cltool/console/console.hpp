@@ -3,7 +3,7 @@
 
 namespace ches {
     // ディレクトリ変更時にはパスを直すこと
-    #define LANG_FILE_PATH(langName)    "src/tools/langpacks/" + langName + ".lang"
+    #define LANG_FILE_PATH(langName)    "src/tools/cltool/langpacks/" + langName + ".lang"
 
     enum LogType : int {
         LogType_Unknown,
