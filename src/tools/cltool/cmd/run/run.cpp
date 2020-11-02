@@ -1,6 +1,6 @@
 #pragma once
 
-#include "interpreter.cpp"
+#include "../../../interpreter/interpreter.cpp"
 
 #include "run.hpp"
 

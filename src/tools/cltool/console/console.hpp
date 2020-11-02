@@ -2,6 +2,9 @@
 
 
 namespace ches {
+    // ディレクトリ変更時にはパスを直すこと
+    #define LANG_FILE_PATH(langName)    "src/tools/langpacks/" + langName + ".lang"
+
     enum LogType : int {
         LogType_Unknown,
         LogType_Error,
@@ -122,9 +125,6 @@ namespace ches {
         }
 
         static void loadLangPack(std::string lang = "en", std::string backupLang = "en") {
-            // リリース時にはパスを直してください
-            #define LANG_FILE_PATH(langName)    "src/cltool/langpacks/" + langName + ".lang"
-
             bool existsLangPack = true;
 
             if(!std::filesystem::exists(LANG_FILE_PATH(lang))) {

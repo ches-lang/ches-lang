@@ -9,18 +9,20 @@
 #include <unordered_map>
 #include <vector>
 
-#include "console.cpp"
-#include "utility.cpp"
-#include "filemanager.cpp"
-#include "command.cpp"
+#include "./console/console.cpp"
+#include "../utility/utility.cpp"
+#include "../filemanager/filemanager.cpp"
+#include "./command/command.cpp"
 
-#include "cmd/ches/ches.cpp"
-#include "cmd/cmp/cmp.cpp"
-#include "cmd/run/run.cpp"
+#include "./cmd/ches/ches.cpp"
+#include "./cmd/cmp/cmp.cpp"
+#include "./cmd/run/run.cpp"
+
+
+typedef std::unordered_map<std::string, void(*)()> cmdprocs;
 
 
 void runCommand() {
-    typedef std::unordered_map<std::string, void(*)()> cmdprocs;
     cmdprocs procs;
 
     procs.insert(std::make_pair("ches", []() {

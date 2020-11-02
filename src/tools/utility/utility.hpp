@@ -687,27 +687,15 @@ namespace ches {
                 switch(result.opcode) {
                     case IT_Label: {
                         result.operand.push_back(bytes.copy(1, 16));
-                        result.operand.push_back(bytes.copy(17 , -1));
+                        result.operand.push_back(bytes.copy(17));
                     } break;
 
                     case IT_LSPush: {
-                        result.operand.push_back(bytes.copy(1, -1));
+                        result.operand.push_back(bytes.copy(1));
                     } break;
-
-                    case IT_LSPop:
-                    break;
 
                     case IT_LLPush: {
-                        result.operand.push_back(bytes.copy(1, -1));
-                    } break;
-
-                    case IT_Compare:
-                    break;
-
-                    case IT_Jump: {
-                    } break;
-
-                    case IT_IFJump: {
+                        result.operand.push_back(bytes.copy(1));
                     } break;
                 }
             } catch(std::out_of_range ignored) {
@@ -768,6 +756,16 @@ namespace ches {
                     result += "\t";
                     result += prefix + index.toHexString();
                 }
+
+                case IT_Jump: {
+                    result += "\t";
+                    result += inst.operand.at(0).toHexString();
+                } break;
+
+                case IT_IFJump: {
+                    result += "\t";
+                    result += inst.operand.at(0).toHexString();
+                } break;
             }
 
             return result;

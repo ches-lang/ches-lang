@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lexer.cpp"
+#include "parser.cpp"
 
 #include "compiler.hpp"
 

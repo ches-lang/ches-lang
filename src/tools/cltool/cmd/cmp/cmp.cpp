@@ -1,7 +1,6 @@
 #pragma once
 
-#include "parser.cpp"
-#include "compiler.cpp"
+#include "../../../compiler/ches/compiler.cpp"
 
 #include "cmp.hpp"
 
