@@ -23,7 +23,7 @@ void ches::run::Run::interpretProgram() {
     ByteSeq fileCont;
     FileManager::readByteSeq(g_cmd.argKeyAt("-i"), fileCont);
     Interpreter itp(g_cmd.argKeyAt("-i"), fileCont);
-    //itp.runProgram();
+    itp.runProgram();
 }
 
 void ches::run::Run::showHelpMessage() {

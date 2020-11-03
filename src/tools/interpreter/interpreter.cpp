@@ -1,5 +1,7 @@
 #pragma once
 
+#include "datastruct.cpp"
+
 #include "interpreter.hpp"
 
 
@@ -72,7 +74,7 @@ void ches::run::Interpreter::runProgram() {
 
         // エントリポイントの呼び出し
         ByteSeq bytes = { IT_Jump };
-        bytes.push_back(this->labelList.findByName({ 0x6D, 0x61, 0x69, 0x6E }).id);
+        bytes.push_back(this->labelList.findByName(ByteSeq("main")).id);
         runInst(Instruction(bytes));
 
     } catch(std::out_of_range ignored) {
@@ -115,27 +117,28 @@ void ches::run::Interpreter::setLabelData() {
     }
 }
 
-void ches::run::Interpreter::runInst(Instruction instruction) {
-    //for(auto a : inst) for(auto b : a) std::cout << std::to_string(b) << " "; } std::cout << "| "; } std::cout << std::endl;
+void ches::run::Interpreter::runInst(Instruction inst) {
+    for(auto a : inst.operand) for(auto b : a) std::cout << std::to_string(b) << " "; std::cout << "| "; std::cout << std::endl;
+    Console::writeln(instTypeMap.at(inst.opcode));
 
     try {
-        switch(instruction.opcode) {
-            case IT_Unknown: {std::cout<<"Unknown"<<std::endl;
+        switch(inst.opcode) {
+            case IT_Unknown: {
             } break;
 
-            case IT_Jump: {std::cout<<"Jump"<<std::endl;//
+            case IT_Jump: {
                 //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
                 //for(Instruction inst : this->labelList.findById(instruction.operand["id"]).instList)
                     //runInst(inst);
             } break;
 
-            case IT_LSPush: {std::cout<<"LSPush"<<std::endl;
+            case IT_LSPush: {
                 //std::cout << "Push: " << (int)inst.at(1).at(0) << std::endl;
                 //stacks.at(0).push((void*)&inst.at(1));
-                this->stackList.begin()->push((void*)&instruction.operand.at(0));
+                this->stackList.begin()->push((void*)&inst.operand.at(0));
             } break;
 
-            default: {std::cout<<"Unknown_"<<std::endl;
+            default: {
             } break;
         }
     } catch(std::out_of_range ignored) {

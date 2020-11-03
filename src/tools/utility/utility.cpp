@@ -1,5 +1,10 @@
 #pragma once
 
+#define INST(type)                  InstList(Instruction(type))
+#define INST_LABEL(id, name)        InstList(Instruction(IT_Label, { id, ByteSeq(name) }))
+#define INST_LLPUSH(size, value)    InstList(Instruction(IT_LLPush, { ByteSeq(size).escape(), value.escape() }))
+#define INST_LSPUSH(size, value)    InstList(Instruction(IT_LSPush, { ByteSeq(size).escape(), value.escape() }))
+
 #include "utility.hpp"
 
 
@@ -228,21 +233,21 @@ ches::ByteSeq::ByteSeq(std::initializer_list<Byte> value) {
         this->push_back(val);
 }
 
-ches::ByteSeq::ByteSeq(int source) {
+ches::ByteSeq::ByteSeq(int value) {
     std::stringstream ss;
-    ss << std::hex << source;
+    ss << std::hex << value;
     std::string hex = ss.str();
 
     if(hex.length() % 2 != 0)
         hex = "0" + hex;
 
     for(int i = 0; i < hex.length(); i += 2)
-        this->push_back((Byte)std::stoi(hex.substr(i, 2), nullptr, 10));
+        this->push_back((Byte)std::stoi(hex.substr(i, 2), nullptr, 16));
 }
 
-ches::ByteSeq::ByteSeq(std::string source) {
-    for(Byte src : source)
-        this->push_back(src);
+ches::ByteSeq::ByteSeq(std::string value) {
+    for(Byte val : value)
+        this->push_back(val);
 }
 
 ches::ByteSeq::ByteSeq(Token token) {
@@ -297,7 +302,7 @@ ches::ByteSeq::ByteSeq(Node node) {
     }
 }
 
-ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string source) {
+ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string value) {
     // ヘッダ部分
 
     HeaderInfo header;
@@ -307,7 +312,7 @@ ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string source) {
     // ボディ部分
 
     InstConv instConv;
-    InstList instList = instConv.toInstList(tree, filePath, source);
+    InstList instList = instConv.toInstList(tree, filePath, value);
     ByteSeq byteSeq = instList.toByteSeq();
     this->push_back(byteSeq);
 
@@ -502,7 +507,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
         switch(node.type) {
             case ND_Unknown: {
-                result.push_back(Instruction(IT_Unknown));
+                result.push_back(INST(IT_Unknown));
             } break;
 
             case ND_Root: {
@@ -530,14 +535,15 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 else if(t_type.string == "str")
                     value = ByteSeq(t_value.string);
 
-                result.push_back(Instruction(IT_LSPush, { value.escape() }));
+                // ビット数を調整する
+                result.push_back(INST_LSPUSH(32, value));
                 this->localStackLen++;
             } break;
 
             case ND_DefFunc: {
-                ByteSeq funcName = ByteSeq(node.tokenAt(0).string);
-                ByteSeq funcID = ByteSeq(this->labelList.findByName(funcName).id).escape();
-                result.push_back(Instruction(IT_Label, { funcID, funcName }));
+                std::string name = node.tokenAt(0).string;
+                ByteSeq id = ByteSeq(this->labelList.findByName(name).id);
+                result.push_back(INST_LABEL(id, name));
                 this->localListLen += node.childAt(0).children.size();
 
                 int i = 1;
@@ -546,51 +552,51 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
             } break;
 
             case ND_CallFunc: {
-                Token funcNameToken = node.tokenAt(0);
-                std::string funcName = funcNameToken.string;
+                Token nameToken = node.tokenAt(0);
+                std::string name = nameToken.string;
 
-                ByteSeq funcID = this->labelList.findByName(ByteSeq(funcName)).id;
+                ByteSeq id = this->labelList.findByName(ByteSeq(name)).id;
+                if(id.size() == 0)
+                    Console::log(LogType_Error, 1822, { { "At", nameToken.getPositionText(this->filePath, this->source ) }, { "Id", name } }, false);
 
-                if(funcID.size() == 0)
-                    Console::log(LogType_Error, 1822, { { "At", funcNameToken.getPositionText(this->filePath, this->source ) }, { "Id", funcName } }, false);
-
-                result.push_back(Instruction(IT_Jump, { funcID }));
+                result.push_back(INST_LSPUSH(32, id));
+                result.push_back(INST(IT_Jump));
             } break;
 
             case ND_If: {
-                int nextNodeType = index + 1 < parent.children.size() ? parent.childAt(index + 1).type : ND_Unknown;
+                // int nextNodeType = index + 1 < parent.children.size() ? parent.childAt(index + 1).type : ND_Unknown;
 
-                if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
-                } else {
-                    // ifelse / else が後に続かない場合
+                // if(nextNodeType == ND_Else || nextNodeType == ND_ElseIf) {
+                // } else {
+                //     // ifelse / else が後に続かない場合
 
-                    // 処理部分を取得
-                    int i = 1;
-                    InstList procLines = this->toInstList(node, i);
+                //     // 処理部分を取得
+                //     int i = 1;
+                //     InstList procLines = this->toInstList(node, i);
 
-                    // IFスコープに処理がない場合は弾く
-                    if(procLines.size() == 1)
-                        break;
+                //     // IFスコープに処理がない場合は弾く
+                //     if(procLines.size() == 1)
+                //         break;
 
-                    // 条件部分をスタックにプッシュ
-                    i = 0;
-                    InstList insts = this->toInstList(node, i);
+                //     // 条件部分をスタックにプッシュ
+                //     i = 0;
+                //     InstList insts = this->toInstList(node, i);
 
-                    // 処理部分の行数をもとにIFJUMP命令を追加
-                    ByteSeq lineIndex((Byte)IT_VarPref);
-                    lineIndex.push_back(ByteSeq((int)procLines.size()));
-                    result.push_back(Instruction(IT_IFJump, { lineIndex }));
-                    result.push_back(procLines);
+                //     // 処理部分の行数をもとにIFJUMP命令を追加
+                //     ByteSeq lineIndex((Byte)IT_VarPref);
+                //     lineIndex.push_back(ByteSeq((int)procLines.size()));
+                //     result.push_back(Instruction(IT_IFJump, { lineIndex }));
+                //     result.push_back(procLines);
 
-                    // プッシュした条件部分をポップ
-                    result.push_back(Instruction(IT_LSPop));
-                }
+                //     // プッシュした条件部分をポップ
+                //     result.push_back(Instruction(IT_LSPop));
+                // }
             } break;
 
             case ND_Else: {
-                int i = 0;
-                InstList insts = this->toInstList(node, i);
-                result.push_back(insts);
+                // int i = 0;
+                // InstList insts = this->toInstList(node, i);
+                // result.push_back(insts);
             } break;
 
             case ND_Loop: {
@@ -600,25 +606,8 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
                 switch(exprs.children.size()) {
                     case 1: {
-                        //ByteSeq(exprs.childAt(0).tokenAt(0))
-
-                        // インデクサの値を追加
-                        result.push_back(Instruction(IT_LSPush, { ByteSeq((int)0).escape() }));
-
-                        int startIndex = result.size();
-
-                        result.push_back(Instruction(IT_LSPush, { ByteSeq(startIndex).escape() }));
-                        result.push_back(Instruction(IT_IFJump));
-
-                        // インデックスを加算
-                        result.push_back(Instruction(IT_LSPush, { ByteSeq((int)1).escape() }));
-                        result.push_back(Instruction(IT_Add));
-
-                        // インデックスの条件を判定
-                        int endIndex = result.size();
-                        result.push_back(Instruction(IT_Compare));
-                        result.push_back(Instruction(IT_LSPush, { ByteSeq(endIndex - startIndex).escape() }));
-                        result.push_back(Instruction(IT_IFJump));
+                        int count = std::stoi(exprs.childAt(0).tokenAt(1).string);
+                        result.push_back(InstConv::toInstList_loop(count, process));
                     } break;
 
                     case 3: {
@@ -634,7 +623,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
                 if(node.childAt(0).type == ND_Value) {
                     item = ByteSeq(node.childAt(0).tokens.at(0));
-                    result.push_back(Instruction((Byte)IT_LSPush, { item.escape() }));
+                    result.push_back(INST_LSPUSH(32, item));
                 } else {
                     int i = 0;
                     result.push_back(this->toInstList(node, i));
@@ -642,13 +631,13 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
                 if(node.childAt(0).type == ND_Value) {
                     item = ByteSeq(node.childAt(0).tokens.at(0));
-                    result.push_back(Instruction((Byte)IT_LSPush, { item.escape() }));
+                    result.push_back(INST_LSPUSH(32, item));
                 } else {
                     int i = 1;
                     result.push_back(this->toInstList(node, i));
                 }
 
-                result.push_back(Instruction((Byte)IT_Compare));
+                result.push_back(INST(IT_Compare));
             }
         }
 

@@ -18,7 +18,7 @@ namespace ches::run {
         void runProgram();
 
     private:
-        StackList stackList = {};
+        Stack<Stack<void*>> stack;
         FuncList labelList;
 
         void setLabelData();

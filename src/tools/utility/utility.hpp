@@ -121,6 +121,15 @@ namespace ches {
     };
 
 
+    enum DataSizeType : Byte {
+        DST_2,
+        DST_8,
+        DST_16,
+        DST_32,
+        DST_64
+    };
+
+
     // tokenTypeMapを追加する
 
 
@@ -614,16 +623,6 @@ namespace ches {
     };
 
 
-    struct Stack : public std::stack<void*> {
-        Stack();
-    };
-
-
-    struct StackList : vector_ext<Stack> {
-        StackList();
-    };
-
-
     struct HeaderInfo {
         ByteSeq magicNum;
 
@@ -659,6 +658,28 @@ namespace ches {
 
         InstList toInstList(Node tree, std::string filePath, std::string source);
 
+        InstList toInstList_loop(int loopCount, InstList process) {
+            InstList result;
+
+            result.push_back(INST_LSPUSH(32, ByteSeq(loopCount)));
+            result.push_back(INST_LSPUSH(32, ByteSeq((int)0)));
+
+            result.push_back(INST(IT_Compare));
+            result.push_back(INST_LSPUSH(8, ByteSeq((int)(8 + process.size()))));
+            result.push_back(INST(IT_IFJump));
+
+            result.push_back(INST(IT_Greater));
+            result.push_back(INST_LSPUSH(8, ByteSeq((int)(5 + process.size()))));
+            result.push_back(INST(IT_IFJump));
+
+            result.push_back(process);
+
+            result.push_back(INST_LSPUSH(2, ByteSeq(1)));
+            result.push_back(INST_LSPUSH(8, ByteSeq(-9)));
+
+            return result;
+        }
+
         static ByteSeq toByteSeq(Instruction inst) {
             ByteSeq instBytes;
 
@@ -691,11 +712,13 @@ namespace ches {
                     } break;
 
                     case IT_LSPush: {
-                        result.operand.push_back(bytes.copy(1));
+                        result.operand.push_back(bytes.copy(0, 1));
+                        result.operand.push_back(bytes.copy(2));
                     } break;
 
                     case IT_LLPush: {
-                        result.operand.push_back(bytes.copy(1));
+                        result.operand.push_back(bytes.copy(0, 1));
+                        result.operand.push_back(bytes.copy(2));
                     } break;
                 }
             } catch(std::out_of_range ignored) {
@@ -722,7 +745,12 @@ namespace ches {
 
                     std::string prefix = "";
                     ByteSeq index;
-                    ByteSeq value = inst.operand.at(0);
+                    ByteSeq size = inst.operand.at(0);
+                    ByteSeq value = inst.operand.at(1);
+
+                    result += "\t";
+                    result += size.toHexString();
+                    result += "\t";
 
                     if(value.at(0) == IT_VarPref && (
                             value.size() <= 1 ||
@@ -742,7 +770,12 @@ namespace ches {
 
                     std::string prefix = "";
                     ByteSeq index;
-                    ByteSeq value = inst.operand.at(0);
+                    ByteSeq size = inst.operand.at(0);
+                    ByteSeq value = inst.operand.at(1);
+
+                    result += "\t";
+                    result += size.toHexString();
+                    result += "\t";
 
                     if(value.at(0) == IT_VarPref && (
                         value.size() < 2 ||
@@ -756,16 +789,6 @@ namespace ches {
                     result += "\t";
                     result += prefix + index.toHexString();
                 }
-
-                case IT_Jump: {
-                    result += "\t";
-                    result += inst.operand.at(0).toHexString();
-                } break;
-
-                case IT_IFJump: {
-                    result += "\t";
-                    result += inst.operand.at(0).toHexString();
-                } break;
             }
 
             return result;
