@@ -66,5 +66,5 @@ ches::ByteSeq ches::cmd::Compiler::toBytecode() {
         bytecodes.push_back(ByteSeq(node, path, source));
     }
 
-    return ByteSeq::join(bytecodes, ByteSeq(0x00, 5));
+    return ByteSeq::join(bytecodes, ByteSeq((Byte)0x00, 5));
 }

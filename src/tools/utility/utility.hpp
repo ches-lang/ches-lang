@@ -420,6 +420,8 @@ namespace ches {
 
         ByteSeq(Byte value);
 
+        ByteSeq(Byte *value, int length);
+
         ByteSeq(Byte value, int len);
 
         ByteSeq(std::initializer_list<Byte> value);
@@ -455,7 +457,7 @@ namespace ches {
             return result;
         }
 
-        static ByteSeq join(vector_ext<ByteSeq> byteSeqs, ByteSeq separator) {
+        static ByteSeq join(vector_ext<ByteSeq> byteSeqs, ByteSeq separator = {}) {
             ByteSeq result;
 
             for(ByteSeq seq : byteSeqs) {
@@ -482,6 +484,11 @@ namespace ches {
             vector_ext<Byte>::push_back((Byte)0);
         }
 
+        inline void push_back(Byte *value, int length) {
+            for(int i = 0; i < length; i++)
+                vector_ext<Byte>::push_back(value[i]);
+        }
+
         inline void push_back(Byte value) {
             vector_ext<Byte>::push_back(value);
         }
@@ -500,11 +507,17 @@ namespace ches {
             vector_ext<Byte>::insert(this->begin(), value);
         }
 
+        int toDataSize();
+
         std::string toHexString(std::string sep = "");
 
         int toInt();
 
         LineSeq toLineSeq();
+
+        void* toNumber(ValueType type);
+
+        Byte* toPointerArray();
 
         std::string toString();
     };
@@ -703,24 +716,28 @@ namespace ches {
                 if(bytes.size() == 0)
                     bytes = { IT_Unknown };
 
-                result.opcode = bytes[0];
+                result.opcode = bytes.at(0);
+                vector_ext<ByteSeq> operand;
 
                 switch(result.opcode) {
                     case IT_Label: {
-                        result.operand.push_back(bytes.copy(1, 16));
-                        result.operand.push_back(bytes.copy(17));
+                        operand.push_back(bytes.copy(1, 16));
+                        operand.push_back(bytes.copy(17));
                     } break;
 
                     case IT_LSPush: {
-                        result.operand.push_back(bytes.copy(0, 1));
-                        result.operand.push_back(bytes.copy(2));
+                        operand.push_back(bytes.copy(1, 1));
+                        operand.push_back(bytes.copy(2));
                     } break;
 
                     case IT_LLPush: {
-                        result.operand.push_back(bytes.copy(0, 1));
-                        result.operand.push_back(bytes.copy(2));
+                        operand.push_back(bytes.copy(1, 1));
+                        operand.push_back(bytes.copy(2));
                     } break;
                 }
+
+                result.operand = operand;
+
             } catch(std::out_of_range ignored) {
                 std::cout << "EXCEPTION" << std::endl;
             }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "datastruct.cpp"
-
 #include "interpreter.hpp"
 
 
@@ -67,15 +65,27 @@ void ches::run::Interpreter::runProgram() {
 
         std::vector<std::string> logLines;
 
-        for(int i = 0; i < this->labelList.size(); i++)
-            logLines.push_back("[" + std::to_string(i) + "] " + this->labelList.at(0).name.toHexString());
+        for(Function label : this->labelList)
+            logLines.push_back("[" + label.id.toHexString() + "] " + label.name.toString());
 
         Console::printDebugLog("label list", logLines);
 
         // エントリポイントの呼び出し
-        ByteSeq bytes = { IT_Jump };
-        bytes.push_back(this->labelList.findByName(ByteSeq("main")).id);
-        runInst(Instruction(bytes));
+
+        this->list.push(std::list<ByteSeq>());
+        this->stack.push(std::stack<ByteSeq>());
+
+        ByteSeq lspush = { IT_LSPush };
+        lspush.push_back(DST_32);
+        ByteSeq id;
+
+        for(Function label : this->labelList)
+            if(label.name == ByteSeq("const"))
+                id = label.id;
+
+        lspush.push_back(id);
+        runInst(Instruction(lspush));
+        runInst(Instruction({ IT_Jump }));
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
@@ -89,25 +99,27 @@ void ches::run::Interpreter::setLabelData() {
 
             if(inst.opcode == IT_Label) {
                 // ラベルの終了インデックスと内容を取得
-                InstList labelCont;
-                int labelStartIndex = i++;
+                InstList labelInstList;
+                int beginIndex = i++;
 
                 // ラベルの終了位置を取得
                 while(i < this->instList.size()) {
-                    Instruction instLine = this->instList.at(i);
+                    Instruction inst = this->instList.at(i);
 
-                    if(instLine.opcode != IT_Label) {
-                        labelCont.push_back(instLine);
+                    if(inst.opcode != IT_Label) {
+                        labelInstList.push_back(inst);
                         i++;
                     } else {
                         break;
                     }
                 }
 
-                // ラベルリストにデータを追加
-                Function label = Function(inst.operand.at(0), inst.operand.at(1), labelStartIndex, --i);
-                label.instList = labelCont;
-                this->labelList.push_back(label);
+                int endIndex = i;
+
+                ByteSeq id = inst.operand.at(0);
+                ByteSeq name = inst.operand.at(1);
+
+                this->labelList.push_back(Function(id, name, beginIndex, endIndex));
             } else {
                 // ラベル外の処理
             }
@@ -117,25 +129,26 @@ void ches::run::Interpreter::setLabelData() {
     }
 }
 
-void ches::run::Interpreter::runInst(Instruction inst) {
-    for(auto a : inst.operand) for(auto b : a) std::cout << std::to_string(b) << " "; std::cout << "| "; std::cout << std::endl;
-    Console::writeln(instTypeMap.at(inst.opcode));
+void ches::run::Interpreter::runInst(Instruction instruction) {
+    // for(auto a : instruction.operand) for(auto b : a) std::cout << std::to_string(b) << " "; std::cout << "| "; std::cout << std::endl;
+    Console::writeln(instTypeMap.at(instruction.opcode));
+    // Console::writeln(instruction.operand.size());
 
     try {
-        switch(inst.opcode) {
+        switch(instruction.opcode) {
             case IT_Unknown: {
             } break;
 
             case IT_Jump: {
-                //std::cout << "Called: " << joinCode(inst.at(1)) << std::endl;
-                //for(Instruction inst : this->labelList.findById(instruction.operand["id"]).instList)
-                    //runInst(inst);
+                ByteSeq id = this->stack.top().top();
+                Function label = this->labelList.findById(id);
+
+                for(int i = label.begin; i < label.end; i++)
+                    runInst(this->instList.at(i));
             } break;
 
             case IT_LSPush: {
-                //std::cout << "Push: " << (int)inst.at(1).at(0) << std::endl;
-                //stacks.at(0).push((void*)&inst.at(1));
-                this->stackList.begin()->push((void*)&inst.operand.at(0));
+                this->stack.top().push(instruction.operand.at(1));
             } break;
 
             default: {
@@ -144,12 +157,4 @@ void ches::run::Interpreter::runInst(Instruction inst) {
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
-}
-
-std::string ches::run::Interpreter::joinCode(ByteSeq src) {
-    std::string res;
-    for(Byte uc : src)
-        res += std::to_string((int)uc) + " ";
-    res.pop_back();
-    return res;
 }

@@ -18,7 +18,8 @@ namespace ches::run {
         void runProgram();
 
     private:
-        Stack<Stack<void*>> stack;
+        std::stack<std::list<ByteSeq>> list;
+        std::stack<std::stack<ByteSeq>> stack;
         FuncList labelList;
 
         void setLabelData();

@@ -223,6 +223,10 @@ ches::ByteSeq::ByteSeq(Byte value) {
     this->push_back(value);
 }
 
+ches::ByteSeq::ByteSeq(Byte *value, int length) {
+    this->push_back(value, length);
+}
+
 ches::ByteSeq::ByteSeq(Byte value, int len) {
     for(int i = 0; i < len; i++)
         this->push_back(value);
@@ -349,6 +353,27 @@ ches::ByteSeq ches::ByteSeq::escape() {
     return result;
 }
 
+int ches::ByteSeq::toDataSize() {
+    switch(this->at(0)) {
+        case DST_2:
+        return 2;
+
+        case DST_8:
+        return 8;
+
+        case DST_16:
+        return 16;
+
+        case DST_32:
+        return 32;
+
+        case DST_64:
+        return 64;
+    }
+
+    return 0;
+}
+
 std::string ches::ByteSeq::toHexString(std::string sep) {
     std::string result;
 
@@ -390,6 +415,20 @@ ches::LineSeq ches::ByteSeq::toLineSeq() {
     }
 
     return lines;
+}
+
+// void* ches::ByteSeq::toNumber(ValueType type) {
+//     this->toHexString();
+
+//     switch(type) {
+//         case VT_Boolean:
+//         return ;
+//     }
+//     return std::stoi(, nullptr, 16);
+// }
+
+ches::Byte* ches::ByteSeq::toPointerArray() {
+    return this->data();
 }
 
 std::string ches::ByteSeq::toString() {
@@ -467,6 +506,78 @@ ches::ByteSeq ches::InstList::toByteSeq() {
 
     return result;
 }
+
+
+ches::Function::Function() {}
+
+ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name) {
+    this->id = id;
+    this->name = name;
+}
+
+ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin, int end) {
+    this->id = id;
+    this->name = name;
+    this->begin = begin;
+    this->end = end;
+}
+
+
+ches::FuncList::FuncList() {}
+
+ches::FuncList::FuncList(ches::Function value) {
+    this->push_back(value);
+}
+
+ches::FuncList::FuncList(std::initializer_list<Function> value) {
+    for(Function val : value)
+        this->push_back(val);
+}
+
+ches::FuncList::FuncList(std::vector<Function> value) {
+    this->push_back(value);
+}
+
+ches::Function ches::FuncList::findById(ches::ByteSeq id) {
+    for(Function func : *this)
+        if(func.id == id)
+            return func;
+
+    return Function();
+}
+
+ches::Function ches::FuncList::findByName(ches::ByteSeq name) {
+    for(Function func : *this)
+        if(func.name == name)
+            return func;
+
+    return Function();
+}
+
+
+ches::HeaderInfo::HeaderInfo() {}
+
+ches::HeaderInfo::HeaderInfo(ches::ByteSeq bytes) {
+    if(bytes.size() != HEADER_LEN)
+        return;
+
+    // 各データのバイト数変更に対応するためのインデックス管理
+    int index = 0;
+
+    int magicNumSize = ches::MAGIC_NUMBER.size();
+    this->magicNum = bytes.copy(index, index + magicNumSize - 1);
+    index += magicNumSize;
+}
+
+ches::ByteSeq ches::HeaderInfo::toByteSeq() {
+    ByteSeq result;
+
+    result.push_back(ches::MAGIC_NUMBER);
+    result.push_back(ByteSeq((Byte)0, (int)(HEADER_LEN - result.size())));
+
+    return result;
+}
+
 
 
 ches::InstConv::InstConv() {}
@@ -556,10 +667,13 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 std::string name = nameToken.string;
 
                 ByteSeq id = this->labelList.findByName(ByteSeq(name)).id;
+                Console::writeln("id.toHexString()");
+                Console::writeln(id.toHexString());
+
                 if(id.size() == 0)
                     Console::log(LogType_Error, 1822, { { "At", nameToken.getPositionText(this->filePath, this->source ) }, { "Id", name } }, false);
 
-                result.push_back(INST_LSPUSH(32, id));
+                result.push_back(INST_LSPUSH(DST_16, id));
                 result.push_back(INST(IT_Jump));
             } break;
 
@@ -600,8 +714,8 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
             } break;
 
             case ND_Loop: {
-                int index = 0;
-                InstList process = this->toInstList(node.childAt(1), index);
+                int index = 1;
+                InstList process = this->toInstList(node, index);
                 Node exprs = node.childAt(0);
 
                 switch(exprs.children.size()) {
@@ -646,81 +760,4 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
         std::cout << "EXCEPTION" << std::endl;
         return result;
     }
-}
-
-
-ches::Function::Function() {}
-
-ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name) {
-    this->id = id;
-    this->name = name;
-}
-
-ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin, int end) {
-    this->id = id;
-    this->name = name;
-    this->begin = begin;
-    this->end = end;
-}
-
-
-ches::FuncList::FuncList() {}
-
-ches::FuncList::FuncList(ches::Function value) {
-    this->push_back(value);
-}
-
-ches::FuncList::FuncList(std::initializer_list<Function> value) {
-    for(Function val : value)
-        this->push_back(val);
-}
-
-ches::FuncList::FuncList(std::vector<Function> value) {
-    this->push_back(value);
-}
-
-ches::Function ches::FuncList::findById(ches::ByteSeq id) {
-    for(Function func : *this)
-        if(func.id == id)
-            return func;
-
-    return Function();
-}
-
-ches::Function ches::FuncList::findByName(ches::ByteSeq name) {
-    for(Function func : *this)
-        if(func.name == name)
-            return func;
-
-    return Function();
-}
-
-
-ches::Stack::Stack() {}
-
-
-ches::StackList::StackList() {}
-
-
-ches::HeaderInfo::HeaderInfo() {}
-
-ches::HeaderInfo::HeaderInfo(ches::ByteSeq bytes) {
-    if(bytes.size() != HEADER_LEN)
-        return;
-
-    // 各データのバイト数変更に対応するためのインデックス管理
-    int index = 0;
-
-    int magicNumSize = ches::MAGIC_NUMBER.size();
-    this->magicNum = bytes.copy(index, index + magicNumSize - 1);
-    index += magicNumSize;
-}
-
-ches::ByteSeq ches::HeaderInfo::toByteSeq() {
-    ByteSeq result;
-
-    result.push_back(ches::MAGIC_NUMBER);
-    result.push_back(ByteSeq(0, (int)(HEADER_LEN - result.size())));
-
-    return result;
 }
