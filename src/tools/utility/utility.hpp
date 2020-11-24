@@ -80,27 +80,27 @@ namespace ches {
 
     enum InstType : Byte {
         IT_Unknown,
-        IT_LineDiv,
-        IT_TokenDiv,
-        IT_SysCall,
-        IT_VarPref,
-        IT_LineIndex,
-        IT_Label,
-        IT_LSPush,
-        IT_LSPop,
-        IT_LLPush,
-        IT_And,
-        IT_Or,
-        IT_Compare,
-        IT_Greater,
-        IT_Less,
+        IT_InstDiv,
+        IT_OpeDiv,
         IT_Add,
-        IT_Sub,
-        IT_Mul,
+        IT_And,
+        IT_ArgPref,
+        IT_Block,
         IT_Div,
+        IT_Equal,
+        IT_Greater,
         IT_Join,
         IT_Jump,
-        IT_IFJump
+        IT_JumpIf,
+        IT_JumpIfNot,
+        IT_Load,
+        IT_Mul,
+        IT_Or,
+        IT_Pop,
+        IT_Push,
+        IT_Return,
+        IT_Sub,
+        IT_SysCall
     };
 
 
@@ -161,26 +161,27 @@ namespace ches {
 
     std::unordered_map<Byte, std::string> instTypeMap {
         { IT_Unknown, "Unknown" },
-        { IT_LineDiv, "LineDiv" },
-        { IT_TokenDiv, "TokenDiv" },
-        { IT_VarPref, "VarPref" },
-        { IT_LineIndex, "LineIndex" },
-        { IT_Label, "Label" },
-        { IT_LSPush, "LSPush" },
-        { IT_LSPop, "LSPop" },
-        { IT_LLPush, "LLPush" },
-        { IT_And, "And" },
-        { IT_Or, "Or" },
-        { IT_Compare, "Compare" },
-        { IT_Greater, "Greater" },
-        { IT_Less, "Less" },
+        { IT_InstDiv, "InstDiv" },
+        { IT_OpeDiv, "OpeDiv" },
         { IT_Add, "Add" },
-        { IT_Sub, "Sub" },
-        { IT_Mul, "Mul" },
+        { IT_And, "And" },
+        { IT_ArgPref, "ArgPref" },
+        { IT_Block, "Block" },
         { IT_Div, "Div" },
+        { IT_Equal, "Equal" },
+        { IT_Greater, "Greater" },
         { IT_Join, "Join" },
         { IT_Jump, "Jump" },
-        { IT_IFJump, "IFJump" }
+        { IT_JumpIf, "JumpIf" },
+        { IT_JumpIfNot, "JumpIfNot" },
+        { IT_Load, "Load" },
+        { IT_Mul, "Mul" },
+        { IT_Or, "Or" },
+        { IT_Pop, "Pop" },
+        { IT_Push, "Push" },
+        { IT_Return, "Return" },
+        { IT_Sub, "Sub" },
+        { IT_SysCall, "SysCall" }
     };
 
 
@@ -195,9 +196,25 @@ namespace ches {
         { VT_UInt, "uint" },
         { VT_Long, "lng" },
         { VT_ULong, "ulng" },
+        { VT_Decimal, "dec" },
         { VT_Char, "chr" },
-        { VT_String, "str" },
-        { VT_Decimal, "dec" }
+        { VT_String, "str" }
+    };
+
+
+    std::unordered_map<std::string, DataSizeType> dataSizeTypeMap {
+        { "bol", DST_2 },
+        { "byt", DST_8 },
+        { "ubyt", DST_8 },
+        { "sht", DST_16 },
+        { "usht", DST_16 },
+        { "int", DST_32 },
+        { "uint", DST_32 },
+        { "lng", DST_64 },
+        { "ulng", DST_64 },
+        { "dec", DST_32 },
+        { "chr", DST_8 },
+        { "str", DST_32 }
     };
 
 
@@ -594,6 +611,10 @@ namespace ches {
 
         FuncList(std::vector<Function> value);
 
+        bool existsId(ByteSeq id);
+
+        bool existsName(ByteSeq name);
+
         Function findById(ByteSeq id);
 
         Function findByName(ByteSeq name);
@@ -665,30 +686,98 @@ namespace ches {
 
         InstConv();
 
+        DataSizeType toDataSizeType(std::string type) {
+            return dataSizeTypeMap.at(type);
+        }
+
         InstList toInstList(Node tree);
 
         InstList toInstList(Node parent, int &index);
 
         InstList toInstList(Node tree, std::string filePath, std::string source);
 
-        InstList toInstList_loop(int loopCount, InstList process) {
+        InstList toInstList_callFunc(Node &node) {
             InstList result;
 
-            result.push_back(INST_LSPUSH(32, ByteSeq(loopCount)));
-            result.push_back(INST_LSPUSH(32, ByteSeq((int)0)));
+            Token nameToken = node.tokenAt(0);
+            std::string name = nameToken.string;
 
-            result.push_back(INST(IT_Compare));
-            result.push_back(INST_LSPUSH(8, ByteSeq((int)(8 + process.size()))));
-            result.push_back(INST(IT_IFJump));
+            ByteSeq id = this->labelList.findByName(ByteSeq(name)).id;
 
+            if(id.size() != 16)
+                Console::log(LogType_Error, 1822, { { "At", nameToken.getPositionText(this->filePath, this->source ) }, { "Id", name } }, false);
+
+            Node args = node.childAt(0);
+
+            for(Node node : args.children) {
+                if(node.type == ND_Value) {
+                    DataSizeType size = InstConv::toDataSizeType(node.tokenAt(0).string);
+                    ByteSeq value(node.tokenAt(1));
+                    result.push_back(INST_PUSH(size, value));
+                }
+            }
+
+            result.push_back(INST_PUSH(DST_16, id));
+            result.push_back(INST(IT_Jump));
+
+            return result;
+        }
+
+        InstList toInstList_condBranchWithElse(int startIndex, InstList procWhenMatch) {
+            int escapeIndex = procWhenMatch.size() + 1;
+            InstList result;
+
+            result.push_back(INST_LOAD(1));
+            result.push_back(INST_JUMPIF(escapeIndex));
+            result.push_back(procWhenMatch);
+
+            return result;
+        }
+
+        InstList toInstList_condBranchWithElse(int startIndex, InstList procWhenMatch, InstList procInElse) {
+            int wholeProcLen = procWhenMatch.size() + procInElse.size();
+            int escapeIndex = startIndex + wholeProcLen;
+            InstList result;
+
+            result.push_back(INST_LOAD(1));
+            result.push_back(INST_JUMPIFN(escapeIndex));
+            result.push_back(procWhenMatch);
+            result.push_back(INST_JUMP(escapeIndex));
+            result.push_back(procInElse);
+
+            return result;
+        }
+
+        InstList toInstList_loop(int startIndex, int loopCount, InstList procWhenMatch) {
+            int escapeIndex = procWhenMatch.size() + 5;
+            InstList result;
+
+            result.push_back(INST_PUSH(DST_32, ByteSeq(loopCount)));
+            result.push_back(INST_PUSH(DST_32, ByteSeq((int)0)));
+
+            result.push_back(INST_LOAD(2));
+            result.push_back(INST(IT_Equal));
+            result.push_back(INST_LOAD(1));
+            result.push_back(INST(IT_Pop));
+            result.push_back(INST_JUMPIF(escapeIndex));
+
+            result.push_back(INST_LOAD(2));
             result.push_back(INST(IT_Greater));
-            result.push_back(INST_LSPUSH(8, ByteSeq((int)(5 + process.size()))));
-            result.push_back(INST(IT_IFJump));
+            result.push_back(INST_LOAD(1));
+            result.push_back(INST(IT_Pop));
+            result.push_back(INST_JUMPIF(escapeIndex));
 
-            result.push_back(process);
+            result.push_back(procWhenMatch);
 
-            result.push_back(INST_LSPUSH(2, ByteSeq(1)));
-            result.push_back(INST_LSPUSH(8, ByteSeq(-9)));
+            result.push_back(INST_PUSH(DST_2, ByteSeq(1)));
+            result.push_back(INST(IT_Pop));
+            result.push_back(INST_PUSH(DST_2, ByteSeq(1)));
+            result.push_back(INST_LOAD(1));
+            result.push_back(INST(IT_Add));
+            result.push_back(INST_JUMPIF(startIndex + 2));
+
+            result.push_back(INST(IT_Pop));
+            result.push_back(INST(IT_Pop));
 
             return result;
         }
@@ -720,17 +809,22 @@ namespace ches {
                 vector_ext<ByteSeq> operand;
 
                 switch(result.opcode) {
-                    case IT_Label: {
+                    case IT_Block: {
                         operand.push_back(bytes.copy(1, 16));
                         operand.push_back(bytes.copy(17));
                     } break;
 
-                    case IT_LSPush: {
-                        operand.push_back(bytes.copy(1, 1));
-                        operand.push_back(bytes.copy(2));
+                    case IT_Jump:
+                    case IT_JumpIf:
+                    case IT_JumpIfNot: {
+                        operand.push_back(bytes.copy(1));
                     } break;
 
-                    case IT_LLPush: {
+                    case IT_Load: {
+                        operand.push_back(bytes.copy(1));
+                    } break;
+
+                    case IT_Push: {
                         operand.push_back(bytes.copy(1, 1));
                         operand.push_back(bytes.copy(2));
                     } break;
@@ -750,18 +844,37 @@ namespace ches {
             std::string result = instTypeMap.at(inst.opcode);
 
             switch(inst.opcode) {
-                case IT_Label: {
+                case IT_Block: {
+                    ByteSeq id = inst.operand.at(0);
+                    ByteSeq name = inst.operand.at(1);
+
                     result += "\t";
-                    result += inst.operand.at(0).toHexString();
+                    result += id.toHexString();
                     result += "\t";
-                    result += ByteSeq(inst.operand.at(1)).toString();
+                    result += name.toString();
                 } break;
 
-                case IT_LSPush: {
+                case IT_Jump:
+                case IT_JumpIf:
+                case IT_JumpIfNot: {
+                    ByteSeq index = inst.operand.at(0);
+
+                    result += "\t";
+                    result += index.toHexString();
+                } break;
+
+                case IT_Load: {
+                    ByteSeq len = inst.operand.at(0);
+
+                    result += "\t";
+                    result += len.toHexString();
+                } break;
+
+                case IT_Push: {
                     // IT_VarPref のエスケープを逆変換
 
                     std::string prefix = "";
-                    ByteSeq index;
+                    // ByteSeq index;
                     ByteSeq size = inst.operand.at(0);
                     ByteSeq value = inst.operand.at(1);
 
@@ -769,43 +882,18 @@ namespace ches {
                     result += size.toHexString();
                     result += "\t";
 
-                    if(value.at(0) == IT_VarPref && (
-                            value.size() <= 1 ||
-                            value.at(1) != IT_VarPref)) {
-                        prefix = "$";
-                        index = value.copy(1);
-                    } else {
-                        index = value;
-                    }
+                    // if(value.at(0) == IT_VarPref && (
+                    //         value.size() <= 1 ||
+                    //         value.at(1) != IT_VarPref)) {
+                    //     prefix = "$";
+                    //     index = value.copy(1);
+                    // } else {
+                    //     index = value;
+                    // }
 
                     result += "\t";
-                    result += prefix + index.toHexString();
+                    result += prefix + value.toHexString();
                 } break;
-
-                case IT_LLPush: {
-                    // IT_VarPref のエスケープを逆変換
-
-                    std::string prefix = "";
-                    ByteSeq index;
-                    ByteSeq size = inst.operand.at(0);
-                    ByteSeq value = inst.operand.at(1);
-
-                    result += "\t";
-                    result += size.toHexString();
-                    result += "\t";
-
-                    if(value.at(0) == IT_VarPref && (
-                        value.size() < 2 ||
-                        value.at(1) != IT_VarPref)) {
-                            prefix = "$";
-                            index = value.copy(1);
-                    } else {
-                        index = value;
-                    }
-
-                    result += "\t";
-                    result += prefix + index.toHexString();
-                }
             }
 
             return result;

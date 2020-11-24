@@ -18,13 +18,17 @@ namespace ches::run {
         void runProgram();
 
     private:
+        int index = 0;
         std::stack<std::list<ByteSeq>> list;
         std::stack<std::stack<ByteSeq>> stack;
+        std::stack<std::stack<ByteSeq>> opeStack;
         FuncList labelList;
+
+        void printStackLog();
 
         void setLabelData();
 
-        void runInst(Instruction instruction);
+        void runNextInst();
 
         std::string joinCode(ByteSeq src);
     };

@@ -1,9 +1,12 @@
 #pragma once
 
 #define INST(type)                  InstList(Instruction(type))
-#define INST_LABEL(id, name)        InstList(Instruction(IT_Label, { id, ByteSeq(name) }))
-#define INST_LLPUSH(size, value)    InstList(Instruction(IT_LLPush, { ByteSeq(size).escape(), value.escape() }))
-#define INST_LSPUSH(size, value)    InstList(Instruction(IT_LSPush, { ByteSeq(size).escape(), value.escape() }))
+#define INST_BLOCK(id, name)        InstList(Instruction(IT_Block, { id, ByteSeq(name) }))
+#define INST_JUMP(index)            InstList(Instruction(IT_Jump, { ByteSeq(index).escape() }))
+#define INST_JUMPIF(index)          InstList(Instruction(IT_JumpIf, { ByteSeq(index).escape() }))
+#define INST_JUMPIFN(index)         InstList(Instruction(IT_JumpIfNot, { ByteSeq(index).escape() }))
+#define INST_LOAD(len)              InstList(Instruction(IT_Load, { ByteSeq(len).escape() }))
+#define INST_PUSH(size, value)      InstList(Instruction(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() }))
 
 #include "utility.hpp"
 
@@ -344,7 +347,7 @@ ches::ByteSeq ches::ByteSeq::escape() {
     for(int i = 0; i < this->size(); i++) {
         result.push_back(this->at(i));
 
-        if(this->at(i) == IT_LineDiv || this->at(i) == IT_TokenDiv) {
+        if(this->at(i) == IT_InstDiv) {
             result.push_back(this->at(i));
             i++;
         }
@@ -398,7 +401,7 @@ ches::LineSeq ches::ByteSeq::toLineSeq() {
 
     try {
         for(int i = 0; i < this->size(); i++) {
-            if(this->at(i) == IT_LineDiv || this->at(i) == IT_TokenDiv) {
+            if(this->at(i) == IT_InstDiv) {
                 if(i + 1 < this->size() && this->at(i + 1) == this->at(i)) {
                     lines.back().push_back(this->at(i));
                     i++;
@@ -497,7 +500,7 @@ ches::ByteSeq ches::InstList::toByteSeq() {
 
         if(byteSeq.size() >= 1) {
             result.push_back(byteSeq);
-            result.push_back((Byte)IT_LineDiv);
+            result.push_back((IT_InstDiv));
         }
     }
 
@@ -536,6 +539,22 @@ ches::FuncList::FuncList(std::initializer_list<Function> value) {
 
 ches::FuncList::FuncList(std::vector<Function> value) {
     this->push_back(value);
+}
+
+bool ches::FuncList::existsId(ches::ByteSeq id) {
+    for(Function func : *this)
+        if(func.id == id)
+            return true;
+
+    return false;
+}
+
+bool ches::FuncList::existsName(ches::ByteSeq name) {
+    for(Function func : *this)
+        if(func.name == name)
+            return true;
+
+    return false;
 }
 
 ches::Function ches::FuncList::findById(ches::ByteSeq id) {
@@ -577,7 +596,6 @@ ches::ByteSeq ches::HeaderInfo::toByteSeq() {
 
     return result;
 }
-
 
 
 ches::InstConv::InstConv() {}
@@ -630,9 +648,11 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
             case ND_DefVar: {
                 //result.push_back(Instruction(IT_LLPush, {  }));
-                int i = 1;
-                this->toInstList(node, i);
-                this->localStackLen++;
+                // int i = 1;
+                // this->toInstList(node, i);
+                // this->localStackLen++;
+
+                // result.push_back(Instruction(IT_LSPush));
             } break;
 
             case ND_InitVar: {
@@ -647,34 +667,28 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                     value = ByteSeq(t_value.string);
 
                 // ビット数を調整する
-                result.push_back(INST_LSPUSH(32, value));
+                result.push_back(INST_PUSH(32, value));
                 this->localStackLen++;
             } break;
 
             case ND_DefFunc: {
                 std::string name = node.tokenAt(0).string;
                 ByteSeq id = ByteSeq(this->labelList.findByName(name).id);
-                result.push_back(INST_LABEL(id, name));
+                result.push_back(INST_BLOCK(id, name));
                 this->localListLen += node.childAt(0).children.size();
 
-                int i = 1;
-                InstList insts = this->toInstList(node, i);
-                result.push_back(insts);
+                int process_i = 1;
+                InstList process = this->toInstList(node, process_i);
+
+                // int args_i = 0;
+                // InstList args = this->toInstList(node, args_i);
+
+                // InstList insts = InstConv::toInstList_defFunc(process, args);
+                result.push_back(process);
             } break;
 
             case ND_CallFunc: {
-                Token nameToken = node.tokenAt(0);
-                std::string name = nameToken.string;
-
-                ByteSeq id = this->labelList.findByName(ByteSeq(name)).id;
-                Console::writeln("id.toHexString()");
-                Console::writeln(id.toHexString());
-
-                if(id.size() == 0)
-                    Console::log(LogType_Error, 1822, { { "At", nameToken.getPositionText(this->filePath, this->source ) }, { "Id", name } }, false);
-
-                result.push_back(INST_LSPUSH(DST_16, id));
-                result.push_back(INST(IT_Jump));
+                result.push_back(InstConv::toInstList_callFunc(node));
             } break;
 
             case ND_If: {
@@ -721,7 +735,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 switch(exprs.children.size()) {
                     case 1: {
                         int count = std::stoi(exprs.childAt(0).tokenAt(1).string);
-                        result.push_back(InstConv::toInstList_loop(count, process));
+                        result.push_back(InstConv::toInstList_loop(this->index, count, process));
                     } break;
 
                     case 3: {
@@ -737,7 +751,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
                 if(node.childAt(0).type == ND_Value) {
                     item = ByteSeq(node.childAt(0).tokens.at(0));
-                    result.push_back(INST_LSPUSH(32, item));
+                    result.push_back(INST_PUSH(32, item));
                 } else {
                     int i = 0;
                     result.push_back(this->toInstList(node, i));
@@ -745,13 +759,13 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
                 if(node.childAt(0).type == ND_Value) {
                     item = ByteSeq(node.childAt(0).tokens.at(0));
-                    result.push_back(INST_LSPUSH(32, item));
+                    result.push_back(INST_PUSH(32, item));
                 } else {
                     int i = 1;
                     result.push_back(this->toInstList(node, i));
                 }
 
-                result.push_back(INST(IT_Compare));
+                result.push_back(INST(IT_Equal));
             }
         }
 
