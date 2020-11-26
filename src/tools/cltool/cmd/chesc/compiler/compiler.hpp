@@ -1,9 +1,9 @@
 #pragma once
 
-#include "lexer.cpp"
-#include "parser.cpp"
+#include "../lexer/lexer.hpp"
+#include "../parser/parser.hpp"
 
-#include "compiler.hpp"
+#include "compiler.cpp"
 
 
 ches::cmd::Compiler::Compiler() {}

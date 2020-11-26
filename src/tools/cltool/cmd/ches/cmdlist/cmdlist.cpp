@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../../interpreter/interpreter.cpp"
-
-#include "run.hpp"
+#include "cmdlist.hpp"
 
 
 ches::run::Run::Run() {

@@ -1,5 +1,10 @@
 #pragma once
 
+#define DEFAULT_CMD_NAME    ("default")
+
+
+typedef std::unordered_map<std::string, void(*)()> cmdprocs;
+
 
 namespace ches::cmd{
     class Ches;
@@ -9,6 +14,7 @@ namespace ches::cmd{
 namespace ches {
     class Command {
     public:
+        static cmdprocs procs;
 
         std::string cmdName;
         std::unordered_map<std::string, std::string> cmdArgs;
@@ -29,6 +35,8 @@ namespace ches {
 
             return Command(args);
         }
+
+        void run(cmdprocs procs);
 
         void setDebugMode();
 

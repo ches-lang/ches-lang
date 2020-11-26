@@ -11,7 +11,10 @@
 #define STACK_TOP           (this->stack.top().top())
 #define STORE()             do { this->opeStack.top().pop(); Console::writeln("* store\n    " + std::to_string(this->opeStack.top().size())); this->printStackLog(); } while(0)
 
-#include "interpreter.hpp"
+#define L_AT(lineIndex)                     (lines.at(lineIndex))
+#define L_TOKEN_AT(lineIndex, tokenIndex)   (lines.at(lineIndex).at(tokenIndex))
+
+#include "interpreter.cpp"
 
 
 ches::run::Interpreter::Interpreter(std::string filePath, ByteSeq source) {

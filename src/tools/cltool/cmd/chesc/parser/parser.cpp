@@ -1,15 +1,5 @@
 #pragma once
 
-#define T_AT(idx)                   (tokens.at(idx >= 0 ? idx : tokens.size() + idx))
-#define T_LINE_AT(idx)              (this->lines.at(idx))
-#define T_MATCH(idx, typ, str)      (Token(typ, str).compare(T_AT(idx)))
-#define T_TYPE_MATCH(idx, typ)      (T_AT(idx).type == typ)
-#define T_TYPE_MATCH_REG(idx, typ)  (T_AT(idx).match(typ))
-#define T_STR_MATCH(idx, str)       (T_AT(idx).string == str)
-#define T_STR_MATCH_REG(idx, str)   (std::regex_match(T_AT(idx).string, std::regex(str)))
-
-#define CURR_LINE                   (T_LINE_AT(this->lineIndex))
-
 
 namespace ches::cmd {
     struct Line {

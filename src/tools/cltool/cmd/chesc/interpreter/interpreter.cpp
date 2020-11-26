@@ -1,8 +1,5 @@
 #pragma once
 
-#define L_AT(lineIndex)                     (lines.at(lineIndex))
-#define L_TOKEN_AT(lineIndex, tokenIndex)   (lines.at(lineIndex).at(tokenIndex))
-
 
 namespace ches::run {
     class Interpreter {

@@ -8,7 +8,7 @@
 #define INST_LOAD(len)              InstList(Instruction(IT_Load, { ByteSeq(len).escape() }))
 #define INST_PUSH(size, value)      InstList(Instruction(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() }))
 
-#include "utility.hpp"
+#include "utility.cpp"
 
 
 ches::Token::Token() {}

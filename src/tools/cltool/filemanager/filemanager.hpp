@@ -61,9 +61,9 @@ namespace ches {
             return std::filesystem::is_directory(path);
         }
 
-        static void readByteSeq(std::string filePath, ByteSeq &fileCont) {
+        static void readBytes(std::string filePath, ByteVec &fileCont) {
             try {
-                ByteSeq tmpFileCont;
+                ByteVec tmpFileCont;
                 std::ifstream ifs(filePath);
 
                 if(!ifs.is_open())
@@ -142,7 +142,7 @@ namespace ches {
             return newFilePath;
         }
 
-        static void writeBytecode(std::string filePath, ByteSeq source) {
+        static void writeBytecode(std::string filePath, ByteVec source) {
             try {
                 std::ofstream ofs;
                 ofs.open(filePath, std::ios::out | std::ios::binary | std::ios::trunc);

@@ -5,6 +5,9 @@ namespace ches {
     // ディレクトリ変更時にはパスを直すこと
     #define LANG_FILE_PATH(langName)    "src/tools/cltool/langpacks/" + langName + ".lang"
 
+    typedef unsigned char       Byte;
+    typedef std::vector<Byte>   ByteVec;
+
     enum LogType : int {
         LogType_Unknown,
         LogType_Error,

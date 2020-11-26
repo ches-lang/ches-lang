@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lexer.hpp"
-
 #define MATCH_STR(ch1)                  (this->source[index] == ch1)
 #define MATCH_STR_2(ch1, ch2)           (index < this->source.length() - 1 && this->source[index] == ch1 && this->source[index + 1] == ch2)
 #define MATCH_STR_3(ch1, ch2, ch3)      (index < this->source.length() - 3 && this->source[index] == ch1 && this->source[index + 1] == ch2 && this->source[index + 2] == ch3)
@@ -12,6 +10,8 @@
 #define GET_TOKEN(type)                 Token(type, std::string { this->source[index] }, index)
 #define JUDGE_TOKEN(char, type)         if(MATCH_STR(char)) return GET_TOKEN(type);
 #define JUDGE_PAREN_TOKEN(char, type)   if(MATCH_STR(char)) { Token token = GET_TOKEN(type); validateParen(token); return token; }
+
+#include "lexer.cpp"
 
 
 ches::cmd::Lexer::Lexer() {}

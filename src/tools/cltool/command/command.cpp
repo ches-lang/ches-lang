@@ -12,10 +12,10 @@ ches::Command::Command(std::vector<std::string> args) {
     ches::Console::loadLangPack("ja", "en");
 
     // コマンド名を設定
-    this->cmdName = ((args.size() >= 2 && args.at(1)[0] != '-') ? args.at(1) : "ches");
+    this->cmdName = ((args.size() >= 2 && args.at(1)[0] != '-') ? args.at(1) : DEFAULT_CMD_NAME);
 
     // コマンド引数を設定
-    int start = this->cmdName == "ches" ? 1 : 2;
+    int start = this->cmdName == DEFAULT_CMD_NAME ? 1 : 2;
 
     for(int i = start; i < args.size(); i++) {
         if(args.at(i)[0] != '-') {
@@ -38,6 +38,16 @@ std::string ches::Command::argKeyAt(std::string key) {
 
 bool ches::Command::existsArgKey(std::string key) {
     return this->cmdArgs.find(key) != this->cmdArgs.end();
+}
+
+void ches::Command::run(cmdprocs procs) {
+    cmdprocs::iterator itr = procs.find(g_cmd.cmdName);
+
+    if(itr != procs.end()) {
+        itr->second();
+    } else {
+        ches::Console::log(ches::LogType_Error, 1064, { { "Command", g_cmd.cmdName } }, true);
+    }
 }
 
 void ches::Command::setDebugMode() {
