@@ -10,9 +10,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../console/console.cpp"
-#include "../../filemanager/filemanager.cpp"
-#include "../../command/command.cpp"
+#include "../../console/console.hpp"
+#include "../../filemanager/filemanager.hpp"
+#include "../../command/command.hpp"
 
 #include "./utility/utility.hpp"
 #include "./cmdlist/cmdlist.hpp"

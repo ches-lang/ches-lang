@@ -1,29 +1,33 @@
 #pragma once
 
-#include "cmdlist.hpp"
 
+namespace ches::cmd {
+    class Ches {
+    public:
+        static void cmd_default() {
+            if(g_cmd.existsArgKey("-help")) {
+                Ches::showHelpMessage();
+                return;
+            }
 
-ches::run::Run::Run() {
-    if(g_cmd.existsArgKey("-help")) {
-        this->showHelpMessage();
-        return;
-    }
+            if(g_cmd.existsArgKey("-i") && g_cmd.argKeyAt("-i") != "") {
+                Ches::interpretProgram();
+                return;
+            }
 
-    if(g_cmd.existsArgKey("-i") && g_cmd.argKeyAt("-i") != "") {
-        this->interpretProgram();
-        return;
-    }
+            Console::log(LogType_Error, 5899, {}, true);
+        }
 
-    Console::log(LogType_Error, 5899, {}, true);
-}
+        static void interpretProgram() {
+            // ByteVec fileCont;
+            // FileManager::readByteSeq(g_cmd.argKeyAt("-i"), fileCont);
+            // Interpreter itp(g_cmd.argKeyAt("-i"), fileCont);
+            ches::run::Interpreter itp(g_cmd.argKeyAt("-i"));
+            itp.runProgram();
+        }
 
-void ches::run::Run::interpretProgram() {
-    ByteSeq fileCont;
-    FileManager::readByteSeq(g_cmd.argKeyAt("-i"), fileCont);
-    Interpreter itp(g_cmd.argKeyAt("-i"), fileCont);
-    itp.runProgram();
-}
-
-void ches::run::Run::showHelpMessage() {
-    Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
-}
+        static void showHelpMessage() {
+            Console::writeln("-help\t{$HelpMessage_ShowHelpMessage}");
+        }
+    };
+};

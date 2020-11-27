@@ -10,28 +10,28 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../console/console.cpp"
-#include "../../filemanager/filemanager.cpp"
-#include "../../command/command.cpp"
+#include "../../enums/enums.hpp"
+#include "../../console/console.hpp"
+#include "../../filemanager/filemanager.hpp"
+#include "../../command/command.hpp"
 
-#include "./cmdlist/cmdlist.cpp"
+#include "./interpreter/interpreter.hpp"
+#include "./cmdlist/cmdlist.hpp"
 
 
-typedef std::unordered_map<std::string, void(*)()> cmdprocs;
-
-
-void runCommand() {
+cmdprocs getCommandProcs() {
     cmdprocs procs;
 
-    procs.insert(std::make_pair("run", []() {
-        ches::run::Run();
+    procs.insert(std::make_pair(DEFAULT_CMD_NAME, []() {
+        ches::cmd::Ches::cmd_default();
     }));
 
-    ches::Command::run(procs);
+    return procs;
 }
 
 
 int main(int argc, char *argv[]) {
     g_cmd = ches::Command::fromMainArgs(argc, argv);
-    runCommand();
+    cmdprocs procs = getCommandProcs();
+    g_cmd.run(procs);
 }

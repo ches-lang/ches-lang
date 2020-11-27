@@ -574,27 +574,13 @@ ches::Function ches::FuncList::findByName(ches::ByteSeq name) {
 }
 
 
-ches::HeaderInfo::HeaderInfo() {}
+// ches::ByteSeq ches::HeaderInfo::toByteSeq() {
+//     ByteSeq result;
 
-ches::HeaderInfo::HeaderInfo(ches::ByteSeq bytes) {
-    if(bytes.size() != HEADER_LEN)
-        return;
+//     result.push_back(ches::MAGIC_NUMBER);
+//     result.push_back(ByteSeq((Byte)0, (int)(HEADER_LEN - result.size())));
 
-    // 各データのバイト数変更に対応するためのインデックス管理
-    int index = 0;
-
-    int magicNumSize = ches::MAGIC_NUMBER.size();
-    this->magicNum = bytes.copy(index, index + magicNumSize - 1);
-    index += magicNumSize;
-}
-
-ches::ByteSeq ches::HeaderInfo::toByteSeq() {
-    ByteSeq result;
-
-    result.push_back(ches::MAGIC_NUMBER);
-    result.push_back(ByteSeq((Byte)0, (int)(HEADER_LEN - result.size())));
-
-    return result;
+//     return result;
 }
 
 
