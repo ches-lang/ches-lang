@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace ches::cmd {
+namespace ches {
     class Ches {
     public:
         static void cmd_default() {
@@ -22,7 +22,7 @@ namespace ches::cmd {
             // ByteVec fileCont;
             // FileManager::readByteSeq(g_cmd.argKeyAt("-i"), fileCont);
             // Interpreter itp(g_cmd.argKeyAt("-i"), fileCont);
-            ches::run::Interpreter itp(g_cmd.argKeyAt("-i"));
+            Interpreter itp(g_cmd.argKeyAt("-i"));
             itp.runProgram();
         }
 

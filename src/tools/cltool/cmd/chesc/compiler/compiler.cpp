@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace ches::cmd {
+namespace ches {
     class Compiler {
     public:
 

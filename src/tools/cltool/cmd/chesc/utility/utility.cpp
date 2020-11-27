@@ -464,8 +464,17 @@ namespace ches {
 
         InstConv();
 
-        DataSizeType toDataSizeType(std::string type) {
+        static DataSizeType toDataSizeType(std::string type) {
             return dataSizeTypeMap.at(type);
+        }
+
+        static ByteSeq toHeaderBytes() {
+            ByteSeq result;
+
+            result.push_back(MAGIC_NUM_SEQ);
+            result.push_back(ByteSeq((Byte)0, (int)(HEADER_LEN - result.size())));
+
+            return result;
         }
 
         InstList toInstList(Node tree);

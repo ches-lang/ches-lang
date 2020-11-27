@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace ches::cmd {
+namespace ches {
     struct Line {
         TokenSeq tokens;
         int beginIndex;

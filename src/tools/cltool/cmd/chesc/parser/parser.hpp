@@ -13,9 +13,9 @@
 #include "parser.cpp"
 
 
-ches::cmd::Line::Line() {}
+ches::Line::Line() {}
 
-ches::cmd::Line::Line(TokenSeq tokens) {
+ches::Line::Line(TokenSeq tokens) {
     TokenSeq line;
     int nest = 0;
 
@@ -31,15 +31,15 @@ ches::cmd::Line::Line(TokenSeq tokens) {
 }
 
 
-ches::cmd::ParenSeq::ParenSeq() {}
+ches::ParenSeq::ParenSeq() {}
 
-ches::cmd::ParenSeq::ParenSeq(std::string sourcePath, std::string source) {
+ches::ParenSeq::ParenSeq(std::string sourcePath, std::string source) {
     this->sourcePath = sourcePath;
     this->source = source;
 }
 
 // 括弧が渡されたら開き括弧と閉じ括弧を判断する
-ches::TokenSeq ches::cmd::ParenSeq::getOrderedParens(TokenSeq tokens) {
+ches::TokenSeq ches::ParenSeq::getOrderedParens(TokenSeq tokens) {
     //int len = tokens.size();
     ByteSeq leftParens = { TK_LeftParen, TK_LeftBracket, TK_LeftBrace };
     ByteSeq rightParens = { TK_RightParen, TK_RightBracket, TK_RightBrace };
@@ -59,7 +59,7 @@ ches::TokenSeq ches::cmd::ParenSeq::getOrderedParens(TokenSeq tokens) {
 }
 
 // 閉じ括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
-void ches::cmd::ParenSeq::addCloseParen(Token token) {
+void ches::ParenSeq::addCloseParen(Token token) {
     Token expectingCloseParen = this->latestOpenParen.getOpenParen();
     int parenNest = this->parenNest[this->getParenNumber(token.type)];
 
@@ -81,7 +81,7 @@ void ches::cmd::ParenSeq::addCloseParen(Token token) {
 }
 
 // 開き括弧が渡されたら、不正な括弧がないかを確認してネストを書き変える
-void ches::cmd::ParenSeq::addOpenParen(Token token) {
+void ches::ParenSeq::addOpenParen(Token token) {
     this->latestOpenParen = token;
     this->parens.push_back(token);
     int parenNum = this->getParenNumber(token.type);
@@ -89,7 +89,7 @@ void ches::cmd::ParenSeq::addOpenParen(Token token) {
 }
 
 // 一番最後に閉じられてない括弧がないかチェック
-void ches::cmd::ParenSeq::checkParensFinally() {
+void ches::ParenSeq::checkParensFinally() {
     // parensを表示
     //for(int i = 0; i < parens.size(); i++)
         //std::cout<<parens[i].string<<std::endl;
@@ -109,7 +109,7 @@ void ches::cmd::ParenSeq::checkParensFinally() {
 
 // 外側を取り除いた括弧が不正でないかチェックする
 // もし不正ならば取り除いていない状態の括弧を返す
-ches::TokenSeq ches::cmd::ParenSeq::removeSideParens(TokenSeq tokens) {
+ches::TokenSeq ches::ParenSeq::removeSideParens(TokenSeq tokens) {
     // 渡された括弧の数が1以下ならばtokensを返す
     if(tokens.size() <= 1)
         return tokens;
@@ -130,10 +130,10 @@ ches::TokenSeq ches::cmd::ParenSeq::removeSideParens(TokenSeq tokens) {
         return tokens;
 
     // 括弧が不正でなければチェックを繰り返す
-    return ches::cmd::ParenSeq::removeSideParens(insideParens);
+    return ches::ParenSeq::removeSideParens(insideParens);
 }
 
-int ches::cmd::ParenSeq::getParenNumber(Byte type) {
+int ches::ParenSeq::getParenNumber(Byte type) {
     switch(type) {
         case TK_LeftParen:
         case TK_RightParen:
@@ -153,16 +153,16 @@ int ches::cmd::ParenSeq::getParenNumber(Byte type) {
 }
 
 
-ches::cmd::Parser::Parser() {}
+ches::Parser::Parser() {}
 
-ches::cmd::Parser::Parser(std::string sourcePath, std::string source, TokenSeq tokens) {
+ches::Parser::Parser(std::string sourcePath, std::string source, TokenSeq tokens) {
     this->sourcePath = sourcePath;
     this->source = source;
     this->tokens = tokens;
     this->lines = this->getLines();
 }
 
-std::vector<ches::cmd::Line> ches::cmd::Parser::getLines() {
+std::vector<ches::Line> ches::Parser::getLines() {
     std::vector<Line> lines;
     int tokenIndex = 0;
 
@@ -196,7 +196,7 @@ std::vector<ches::cmd::Line> ches::cmd::Parser::getLines() {
     return lines;
 }
 
-ches::Node ches::cmd::Parser::parse() {
+ches::Node ches::Parser::parse() {
     while(this->lineIndex == -1 || this->lineIndex + 1 < this->lines.size())
         this->tree.addChild(this->scanNextLine());
 
@@ -212,13 +212,13 @@ ches::Node ches::cmd::Parser::parse() {
     return this->tree;
 }
 
-ches::Node ches::cmd::Parser::scanNextLine() {
+ches::Node ches::Parser::scanNextLine() {
     this->lineIndex++;
     Node node = this->getNode(CURR_LINE.tokens);
     return node;
 }
 
-ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
+ches::Node ches::Parser::scanNextNest(Byte nodeType) {
     Node n_root(nodeType);
     Line baseLine = CURR_LINE;
 
@@ -252,7 +252,7 @@ ches::Node ches::cmd::Parser::scanNextNest(Byte nodeType) {
     return n_root;
 }
 
-ches::Node ches::cmd::Parser::getNode(TokenSeq tokens) {
+ches::Node ches::Parser::getNode(TokenSeq tokens) {
     try {
         int len = tokens.size();
 
@@ -475,7 +475,7 @@ ches::Node ches::cmd::Parser::getNode(TokenSeq tokens) {
 // 式でなかった場合のtypeはUNKNOWN
 // ここで判断
 // 変数'len' および 引数名'tokens' は変更しないでください (T_AT(i)を使用するため)
-ches::Node ches::cmd::Parser::getLogicalExpressionNode(TokenSeq tokens) {
+ches::Node ches::Parser::getLogicalExpressionNode(TokenSeq tokens) {
     Node node(ND_Logic);
     TokenSeq side;
     int len = tokens.size();
@@ -517,7 +517,7 @@ ches::Node ches::cmd::Parser::getLogicalExpressionNode(TokenSeq tokens) {
         return Node(ND_Unknown);
 }
 
-ches::Node ches::cmd::Parser::getCompareExpressionNode(TokenSeq tokens) {
+ches::Node ches::Parser::getCompareExpressionNode(TokenSeq tokens) {
     Node node(ND_Compare);
     Byte opeType = ND_Unknown;
     TokenSeq leftside;
@@ -576,7 +576,7 @@ ches::Node ches::cmd::Parser::getCompareExpressionNode(TokenSeq tokens) {
 }
 
 // 引数名'tokens' および 変数'len' を変更しないでください (マクロ'T_AT(i)' を使用するため)
-ches::Byte ches::cmd::Parser::getOpeType(TokenSeq tokens, int index) {
+ches::Byte ches::Parser::getOpeType(TokenSeq tokens, int index) {
     int len = tokens.size();
     Byte tokenType = T_AT(index).type;
 
@@ -608,7 +608,7 @@ ches::Byte ches::cmd::Parser::getOpeType(TokenSeq tokens, int index) {
 
 // 優先度高い             優先度低い
 // true → ope1 < ope2   false → ope1 >= ope2
-bool ches::cmd::Parser::compareOpe(std::string ope1, std::string ope2) {
+bool ches::Parser::compareOpe(std::string ope1, std::string ope2) {
     if(std::regex_match(ope1, std::regex("[~]")))
         return (std::regex_match(ope2, std::regex("[+\\-*/]")));
 

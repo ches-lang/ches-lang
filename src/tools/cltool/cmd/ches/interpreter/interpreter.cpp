@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace ches::run {
+namespace ches {
     struct Label {
         ByteVec id;
         ByteVec name;

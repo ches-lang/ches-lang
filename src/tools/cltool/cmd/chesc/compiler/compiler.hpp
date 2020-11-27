@@ -6,9 +6,9 @@
 #include "compiler.cpp"
 
 
-ches::cmd::Compiler::Compiler() {}
+ches::Compiler::Compiler() {}
 
-void ches::cmd::Compiler::checkOutputFilePath() {
+void ches::Compiler::checkOutputFilePath() {
     if(FileManager::isDirectory(g_cmd.argKeyAt("-i")))
         return;
 
@@ -20,7 +20,7 @@ void ches::cmd::Compiler::checkOutputFilePath() {
         Console::log(LogType_Warning, 3405, { { "Path", FileManager::getFullPath(this->inputFilePaths.at(0)) } }, !g_cmd.existsArgKey("-miss"));
 }
 
-void ches::cmd::Compiler::compile() {
+void ches::Compiler::compile() {
     // 入力/出力ファイルのパスを設定
     this->inputFilePaths = this->getInputFilePaths();
 
@@ -38,7 +38,7 @@ void ches::cmd::Compiler::compile() {
     FileManager::writeBytecode(this->outputFilePath, bytecode);
 }
 
-std::vector<std::string> ches::cmd::Compiler::getInputFilePaths() {
+std::vector<std::string> ches::Compiler::getInputFilePaths() {
     std::string inputPath = g_cmd.argKeyAt("-i");
 
     if(FileManager::isDirectory(inputPath)) {
@@ -48,7 +48,7 @@ std::vector<std::string> ches::cmd::Compiler::getInputFilePaths() {
     }
 }
 
-ches::ByteSeq ches::cmd::Compiler::toBytecode() {
+ches::ByteSeq ches::Compiler::toBytecode() {
     vector_ext<ByteSeq> bytecodes;
 
     std::string source;
@@ -59,7 +59,7 @@ ches::ByteSeq ches::cmd::Compiler::toBytecode() {
 
     for(std::string path : this->inputFilePaths) {
         FileManager::readText(path, source);
-        lexer = ches::cmd::Lexer(path, source);
+        lexer = ches::Lexer(path, source);
         tokens = lexer.splitTokens();
         parser = Parser(path, source, tokens);
         node = parser.parse();

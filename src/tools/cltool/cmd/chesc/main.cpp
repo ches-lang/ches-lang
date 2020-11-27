@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../../enums/enums.hpp"
 #include "../../console/console.hpp"
 #include "../../filemanager/filemanager.hpp"
 #include "../../command/command.hpp"
@@ -22,7 +23,7 @@ cmdprocs getCommandProcs() {
     cmdprocs procs;
 
     procs.insert(std::make_pair(DEFAULT_CMD_NAME, []() {
-        ches::cmd::Chesc::cmd_default();
+        ches::Chesc::cmd_default();
     }));
 
     return procs;

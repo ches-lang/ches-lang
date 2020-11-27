@@ -1,11 +1,6 @@
 #pragma once
 
 
-namespace ches::cmd{
-    class Ches;
-}
-
-
 namespace ches {
     class Command {
     public:

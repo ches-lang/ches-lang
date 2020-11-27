@@ -14,14 +14,14 @@
 #include "lexer.cpp"
 
 
-ches::cmd::Lexer::Lexer() {}
+ches::Lexer::Lexer() {}
 
-ches::cmd::Lexer::Lexer(std::string filePath, std::string &source) {
+ches::Lexer::Lexer(std::string filePath, std::string &source) {
     this->filePath = filePath;
     this->source = source;
 }
 
-ches::TokenSeq ches::cmd::Lexer::splitTokens() {
+ches::TokenSeq ches::Lexer::splitTokens() {
     TokenSeq tokenList;
     Token token;
 
@@ -45,7 +45,7 @@ ches::TokenSeq ches::cmd::Lexer::splitTokens() {
     return tokenList;
 }
 
-ches::Token ches::cmd::Lexer::getNextToken() {
+ches::Token ches::Lexer::getNextToken() {
     index++;
 
     if(index >= this->source.size())
@@ -218,7 +218,7 @@ ches::Token ches::cmd::Lexer::getNextToken() {
     return GET_TOKEN(TK_Unknown);
 }
 
-void ches::cmd::Lexer::validateParen(Token token) {
+void ches::Lexer::validateParen(Token token) {
     if(token.match(ByteSeq { TK_LeftParen, TK_LeftBracket, TK_LeftBrace })) {
         this->nestMap.at(token.type).first++;
         this->nestMap.at(token.type).second.push_back(token);

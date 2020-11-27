@@ -1,8 +1,5 @@
 #pragma once
 
-#define HEADER_LEN      (128)
-#define MAGIC_NUM       (ByteVec { 0x4F, 0x52, 0x49, 0x4E, 0x43, 0x48, 0x41, 0x4E })
-
 #undef  INST
 
 #define CONSOLE_OUT(value)  do { Console::writeln("* print\n    " + Interpreter::toHexString(value)); this->printStackLog(); } while(0)
@@ -23,9 +20,9 @@ typedef std::stack<ches::ByteVec>   Stack;
 #include "interpreter.cpp"
 
 
-ches::run::Label::Label() {}
+ches::Label::Label() {}
 
-ches::run::Label::Label(ByteVec id, ByteVec name, int beginIndex, int endIndex) {
+ches::Label::Label(ByteVec id, ByteVec name, int beginIndex, int endIndex) {
     this->id = id;
     this->name = name;
     this->beginIndex = beginIndex;
@@ -33,7 +30,7 @@ ches::run::Label::Label(ByteVec id, ByteVec name, int beginIndex, int endIndex) 
 }
 
 
-ches::run::Interpreter::Interpreter(std::string filePath) {
+ches::Interpreter::Interpreter(std::string filePath) {
     try {
         this->loadCompiledFile(filePath);
 
@@ -87,7 +84,7 @@ ches::run::Interpreter::Interpreter(std::string filePath) {
     }
 }
 
-void ches::run::Interpreter::loadCompiledFile(std::string filePath) {
+void ches::Interpreter::loadCompiledFile(std::string filePath) {
     try {
         ByteVec result;
         std::ifstream ifs(filePath);
@@ -119,7 +116,7 @@ void ches::run::Interpreter::loadCompiledFile(std::string filePath) {
     }
 }
 
-void ches::run::Interpreter::printStackLog() {
+void ches::Interpreter::printStackLog() {
     try {
         Console::writeln();
         Console::writeln("stacksize");
@@ -129,7 +126,7 @@ void ches::run::Interpreter::printStackLog() {
     }
 }
 
-void ches::run::Interpreter::runProgram() {
+void ches::Interpreter::runProgram() {
     try {
         // ラベルデータを設定
         setLabelData();
@@ -172,7 +169,7 @@ void ches::run::Interpreter::runProgram() {
     }
 }
 
-void ches::run::Interpreter::setLabelData() {
+void ches::Interpreter::setLabelData() {
     try {
         for(int i = 0; i < this->instList.size(); i++) {
             ByteVec inst = this->instList.at(i);
@@ -212,7 +209,7 @@ void ches::run::Interpreter::setLabelData() {
     }
 }
 
-void ches::run::Interpreter::runNextInst() {
+void ches::Interpreter::runNextInst() {
     try {
         Console::writeln(instTypeMap.at(INST_OPCODE));
         Console::writeln();

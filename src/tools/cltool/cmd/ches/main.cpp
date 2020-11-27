@@ -23,7 +23,7 @@ cmdprocs getCommandProcs() {
     cmdprocs procs;
 
     procs.insert(std::make_pair(DEFAULT_CMD_NAME, []() {
-        ches::cmd::Ches::cmd_default();
+        ches::Ches::cmd_default();
     }));
 
     return procs;

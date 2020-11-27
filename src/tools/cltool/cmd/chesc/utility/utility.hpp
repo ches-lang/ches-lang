@@ -312,9 +312,7 @@ ches::ByteSeq::ByteSeq(Node node) {
 ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string value) {
     // ヘッダ部分
 
-    HeaderInfo header;
-    header.magicNum = ches::MAGIC_NUMBER;
-    this->push_back(header.toByteSeq());
+    this->push_back(InstConv::toHeaderBytes());
 
     // ボディ部分
 
@@ -571,16 +569,6 @@ ches::Function ches::FuncList::findByName(ches::ByteSeq name) {
             return func;
 
     return Function();
-}
-
-
-// ches::ByteSeq ches::HeaderInfo::toByteSeq() {
-//     ByteSeq result;
-
-//     result.push_back(ches::MAGIC_NUMBER);
-//     result.push_back(ByteSeq((Byte)0, (int)(HEADER_LEN - result.size())));
-
-//     return result;
 }
 
 

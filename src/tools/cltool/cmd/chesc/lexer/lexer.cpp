@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace ches::cmd {
+namespace ches {
     typedef std::unordered_map<unsigned char, std::pair<int, ches::TokenSeq>>   nest_map;
     typedef std::pair<char, TokenType>  token_pair;
 
