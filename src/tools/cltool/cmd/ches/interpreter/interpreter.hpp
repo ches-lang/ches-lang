@@ -93,6 +93,12 @@ std::vector<ches::ByteVec> ches::Interpreter::divideInsts() {
 
     for(int i = 0; i < this->body.size(); i++) {
         if(this->body.at(i) == IT_InstDiv || i == this->body.size() - 1) {
+            if(i + 1 < this->body.size() && this->body.at(i + 1) == IT_InstDiv) {
+                tmpLine.push_back(IT_InstDiv);
+                i++;
+                continue;
+            }
+
             result.push_back(tmpLine);
             tmpLine.clear();
             continue;
