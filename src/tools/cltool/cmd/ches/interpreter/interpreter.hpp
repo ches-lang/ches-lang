@@ -54,11 +54,13 @@ ches::Interpreter::Interpreter(std::string filePath) {
         std::vector<std::string> rawLines;
         std::vector<std::string> asmLines;
 
-        for(int i = 0; i < this->body.size(); i++) {
+        for(int i = 0; i < this->instList.size(); i++) {
             std::string index = std::to_string(i);
 
             while(index.length() < 3)
                 index = "0" + index;
+
+            std::string line = Interpreter::toHexString(this->instList.at(i), " ");
 
             rawLines.push_back(index + "| " + Interpreter::toHexString(this->instList.at(i), " "));
         }
@@ -79,9 +81,27 @@ ches::Interpreter::Interpreter(std::string filePath) {
         // マジックナンバーをチェック
         if(this->magicNum != MAGIC_NUM)
             Console::log(LogType_Error, 8732, { { "Path", filePath } }, true);
+
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
+}
+
+std::vector<ches::ByteVec> ches::Interpreter::divideInsts() {
+    std::vector<ByteVec> result;
+    ByteVec tmpLine;
+
+    for(int i = 0; i < this->body.size(); i++) {
+        if(this->body.at(i) == IT_InstDiv || i == this->body.size() - 1) {
+            result.push_back(tmpLine);
+            tmpLine.clear();
+            continue;
+        }
+
+        tmpLine.push_back(this->body.at(i));
+    }
+
+    return result;
 }
 
 void ches::Interpreter::loadCompiledFile(std::string filePath) {
@@ -108,7 +128,9 @@ void ches::Interpreter::loadCompiledFile(std::string filePath) {
         //     result.pop_back();
 
         int magicNumSize = MAGIC_NUM.size();
-        std::copy(this->header.begin(), this->header.end() - this->header.size() + 8 + 1, std::back_inserter(this->magicNum));
+        std::copy(this->header.begin(), this->header.end() - this->header.size() + 8, std::back_inserter(this->magicNum));
+
+        this->instList = Interpreter::divideInsts();
 
         ifs.close();
     } catch(std::exception excep) {
@@ -195,9 +217,9 @@ void ches::Interpreter::setLabelData() {
                 int endIndex = i;
 
                 ByteVec id;
-                std::copy(inst.begin() + 1, inst.end() - inst.size() + 18, std::back_inserter(id));;
+                std::copy(inst.begin() + 1, inst.end() - inst.size() + 17, std::back_inserter(id));;
                 ByteVec name;
-                std::copy(inst.begin() + 19, inst.end(), std::back_inserter(name));;
+                std::copy(inst.begin() + 18, inst.end(), std::back_inserter(name));;
 
                 this->labelList[id] = Label(id, name, beginIndex, endIndex);
             } else {

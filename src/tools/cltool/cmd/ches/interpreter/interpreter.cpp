@@ -36,6 +36,8 @@ namespace ches {
         // <id, label>
         std::map<ByteVec, Label> labelList;
 
+        std::vector<ByteVec> divideInsts();
+
         void loadCompiledFile(std::string filePath);
 
         void printStackLog();
@@ -55,7 +57,7 @@ namespace ches {
                 result += (src < 16 ? "0" : "") + ss.str() + separator;
             }
 
-            if(separator.length() && separator.length() >= result.length())
+            if(source.size() > 0)
                 for(int i = 0; i < separator.length(); i++)
                     result.pop_back();
 

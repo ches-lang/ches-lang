@@ -23,7 +23,9 @@ namespace ches {
             // FileManager::readByteSeq(g_cmd.argKeyAt("-i"), fileCont);
             // Interpreter itp(g_cmd.argKeyAt("-i"), fileCont);
             Interpreter itp(g_cmd.argKeyAt("-i"));
+            Console::writeln("e");
             itp.runProgram();
+            Console::writeln("v");
         }
 
         static void showHelpMessage() {
