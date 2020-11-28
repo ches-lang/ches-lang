@@ -71,8 +71,7 @@ ches::Interpreter::Interpreter(std::string filePath) {
             while(index.length() < 3)
                 index = "0" + index;
 
-            // asmLines.push_back(index + "| " + InstConv::toString(this->instList.at(i)));
-            asmLines.push_back(index + "| " + "[asm]");
+            asmLines.push_back(index + "| " + Interpreter::instToString(this->instList.at(i)));
         }
 
         Console::printDebugLog("raw bytecode", rawLines);
