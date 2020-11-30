@@ -95,7 +95,7 @@ namespace ches {
         IT_Or,
         IT_Pop,
         IT_Push,
-        IT_Return,
+        IT_Ret,
         IT_Sub,
         IT_SysCall
     };
@@ -176,7 +176,7 @@ namespace ches {
         { IT_Or, "Or" },
         { IT_Pop, "Pop" },
         { IT_Push, "Push" },
-        { IT_Return, "Return" },
+        { IT_Ret, "Ret" },
         { IT_Sub, "Sub" },
         { IT_SysCall, "SysCall" }
     };

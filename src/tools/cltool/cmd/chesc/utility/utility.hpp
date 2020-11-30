@@ -310,16 +310,25 @@ ches::ByteSeq::ByteSeq(Node node) {
 }
 
 ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string value) {
-    // ヘッダ部分
-
-    this->push_back(InstConv::toHeaderBytes());
-
     // ボディ部分
 
     InstConv instConv;
     InstList instList = instConv.toInstList(tree, filePath, value);
-    ByteSeq byteSeq = instList.toByteSeq();
-    this->push_back(byteSeq);
+    ByteSeq body = instList.toByteSeq();
+
+    // ヘッダ部分
+
+    ByteSeq header = InstConv::toHeaderBytes(body.size());
+
+    // IDエリア部分
+
+    ByteSeq idArea = InstConv::toIDAreaBytes(instConv.blockList);
+
+    // まとめて追加
+
+    this->push_back(header);
+    this->push_back(body);
+    this->push_back(idArea);
 
     std::cout << std::endl;
 }
@@ -345,10 +354,8 @@ ches::ByteSeq ches::ByteSeq::escape() {
     for(int i = 0; i < this->size(); i++) {
         result.push_back(this->at(i));
 
-        if(this->at(i) == IT_InstDiv) {
+        if(this->at(i) == IT_InstDiv)
             result.push_back(this->at(i));
-            i++;
-        }
     }
 
     return result;
@@ -516,6 +523,12 @@ ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name) {
     this->name = name;
 }
 
+ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin) {
+    this->id = id;
+    this->name = name;
+    this->begin = begin;
+}
+
 ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin, int end) {
     this->id = id;
     this->name = name;
@@ -578,9 +591,9 @@ ches::InstList ches::InstConv::toInstList(Node tree) {
     InstList result;
     this->tree = tree;
 
-    for(Node node : tree.children)
-        if(node.type == ND_DefFunc)
-            this->labelList.push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string)));
+    // for(Node node : tree.children)
+    //     if(node.type == ND_DefFunc)
+    //         this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string), ));
 
     for(int i = 0; i < tree.children.size(); i++)
         result.push_back(this->toInstList(tree, i));
@@ -647,12 +660,17 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 
             case ND_DefFunc: {
                 std::string name = node.tokenAt(0).string;
-                ByteSeq id = ByteSeq(this->labelList.findByName(name).id);
-                result.push_back(INST_BLOCK(id, name));
-                this->localListLen += node.childAt(0).children.size();
+                ByteSeq id = ByteSeq(this->blockList.findByName(name).id);
+                // result.push_back(INST_BLOCK(id, name));
+                this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string), this->sumByteLen));
+                // this->localListLen += node.childAt(0).children.size();
 
                 int process_i = 1;
                 InstList process = this->toInstList(node, process_i);
+
+                // outofrangeを起こさないようにsize()が0のケースを先に通す
+                if(process.size() == 0 || process.back().opcode != IT_Ret)
+                    process.push_back(INST(IT_Ret));
 
                 // int args_i = 0;
                 // InstList args = this->toInstList(node, args_i);
@@ -743,6 +761,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
             }
         }
 
+        this->sumByteLen += result.size();
         return result;
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;

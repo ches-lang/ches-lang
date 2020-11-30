@@ -54,6 +54,10 @@ namespace ches {
             return divided;
         }
 
+        inline void fill(T filler, int tarSize) {
+            this->push_back(filler, tarSize - this->size());
+        }
+
         inline void pop_back() {
             std::vector<T>::pop_back();
         }
@@ -250,6 +254,10 @@ namespace ches {
 
         ByteSeq escape();
 
+        inline void fill(Byte filler, int tarSize) {
+            this->push_back(filler, tarSize - this->size());
+        }
+
         static ByteSeq generateUUID() {
             ByteSeq result;
 
@@ -288,6 +296,11 @@ namespace ches {
 
         inline void push_back() {
             vector_ext<Byte>::push_back((Byte)0);
+        }
+
+        inline void push_back(Byte value, int length) {
+            for(int i = 0; i < length; i++)
+                vector_ext<Byte>::push_back(value);
         }
 
         inline void push_back(Byte *value, int length) {
@@ -387,6 +400,8 @@ namespace ches {
 
         Function(ByteSeq id, ByteSeq name);
 
+        Function(ByteSeq id, ByteSeq name, int begin);
+
         Function(ByteSeq id, ByteSeq name, int begin, int end);
     };
 
@@ -448,14 +463,15 @@ namespace ches {
 
     class InstConv {
     public:
-        //InstList instList;
-        int index;
+        int index = 0;
         Node tree;
+
+        int sumByteLen = HEADER_LEN;
 
         std::string filePath;
         std::string source;
 
-        FuncList labelList;
+        FuncList blockList;
         std::string nameSpaceName;
         std::string className;
 
@@ -468,11 +484,32 @@ namespace ches {
             return dataSizeTypeMap.at(type);
         }
 
-        static ByteSeq toHeaderBytes() {
+        static ByteSeq toHeaderBytes(int bodyByteSize) {
             ByteSeq result;
 
-            result.push_back(MAGIC_NUM_SEQ);
-            result.push_back(ByteSeq((Byte)0, (int)(HEADER_LEN - result.size())));
+            ByteSeq magicNum = MAGIC_NUM_SEQ;
+
+            ByteSeq idAreaIndex = ByteSeq(HEADER_LEN + bodyByteSize).escape();
+            idAreaIndex.push_back(IT_InstDiv);
+            idAreaIndex.fill(0, 16);
+
+            result.push_back(magicNum);
+            result.push_back(idAreaIndex);
+            result.fill(0, HEADER_LEN);
+
+            return result;
+        }
+
+        static ByteSeq toIDAreaBytes(FuncList &funcList) {
+            ByteSeq result;
+
+            for(Function func : funcList) {
+                result.push_back(func.id);
+                result.push_back(ByteSeq(func.name).escape());
+                result.push_back(IT_InstDiv);
+                result.push_back(ByteSeq(func.begin).escape());
+                result.push_back(IT_InstDiv);
+            }
 
             return result;
         }
@@ -489,7 +526,7 @@ namespace ches {
             Token nameToken = node.tokenAt(0);
             std::string name = nameToken.string;
 
-            ByteSeq id = this->labelList.findByName(ByteSeq(name)).id;
+            ByteSeq id = this->blockList.findByName(ByteSeq(name)).id;
 
             if(id.size() != 16)
                 Console::log(LogType_Error, 1822, { { "At", nameToken.getPositionText(this->filePath, this->source ) }, { "Id", name } }, false);

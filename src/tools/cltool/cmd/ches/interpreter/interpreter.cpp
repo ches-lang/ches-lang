@@ -2,39 +2,35 @@
 
 
 namespace ches {
-    struct Label {
-        ByteVec id;
+    struct Block {
         ByteVec name;
-
         int beginIndex;
-        int endIndex;
 
-        Label();
+        Block();
 
-        Label(ByteVec id, ByteVec name, int beginIndex, int endIndex);
+        Block(ByteVec name, int beginIndex);
     };
 
 
     class Interpreter {
     public:
-        // HeaderInfo headerInfo;
+        ByteVec bytes;
+
         ByteVec magicNum;
-
-        ByteVec header;
-        ByteVec body;
-
-        std::vector<ByteVec> instList;
+        int idAreaIndex;
 
         Interpreter(std::string filePath);
 
         void runProgram();
 
     private:
-        int index = 0;
+        int index = HEADER_LEN;
         std::stack<Stack> stack;
         std::stack<Stack> opeStack;
-        // <id, label>
-        std::map<ByteVec, Label> labelList;
+        // <id, Block>
+        std::map<ByteVec, Block> blockList;
+
+        ByteVec copyBytesUntilDiv(int beginIndex);
 
         std::vector<ByteVec> divideInsts();
 
@@ -54,9 +50,9 @@ namespace ches {
                         std::copy(inst.begin() + 18, inst.end(), std::back_inserter(name));
 
                         result += "\t";
-                        result += Interpreter::toHexString(id);
+                        result += BYTE_TO_HEX(id);
                         result += "\t";
-                        result += Interpreter::toHexString(name);
+                        result += BYTE_TO_HEX(name);
                     } break;
 
                     case IT_Jump:
@@ -66,7 +62,7 @@ namespace ches {
                         std::copy(inst.begin() + 1, inst.end(), std::back_inserter(index));
 
                         result += "\t";
-                        result += Interpreter::toHexString(index);
+                        result += BYTE_TO_HEX(index);
                     } break;
 
                     case IT_Load: {
@@ -74,7 +70,7 @@ namespace ches {
                         std::copy(inst.begin() + 1, inst.end(), std::back_inserter(len));
 
                         result += "\t";
-                        result += Interpreter::toHexString(len);
+                        result += BYTE_TO_HEX(len);
                     } break;
 
                     case IT_Push: {
@@ -89,7 +85,7 @@ namespace ches {
                         std::copy(inst.begin() + 2, inst.end(), std::back_inserter(value));
 
                         result += "\t";
-                        result += Interpreter::toHexString(size);
+                        result += BYTE_TO_HEX(size);
                         result += "\t";
 
                         // if(value.at(0) == IT_VarPref && (
@@ -102,7 +98,7 @@ namespace ches {
                         // }
 
                         result += "\t";
-                        result += prefix + Interpreter::toHexString(value);
+                        result += prefix + BYTE_TO_HEX(value);
                     } break;
                 }
             } catch(std::out_of_range ignored) {
@@ -116,7 +112,7 @@ namespace ches {
 
         void printStackLog();
 
-        void setLabelData();
+        void setBlockData();
 
         void runNextInst();
 
