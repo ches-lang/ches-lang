@@ -15,7 +15,8 @@
 #define STACK_PUSH(value)   do { if(this->stack.empty()) { Console::write(" <err:push> "); break; } this->stack.top().push(value); } while(0);
 #define STACK_TOP           (this->stack.top().top())
 
-#define OPESTACK_LOAD()     do { if(this->opeStack.empty()) { Console::write(" <err:load> "); break; } this->opeStack.top().push(STACK_TOP); } while(0);
+#define OPESTACK_LEN        (this->opeStack.top().size())
+#define OPESTACK_LOAD()     do { if(this->opeStack.empty() || this->stack.empty() || this->stack.top().empty()) { Console::write(" <err:load> "); break; } this->opeStack.top().push(STACK_TOP); } while(0);
 #define OPESTACK_STORE()    do { if(this->opeStack.empty() || this->opeStack.top().empty()) { Console::write(" <err:store> "); break; } this->opeStack.top().pop(); } while(0);
 #define OPESTACK_TOP        (this->opeStack.top().top())
 
@@ -275,7 +276,7 @@ void ches::Interpreter::runProgram() {
             return;
         }
 
-        Console::writeln("index\tbyte\topcode\t\tstacktop\tinst (raw)");
+        Console::writeln("index\tbyte\topcode\t\tstacktop\toslen\tinst (raw)");
         Console::writeln();
 
         while(this->index < this->idAreaIndex)
@@ -344,14 +345,26 @@ void ches::Interpreter::runNextInst() {
 
         std::string hexOpcode = instTypeMap.count(opcode) == 1 ? instTypeMap.at(opcode) : "OOR";
         std::string hexStackTop = (this->stack.empty() || this->stack.top().empty()) ? "noelem" : BYTE_TO_HEX_SEP(STACK_TOP, " ");
-        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTE_TO_HEX(ByteVec { opcode }) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t");
+        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTE_TO_HEX(ByteVec { opcode }) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t" + std::to_string(OPESTACK_LEN) + "\t");
 
         switch(opcode) {
             case IT_Equal: {
-                ByteVec value1 = STACK_TOP;
+                ByteVec value1 = OPESTACK_TOP;
                 OPESTACK_STORE();
-                ByteVec value2 = STACK_TOP;
+
+                ByteVec value2 = OPESTACK_TOP;
                 OPESTACK_STORE();
+
+                Console::write("<");
+                Console::write(BYTE_TO_HEX(value1));
+                Console::write(">");
+                Console::write("<");
+                Console::write(BYTE_TO_HEX(value2));
+                Console::write(">");
+                Console::write("<");
+                Console::write(value1 == value2 ? "true" : "false");
+                Console::write(">");
+
                 STACK_PUSH(value1 == value2 ? ByteVec { 0x01 } : ByteVec { 0x00 });
             } break;
 
@@ -377,8 +390,18 @@ void ches::Interpreter::runNextInst() {
                 ByteVec countBytes = this->copyBytesUntilDiv(this->index);
                 int count = BYTE_TO_INT(countBytes);
 
-                for(int i = 0; i < count; i++)
+                Stack stackCache;
+
+                for(int i = 0; i < count; i++) {
+                    stackCache.push(STACK_TOP);
                     OPESTACK_LOAD();
+                    STACK_POP();
+                }
+
+                while(!stackCache.empty()) {
+                    STACK_PUSH(stackCache.top());
+                    stackCache.pop();
+                }
             } break;
 
             case IT_Push: {

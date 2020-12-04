@@ -238,6 +238,8 @@ namespace ches {
 
         ByteSeq(int source);
 
+        ByteSeq(long value);
+
         ByteSeq(std::string source);
 
         ByteSeq(Token token);

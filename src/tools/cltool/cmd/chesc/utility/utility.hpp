@@ -252,6 +252,18 @@ ches::ByteSeq::ByteSeq(int value) {
         this->push_back((Byte)std::stoi(hex.substr(i, 2), nullptr, 16));
 }
 
+ches::ByteSeq::ByteSeq(long value) {
+    std::stringstream ss;
+    ss << std::hex << value;
+    std::string hex = ss.str();
+
+    if(hex.length() % 2 != 0)
+        hex = "0" + hex;
+
+    for(int i = 0; i < hex.length(); i += 2)
+        this->push_back((Byte)std::stoi(hex.substr(i, 2), nullptr, 16));
+}
+
 ches::ByteSeq::ByteSeq(std::string value) {
     for(Byte val : value)
         this->push_back(val);
@@ -735,6 +747,14 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
 ches::InstList ches::InstConv::toInstList_forDebugging() {
     InstList result;
 
+    result.push_back(INST_PUSH(2, (long)9999999999999999999999999999));
+    result.push_back(INST_PUSH(2, (long)99999999999999999999999999));
+
+    result.push_back(INST_LOAD(2));
+    result.push_back(INST(IT_Equal));
+
+    result.push_back(INST(IT_Pop));
+    result.push_back(INST(IT_Pop));
     result.push_back(INST(IT_Pop));
 
     this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq { 0x63, 0x6f, 0x6e, 0x73, 0x74 }, HEADER_LEN));
