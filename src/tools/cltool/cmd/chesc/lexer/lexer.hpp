@@ -153,7 +153,6 @@ ches::Token ches::Lexer::getNextToken() {
             index += 1;
         } else {
             bool closed = false;
-            int i;
 
             for(index++; index < this->source.length(); index++) {
                 if(MATCH_STR('\'')) {

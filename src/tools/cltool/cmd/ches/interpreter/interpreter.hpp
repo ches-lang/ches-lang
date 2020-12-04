@@ -48,63 +48,6 @@ ches::Interpreter::Interpreter(std::string filePath) {
             Console::writeln();
         }
 
-        // ヘッダ長をチェック
-        // if(this->header.size() != HEADER_LEN)
-        //     Console::log(LogType_Error, 5173, { { "Path", filePath } });
-
-        // ヘッダとボディを取得
-        // this->header = this->source.copy(0, HEADER_LEN - 1);
-        // this->body = this->source.copy(HEADER_LEN, -1);
-
-        // this->headerInfo = HeaderInfo(this->header);
-        // LineSeq lines = ByteSeq(this->body).toLineSeq();
-
-        // 命令リストを取得
-        // for(ByteSeq bytes : lines)
-            // this->instList.push_back(Instruction(bytes));
-
-        // バイトコード&アセンブリコードのログを出力
-
-        // std::vector<std::string> rawLines;
-        // std::vector<std::string> asmLines;
-
-        // ByteVec tmpLine;
-
-        // for(int i = 0; i < BYTE_LEN; i++) {
-        //     std::string index = std::to_string(i);
-
-        //     while(index.length() < 3)
-        //         index = "0" + index;
-
-        //     // std::string line = BYTE_TO_HEX(this->instList.at(i), " ");
-
-        //     // if(this->bytes.at(i) == IT_InstDiv) {
-        //     //     if(i + 1 < BYTE_LEN && this->bytes.at(i + 1) == IT_InstDiv) {
-        //     //         tmpLine.push_back(IT_InstDiv);
-        //     //         i++;
-        //     //     } else {
-        //     //         tmpLine.clear();
-        //     //         rawLines.push_back(index + "| " + BYTE_TO_HEX(tmpLine, " "));
-        //     //     }
-        //     // } else {
-        //     //     tmpLine.push_back(this->bytes.at(i));
-        //     // }
-        // }
-
-        // rawLines.push_back(index + "| " + BYTE_TO_HEX(tmpLine, " "));
-
-        // for(int i = 0; i < this->instList.size(); i++) {
-        //     std::string index = std::to_string(i);
-
-        //     while(index.length() < 3)
-        //         index = "0" + index;
-
-        //     asmLines.push_back(index + "| " + Interpreter::instToString(this->instList.at(i)));
-        // }
-
-        // Console::printDebugLog("raw bytecode", rawLines);
-        // Console::printDebugLog("assembly code", asmLines);
-
         // マジックナンバーをチェック
         if(this->magicNum != MAGIC_NUM)
             Console::log(LogType_Error, 8732, { { "Path", filePath } }, true);
@@ -137,29 +80,6 @@ ches::ByteVec ches::Interpreter::copyBytesUntilDiv(int &indexer) {
     return result;
 }
 
-std::vector<ches::ByteVec> ches::Interpreter::divideInsts() {
-    std::vector<ByteVec> result;
-    ByteVec tmpLine;
-
-    // for(int i = 0; i < this->body.size(); i++) {
-    //     if(this->body.at(i) == IT_InstDiv || i == this->body.size() - 1) {
-    //         if(i + 1 < this->body.size() && this->body.at(i + 1) == IT_InstDiv) {
-    //             tmpLine.push_back(IT_InstDiv);
-    //             i++;
-    //             continue;
-    //         }
-
-    //         result.push_back(tmpLine);
-    //         tmpLine.clear();
-    //         continue;
-    //     }
-
-    //     tmpLine.push_back(this->body.at(i));
-    // }
-
-    return result;
-}
-
 void ches::Interpreter::loadCompiledFile(std::string filePath) {
     try {
         std::ifstream ifs(filePath);
@@ -183,8 +103,6 @@ void ches::Interpreter::loadCompiledFile(std::string filePath) {
         ifs.close();
 
         // ヘッダ情報をロード
-
-        int loadIndex = 0;
 
         for(int i = 0; i < MAGIC_NUM.size(); i++)
             this->magicNum.push_back(BYTE_AT(i));
@@ -220,16 +138,6 @@ void ches::Interpreter::loadCompiledFile(std::string filePath) {
         }
     } catch(std::exception excep) {
         Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
-    }
-}
-
-void ches::Interpreter::printStackLog() {
-    try {
-        Console::writeln();
-        Console::write("[stacktop] " + std::to_string(BYTE_TO_INT(STACK_TOP)) + " | 0x" + BYTE_TO_HEX_SEP(STACK_TOP, " 0x"));
-
-    } catch(std::out_of_range ignored) {
-        std::cout << "EXCEPTION" << std::endl;
     }
 }
 
@@ -285,46 +193,6 @@ void ches::Interpreter::runProgram() {
         std::string hexStackTop = (this->stack.empty() || this->stack.top().empty()) ? "noelem" : BYTE_TO_HEX_SEP(STACK_TOP, " ");
         Console::writeln("<end>\t\t\t\t" + hexStackTop);
 
-    } catch(std::out_of_range ignored) {
-        std::cout << "EXCEPTION" << std::endl;
-    }
-}
-
-void ches::Interpreter::setBlockData() {
-    try {/*
-        for(int i = 0; i < this->instList.size(); i++) {
-            ByteVec inst = this->instList.at(i);
-
-            if(inst.at(0) == IT_Block) {
-                // ラベルの終了インデックスと内容を取得
-                // InstList labelInstList;
-                int beginIndex = i++;
-
-                // ラベルの終了位置を取得
-                // while(i < this->instList.size()) {
-                //     Instruction inst = this->instList.at(i);
-
-                //     if(inst.opcode != IT_Label) {
-                //         labelInstList.push_back(inst);
-                //         i++;
-                //     } else {
-                //         i--;
-                //         break;
-                //     }
-                // }
-
-                int endIndex = i;
-
-                ByteVec id;
-                std::copy(inst.begin() + 1, inst.end() - inst.size() + 17, std::back_inserter(id));;
-                ByteVec name;
-                std::copy(inst.begin() + 18, inst.end(), std::back_inserter(name));;
-
-                this->blockList[id] = Block(id, name, beginIndex, endIndex);
-            } else {
-                // ラベル外の処理
-            }
-        }*/
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
@@ -418,7 +286,8 @@ void ches::Interpreter::runNextInst() {
                 STACK_POP();
             } break;
         }
-/*
+
+        /* 旧コード
         switch(opcode) {
             case IT_Unknown: {
             } break;
@@ -527,7 +396,8 @@ void ches::Interpreter::runNextInst() {
             default:
             break;
         }
-*/
+        */
+
         ByteVec inst;
 
         // インデックスはINST_DIVの直前に合わせるようにすること

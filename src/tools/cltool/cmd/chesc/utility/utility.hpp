@@ -1,12 +1,12 @@
 #pragma once
 
-#define INST(type)                  (InstList(Instruction(type)))
-#define INST_BLOCK(id, name)        (InstList(Instruction(IT_Block, { id, ByteSeq(name) })))
-#define INST_JUMP(index)            (InstList(Instruction(IT_Jump, { ByteSeq(index).escape() })))
-#define INST_JUMPIF(index)          (InstList(Instruction(IT_JumpIf, { ByteSeq(index).escape() })))
-#define INST_JUMPIFN(index)         (InstList(Instruction(IT_JumpIfNot, { ByteSeq(index).escape() })))
-#define INST_LOAD(len)              (InstList(Instruction(IT_Load, { ByteSeq(len).escape() })))
-#define INST_PUSH(size, value)      (InstList(Instruction(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() })))
+#define INST(type)                  (InstList(Inst(type)))
+#define INST_BLOCK(id, name)        (InstList(Inst(IT_Block, { id, ByteSeq(name) })))
+#define INST_JUMP(index)            (InstList(Inst(IT_Jump, { ByteSeq(index).escape() })))
+#define INST_JUMPIF(index)          (InstList(Inst(IT_JumpIf, { ByteSeq(index).escape() })))
+#define INST_JUMPIFN(index)         (InstList(Inst(IT_JumpIfNot, { ByteSeq(index).escape() })))
+#define INST_LOAD(len)              (InstList(Inst(IT_Load, { ByteSeq(len).escape() })))
+#define INST_PUSH(size, value)      (InstList(Inst(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() })))
 
 #include "utility.cpp"
 
@@ -443,42 +443,36 @@ ches::LineSeq::LineSeq(std::vector<ByteSeq> value) {
 }
 
 
-ches::Instruction::Instruction() {}
+ches::Inst::Inst() {}
 
-ches::Instruction::Instruction(ByteSeq bytes) {
-    Instruction inst = InstConv::toInst(bytes);
-    this->opcode = inst.opcode;
-    this->operand = inst.operand;
-}
-
-ches::Instruction::Instruction(int opcode) {
+ches::Inst::Inst(int opcode) {
     this->opcode = opcode;
 }
 
-ches::Instruction::Instruction(int opcode, std::vector<ches::ByteSeq> operand) {
+ches::Inst::Inst(int opcode, std::vector<ches::ByteSeq> operand) {
     this->opcode = opcode;
     this->operand = operand;
 }
 
 ches::InstList::InstList() {}
 
-ches::InstList::InstList(Instruction value) {
+ches::InstList::InstList(Inst value) {
     this->push_back(value);
 }
 
-ches::InstList::InstList(std::initializer_list<Instruction> value) {
-    for(Instruction val : value)
+ches::InstList::InstList(std::initializer_list<Inst> value) {
+    for(Inst val : value)
         this->push_back(val);
 }
 
-ches::InstList::InstList(std::vector<Instruction> value) {
+ches::InstList::InstList(std::vector<Inst> value) {
     this->push_back(value);
 }
 
 int ches::InstList::byteSize() {
     int result = 0;
 
-    for(Instruction inst : *this) {
+    for(Inst inst : *this) {
         // opcodeとInstDivの長さ
         result += 2;
 
@@ -491,20 +485,20 @@ int ches::InstList::byteSize() {
 }
 
 
-ches::Function::Function() {}
+ches::Func::Func() {}
 
-ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name) {
+ches::Func::Func(ches::ByteSeq id, ches::ByteSeq name) {
     this->id = id;
     this->name = name;
 }
 
-ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin) {
+ches::Func::Func(ches::ByteSeq id, ches::ByteSeq name, int begin) {
     this->id = id;
     this->name = name;
     this->begin = begin;
 }
 
-ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin, int end) {
+ches::Func::Func(ches::ByteSeq id, ches::ByteSeq name, int begin, int end) {
     this->id = id;
     this->name = name;
     this->begin = begin;
@@ -514,21 +508,21 @@ ches::Function::Function(ches::ByteSeq id, ches::ByteSeq name, int begin, int en
 
 ches::FuncList::FuncList() {}
 
-ches::FuncList::FuncList(ches::Function value) {
+ches::FuncList::FuncList(ches::Func value) {
     this->push_back(value);
 }
 
-ches::FuncList::FuncList(std::initializer_list<Function> value) {
-    for(Function val : value)
+ches::FuncList::FuncList(std::initializer_list<Func> value) {
+    for(Func val : value)
         this->push_back(val);
 }
 
-ches::FuncList::FuncList(std::vector<Function> value) {
+ches::FuncList::FuncList(std::vector<Func> value) {
     this->push_back(value);
 }
 
 bool ches::FuncList::existsId(ches::ByteSeq id) {
-    for(Function func : *this)
+    for(Func func : *this)
         if(func.id == id)
             return true;
 
@@ -536,27 +530,27 @@ bool ches::FuncList::existsId(ches::ByteSeq id) {
 }
 
 bool ches::FuncList::existsName(ches::ByteSeq name) {
-    for(Function func : *this)
+    for(Func func : *this)
         if(func.name == name)
             return true;
 
     return false;
 }
 
-ches::Function ches::FuncList::findById(ches::ByteSeq id) {
-    for(Function func : *this)
+ches::Func ches::FuncList::findById(ches::ByteSeq id) {
+    for(Func func : *this)
         if(func.id == id)
             return func;
 
-    return Function();
+    return Func();
 }
 
-ches::Function ches::FuncList::findByName(ches::ByteSeq name) {
-    for(Function func : *this)
+ches::Func ches::FuncList::findByName(ches::ByteSeq name) {
+    for(Func func : *this)
         if(func.name == name)
             return func;
 
-    return Function();
+    return Func();
 }
 
 
@@ -566,25 +560,15 @@ ches::InstList ches::InstConv::toInstList(Node tree) {
     InstList result;
     this->tree = tree;
 
-    // for(Node node : tree.children)
-    //     if(node.type == ND_DefFunc)
-    //         this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string), ));
-
     for(int i = 0; i < tree.children.size(); i++)
         result.push_back(this->toInstList(tree, i));
 
     Console::writeln();
 
-    for(Instruction inst : result)
+    for(Inst inst : result)
         Console::writeln(std::to_string(inst.opcode));
 
     return result;
-}
-
-ches::InstList ches::InstConv::toInstList(Node tree, std::string filePath, std::string source) {
-    this->filePath = filePath;
-    this->source = source;
-    return this->toInstList(tree);
 }
 
 ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
@@ -609,12 +593,12 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
             } break;
 
             case ND_DefVar: {
-                //result.push_back(Instruction(IT_LLPush, {  }));
+                //result.push_back(Inst(IT_LLPush, {  }));
                 // int i = 1;
                 // this->toInstList(node, i);
                 // this->localStackLen++;
 
-                // result.push_back(Instruction(IT_LSPush));
+                // result.push_back(Inst(IT_LSPush));
             } break;
 
             case ND_InitVar: {
@@ -637,7 +621,7 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 std::string name = node.tokenAt(0).string;
                 ByteSeq id = ByteSeq(this->blockList.findByName(name).id);
                 // result.push_back(INST_BLOCK(id, name));
-                this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string), this->sumByteLen));
+                this->blockList.push_back(Func(ByteSeq::generateUUID(), ByteSeq(node.tokenAt(0).string), this->sumByteLen));
                 // this->localListLen += node.childAt(0).children.size();
 
                 int process_i = 1;
@@ -680,11 +664,11 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
                 //     // 処理部分の行数をもとにIFJUMP命令を追加
                 //     ByteSeq lineIndex((Byte)IT_VarPref);
                 //     lineIndex.push_back(ByteSeq((int)procLines.size()));
-                //     result.push_back(Instruction(IT_IFJump, { lineIndex }));
+                //     result.push_back(Inst(IT_IFJump, { lineIndex }));
                 //     result.push_back(procLines);
 
                 //     // プッシュした条件部分をポップ
-                //     result.push_back(Instruction(IT_LSPop));
+                //     result.push_back(Inst(IT_LSPop));
                 // }
             } break;
 
@@ -744,11 +728,17 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
     }
 }
 
+ches::InstList ches::InstConv::toInstList(Node tree, std::string filePath, std::string source) {
+    this->filePath = filePath;
+    this->source = source;
+    return this->toInstList(tree);
+}
+
 ches::InstList ches::InstConv::toInstList_forDebugging() {
     InstList result;
 
-    result.push_back(INST_PUSH(2, (long)9999999999999999999999999999));
-    result.push_back(INST_PUSH(2, (long)99999999999999999999999999));
+    result.push_back(INST_PUSH(2, (long)0));
+    result.push_back(INST_PUSH(2, (long)1));
 
     result.push_back(INST_LOAD(2));
     result.push_back(INST(IT_Equal));
@@ -757,7 +747,7 @@ ches::InstList ches::InstConv::toInstList_forDebugging() {
     result.push_back(INST(IT_Pop));
     result.push_back(INST(IT_Pop));
 
-    this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq { 0x63, 0x6f, 0x6e, 0x73, 0x74 }, HEADER_LEN));
+    this->blockList.push_back(Func(ByteSeq::generateUUID(), ByteSeq { 0x63, 0x6f, 0x6e, 0x73, 0x74 }, HEADER_LEN));
 
     return result;
 }

@@ -17,7 +17,6 @@ ches::Line::Line() {}
 
 ches::Line::Line(TokenSeq tokens) {
     TokenSeq line;
-    int nest = 0;
 
     for(int i = 0; i < tokens.size(); i++) {
         if(tokens[i].type == TK_Comment)
@@ -429,8 +428,6 @@ ches::Node ches::Parser::getNode(TokenSeq tokens) {
         TokenSeq orderedTokens = parenSeq.getOrderedParens(tokens);
 
         len = tokens.size();
-        bool enclosed;
-        bool containsParen;
 
         /*std::cout << "\ttk exp: ";
         for(Token t : tokens)
@@ -520,9 +517,10 @@ ches::Node ches::Parser::getLogicalExpressionNode(TokenSeq tokens) {
 ches::Node ches::Parser::getCompareExpressionNode(TokenSeq tokens) {
     Node node(ND_Compare);
     Byte opeType = ND_Unknown;
+
     TokenSeq leftside;
     TokenSeq rightside;
-    int len = tokens.size();
+
     int nest = 0;
 
     for(int i = 0; i < tokens.size(); i++) {//std::cout<<(int)opeType<<" "<<i<<" "<<tokens.size()<<std::endl;
