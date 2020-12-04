@@ -731,3 +731,13 @@ ches::InstList ches::InstConv::toInstList(Node parent, int &index) {
         return result;
     }
 }
+
+ches::InstList ches::InstConv::toInstList_forDebugging() {
+    InstList result;
+
+    result.push_back(INST(IT_Pop));
+
+    this->blockList.push_back(Function(ByteSeq::generateUUID(), ByteSeq { 0x63, 0x6f, 0x6e, 0x73, 0x74 }, HEADER_LEN));
+
+    return result;
+}

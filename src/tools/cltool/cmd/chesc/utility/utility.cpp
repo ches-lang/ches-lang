@@ -635,11 +635,13 @@ namespace ches {
 
         static ByteSeq toByteSeq(Node tree, std::string filePath, std::string value) {
             ByteSeq result;
+            // 非デバッグ時にはfalseにすること
+            bool enableDebugMode = true;
 
             // ボディ部分
 
             InstConv instConv;
-            InstList instList = instConv.toInstList(tree, filePath, value);
+            InstList instList = (enableDebugMode ? instConv.toInstList_forDebugging() : instConv.toInstList(tree, filePath, value));
             ByteSeq body = InstConv::toByteSeq(instList);
 
             // ヘッダ部分
@@ -701,6 +703,8 @@ namespace ches {
 
             return result;
         }
+
+        InstList toInstList_forDebugging();
 
         static std::string toString(Instruction inst) {
             // Console::writeln(instTypeMap.at(inst.opcode));
