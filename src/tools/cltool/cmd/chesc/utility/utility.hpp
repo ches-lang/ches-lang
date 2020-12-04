@@ -401,16 +401,6 @@ ches::LineSeq ches::ByteSeq::toLineSeq() {
     return lines;
 }
 
-// void* ches::ByteSeq::toNumber(ValueType type) {
-//     this->toHexString();
-
-//     switch(type) {
-//         case VT_Boolean:
-//         return ;
-//     }
-//     return std::stoi(, nullptr, 16);
-// }
-
 ches::Byte* ches::ByteSeq::toPointerArray() {
     return this->data();
 }

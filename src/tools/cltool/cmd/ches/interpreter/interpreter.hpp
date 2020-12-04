@@ -281,6 +281,9 @@ void ches::Interpreter::runProgram() {
         while(this->index < this->idAreaIndex)
             this->runNextInst();
 
+        std::string hexStackTop = (this->stack.empty() || this->stack.top().empty()) ? "noelem" : BYTE_TO_HEX_SEP(STACK_TOP, " ");
+        Console::writeln("<end>\t\t\t\t" + hexStackTop);
+
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }

@@ -133,9 +133,12 @@ namespace ches {
                 result += (src < 16 ? "0" : "") + ss.str() + separator;
             }
 
-            if(source.size() > 0)
+            if(source.size() > 0) {
                 for(int i = 0; i < separator.length(); i++)
                     result.pop_back();
+            } else {
+                return "nobytes";
+            }
 
             return result;
         }
