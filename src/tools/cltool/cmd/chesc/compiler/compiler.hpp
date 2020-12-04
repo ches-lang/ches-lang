@@ -63,7 +63,7 @@ ches::ByteSeq ches::Compiler::toBytecode() {
         tokens = lexer.splitTokens();
         parser = Parser(path, source, tokens);
         node = parser.parse();
-        bytecodes.push_back(ByteSeq(node, path, source));
+        bytecodes.push_back(InstConv::toByteSeq(node, path, source));
     }
 
     return ByteSeq::join(bytecodes, ByteSeq((Byte)0x00, 5));

@@ -244,8 +244,6 @@ namespace ches {
 
         ByteSeq(Node node);
 
-        ByteSeq(Node tree, std::string filePath, std::string sourceCode);
-
         // vector_ext<T>::copy() のカプセル化 (セグフォ防止のため)
 
         ByteSeq copy(int begin);
@@ -376,6 +374,8 @@ namespace ches {
 
         InstList(std::vector<Instruction> value);
 
+        int byteSize();
+
         inline void push_back(Instruction value) {
             vector_ext<Instruction>::push_back(value);
         }
@@ -384,8 +384,6 @@ namespace ches {
             for(Instruction val : value)
                 vector_ext<Instruction>::push_back(val);
         }
-
-        ByteSeq toByteSeq();
     };
 
 
@@ -458,6 +456,15 @@ namespace ches {
             for(Function val : value)
                 vector_ext<Function>::push_back(val);
         }
+    };
+
+
+    struct ByteConvData {
+        ByteSeq *magicNum;
+        InstList *instList;
+        FuncList *funcList;
+
+        ByteConvData();
     };
 
 
@@ -548,7 +555,8 @@ namespace ches {
         }
 
         InstList toInstList_condBranchWithElse(int startIndex, InstList procWhenMatch) {
-            int escapeIndex = procWhenMatch.size() + 1;
+            // escapeIndexを修正中
+            int escapeIndex = procWhenMatch.byteSize();
             InstList result;
 
             result.push_back(INST_LOAD(1));
@@ -559,7 +567,7 @@ namespace ches {
         }
 
         InstList toInstList_condBranchWithElse(int startIndex, InstList procWhenMatch, InstList procInElse) {
-            int wholeProcLen = procWhenMatch.size() + procInElse.size();
+            int wholeProcLen = procWhenMatch.byteSize() + procInElse.byteSize();
             int escapeIndex = startIndex + wholeProcLen;
             InstList result;
 
@@ -573,7 +581,7 @@ namespace ches {
         }
 
         InstList toInstList_loop(int startIndex, int loopCount, InstList procWhenMatch) {
-            int escapeIndex = procWhenMatch.size() + 5;
+            int escapeIndex = procWhenMatch.byteSize() + 5;
             InstList result;
 
             result.push_back(INST_PUSH(DST_32, ByteSeq(loopCount)));
@@ -606,20 +614,51 @@ namespace ches {
             return result;
         }
 
-        static ByteSeq toByteSeq(Instruction inst) {
-            ByteSeq instBytes;
+        static ByteSeq toByteSeq(InstList instList) {
+            ByteSeq result;
 
             try {
-                instBytes.push_back((Byte)inst.opcode);
+                for(Instruction inst : instList) {
+                    result.push_back((Byte)inst.opcode);
 
-                for(ByteSeq operand : inst.operand)
-                    instBytes.push_back(operand);
+                    for(ByteSeq operand : inst.operand)
+                        result.push_back(operand);
 
+                    result.push_back((IT_InstDiv));
+                }
             } catch(std::out_of_range ignored) {
                 std::cout << "EXCEPTION" << std::endl;
             }
 
-            return instBytes;
+            return result;
+        }
+
+        static ByteSeq toByteSeq(Node tree, std::string filePath, std::string value) {
+            ByteSeq result;
+
+            // ボディ部分
+
+            InstConv instConv;
+            InstList instList = instConv.toInstList(tree, filePath, value);
+            ByteSeq body = InstConv::toByteSeq(instList);
+
+            // ヘッダ部分
+
+            ByteSeq header = InstConv::toHeaderBytes(body.size());
+
+            // IDエリア部分
+
+            ByteSeq idArea = InstConv::toIDAreaBytes(instConv.blockList);
+
+            // まとめて追加
+
+            result.push_back(header);
+            result.push_back(body);
+            result.push_back(idArea);
+
+            // std::cout << std::endl;
+
+            return result;
         }
 
         static Instruction toInst(ches::ByteSeq bytes) {

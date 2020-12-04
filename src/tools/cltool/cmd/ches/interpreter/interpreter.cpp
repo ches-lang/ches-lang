@@ -4,11 +4,16 @@
 namespace ches {
     struct Block {
         ByteVec name;
-        int beginIndex;
+        int beginIndex = -1;
 
         Block();
 
         Block(ByteVec name, int beginIndex);
+
+        inline bool empty() {
+            // nameが空かどうかで判断する
+            return (this->name.empty() || this->beginIndex == -1);
+        }
     };
 
 
@@ -17,7 +22,7 @@ namespace ches {
         ByteVec bytes;
 
         ByteVec magicNum;
-        int idAreaIndex;
+        int idAreaIndex = -1;
 
         Interpreter(std::string filePath);
 
@@ -30,7 +35,8 @@ namespace ches {
         // <id, Block>
         std::map<ByteVec, Block> blockList;
 
-        ByteVec copyBytesUntilDiv(int beginIndex);
+        // indexerは参照渡しなので注意
+        ByteVec copyBytesUntilDiv(int &indexer);
 
         std::vector<ByteVec> divideInsts();
 

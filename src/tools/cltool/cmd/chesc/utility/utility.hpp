@@ -1,12 +1,12 @@
 #pragma once
 
-#define INST(type)                  InstList(Instruction(type))
-#define INST_BLOCK(id, name)        InstList(Instruction(IT_Block, { id, ByteSeq(name) }))
-#define INST_JUMP(index)            InstList(Instruction(IT_Jump, { ByteSeq(index).escape() }))
-#define INST_JUMPIF(index)          InstList(Instruction(IT_JumpIf, { ByteSeq(index).escape() }))
-#define INST_JUMPIFN(index)         InstList(Instruction(IT_JumpIfNot, { ByteSeq(index).escape() }))
-#define INST_LOAD(len)              InstList(Instruction(IT_Load, { ByteSeq(len).escape() }))
-#define INST_PUSH(size, value)      InstList(Instruction(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() }))
+#define INST(type)                  (InstList(Instruction(type)))
+#define INST_BLOCK(id, name)        (InstList(Instruction(IT_Block, { id, ByteSeq(name) })))
+#define INST_JUMP(index)            (InstList(Instruction(IT_Jump, { ByteSeq(index).escape() })))
+#define INST_JUMPIF(index)          (InstList(Instruction(IT_JumpIf, { ByteSeq(index).escape() })))
+#define INST_JUMPIFN(index)         (InstList(Instruction(IT_JumpIfNot, { ByteSeq(index).escape() })))
+#define INST_LOAD(len)              (InstList(Instruction(IT_Load, { ByteSeq(len).escape() })))
+#define INST_PUSH(size, value)      (InstList(Instruction(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() })))
 
 #include "utility.cpp"
 
@@ -309,30 +309,6 @@ ches::ByteSeq::ByteSeq(Node node) {
     }
 }
 
-ches::ByteSeq::ByteSeq(Node tree, std::string filePath, std::string value) {
-    // ボディ部分
-
-    InstConv instConv;
-    InstList instList = instConv.toInstList(tree, filePath, value);
-    ByteSeq body = instList.toByteSeq();
-
-    // ヘッダ部分
-
-    ByteSeq header = InstConv::toHeaderBytes(body.size());
-
-    // IDエリア部分
-
-    ByteSeq idArea = InstConv::toIDAreaBytes(instConv.blockList);
-
-    // まとめて追加
-
-    this->push_back(header);
-    this->push_back(body);
-    this->push_back(idArea);
-
-    std::cout << std::endl;
-}
-
 ches::ByteSeq ches::ByteSeq::copy(int begin) {
     return this->copy(begin, -1);
 }
@@ -355,7 +331,7 @@ ches::ByteSeq ches::ByteSeq::escape() {
         result.push_back(this->at(i));
 
         if(this->at(i) == IT_InstDiv)
-            result.push_back(this->at(i));
+            result.push_back(IT_InstDiv);
     }
 
     return result;
@@ -497,20 +473,17 @@ ches::InstList::InstList(std::vector<Instruction> value) {
     this->push_back(value);
 }
 
-ches::ByteSeq ches::InstList::toByteSeq() {
-    ByteSeq result;
+int ches::InstList::byteSize() {
+    int result = 0;
 
     for(Instruction inst : *this) {
-        ByteSeq byteSeq = InstConv::toByteSeq(inst);
+        // opcodeとInstDivの長さ
+        result += 2;
 
-        if(byteSeq.size() >= 1) {
-            result.push_back(byteSeq);
-            result.push_back((IT_InstDiv));
-        }
+        // operandの長さ
+        for(ByteSeq operand : inst.operand)
+            result += operand.size();
     }
-
-    if(this->size() > 0)
-        result.pop_back();
 
     return result;
 }
