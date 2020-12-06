@@ -64,5 +64,18 @@ namespace ches {
 
             return result;
         }
+
+        static int toInt(ByteVec source) {
+            long result = std::stol(BYTE_TO_HEX(source), nullptr, 16);
+
+            if((result >> 31) & 1 == 1)
+                result = (~result + 1) * -1;
+
+            Console::write("<");
+            Console::write((int)result);
+            Console::write(">");
+
+            return (int)result;
+        }
     };
 }

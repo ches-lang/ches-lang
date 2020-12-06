@@ -1,12 +1,14 @@
 #pragma once
 
+// note: int型引数に signed > x > unsigned の範囲の数値を渡すとマイナス値になるので注意 (コンパイルエラーなし)
+
 #define INST(type)                  (InstList(Inst(type)))
 #define INST_BLOCK(id, name)        (InstList(Inst(IT_Block, { id, ByteSeq(name) })))
-#define INST_JUMP(index)            (InstList(Inst(IT_Jump, { ByteSeq(index).escape() })))
-#define INST_JUMPIF(index)          (InstList(Inst(IT_JumpIf, { ByteSeq(index).escape() })))
-#define INST_JUMPIFN(index)         (InstList(Inst(IT_JumpIfNot, { ByteSeq(index).escape() })))
-#define INST_LOAD(len)              (InstList(Inst(IT_Load, { ByteSeq(len).escape() })))
-#define INST_PUSH(size, value)      (InstList(Inst(IT_Push, { ByteSeq(size).escape(), ByteSeq(value).escape() })))
+#define INST_JUMP(index)            (InstList(Inst(IT_Jump, { ByteSeq((int)(index)).escape() })))
+#define INST_JUMPIF(index)          (InstList(Inst(IT_JumpIf, { ByteSeq((int)(index)).escape() })))
+#define INST_JUMPIFN(index)         (InstList(Inst(IT_JumpIfNot, { ByteSeq((int)(index)).escape() })))
+#define INST_LOAD(len)              (InstList(Inst(IT_Load, { ByteSeq((int)(len)).escape() })))
+#define INST_PUSH(size, value)      (InstList(Inst(IT_Push, { ByteSeq((int)(size)).escape(), ByteSeq(value).escape() })))
 
 #include "utility.cpp"
 
@@ -737,15 +739,15 @@ ches::InstList ches::InstConv::toInstList(Node tree, std::string filePath, std::
 ches::InstList ches::InstConv::toInstList_forDebugging() {
     InstList result;
 
-    result.push_back(INST_PUSH(2, (long)0));
-    result.push_back(INST_PUSH(2, (long)1));
+    // result.push_back(INST_PUSH(2, 0));
+    // result.push_back(INST_PUSH(2, 1));
+    // result.push_back(INST_LOAD(2));
+    // result.push_back(INST(IT_Equal));
+    // result.push_back(INST(IT_Pop));
 
-    result.push_back(INST_LOAD(2));
-    result.push_back(INST(IT_Equal));
+    // result.push_back(INST_PUSH(2, 1));
 
-    result.push_back(INST(IT_Pop));
-    result.push_back(INST(IT_Pop));
-    result.push_back(INST(IT_Pop));
+    // result.push_back(INST_JUMP(-xxx));
 
     this->blockList.push_back(Func(ByteSeq::generateUUID(), ByteSeq { 0x63, 0x6f, 0x6e, 0x73, 0x74 }, HEADER_LEN));
 

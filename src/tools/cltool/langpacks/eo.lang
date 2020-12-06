@@ -8,6 +8,7 @@ Error_1064_Message nekonata komando
 Error_1562_Message neatendita EOF
 Error_1822_Message nesolva identigilo
 Error_2471_Message tro longa litera longeco
+Error_2947_Message nevalida indekso
 Error_3681_Message nevalida ĵurnala montra limo
 Error_4139_Message tro mallonga litera longeco
 Error_4890_Message interna kompilera eraro
@@ -17,6 +18,7 @@ Error_5899_Message neniu eniga dosiero
 Error_5900_Message neniu eliga dosiero
 Error_6845_Message dosiera lega malsukceso
 Error_6923_Message nekonata lingvo
+Error_7316_Message nevalida instrukcia kodo
 Error_8194_Message nevalida komando elektemblo
 Error_8732_Message nevalida magia cifero
 Error_9034_Message nekonata sintakso

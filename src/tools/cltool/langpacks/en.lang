@@ -8,6 +8,7 @@ Error_1064_Message unknown command
 Error_1562_Message expected EOF
 Error_1822_Message unresolved identifier
 Error_2471_Message too long character length
+Error_2947_Message invalid index
 Error_3681_Message invalid log display limit
 Error_4139_Message too short character length
 Error_4890_Message internal compiler error
@@ -17,6 +18,7 @@ Error_5899_Message no input file
 Error_5900_Message no output file
 Error_6845_Message file reading fail
 Error_6923_Message unknown language
+Error_7316_Message invalid instruction code
 Error_8194_Message invalid command option
 Error_8732_Message invalid magic number
 Error_9034_Message unknown syntax

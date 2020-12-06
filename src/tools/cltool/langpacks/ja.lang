@@ -8,6 +8,7 @@ Error_1064_Message 不明なコマンド
 Error_1562_Message EOFがありません
 Error_1822_Message 未解決の識別子
 Error_2471_Message 長すぎる文字数
+Error_2947_Message 無効なインデックス
 Error_3681_Message 無効なログ表示制限
 Error_4139_Message 短すぎる文字数
 Error_4890_Message コンパイラ内部エラー
@@ -17,6 +18,7 @@ Error_5899_Message 入力ファイルがありません
 Error_5900_Message 出力ファイルがありません
 Error_6845_Message ファイル読み込み失敗
 Error_6923_Message 不明な言語
+Error_7316_Message 無効な命令コード
 Error_8194_Message 無効なコマンドオプション
 Error_8732_Message 無効なマジックナンバー
 Error_9034_Message 不明な構文
