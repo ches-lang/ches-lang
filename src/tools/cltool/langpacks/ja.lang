@@ -18,7 +18,8 @@ Error_5899_Message 入力ファイルがありません
 Error_5900_Message 出力ファイルがありません
 Error_6845_Message ファイル読み込み失敗
 Error_6923_Message 不明な言語
-Error_7316_Message 無効な命令コード
+Error_7316_Message 無効なオペコード
+Error_7317_Message 無効なオペランド
 Error_8194_Message 無効なコマンドオプション
 Error_8732_Message 無効なマジックナンバー
 Error_9034_Message 不明な構文

@@ -46,6 +46,11 @@ namespace ches {
 
         std::string joinCode(ByteVec src);
 
+        static bool toBool(ByteVec source) {
+            // note: 0x00 以外の値はすべて true と判定されます
+            return source != ByteVec { 0x00 };
+        }
+
         static std::string toHexString(ByteVec source, std::string separator = "") {
             std::string result;
 
@@ -70,10 +75,6 @@ namespace ches {
 
             if((result >> 31) & 1 == 1)
                 result = (~result + 1) * -1;
-
-            Console::write("<");
-            Console::write((int)result);
-            Console::write(">");
 
             return (int)result;
         }

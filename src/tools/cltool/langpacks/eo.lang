@@ -18,7 +18,8 @@ Error_5899_Message neniu eniga dosiero
 Error_5900_Message neniu eliga dosiero
 Error_6845_Message dosiera lega malsukceso
 Error_6923_Message nekonata lingvo
-Error_7316_Message nevalida instrukcia kodo
+Error_7316_Message nevalida opcode
+Error_7317_Message nevalida operand
 Error_8194_Message nevalida komando elektemblo
 Error_8732_Message nevalida magia cifero
 Error_9034_Message nekonata sintakso

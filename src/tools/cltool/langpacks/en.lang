@@ -18,10 +18,12 @@ Error_5899_Message no input file
 Error_5900_Message no output file
 Error_6845_Message file reading fail
 Error_6923_Message unknown language
-Error_7316_Message invalid instruction code
+Error_7316_Message invalid opcode
+Error_7317_Message invalid operand
 Error_8194_Message invalid command option
 Error_8732_Message invalid magic number
 Error_9034_Message unknown syntax
+
 
 Note_4247_Message -miss to ignore warnings
 Note_7148_Message -limit to change log display limit

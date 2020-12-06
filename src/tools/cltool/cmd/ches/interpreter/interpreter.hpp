@@ -5,12 +5,14 @@
 #define BYTE                        (BYTE_AT(this->index))
 #define BYTE_AT(index)              (this->bytes.at(index))
 #define BYTE_LEN                    (this->bytes.size())
+#define BYTES_TO_BOOL(value)        (Interpreter::toBool(value))
 #define BYTE_TO_HEX(value)          (Interpreter::toHexString(value))
 #define BYTE_TO_HEX_SEP(value, sep) (Interpreter::toHexString(value, sep))
-#define BYTES_TO_INT(value)          (Interpreter::toInt(value))
+#define BYTES_TO_INT(value)         (Interpreter::toInt(value))
 
 #define CONSOLE_OUT(value)  Console::writeln("* print\n    " + BYTE_TO_HEX(value));
 
+#define STACK_EMPTY         (this->stack.empty() || this->stack.top().empty())
 #define STACK_POP()         do { if(this->stack.empty() || this->stack.top().empty()) { Console::write(" <err:pop> "); break; } this->stack.top().pop(); } while(0);
 #define STACK_PUSH(value)   do { if(this->stack.empty()) { Console::write(" <err:push> "); break; } this->stack.top().push(value); } while(0);
 #define STACK_TOP           (this->stack.top().top())
@@ -239,8 +241,8 @@ void ches::Interpreter::runNextInst() {
                 ByteVec indexVec = this->copyBytesUntilDiv(this->index);
 
                 Console::write("<");
-                Console::write(BYTE_TO_HEX_SEP(indexVec, " "));
-                Console::write(">");
+                Console::write(BYTES_TO_INT(indexVec));
+                Console::write("> ");
 
                 if(indexVec.size() == 16 && this->blockList.count(indexVec) == 1) {
                     Block block = this->blockList.at(indexVec);
@@ -261,17 +263,27 @@ void ches::Interpreter::runNextInst() {
                 ByteVec value = OPESTACK_TOP;
                 OPESTACK_STORE();
 
-                // false (0x00) 以外の値はすべて通す
-                if(value == ByteVec { 0x00 })
-                    break;
-
                 ByteVec indexVec = this->copyBytesUntilDiv(this->index);
+
+                if(!BYTES_TO_BOOL(value))
+                    break;
 
                 if(indexVec.size() == 16 && this->blockList.count(indexVec) == 1) {
                     Block block = this->blockList.at(indexVec);
                     this->index = block.beginIndex;
                 } else {
+                    Console::write("<");
+                    Console::write(BYTES_TO_INT(indexVec));
+                    Console::write("> ");
+
                     this->index += BYTES_TO_INT(indexVec);
+
+                    if(this->index + 1 > this->idAreaIndex || this->index + 1 < HEADER_LEN) {
+                        // 表示調節のために改行
+                        Console::writeln();
+                        Console::writeln();
+                        Console::log(LogType_Error, 2947, { { "Index", std::to_string(this->index + 1) } }, true);
+                    }
                 }
             } break;
 
@@ -282,6 +294,13 @@ void ches::Interpreter::runNextInst() {
                 Stack stackCache;
 
                 for(int i = 0; i < count; i++) {
+                    if(STACK_EMPTY) {
+                        // 表示調節のために改行
+                        Console::writeln();
+                        Console::writeln();
+                        Console::log(LogType_Error, 7317, { { "Index", std::to_string(this->index - 1) } }, true);
+                    }
+
                     stackCache.push(STACK_TOP);
                     OPESTACK_LOAD();
                     STACK_POP();
