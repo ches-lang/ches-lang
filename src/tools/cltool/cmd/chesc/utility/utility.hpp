@@ -739,21 +739,13 @@ ches::InstList ches::InstConv::toInstList(Node tree, std::string filePath, std::
 ches::InstList ches::InstConv::toInstList_forDebugging() {
     InstList result;
 
-    result.push_back(INST_PUSH(4, 1));
-    result.push_back(INST_LOAD(1));
+    result.push_back(INST_PUSH(4, 12345));
+    result.push_back(INST_PUSH(4, -10000000000));
+    result.push_back(INST_LOAD(2));
+    result.push_back(INST(IT_Add));
     result.push_back(INST(IT_Pop));
-    result.push_back(INST_JUMPIF(2));
     result.push_back(INST(IT_Pop));
-
-    // result.push_back(INST_PUSH(2, 0));
-    // result.push_back(INST_PUSH(2, 1));
-    // result.push_back(INST_LOAD(2));
-    // result.push_back(INST(IT_Equal));
-    // result.push_back(INST(IT_Pop));
-
-    // result.push_back(INST_PUSH(2, 1));
-
-    // result.push_back(INST_JUMP(-xxx));
+    result.push_back(INST(IT_Pop));
 
     this->blockList.push_back(Func(ByteSeq::generateUUID(), ByteSeq { 0x63, 0x6f, 0x6e, 0x73, 0x74 }, HEADER_LEN));
 

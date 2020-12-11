@@ -115,11 +115,14 @@ namespace ches {
 
 
     enum DataSizeType : Byte {
+        DST_0,
         DST_2,
+        DST_4,
         DST_8,
         DST_16,
         DST_32,
-        DST_64
+        DST_64,
+        DST_128
     };
 
 
@@ -208,5 +211,17 @@ namespace ches {
         { "dec", DST_32 },
         { "chr", DST_8 },
         { "str", DST_32 }
+    };
+
+
+    std::unordered_map<DataSizeType, size_t> dataSizeToBitSize {
+        { DST_0, 0 },
+        { DST_2, 2 },
+        { DST_4, 4 },
+        { DST_8, 8 },
+        { DST_16, 16 },
+        { DST_32, 32 },
+        { DST_64, 64 },
+        { DST_128, 128 },
     };
 }

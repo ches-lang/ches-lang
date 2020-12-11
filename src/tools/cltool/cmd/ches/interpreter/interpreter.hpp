@@ -2,40 +2,64 @@
 
 #undef  INST
 
-#define BYTE                        (BYTE_AT(this->index))
-#define BYTE_AT(index)              (this->bytes.at(index))
-#define BYTE_LEN                    (this->bytes.size())
-#define BYTES_TO_BOOL(value)        (Interpreter::toBool(value))
-#define BYTE_TO_HEX(value)          (Interpreter::toHexString(value))
-#define BYTE_TO_HEX_SEP(value, sep) (Interpreter::toHexString(value, sep))
-#define BYTES_TO_INT(value)         (Interpreter::toInt(value))
+#define BYTE                            (BYTE_AT(this->index))
+#define BYTE_AT(index)                  (this->bytes[index])
+#define BYTES_AT(indexPair)             (this->getBytes(indexPair))
+#define BYTE_LEN                        (this->bytesLen)
+
+#define BYTES_TO_BOOL(value)                (Interpreter::toBool(value))
+#define BYTES_TO_HEX(size, value)           (Interpreter::toHexString(size, value))
+#define BYTES_TO_HEX_SEP(size, value, sep)  (Interpreter::toHexString(size, value, sep))
+#define BYTES_TO_INT(size, value)           (Interpreter::toInt(size, value))
+#define BYTE_INDEXES_TO_INT(indexPair)      (Interpreter::toInt(indexPair))
+#define TO_BYTES(value)                     (Interpreter::toBytes(value))
+#define TO_BOOL_PTR(value)                  (Interpreter::toBoolPtr(value))
+
+#define GET_DIV_INDEX(indexer)          (this->getBytesLenUntilDiv(indexer))
+
+#define DATA_TYPE_SIZE                  (4)
+#define SIZE_TYPE_TO_BIT(sizeType)      (dataSizeToBitSize.at(sizeType))
 
 #define CONSOLE_OUT(value)  Console::writeln("* print\n    " + BYTE_TO_HEX(value));
 
-#define STACK_EMPTY         (this->stack.empty() || this->stack.top().empty())
-#define STACK_POP()         do { if(this->stack.empty() || this->stack.top().empty()) { Console::write(" <err:pop> "); break; } this->stack.top().pop(); } while(0);
-#define STACK_PUSH(value)   do { if(this->stack.empty()) { Console::write(" <err:push> "); break; } this->stack.top().push(value); } while(0);
-#define STACK_TOP           (this->stack.top().top())
+#define STACK_BYTE_SIZE         (128)
+#define STACK_EMPTY()           (this->stack.empty())
+#define STACK_POP()             this->stack.pop();
+#define STACK_PUSH(size, value) this->stack.push(size, value);
+#define STACK_TOP               (this->stack.top())
+#define STACK_TOP_SIZE          (this->stack.topSize())
 
-#define OPESTACK_LEN        (this->opeStack.top().size())
-#define OPESTACK_LOAD()     do { if(this->opeStack.empty() || this->stack.empty() || this->stack.top().empty()) { Console::write(" <err:load> "); break; } this->opeStack.top().push(STACK_TOP); } while(0);
-#define OPESTACK_STORE()    do { if(this->opeStack.empty() || this->opeStack.top().empty()) { Console::write(" <err:store> "); break; } this->opeStack.top().pop(); } while(0);
-#define OPESTACK_TOP        (this->opeStack.top().top())
+#define OPESTACK_LEN        (this->opeStack.size())
+#define OPESTACK_LOAD()     this->opeStack.push(STACK_TOP);
+#define OPESTACK_STORE()    this->opeStack.pop();
+#define OPESTACK_TOP        (this->opeStack.top())
 
 #define L_AT(lineIndex)                     (lines.at(lineIndex))
 #define L_TOKEN_AT(lineIndex, tokenIndex)   (lines.at(lineIndex).at(tokenIndex))
 
-typedef std::stack<ches::ByteVec>   Stack;
+typedef std::pair<int, int> IndexPair;
 
 #include "interpreter.cpp"
 
 
 ches::Block::Block() {}
 
-ches::Block::Block(ByteVec name, int beginIndex) {
+ches::Block::Block(Byte *name, size_t nameSize, int beginIndex) {
     this->name = name;
+    this->nameSize = nameSize;
     this->beginIndex = beginIndex;
 }
+
+bool ches::Block::compareName(Byte *name) {
+    for(int i = 0; i < this->nameSize; i++)
+        if(this->name[i] != name[i])
+            return false;
+
+    return true;
+}
+
+
+ches::DataStack::DataStack() {}
 
 
 ches::Interpreter::Interpreter(std::string filePath) {
@@ -44,125 +68,166 @@ ches::Interpreter::Interpreter(std::string filePath) {
 
         for(auto [ id, block ] : this->blockList) {
             Console::writeln("- block -");
-            Console::writeln("  * id:\t" + BYTE_TO_HEX(id));
-            Console::writeln("  * name:\t" + BYTE_TO_HEX(block.name));
+            Console::writeln("  * id:\t" + BYTES_TO_HEX(16, id));
+            Console::writeln("  * name:\t" + BYTES_TO_HEX(block.nameSize, block.name));
             Console::writeln("  * begin:\t" + std::to_string(block.beginIndex));
             Console::writeln();
         }
-
-        // マジックナンバーをチェック
-        if(this->magicNum != MAGIC_NUM)
-            Console::log(LogType_Error, 8732, { { "Path", filePath } }, true);
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
 }
 
-ches::ByteVec ches::Interpreter::copyBytesUntilDiv(int &indexer) {
-    ByteVec result;
+ches::Byte* ches::Interpreter::getBytes(IndexPair indexPair) {
+    Byte *result = (Byte*)malloc(sizeof(Byte) * indexPair.second);
+
+    for(int i = 0; i < indexPair.second; i++)
+        result[i] = BYTE_AT(indexPair.first + i);
+
+    return result;
+}
+
+IndexPair ches::Interpreter::getBytesLenUntilDiv(int &indexer) {
+    int beginIndex = indexer;
 
     try {
         for(; indexer < BYTE_LEN; indexer++) {
             if(BYTE_AT(indexer) == IT_InstDiv) {
                 if(indexer + 1 < BYTE_LEN && BYTE_AT(indexer + 1) == IT_InstDiv) {
-                    result.push_back(IT_InstDiv);
                     indexer++;
                 } else {
                     break;
                 }
-            } else {
-                result.push_back(BYTE_AT(indexer));
             }
         }
     } catch(std::out_of_range ignored) {
-        std::cout << "EXCEPTION on Interpreter::copyBytesUntilDiv()" << std::endl;
+        std::cout << "EXCEPTION on Interpreter::getBytesLenUntilDiv()" << std::endl;
     }
 
-    return result;
+    return { beginIndex, indexer - beginIndex };
+}
+
+void ches::Interpreter::finalize() {
+    this->stack.clear();
+    free(this->bytes);
+    exit(-1);
 }
 
 void ches::Interpreter::loadCompiledFile(std::string filePath) {
     try {
         std::ifstream ifs(filePath);
 
-        if(!ifs.is_open())
-            Console::log(LogType_Error, 327, { { "Path", filePath } }, true);
+        if(!ifs.is_open()) {
+            Console::log(LogType_Error, 327, { { "Path", filePath } });
+            this->finalize();
+        }
 
-        if(ifs.fail())
-            Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
+        if(ifs.fail()) {
+            Console::log(LogType_Error, 6845, { { "Path", filePath } });
+            this->finalize();
+        }
 
         Byte byte;
 
         do {
             ifs.read((char*)&byte, sizeof(char));
-            this->bytes.push_back(byte);
+            this->bytes[BYTE_LEN++] = byte;
         } while(!ifs.eof());
 
-        if(this->bytes.size() > 0)
-            this->bytes.pop_back();
+        if(BYTE_LEN > 0)
+            this->bytes[--BYTE_LEN] = 0;
 
         ifs.close();
 
         // ヘッダ情報をロード
 
-        for(int i = 0; i < MAGIC_NUM.size(); i++)
-            this->magicNum.push_back(BYTE_AT(i));
+        // マジックナンバーをチェック
+        Byte magicNum[] = MAGIC_NUM;
 
-        if(magicNum != MAGIC_NUM)
-            Console::log(LogType_Error, 8732, { { "Path", filePath } }, true);
+        for(int i = 0; i < MAGIC_NUM_LEN; i++) {
+            if(BYTE_AT(i) != magicNum[i]) {
+                Console::log(LogType_Error, 8732, { { "Path", filePath } });
+                this->finalize();
+            }
+        }
 
-        int idAreaIndexer = MAGIC_NUM.size();
-        ByteVec idAreaIndexBytes = this->copyBytesUntilDiv(idAreaIndexer);
-        this->idAreaIndex = BYTES_TO_INT(idAreaIndexBytes);
+        int idAreaIndexer = MAGIC_NUM_LEN;
+        this->idAreaIndex = BYTE_INDEXES_TO_INT(GET_DIV_INDEX(idAreaIndexer));
 
         // ID情報をロード
 
         try {
             for(int i = this->idAreaIndex; i < BYTE_LEN; ) {
-                ByteVec id;
+                Byte id[16];
 
                 for(int j = 0; j < 16; i++, j++)
-                    id.push_back(BYTE_AT(i));
+                    id[j] = BYTE_AT(i);
 
-                ByteVec name = this->copyBytesUntilDiv(i);
+                std::pair<int, int> indexes = GET_DIV_INDEX(i);
+                Byte *name = BYTES_AT(indexes);
                 i++;
 
-                ByteVec beginIndexBytes = this->copyBytesUntilDiv(i);
-                int beginIndex = BYTES_TO_INT(beginIndexBytes);
+                int beginIndex = BYTE_INDEXES_TO_INT(GET_DIV_INDEX(i));
                 i++;
 
-                this->blockList[id] = Block(name, beginIndex);
+                this->blockList[id] = Block(name, indexes.second, beginIndex);
             }
         } catch(std::exception excep) {
             // todo: ID情報のエラーを追加
             Console::writeln("ID area data is invalid.");
         }
     } catch(std::exception excep) {
-        Console::log(LogType_Error, 6845, { { "Path", filePath } }, true);
+        Console::log(LogType_Error, 6845, { { "Path", filePath } });
+        this->finalize();
     }
+}
+
+int ches::Interpreter::toInt(IndexPair indexes) {
+    int result = 0;
+
+    int begin = indexes.first;
+    int size = indexes.second;
+
+    int digit = size * 8;
+    bool digitStarted = false;
+
+    for(int i = 0; i < size; i++) {
+        for(int j = 0; j < 8; j++) {
+            bool bit = (BYTE_AT(begin + i) >> 8 - j - 1) & 1;
+            digit--;
+
+            if(!digitStarted) {
+                if(bit == 1) {
+                    digitStarted = true;
+                } else {
+                    continue;
+                }
+            }
+
+            result += (bit ? std::pow(2, digit) : 0);
+        }
+    }
+
+    return result;
 }
 
 void ches::Interpreter::runProgram() {
     try {
-        // スタックの初期化
-
-        this->stack.push(Stack());
-        this->opeStack.push(Stack());
-
-        // // エントリポイントの呼び出し
+        // エントリポイントの呼び出し
 
         Block entryBlock;
-        ByteVec entryBlockName = { 0x63, 0x6F, 0x6E, 0x73, 0x74 };
+        Byte entryBlockName[] = { 0x63, 0x6F, 0x6E, 0x73, 0x74 };
+        int entryBlockNameSize = 5;
 
         // エントリポイントのラベルを取得
         for(auto [ id, block ] : this->blockList)
-            if(block.name == entryBlockName)
+            if(block.compareName(entryBlockName))
                 entryBlock = block;
 
         if(entryBlock.empty()) {
             Console::writeln("Entry point was not found.");
-            Console::writeln("( name: " + BYTE_TO_HEX_SEP(entryBlockName, " ") + " )");
+            Console::writeln("( name: " + BYTES_TO_HEX_SEP(5, entryBlock.name, " ") + " )");
             return;
         }
 
@@ -177,7 +242,7 @@ void ches::Interpreter::runProgram() {
         Console::writeln("entryPoint: " + std::to_string(this->index));
         Console::writeln();
 
-        Console::writeln("magicNum: " + BYTE_TO_HEX_SEP(this->magicNum, " "));
+        // Console::writeln("magicNum: " + BYTES_TO_HEX_SEP(TO_BYTES((Byte[])MAGIC_NUM), " "));
         Console::writeln();
         Console::writeln();
 
@@ -192,18 +257,18 @@ void ches::Interpreter::runProgram() {
         while(this->index < this->idAreaIndex)
             this->runNextInst();
 
-        std::string hexStackTop = (this->stack.empty() || this->stack.top().empty()) ? "noelem" : BYTE_TO_HEX_SEP(STACK_TOP, " ");
+        std::string hexStackTop = (this->stack.empty()) ? "noelem" : BYTES_TO_HEX_SEP(STACK_TOP_SIZE, STACK_TOP, " ");
         Console::writeln("<end>\t\t\t\t" + hexStackTop);
 
     } catch(std::out_of_range ignored) {
         std::cout << "EXCEPTION" << std::endl;
     }
+
+    this->finalize();
 }
 
 void ches::Interpreter::runNextInst() {
     try {
-        // ByteVec bytes = {(Byte)-2};
-        // Console::writeln(BYTES_TO_INT(bytes));
         if(this->index < HEADER_LEN || this->index >= this->idAreaIndex) {
             Console::writeln("Index is invalid. / runNextInst()");
             return;
@@ -216,116 +281,156 @@ void ches::Interpreter::runNextInst() {
         this->index++;
 
         std::string hexOpcode = instTypeMap.count(opcode) == 1 ? instTypeMap.at(opcode) : "OOR";
-        std::string hexStackTop = (this->stack.empty() || this->stack.top().empty()) ? "noelem" : BYTE_TO_HEX_SEP(STACK_TOP, " ");
-        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTE_TO_HEX(ByteVec { opcode }) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t" + std::to_string(OPESTACK_LEN) + "\t");
+        std::string hexStackTop = this->stack.empty() ? "noelem" : BYTES_TO_HEX_SEP(STACK_TOP_SIZE, STACK_TOP, " ");
+        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTES_TO_HEX(STACK_TOP_SIZE, TO_BYTES(opcode)) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t" + std::to_string(OPESTACK_LEN) + "\t");
 
         switch(opcode) {
             case IT_InstDiv: {
                 // 表示調節のために改行
                 Console::writeln();
                 Console::writeln();
-                Console::log(LogType_Error, 7316, { { "Index", std::to_string(this->index - 1) } }, true);
-            } break;
-
-            case IT_Equal: {
-                ByteVec value1 = OPESTACK_TOP;
-                OPESTACK_STORE();
-
-                ByteVec value2 = OPESTACK_TOP;
-                OPESTACK_STORE();
-
-                STACK_PUSH(value1 == value2 ? ByteVec { 0x01 } : ByteVec { 0x00 });
-            } break;
-
-            case IT_Jump: {
-                ByteVec indexVec = this->copyBytesUntilDiv(this->index);
-
-                Console::write("<");
-                Console::write(BYTES_TO_INT(indexVec));
-                Console::write("> ");
-
-                if(indexVec.size() == 16 && this->blockList.count(indexVec) == 1) {
-                    Block block = this->blockList.at(indexVec);
-                    this->index = block.beginIndex;
-                } else {
-                    this->index += BYTES_TO_INT(indexVec);
-
-                    if(this->index + 1 > this->idAreaIndex || this->index + 1 < HEADER_LEN) {
-                        // 表示調節のために改行
-                        Console::writeln();
-                        Console::writeln();
-                        Console::log(LogType_Error, 2947, { { "Index", std::to_string(this->index + 1) } }, true);
-                    }
-                }
-            } break;
-
-            case IT_JumpIf: {
-                ByteVec value = OPESTACK_TOP;
-                OPESTACK_STORE();
-
-                ByteVec indexVec = this->copyBytesUntilDiv(this->index);
-
-                if(!BYTES_TO_BOOL(value))
-                    break;
-
-                if(indexVec.size() == 16 && this->blockList.count(indexVec) == 1) {
-                    Block block = this->blockList.at(indexVec);
-                    this->index = block.beginIndex;
-                } else {
-                    Console::write("<");
-                    Console::write(BYTES_TO_INT(indexVec));
-                    Console::write("> ");
-
-                    this->index += BYTES_TO_INT(indexVec);
-
-                    if(this->index + 1 > this->idAreaIndex || this->index + 1 < HEADER_LEN) {
-                        // 表示調節のために改行
-                        Console::writeln();
-                        Console::writeln();
-                        Console::log(LogType_Error, 2947, { { "Index", std::to_string(this->index + 1) } }, true);
-                    }
-                }
+                Console::log(LogType_Error, 7316, { { "Index", std::to_string(this->index - 1) } });
+                this->finalize();
             } break;
 
             case IT_Load: {
-                ByteVec countBytes = this->copyBytesUntilDiv(this->index);
-                int count = BYTES_TO_INT(countBytes);
+                int count = BYTE_INDEXES_TO_INT(GET_DIV_INDEX(this->index));
+                this->stack.loadTo(count, this->opeStack);
 
-                Stack stackCache;
+                // for(int i = 0; i < count; i++) {
+                //     if(STACK_EMPTY()) {
+                //         // 表示調節のために改行
+                //         Console::writeln();
+                //         Console::writeln();
+                //         Console::log(LogType_Error, 7317, { { "Index", std::to_string(this->index - 1) } });
+                //         this->finalize();
+                //     }
 
-                for(int i = 0; i < count; i++) {
-                    if(STACK_EMPTY) {
-                        // 表示調節のために改行
-                        Console::writeln();
-                        Console::writeln();
-                        Console::log(LogType_Error, 7317, { { "Index", std::to_string(this->index - 1) } }, true);
-                    }
+                //     stackCache.push(STACK_TOP);
+                //     OPESTACK_LOAD();
+                //     STACK_POP();
+                // }
 
-                    stackCache.push(STACK_TOP);
-                    OPESTACK_LOAD();
-                    STACK_POP();
-                }
-
-                while(!stackCache.empty()) {
-                    STACK_PUSH(stackCache.top());
-                    stackCache.pop();
-                }
+                // while(!stackCache.empty()) {
+                //     STACK_PUSH(stackCache.top());
+                //     stackCache.pop();
+                // }
             } break;
 
             case IT_Push: {
                 // 範囲チェック入れる？
-                DataSizeType size = static_cast<DataSizeType>(BYTE);
+                Byte size = BYTE;
                 this->index++;
 
-                ByteVec value = this->copyBytesUntilDiv(this->index);
-
-                STACK_PUSH(value);
+                std::pair<int, int> indexes = GET_DIV_INDEX(this->index);
+                auto b = BYTES_AT(indexes);
+                STACK_PUSH(size, b);
             } break;
+
 
             case IT_Pop: {
                 STACK_POP();
             } break;
         }
+
+        /*switch(opcode) {
+            case IT_InstDiv: {
+                // 表示調節のために改行
+                Console::writeln();
+                Console::writeln();
+                Console::log(LogType_Error, 7316, { { "Index", std::to_string(this->index - 1) } });
+                this->finalize();
+            } break;
+
+            case IT_Add: {
+                Byte size = STACK_TOP_SIZE;
+
+                Byte *value1 = OPESTACK_TOP;
+                OPESTACK_STORE();
+
+                Byte *value2 = OPESTACK_TOP;
+                OPESTACK_STORE();
+
+                int result = BYTES_TO_INT(STACK_TOP_SIZE, value1) + BYTES_TO_INT(STACK_TOP_SIZE, value2);
+
+                STACK_PUSH(size, TO_BYTES(result));
+            } break;
+
+            case IT_Equal: {
+                Byte size = STACK_TOP_SIZE;
+
+                Byte *value1 = OPESTACK_TOP;
+                OPESTACK_STORE();
+
+                Byte *value2 = OPESTACK_TOP;
+                OPESTACK_STORE();
+
+                STACK_PUSH(size, TO_BYTES(value1 == value2));
+            } break;
+
+            case IT_Jump: {
+                IndexPair indexPair = GET_DIV_INDEX(this->index);
+                Byte *indexPtr = BYTES_AT(indexPair);
+
+                Console::write("<");
+                Console::write(BYTE_INDEXES_TO_INT(indexPair));
+                Console::write("> ");
+
+                if(indexPair.second == 16 && this->blockList.count(indexPtr) == 1) {
+                    Block block = this->blockList.at(indexPtr);
+                    this->index = block.beginIndex;
+                } else {
+                    this->index += BYTE_INDEXES_TO_INT(indexPair);
+
+                    if(this->index + 1 > this->idAreaIndex || this->index + 1 < HEADER_LEN) {
+                        // 表示調節のために改行
+                        Console::writeln();
+                        Console::writeln();
+                        Console::log(LogType_Error, 2947, { { "Index", std::to_string(this->index + 1) } });
+                        this->finalize();
+                    }
+                }
+            } break;
+
+            case IT_JumpIf: {
+                Byte *value = OPESTACK_TOP;
+                OPESTACK_STORE();
+
+                IndexPair indexPair = GET_DIV_INDEX(this->index);
+                Byte *indexPtr = BYTES_AT(indexPair);
+
+                if(!BYTES_TO_BOOL(value))
+                    break;
+
+                if(indexPair.second == 16 && this->blockList.count(indexPtr) == 1) {
+                    Block block = this->blockList.at(indexPtr);
+                    this->index = block.beginIndex;
+                } else {
+                    Console::write("<");
+                    Console::write(BYTE_INDEXES_TO_INT(indexPair));
+                    Console::write("> ");
+
+                    this->index += BYTE_INDEXES_TO_INT(indexPair);
+
+                    if(this->index + 1 > this->idAreaIndex || this->index + 1 < HEADER_LEN) {
+                        // 表示調節のために改行
+                        Console::writeln();
+                        Console::writeln();
+                        Console::log(LogType_Error, 2947, { { "Index", std::to_string(this->index + 1) } });
+                        this->finalize();
+                    }
+                }
+            } break;
+
+            default: {
+                // 無効な命令なのでエラー
+                // 表示調節のために改行
+                Console::writeln();
+                Console::writeln();
+                Console::log(LogType_Error, 7316, { { "Index", std::to_string(this->index - 1) } });
+                this->finalize();
+            } break;
+        }*/
 
         /* 旧コード
         switch(opcode) {
@@ -438,21 +543,26 @@ void ches::Interpreter::runNextInst() {
         }
         */
 
-        ByteVec inst;
+        int size = this->index - opcodeIndex;
 
-        // インデックスはINST_DIVの直前に合わせるようにすること
+        // インデックスをINST_DIVの直前に合わせる
         this->index++;
 
-        for(int i = opcodeIndex; i < this->index - 1; i++)
-            inst.push_back(BYTE_AT(i));
+        Byte* inst = (Byte*)malloc(sizeof(Byte) * size);
 
-        std::string hexInst = BYTE_TO_HEX_SEP(inst, " ");
+        for(int i = 0; i < size; i++)
+            inst[i] = BYTE_AT(i);
+
+        std::string hexInst = BYTES_TO_HEX_SEP(size, inst, " ");
         Console::writeln((hexInst == "" ? "[nobytes]" : hexInst));
+
+        free(inst);
 
     } catch(std::out_of_range ignored) {
         // 表示調節のために改行
         Console::writeln();
         Console::writeln();
-        Console::log(LogType_Error, 0, { { "At", "Interpreter::runNextInst()" } }, true);
+        Console::log(LogType_Error, 0, { { "At", "Interpreter::runNextInst()" } });
+        this->finalize();
     }
 }
