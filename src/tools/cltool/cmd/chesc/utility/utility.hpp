@@ -740,7 +740,7 @@ ches::InstList ches::InstConv::toInstList_forDebugging() {
     InstList result;
 
     result.push_back(INST_PUSH(4, 12345));
-    result.push_back(INST_PUSH(4, -10000000000));
+    result.push_back(INST_PUSH(4, -1000));
     result.push_back(INST_LOAD(2));
     result.push_back(INST(IT_Add));
     result.push_back(INST(IT_Pop));

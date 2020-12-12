@@ -624,7 +624,7 @@ namespace ches {
         static ByteSeq toHeaderBytes(int bodyByteSize) {
             ByteSeq result;
 
-            ByteSeq magicNum = MAGIC_NUM_SEQ;
+            ByteSeq magicNum = MAGIC_NUM;
 
             ByteSeq idAreaIndex = ByteSeq(HEADER_LEN + bodyByteSize).escape();
             idAreaIndex.push_back(IT_InstDiv);

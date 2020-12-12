@@ -1,6 +1,9 @@
 #pragma once
 
 
+void safe_free(void *value);
+
+
 namespace ches {
     typedef unsigned char       Byte;
     typedef std::vector<Byte>   ByteVec;

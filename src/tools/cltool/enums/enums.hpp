@@ -5,3 +5,9 @@
 #define MAGIC_NUM_LEN   (8)
 
 #include "enums.cpp"
+
+
+void safe_free(void *value) {
+    free(value);
+    value = nullptr;
+}

@@ -31,7 +31,7 @@
 
 #define OPESTACK_LEN        (this->opeStack.size())
 #define OPESTACK_LOAD()     this->opeStack.push(STACK_TOP);
-#define OPESTACK_STORE()    this->opeStack.pop();
+#define OPESTACK_UNLOAD()    this->opeStack.pop();
 #define OPESTACK_TOP        (this->opeStack.top())
 
 #define L_AT(lineIndex)                     (lines.at(lineIndex))
@@ -80,7 +80,8 @@ ches::Interpreter::Interpreter(std::string filePath) {
 }
 
 ches::Byte* ches::Interpreter::getBytes(IndexPair indexPair) {
-    Byte *result = (Byte*)malloc(sizeof(Byte) * indexPair.second);
+    int size = sizeof(Byte) * indexPair.second;
+    Byte *result = (Byte*)malloc(size);
 
     for(int i = 0; i < indexPair.second; i++)
         result[i] = BYTE_AT(indexPair.first + i);
@@ -110,7 +111,7 @@ IndexPair ches::Interpreter::getBytesLenUntilDiv(int &indexer) {
 
 void ches::Interpreter::finalize() {
     this->stack.clear();
-    free(this->bytes);
+    safe_free(this->bytes);
     exit(-1);
 }
 
@@ -282,7 +283,7 @@ void ches::Interpreter::runNextInst() {
 
         std::string hexOpcode = instTypeMap.count(opcode) == 1 ? instTypeMap.at(opcode) : "OOR";
         std::string hexStackTop = this->stack.empty() ? "noelem" : BYTES_TO_HEX_SEP(STACK_TOP_SIZE, STACK_TOP, " ");
-        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTES_TO_HEX(STACK_TOP_SIZE, TO_BYTES(opcode)) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t" + std::to_string(OPESTACK_LEN) + "\t");
+        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTES_TO_HEX(1, TO_BYTES(opcode)) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t" + std::to_string(OPESTACK_LEN) + "\t");
 
         switch(opcode) {
             case IT_InstDiv: {
@@ -293,28 +294,22 @@ void ches::Interpreter::runNextInst() {
                 this->finalize();
             } break;
 
+            case IT_Add: {
+                Byte size = STACK_TOP_SIZE;
+
+                Byte *value1 = OPESTACK_TOP;
+                OPESTACK_UNLOAD();
+
+                Byte *value2 = OPESTACK_TOP;
+                OPESTACK_UNLOAD();
+
+                int result = BYTES_TO_INT(STACK_TOP_SIZE, value1) + BYTES_TO_INT(STACK_TOP_SIZE, value2);
+                STACK_PUSH(size, TO_BYTES(result));
+            } break;
+
             case IT_Load: {
                 int count = BYTE_INDEXES_TO_INT(GET_DIV_INDEX(this->index));
                 this->stack.loadTo(count, this->opeStack);
-
-                // for(int i = 0; i < count; i++) {
-                //     if(STACK_EMPTY()) {
-                //         // 表示調節のために改行
-                //         Console::writeln();
-                //         Console::writeln();
-                //         Console::log(LogType_Error, 7317, { { "Index", std::to_string(this->index - 1) } });
-                //         this->finalize();
-                //     }
-
-                //     stackCache.push(STACK_TOP);
-                //     OPESTACK_LOAD();
-                //     STACK_POP();
-                // }
-
-                // while(!stackCache.empty()) {
-                //     STACK_PUSH(stackCache.top());
-                //     stackCache.pop();
-                // }
             } break;
 
             case IT_Push: {
@@ -323,10 +318,8 @@ void ches::Interpreter::runNextInst() {
                 this->index++;
 
                 std::pair<int, int> indexes = GET_DIV_INDEX(this->index);
-                auto b = BYTES_AT(indexes);
-                STACK_PUSH(size, b);
+                STACK_PUSH(size, BYTES_AT(indexes));
             } break;
-
 
             case IT_Pop: {
                 STACK_POP();
@@ -346,10 +339,10 @@ void ches::Interpreter::runNextInst() {
                 Byte size = STACK_TOP_SIZE;
 
                 Byte *value1 = OPESTACK_TOP;
-                OPESTACK_STORE();
+                OPESTACK_UNLOAD();
 
                 Byte *value2 = OPESTACK_TOP;
-                OPESTACK_STORE();
+                OPESTACK_UNLOAD();
 
                 int result = BYTES_TO_INT(STACK_TOP_SIZE, value1) + BYTES_TO_INT(STACK_TOP_SIZE, value2);
 
@@ -360,10 +353,10 @@ void ches::Interpreter::runNextInst() {
                 Byte size = STACK_TOP_SIZE;
 
                 Byte *value1 = OPESTACK_TOP;
-                OPESTACK_STORE();
+                OPESTACK_UNLOAD();
 
                 Byte *value2 = OPESTACK_TOP;
-                OPESTACK_STORE();
+                OPESTACK_UNLOAD();
 
                 STACK_PUSH(size, TO_BYTES(value1 == value2));
             } break;
@@ -394,7 +387,7 @@ void ches::Interpreter::runNextInst() {
 
             case IT_JumpIf: {
                 Byte *value = OPESTACK_TOP;
-                OPESTACK_STORE();
+                OPESTACK_UNLOAD();
 
                 IndexPair indexPair = GET_DIV_INDEX(this->index);
                 Byte *indexPtr = BYTES_AT(indexPair);
@@ -556,7 +549,7 @@ void ches::Interpreter::runNextInst() {
         std::string hexInst = BYTES_TO_HEX_SEP(size, inst, " ");
         Console::writeln((hexInst == "" ? "[nobytes]" : hexInst));
 
-        free(inst);
+        safe_free(inst);
 
     } catch(std::out_of_range ignored) {
         // 表示調節のために改行

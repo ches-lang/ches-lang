@@ -31,20 +31,26 @@ namespace ches {
 
         // プログラム終了前に必ず呼び出すこと
         inline void clear() {
-            for(int i = 0; i < this->size(); i++) {
-                std::cout << this->data[i];
-                this->dataSizes[i] = 0;
-                free(this->data[i]);
-                Console::writeln("aaaaaop");
-            }
+            for(int i = 0; i < this->size(); i++)
+                this->pop();
         }
 
         inline bool empty() {
             return this->size() == 0;
         }
 
-        // free() しなくていい？
         inline void pop() {
+            if(this->size() == 0) {
+                Console::write(" <err:pop> ");
+                return;
+            }
+
+            int index = this->size() - 1;
+
+            safe_free(this->data[index]);
+            this->data[index] = nullptr;
+            this->dataSizes[index] = 0;
+
             this->length--;
         }
 
@@ -67,7 +73,14 @@ namespace ches {
 
             for(int i = 0; i < size; i++) {
                 int index = begin + i;
-                stack.push(this->dataSizes[index], this->data[index]);
+                int valueSize = this->dataSizes[index];
+                Byte *value = (Byte*)malloc(std::pow(valueSize, sizeof(Byte)));
+
+                // ロードする値はコピーしてから使用する
+                for(int i = 0; i < valueSize; i++)
+                    value[i] = this->data[index][i];
+
+                stack.push(valueSize, value);
             }
         }
 
@@ -76,10 +89,20 @@ namespace ches {
         }
 
         inline Byte* top() {
+            if(this->size() == 0) {
+                Console::write(" <err:top> ");
+                return nullptr;
+            }
+
             return this->data[this->size() - 1];
         }
 
         inline Byte topSize() {
+            if(this->size() == 0) {
+                Console::write(" <err:top> ");
+                return 0;
+            }
+
             return this->dataSizes[this->size() - 1];
         }
     };
@@ -180,8 +203,17 @@ namespace ches {
         static std::string toHexString(size_t size, Byte *value, std::string separator = "") {
             std::string result;
             int index = 0;
+            int fillSize = 0;
 
-            for(; index < size; index++) {
+            // for(int i = size - 1; i >= 0; i--) {
+            //     if(value[size] == 0) {
+            //         fillSize++;
+            //     } else {
+            //         break;
+            //     }
+            // }
+
+            for(; index < size - fillSize; index++) {
                 std::stringstream ss;
                 ss << std::hex << (int)value[index];
                 result += ((int)value[index] < 16 ? "0" : "") + ss.str() + separator;
