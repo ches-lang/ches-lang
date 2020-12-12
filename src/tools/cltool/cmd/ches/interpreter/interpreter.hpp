@@ -184,6 +184,25 @@ void ches::Interpreter::loadCompiledFile(std::string filePath) {
     }
 }
 
+void ches::Interpreter::printDetails() {
+    std::cout << std::endl;
+
+    int idAreaLen = this->bytesLen - this->idAreaIndex;
+
+    std::cout << "sumBytesLen: " << BYTE_LEN << std::endl;
+    std::cout << "headerLen: " << HEADER_LEN << " (0~" << HEADER_LEN - 1 << ")" << std::endl;
+    std::cout << "idAreaLen: " << idAreaLen << " (" << this->idAreaIndex << "~" << this->bytesLen - 1 << ")" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "startIndex: " << this->index << std::endl;
+    std::cout << std::endl;
+
+    Byte magicNum[] = MAGIC_NUM;
+
+    std::cout << "magicNum: " << BYTES_TO_HEX_SEP(MAGIC_NUM_LEN, TO_BYTES(magicNum), " ") << std::endl;
+    std::cout << std::endl;
+}
+
 int ches::Interpreter::toInt(IndexPair indexes) {
     int result = 0;
 
@@ -234,17 +253,7 @@ void ches::Interpreter::runProgram() {
 
         this->index = entryBlock.beginIndex;
 
-        Console::writeln();
-        Console::writeln("byteLen: " + std::to_string(BYTE_LEN));
-        Console::writeln("headerLen: " + std::to_string(HEADER_LEN));
-        Console::writeln();
-
-        Console::writeln("idAreaIndex: " + std::to_string(this->idAreaIndex));
-        Console::writeln("entryPoint: " + std::to_string(this->index));
-        Console::writeln();
-
-        // Console::writeln("magicNum: " + BYTES_TO_HEX_SEP(TO_BYTES((Byte[])MAGIC_NUM), " "));
-        Console::writeln();
+        this->printDetails();
         Console::writeln();
 
         if(this->index < HEADER_LEN || this->index >= this->idAreaIndex) {
@@ -252,7 +261,7 @@ void ches::Interpreter::runProgram() {
             return;
         }
 
-        Console::writeln("index\tbyte\topcode\t\tstacktop\toslen\tinst (raw)");
+        Console::writeln("index\tbyte\topcode\toslen\tstacktop\trawinst");
         Console::writeln();
 
         while(this->index < this->idAreaIndex)
@@ -282,8 +291,8 @@ void ches::Interpreter::runNextInst() {
         this->index++;
 
         std::string hexOpcode = instTypeMap.count(opcode) == 1 ? instTypeMap.at(opcode) : "OOR";
-        std::string hexStackTop = this->stack.empty() ? "noelem" : BYTES_TO_HEX_SEP(STACK_TOP_SIZE, STACK_TOP, " ");
-        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTES_TO_HEX(1, TO_BYTES(opcode)) + "\t" + hexOpcode + "\t\t" + hexStackTop + "\t\t" + std::to_string(OPESTACK_LEN) + "\t");
+        std::string hexStackTop = this->stack.empty() ? "noelem\t" : BYTES_TO_HEX_SEP(STACK_TOP_SIZE, STACK_TOP, " ");
+        Console::write(std::to_string(this->index + 1) + "\t0x" + BYTES_TO_HEX(1, TO_BYTES(opcode)) + "\t" + hexOpcode + "\t" + std::to_string(OPESTACK_LEN) + "\t" + hexStackTop + "\t");
 
         switch(opcode) {
             case IT_InstDiv: {

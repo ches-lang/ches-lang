@@ -139,6 +139,8 @@ namespace ches {
 
         void loadCompiledFile(std::string filePath);
 
+        void printDetails();
+
         void runNextInst();
 
         static Byte* toBytes(bool value) {
@@ -255,26 +257,5 @@ namespace ches {
         }
 
         int toInt(IndexPair indexes);
-
-        // static int toInt(Byte *value) {
-        //     int result = 0;
-        //     int index = 0;
-        //     int valueLen = BYTE_PTR_LEN(value);
-
-        //     int digit = 0;
-
-        //     for(int i = 0; i < valueLen; i++) {
-        //         for(int j = 0; j < 8; j++) {
-        //             bool bit = (value[i] >> j)&1;
-        //             result += (bit ? std::pow(2, digit) : 0);
-        //             digit++;
-        //         }
-        //     }
-
-        //     if(((result >> 31) & 1) == 1)
-        //         result = (~result + 1) * -1;
-
-        //     return result;
-        // }
     };
 }
