@@ -1,13 +1,21 @@
-# Contact me
+# 連絡先
 
-言語の問題を報告するには [こちら](https://github.com/Garnet3106/chestnut/issues/)。
+## GitHub Issues
 
-その他の理由で連絡する場合：
+Chestnutに関する問題報告は [こちら](https://github.com/Garnet3106/chestnut/issues/) から。
 
-- Email [info@gant.work](mailto:info@gant.work)
-- Twitter DM [@Garnet3106](https://twitter.com/Garnet3106/)
-- Discord DM [Garnet#9502](http://discord.com/)
+## その他
+
+質問などはこちらから。
+
+- Email \*1 ... [info@gant.work](mailto:info@gant.work)
+- Twitter ... [@Garnet3106](https://twitter.com/Garnet3106/)
+- Discord \*2 ... [Garnet#9502](http://discord.com/)
+
+\*1 返信が遅くなってしまう場合があります。
+<br>
+\*2 フレンド申請可。
 
 ---
 
-Copyright © Garnet 2020 All rights reserved.
+Copyright © 2020 Garnet3106 All rights reserved.

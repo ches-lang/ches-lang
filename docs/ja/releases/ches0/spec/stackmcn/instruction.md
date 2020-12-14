@@ -21,3 +21,7 @@
 ||load|演算スタックにプッシュ||
 ||ret|ブロック抜け||
 ||syscall|システム命令||
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.

@@ -54,3 +54,7 @@ byt num2 = (byt)10  // エラーは出ないが型変換は不要
 // エラー例
 (byt)500  // overflow error
 ```
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.

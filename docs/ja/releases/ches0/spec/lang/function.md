@@ -19,3 +19,7 @@ end
 ## アクセス修飾子
 
 [クラス > メンバ > アクセス修飾子](./class.md) を参照。
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.

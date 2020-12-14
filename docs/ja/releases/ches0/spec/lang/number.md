@@ -18,3 +18,7 @@
 ## 型変換
 
 [型変換](./cast.md) を参照。
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.

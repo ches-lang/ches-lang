@@ -57,3 +57,7 @@ end
 メンバ名の前に `.` (ピリオド) を置いて表す
 
 (例: `int .num = 10`)
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.

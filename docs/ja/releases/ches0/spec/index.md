@@ -1,4 +1,4 @@
-# Ches0 仕様書
+# Ches 0 言語仕様書
 
 ## 概要
 
@@ -10,7 +10,7 @@ Ches0は、Chestnutで最初のリリースである。
 
 Chestnutを使用する用途は問わない。
 
-開発規模や分野に関わらず、広く汎用的に利用できる言語をめざす。
+開発規模や分野に関わらず、広く汎用的に利用できる言語を目指す。
 
 ## 方針
 
@@ -37,7 +37,7 @@ Chestnutを使用する用途は問わない。
 
 ## 各ページ
 
-- [言語](./lang/summary.md)
+- [言語](./lang/index.md)
 
     - [型変換 (キャスト)](./lang/cast.md)
     - [クラス](./lang/class.md)
@@ -45,6 +45,6 @@ Chestnutを使用する用途は問わない。
     - [数値](./lang/number.md)
     - [変数](./lang/variable.md)
 
-- [スタックマシン](./stackmcn/summary.md)
+- [スタックマシン](./stackmcn/index.md)
 
     - [命令](./stackmcn/instruction.md)
