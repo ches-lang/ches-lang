@@ -48,3 +48,7 @@ Chestnutを使用する用途は問わない。
 - [スタックマシン](./stackmcn/index.md)
 
     - [命令](./stackmcn/instruction.md)
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.
