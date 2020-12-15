@@ -1,11 +1,13 @@
-# Chestnutドキュメント
+# ドキュメント (日本語版)
+
+[ドキュメント](../index.md) > [日本語](./index.md)
 
 ## リンク
 
-- [リリース](/docs/ja/releases/index.md)
-- [ライセンス](/docs/ja/license.md)
-- [FAQ](/docs/ja/faq.md)
-- [コンタクト](/docs/ja/contact.md)
+- [リリース](./releases/index.md)
+- [ライセンス](./license/index.md)
+- [FAQ](./faq/index.md)
+- [連絡先](./contact/index.md)
 
 ---
 

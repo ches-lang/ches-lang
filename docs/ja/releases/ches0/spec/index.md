@@ -1,4 +1,6 @@
-# Ches 0 言語仕様書
+# 言語仕様書 (Ches 0)
+
+[ドキュメント](../../../../index.md) > [日本語](../../../index.md) > [リリース](../../index.md) > [Ches 0](../index.md) > [言語仕様書](./index.md)
 
 ## 概要
 
@@ -39,15 +41,20 @@ Chestnutを使用する用途は問わない。
 
 - [言語](./lang/index.md)
 
-    - [型変換 (キャスト)](./lang/cast.md)
-    - [クラス](./lang/class.md)
-    - [関数](./lang/function.md)
-    - [数値](./lang/number.md)
-    - [変数](./lang/variable.md)
+    - [型変換 (キャスト)](./lang/cast/index.md)
+    - [クラス](./lang/class/index.md)
+    - [関数](./lang/function/index.md)
+    - [数値](./lang/number/index.md)
+    - [変数](./lang/variable/index.md)
 
-- [スタックマシン](./stackmcn/index.md)
+- [コンパイラ](./compiler/index.md)
 
-    - [命令](./stackmcn/instruction.md)
+    - [抽象構文木 (AST)](./compiler/ast/index.md)
+
+- [仮想マシン (CVM)](./cvm/index.md)
+
+    - [バイトコード](./cvm/bytecode/index.md)
+    - [命令](./cvm/instruction/index.md)
 
 ---
 

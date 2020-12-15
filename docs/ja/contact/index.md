@@ -1,5 +1,7 @@
 # 連絡先
 
+[ドキュメント](../../index.md) > [日本語](../index.md) > [連絡先](./index.md)
+
 ## GitHub Issues
 
 Chestnutに関する問題報告は [こちら](https://github.com/Garnet3106/chestnut/issues/) から。

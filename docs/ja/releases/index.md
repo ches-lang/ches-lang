@@ -1,4 +1,6 @@
-# Chestnutリリース
+# リリース
+
+[ドキュメント](../../index.md) > [日本語](../index.md) > [リリース](./index.md)
 
 ## バージョン管理
 
@@ -10,9 +12,9 @@
 
 ## バージョン一覧
 
-- [Ches 0](../ches0/index.md)
-	- [Ches 0.0](../ches0.0/index.md)
-    	- [Ches 0.0.0](../ches0.0.0/index.md)
+- [Ches 0](./ches0/index.md)
+	- [Ches 0.0](./ches0.0/index.md)
+    	- [Ches 0.0.0](./ches0.0.0/index.md)
 
 ---
 
