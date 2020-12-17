@@ -79,12 +79,33 @@ ches::Interpreter::Interpreter(std::string filePath) {
     }
 }
 
+// 0が埋まる問題
 ches::Byte* ches::Interpreter::getBytes(IndexPair indexPair) {
     int size = sizeof(Byte) * indexPair.second;
     Byte *result = (Byte*)malloc(size);
+    int index = 0;
 
-    for(int i = 0; i < indexPair.second; i++)
-        result[i] = BYTE_AT(indexPair.first + i);
+    std::cout<<" <";
+
+    for(; index < indexPair.second; index++) {
+        if(BYTE_AT(index) == 0) {
+            result[index] = 0;
+        }
+    }
+
+    for(; index < indexPair.second; index++) {
+        std::cout<<(int)BYTE_AT(indexPair.first + index) << ",";
+        if(BYTE_AT(index) == 0) {
+            result[index] = 0;
+        } else {
+            break;
+        }
+        result[index] = BYTE_AT(indexPair.first + index);
+    }
+
+
+
+    std::cout<<"> ";
 
     return result;
 }

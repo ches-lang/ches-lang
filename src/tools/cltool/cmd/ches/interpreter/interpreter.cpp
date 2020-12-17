@@ -215,11 +215,16 @@ namespace ches {
             //     }
             // }
 
+            // std::cout<<" <";
+
             for(; index < size - fillSize; index++) {
                 std::stringstream ss;
                 ss << std::hex << (int)value[index];
+                // std::cout<<(int)value[index]<<" ";
                 result += ((int)value[index] < 16 ? "0" : "") + ss.str() + separator;
             }
+
+            // std::cout<<"> ";
 
             if(index > 0) {
                 for(int i = 0; i < separator.length(); i++)
