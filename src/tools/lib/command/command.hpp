@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -34,17 +35,23 @@ ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
         this->args.push_back(std::string(argv[i]));
 
     this->name = this->getCmdName(defaultCmdName);
-    this->options = this->getCmdOptions();
+    this->optMap = this->getCmdOptions();
 }
 
 void ches::Command::run() {
     std::cout << "name: " << this->name << std::endl;
     std::cout << "opts: ";
 
-    for(auto [ key, value ] : this->options)
+    for(auto [ key, value ] : this->optMap)
         std::cout << key << ":" << value << " ";
 
     std::cout << std::endl;
+
+    if(this->procMap.count(this->name) == 1) {
+        this->procMap.at(this->name)(this->optMap);
+    } else {
+        throw CommandError(CommandError_UnknownSubCommand);
+    }
 }
 
 std::string ches::Command::getCmdName(std::string defaultCmdName) {
@@ -65,8 +72,8 @@ std::string ches::Command::getCmdName(std::string defaultCmdName) {
 
 // spec: 基本的に無効なオプション引数は無視される
 // note: getCmdName()を呼び出した後に使用すること
-cmd_options ches::Command::getCmdOptions() {
-    cmd_options result;
+cmd_opt_map ches::Command::getCmdOptions() {
+    cmd_opt_map result;
     int beginIndex = this->usedDefaultName ? 0 : 1;
 
     for(int i = beginIndex; i < this->args.size(); i++) {
