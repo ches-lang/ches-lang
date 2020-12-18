@@ -15,7 +15,7 @@
 
 int main(int argc, char *argv[]) {
     try {
-        ches::Command cmd(argc, argv, "cmp", "i");
+        ches::Command cmd(argc, argv, "cmp");
         cmd.run();
     } catch(ches::CommandError excep) {
         // todo: Consoleを実装してから例外処理を改良する

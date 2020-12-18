@@ -43,7 +43,7 @@ namespace ches {
         Command();
 
         // excep: CommandError
-        Command(int argc, char* argv[], std::string defaultCmdName = "", std::string defaultOptName = "");
+        Command(int argc, char* argv[], std::string defaultCmdName = "");
 
         inline bool existsOptName(std::string optName) {
             return this->options.count(optName) == 1;
@@ -55,6 +55,6 @@ namespace ches {
     private:
         std::string getCmdName(std::string defaultCmdName);
 
-        cmd_options getCmdOptions(std::string defaultOptName);
+        cmd_options getCmdOptions();
     };
 }

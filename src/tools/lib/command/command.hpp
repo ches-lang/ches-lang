@@ -28,13 +28,13 @@ ches::CommandError::CommandError(CommandErrorType type) {
 
 ches::Command::Command() {}
 
-ches::Command::Command(int argc, char* argv[], std::string defaultCmdName, std::string defaultOptName) {
+ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
     // note: コマンド名 (最初の引数) をスキップ
     for(int i = 1; i < argc; i++)
         this->args.push_back(std::string(argv[i]));
 
     this->name = this->getCmdName(defaultCmdName);
-    this->options = this->getCmdOptions(defaultOptName);
+    this->options = this->getCmdOptions();
 }
 
 void ches::Command::run() {
@@ -60,7 +60,7 @@ std::string ches::Command::getCmdName(std::string defaultCmdName) {
 }
 
 // spec: 基本的に無効なオプション引数は無視される
-cmd_options ches::Command::getCmdOptions(std::string defaultOptName) {
+cmd_options ches::Command::getCmdOptions() {
     cmd_options result;
 
     for(int i = 0; i < this->args.size(); i++) {
@@ -78,12 +78,11 @@ cmd_options ches::Command::getCmdOptions(std::string defaultOptName) {
             throw CommandError(CommandError_DuplicatedOptionName);
 
         if(i + 1 < this->args.size()) {
-            std::string optArg = this->args.at(i + 1);
+            std::string nextArg = this->args.at(i + 1);
 
-            if(optArg.size() == 0 || optArg.at(0) != '-') {
-                result[optName] = optArg;
+            if(nextArg.size() == 0 || nextArg.at(0) != '-') {
+                optArg = nextArg;
                 i++;
-                continue;
             }
         }
 
