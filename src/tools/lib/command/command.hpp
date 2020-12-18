@@ -48,27 +48,33 @@ void ches::Command::run() {
 }
 
 std::string ches::Command::getCmdName(std::string defaultCmdName) {
-    if(args.size() == 0)
+    if(args.size() == 0) {
+        this->usedDefaultName = true;
         return defaultCmdName;
+    }
 
     std::string firstArg = args.at(0);
 
-    if(firstArg.size() >= 1 && firstArg.at(0) == '-')
+    if(firstArg.size() >= 1 && firstArg.at(0) == '-') {
+        this->usedDefaultName = true;
         return defaultCmdName;
+    }
 
     return firstArg;
 }
 
 // spec: 基本的に無効なオプション引数は無視される
+// note: getCmdName()を呼び出した後に使用すること
 cmd_options ches::Command::getCmdOptions() {
     cmd_options result;
+    int beginIndex = this->usedDefaultName ? 0 : 1;
 
-    for(int i = 0; i < this->args.size(); i++) {
+    for(int i = beginIndex; i < this->args.size(); i++) {
         std::string targetArg = this->args.at(i);
 
         // note: オプション名が "-" のみの場合も弾く
         if(targetArg.size() <= 1 || targetArg.at(0) != '-')
-            continue;
+            throw CommandError(CommandError_InvalidArgument);
 
         std::string optName = targetArg.substr(1);
         std::string optArg = "";

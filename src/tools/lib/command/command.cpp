@@ -18,7 +18,8 @@ typedef std::unordered_map<std::string, std::string>    cmd_options;
 
 namespace ches {
     enum CommandErrorType {
-        CommandError_DuplicatedOptionName
+        CommandError_DuplicatedOptionName,
+        CommandError_InvalidArgument
     };
 
 
@@ -36,9 +37,10 @@ namespace ches {
     class Command {
     public:
         std::vector<std::string> args;
-
         std::string name;
         cmd_options options;
+
+        bool usedDefaultName = false;
 
         Command();
 

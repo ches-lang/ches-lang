@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
         cmd.run();
     } catch(ches::CommandError excep) {
         // todo: Consoleを実装してから例外処理を改良する
-        std::cout << "command error" << std::endl;
+        std::cout << "command error (" << excep.type << ")" << std::endl;
     } catch(std::exception excep) {
         std::cout << "unknown error" << std::endl;
     }
