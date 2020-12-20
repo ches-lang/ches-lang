@@ -73,7 +73,7 @@ std::string ches::Command::getCmdName(std::string defaultCmdName) {
 // spec: 基本的に無効なオプション引数は無視される
 // note: getCmdName()を呼び出した後に使用すること
 cmd_opt_map ches::Command::getCmdOptions() {
-    cmd_opt_map result;
+    cmd_opt_map options;
     int beginIndex = this->usedDefaultName ? 0 : 1;
 
     for(int i = beginIndex; i < this->args.size(); i++) {
@@ -87,7 +87,7 @@ cmd_opt_map ches::Command::getCmdOptions() {
         std::string optArg = "";
 
         // note: ローカル変数を使っているのでexistsOptName()は使えない
-        if(result.count(optName) == 1)
+        if(options.count(optName) == 1)
             throw CommandError(CommandError_DuplicatedOptionName);
 
         if(i + 1 < this->args.size()) {
@@ -99,8 +99,8 @@ cmd_opt_map ches::Command::getCmdOptions() {
             }
         }
 
-        result[optName] = optArg;
+        options[optName] = optArg;
     }
 
-    return result;
+    return options;
 }

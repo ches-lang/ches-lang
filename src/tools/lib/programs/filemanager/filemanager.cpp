@@ -43,7 +43,18 @@ namespace ches {
         }
 
         // excep: FileError
-        static void readText(std::string filePath, std::string &content) {
+        static std::string readText(std::string filePath) {
+            std::vector<std::string> lines = FileManager::readTextLines(filePath);
+            std::string content = "";
+
+            for(int i = 0; i < lines.size(); i++)
+                content += lines.at(i) + "\n";
+
+            return content;
+        }
+
+        // excep: FileError
+        static std::vector<std::string> readTextLines(std::string filePath) {
             if(!FileManager::exists(filePath))
                 throw FileError(FileError_FileNotFound);
 
@@ -58,12 +69,14 @@ namespace ches {
             if(ifs.fail())
                 throw FileError(FileError_ReadFailed);
 
+            std::vector<std::string> content;
             std::string tmpLine;
 
             while(std::getline(ifs, tmpLine))
-                content += tmpLine + "\n";
+                content.push_back(tmpLine);
 
             ifs.close();
+            return content;
         }
     };
 }

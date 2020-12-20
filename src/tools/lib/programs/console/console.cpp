@@ -14,6 +14,9 @@
 
 
 namespace ches {
+    typedef std::unordered_map<int, std::string>  log_detail_map;
+
+
     enum LogType {
         LogType_Error,
         LogType_Warn,
@@ -33,7 +36,7 @@ namespace ches {
             Console::log(message + "\n");
         }
 
-        inline static void log(LogType type, int logNum, log_prop_map detailMap) {
+        inline static void log(LogType type, int logNum, log_detail_map detailMap) {
             std::string logMsg = ;
 
             Console::logln();
