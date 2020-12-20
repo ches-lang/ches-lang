@@ -13,7 +13,7 @@
 #pragma once
 
 #include <functional>
+#include <unordered_map>
 #include <vector>
 
-#include "../../../lib/programs/command/command.hpp"
-#include "./subcmd.cpp"
+#include "./langpack.cpp"

@@ -12,8 +12,9 @@
 
 #pragma once
 
-#include <functional>
-#include <vector>
+#include <iostream>
+#include <string>
 
-#include "../../../lib/programs/command/command.hpp"
-#include "./subcmd.cpp"
+#include "../langpack/langpack.hpp"
+
+#include "./console.cpp"

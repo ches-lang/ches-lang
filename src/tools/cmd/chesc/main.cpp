@@ -10,7 +10,11 @@
  */
 
 
-#include "../../lib/command/command.hpp"
+#include <iostream>
+
+#include "../../lib/programs/console/console.hpp"
+#include "../../lib/programs/command/command.hpp"
+
 #include "./subcmd/subcmd.hpp"
 
 

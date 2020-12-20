@@ -3,3 +3,4 @@
 /.vscode
 /bin
 .src/*
+src/tools/cmd/chesc/test.cpp
