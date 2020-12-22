@@ -21,5 +21,5 @@
 #include "./console.cpp"
 
 
-ches::Settings ches::Console::langPack;
+ches::LangPack ches::Console::langPack;
 std::string ches::Console::langCode = "en";

@@ -13,9 +13,9 @@
 #pragma once
 
 
-typedef std::unordered_map<std::string, std::string>    cmd_opt_map;
-typedef std::function<void(cmd_opt_map)>                cmd_proc;
-typedef std::unordered_map<std::string, cmd_proc>       cmd_proc_map;
+typedef std::unordered_map<std::string, std::string>        cmd_opt_map;
+typedef std::function<void(cmd_opt_map&, ches::Settings&)>  cmd_proc;
+typedef std::unordered_map<std::string, cmd_proc>           cmd_proc_map;
 
 
 namespace ches {
@@ -59,7 +59,7 @@ namespace ches {
         }
 
         // excep: CommandError
-        void run();
+        void run(Settings settings);
 
     private:
         std::string getCmdName(std::string defaultCmdName);

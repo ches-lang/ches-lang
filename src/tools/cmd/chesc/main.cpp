@@ -22,7 +22,14 @@ int main(int argc, char *argv[]) {
     try {
         ches::Command cmd(argc, argv, "cmp");
         ches::ChesSubCommands::addAllCommands(cmd);
-        cmd.run();
+
+        ches::Settings settings;
+        settings.load("./src/tools/cmd/chesc/data/settings.cset");
+
+        std::string langPropKey = "lang";
+        ches::Console::setLangCode(settings.getValue(langPropKey));
+
+        cmd.run(settings);
     } catch(ches::CommandError excep) {
         // todo: Consoleを実装してから例外処理を改良する
         std::cout << "command error (" << excep.type << ")" << std::endl;

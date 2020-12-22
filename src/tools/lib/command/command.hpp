@@ -38,17 +38,9 @@ ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
     this->optMap = this->getCmdOptions();
 }
 
-void ches::Command::run() {
-    std::cout << "name: " << this->name << std::endl;
-    std::cout << "opts: ";
-
-    for(auto [ key, value ] : this->optMap)
-        std::cout << key << ":" << value << " ";
-
-    std::cout << std::endl;
-
+void ches::Command::run(Settings settings) {
     if(this->procMap.count(this->name) == 1) {
-        this->procMap.at(this->name)(this->optMap);
+        this->procMap.at(this->name)(this->optMap, settings);
     } else {
         throw CommandError(CommandError_UnknownSubCommand);
     }

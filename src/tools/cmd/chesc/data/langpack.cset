@@ -1,11 +1,19 @@
+# errors
+
 error_0_en:unknown error
 error_0_ja:不明なエラー
+
+# warnings
 
 warn_0_en:unknown warning
 warn_0_ja:不明な警告
 
+# notes
+
 note_0_en:unknown note
 note_0_ja:不明なノート
+
+# phrases
 
 char_en:char
 char_ja:文字
@@ -15,3 +23,8 @@ index_ja:インデックス
 
 number_en:number
 number_ja:数値
+
+# messages
+
+msg_terminate_en:Terminated with the log.
+msg_terminate_ja:ログとともに終了しました。

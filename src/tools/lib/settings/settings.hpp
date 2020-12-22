@@ -65,15 +65,3 @@ void ches::Settings::load(std::string filePath) {
 
     this->loaded = true;
 }
-
-bool ches::Settings::existsKey(std::string propKey) {
-    return this->propMap.count(propKey) == 1;
-}
-
-// spec: キーが見つからない場合は空文字を返す
-std::string ches::Settings::getValue(std::string propKey) {
-    if(!this->existsKey(propKey))
-        return "";
-
-    return this->propMap.at(propKey);
-}
