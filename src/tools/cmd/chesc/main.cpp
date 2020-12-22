@@ -12,8 +12,8 @@
 
 #include <iostream>
 
-#include "../../lib/programs/console/console.hpp"
-#include "../../lib/programs/command/command.hpp"
+#include "../../lib/console/console.hpp"
+#include "../../lib/command/command.hpp"
 
 #include "./subcmd/subcmd.hpp"
 

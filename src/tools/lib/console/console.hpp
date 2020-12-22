@@ -14,7 +14,12 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
-#include "../langpack/langpack.hpp"
+#include "../settings/settings.hpp"
 
 #include "./console.cpp"
+
+
+ches::Settings ches::Console::langPack;
+std::string ches::Console::langCode = "en";

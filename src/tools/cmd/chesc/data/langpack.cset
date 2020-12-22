@@ -1,0 +1,17 @@
+error_0_en:unknown error
+error_0_ja:不明なエラー
+
+warn_0_en:unknown warning
+warn_0_ja:不明な警告
+
+note_0_en:unknown note
+note_0_ja:不明なノート
+
+char_en:char
+char_ja:文字
+
+index_en:index
+index_ja:インデックス
+
+number_en:number
+number_ja:数値

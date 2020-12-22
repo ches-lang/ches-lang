@@ -14,31 +14,15 @@
 
 
 namespace ches {
-    typedef std::unordered_map<std::string, std::string>  lang_pack_prop_map;
+    typedef std::unordered_map<std::string, std::string>  setting_prop_map;
 
 
-    enum LangPackErrorType {
-        LangPackError_DuplicatedPropKey,
-        LangPackError_FileLoadFailed,
-        LangPackError_InvalidNotation
-    };
-
-
-    class LangPackError {
+    class Settings {
     public:
-        LangPackErrorType type;
+        setting_prop_map propMap;
+        bool loaded = false;
 
-        LangPackError();
-
-        LangPackError(LangPackErrorType type);
-    };
-
-
-    class LangPack {
-    public:
-        lang_pack_prop_map propMap;
-
-        LangPack();
+        Settings();
 
         bool existsKey(std::string propKey);
 
@@ -46,7 +30,7 @@ namespace ches {
 
         void load(std::string filePath);
 
-    public:
+    private:
         static std::string trimSpaces(std::string string) {
             while(string.size() > 0 && string.at(0) == ' ')
                 string = string.substr(1);

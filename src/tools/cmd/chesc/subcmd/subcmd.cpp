@@ -21,7 +21,13 @@ namespace ches {
         }
 
         static void cmd_cmp(cmd_opt_map optMap) {
-            std::cout << "cmp" << std::endl;
+            try {
+                ches::Settings settings;
+                settings.load("./src/tools/cmd/chsc/data/settings.cset");
+                std::cout << "cmp" << std::endl;
+            } catch(FileError excep) {
+                std::cout << "fileerror (" << excep.type << ")" << std::endl;
+            }
         }
     };
 }

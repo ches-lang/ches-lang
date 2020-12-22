@@ -15,9 +15,10 @@
 
 namespace ches {
     enum FileErrorType {
-        FileError_ReadFailed,
-        FileError_FileNotFound,
-        FileError_FileOpenFailed
+        FileError_InvalidNotation,
+        FileError_NotFound,
+        FileError_OpenFailed,
+        FileError_ReadFailed
     };
 
 
@@ -35,6 +36,10 @@ namespace ches {
     public:
         inline static bool exists(std::string filePath) {
             return std::filesystem::exists(filePath);
+        }
+
+        inline static std::string getFullPath(std::string path) {
+            return std::filesystem::absolute(path);
         }
 
         // spec: パスが見つからない場合はfalseを返す
@@ -56,15 +61,15 @@ namespace ches {
         // excep: FileError
         static std::vector<std::string> readTextLines(std::string filePath) {
             if(!FileManager::exists(filePath))
-                throw FileError(FileError_FileNotFound);
+                throw FileError(FileError_NotFound);
 
             if(FileManager::isDirectory(filePath))
-                throw FileError(FileError_FileNotFound);
+                throw FileError(FileError_NotFound);
 
             std::ifstream ifs(filePath);
 
             if(!ifs.is_open())
-                throw FileError(FileError_FileOpenFailed);
+                throw FileError(FileError_OpenFailed);
 
             if(ifs.fail())
                 throw FileError(FileError_ReadFailed);
