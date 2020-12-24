@@ -13,8 +13,10 @@
 #pragma once
 
 
-typedef std::unordered_map<std::string, std::string>        cmd_opt_map;
-typedef std::function<void(cmd_opt_map&, ches::Settings&)>  cmd_proc;
+// class Options
+
+
+typedef std::function<void(ches::PropMap&, ches::PropMap&)> cmd_proc;
 typedef std::unordered_map<std::string, cmd_proc>           cmd_proc_map;
 
 
@@ -40,10 +42,12 @@ namespace ches {
     public:
         std::vector<std::string> args;
         std::string name;
-        cmd_opt_map optMap;
+        PropMap options;
         cmd_proc_map procMap;
 
         bool usedDefaultName = false;
+
+        PropMap settings;
 
         Command();
 
@@ -55,15 +59,15 @@ namespace ches {
         }
 
         inline bool existsOptName(std::string optName) {
-            return this->optMap.count(optName) == 1;
+            return this->options.count(optName) == 1;
         }
 
         // excep: CommandError
-        void run(Settings settings);
+        void run();
 
     private:
         std::string getCmdName(std::string defaultCmdName);
 
-        cmd_opt_map getCmdOptions();
+        PropMap getCmdOptions();
     };
 }

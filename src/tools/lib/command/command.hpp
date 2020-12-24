@@ -17,6 +17,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../datastruct/datastruct.hpp"
+
 #include "./command.cpp"
 
 
@@ -35,15 +37,31 @@ ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
         this->args.push_back(std::string(argv[i]));
 
     this->name = this->getCmdName(defaultCmdName);
-    this->optMap = this->getCmdOptions();
+    this->options = this->getCmdOptions();
+
+    // proc: 設定ファイルのロード
+
+    this->settings.load("./src/tools/cmd/chesc/data/settings.pmap");
+
+    // proc: 言語コードの変更
+
+    std::string langPropKey = "lang";
+
+    if(this->settings.exists(langPropKey))
+        ches::Console::setLangCode(this->settings.get(langPropKey));
+
+    // proc: -setオプションのロード
+
+    if(this->options.exists("set")) {
+        std::cout<<"setopt"<<std::endl;
+    }
 }
 
-void ches::Command::run(Settings settings) {
-    if(this->procMap.count(this->name) == 1) {
-        this->procMap.at(this->name)(this->optMap, settings);
-    } else {
+void ches::Command::run() {
+    if(this->procMap.count(this->name) == 0)
         throw CommandError(CommandError_UnknownSubCommand);
-    }
+
+    this->procMap.at(this->name)(this->options, settings);
 }
 
 std::string ches::Command::getCmdName(std::string defaultCmdName) {
@@ -64,8 +82,8 @@ std::string ches::Command::getCmdName(std::string defaultCmdName) {
 
 // spec: 基本的に無効なオプション引数は無視される
 // note: getCmdName()を呼び出した後に使用すること
-cmd_opt_map ches::Command::getCmdOptions() {
-    cmd_opt_map options;
+ches::PropMap ches::Command::getCmdOptions() {
+    PropMap options;
     int beginIndex = this->usedDefaultName ? 0 : 1;
 
     for(int i = beginIndex; i < this->args.size(); i++) {

@@ -16,4 +16,5 @@
 #include <vector>
 
 #include "../../../lib/command/command.hpp"
+
 #include "./subcmd.cpp"

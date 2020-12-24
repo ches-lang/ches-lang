@@ -16,10 +16,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "../settings/settings.hpp"
+#include "../datastruct/datastruct.hpp"
 
 #include "./console.cpp"
 
 
-ches::LangPack ches::Console::langPack;
+ches::PropMap ches::Console::langPack;
 std::string ches::Console::langCode = "en";

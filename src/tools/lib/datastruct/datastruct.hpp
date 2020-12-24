@@ -12,20 +12,17 @@
 
 #pragma once
 
-#include <vector>
+
 #include <unordered_map>
-#include <vector>
 
 #include "../filemanager/filemanager.hpp"
 
-#include "./settings.cpp"
+#include "./datastruct.cpp"
 
-
-ches::Settings::Settings() {}
 
 
 // excep: FileError
-void ches::Settings::load(std::string filePath) {
+void ches::PropMap::load(std::string filePath) {
     std::vector<std::string> lineVec;
 
     try {
@@ -35,7 +32,7 @@ void ches::Settings::load(std::string filePath) {
     }
 
     for(std::string line : lineVec) {
-        line = Settings::trimSpaces(line);
+        line = PropMap::trimSpaces(line);
 
         if(line.size() == 0)
             continue;
@@ -52,15 +49,15 @@ void ches::Settings::load(std::string filePath) {
         std::string propValue = line.substr(sepIndex + 1);
 
         // note: valueの両端スペースを削除してから各項目をチェックすること
-        propValue = Settings::trimSpaces(propValue);
+        propValue = PropMap::trimSpaces(propValue);
 
         if(propKey.size() == 0 || propValue.size() == 0)
             throw FileError(FileError_InvalidNotation);
 
-        if(this->propMap.count(propKey) == 1)
+        if(this->exists(propKey))
             throw FileError(FileError_InvalidNotation);
 
-        this->propMap[propKey] = propValue;
+        (*this)[propKey] = propValue;
     }
 
     this->loaded = true;

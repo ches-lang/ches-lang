@@ -20,7 +20,7 @@ namespace ches {
             cmd.addProc("cmp", ChesSubCommands::cmd_cmp);
         }
 
-        static void cmd_cmp(cmd_opt_map &optMap, Settings &settings) {
+        static void cmd_cmp(PropMap &options, PropMap &settings) {
             try {
                 std::cout << "cmp" << std::endl;
             } catch(FileError excep) {

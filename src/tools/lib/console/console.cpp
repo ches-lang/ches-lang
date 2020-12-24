@@ -40,7 +40,7 @@ namespace ches {
 
     class Console {
     private:
-        static LangPack langPack;
+        static PropMap langPack;
         // value: 2文字の言語コード; デフォルトは英語 ("en")
         static std::string langCode;
 
@@ -57,13 +57,13 @@ namespace ches {
             int logTypeColor = logTypeColorMap.at(logType);
 
             std::string logPropName = Console::getLogPropName(logType, logNum);
-            std::string logMsg = Console::langPack.getValue(logPropName, Console::langCode);
+            std::string logMsg = Console::langPack.get(logPropName + "_" + Console::langCode);
 
             std::cout << "\033[" << logTypeColor << "m|" << logPropName << "|\033[m " << logMsg << std::endl;
             std::cout << std::endl;
 
             if(terminate) {
-                std::string terminateMsg = Console::langPack.getValue("msg_terminate", Console::langCode);
+                std::string terminateMsg = Console::langPack.get("msg_terminate_" + Console::langCode);
                 std::cout << terminateMsg << std::endl;
                 exit(-1);
             }
