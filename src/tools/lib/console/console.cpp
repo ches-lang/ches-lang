@@ -14,7 +14,7 @@
 
 
 namespace ches {
-    typedef std::unordered_map<int, std::string>  log_detail_map;
+    typedef std::unordered_map<std::string, std::string>    log_detail_map;
 
 
     enum LogType {
@@ -51,7 +51,7 @@ namespace ches {
     public:
         static void log(LogType logType, int logNum, log_detail_map detailMap = {}, bool terminate = false) {
             if(!Console::langPack.loaded)
-                Console::langPack.load("./src/tools/cmd/chesc/data/langpack.cset");
+                Console::langPack.load("./src/tools/cmd/chesc/data/langpack.pmap");
 
             std::string logTypeName = logTypeNameMap.at(logType);
             int logTypeColor = logTypeColorMap.at(logType);

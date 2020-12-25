@@ -16,5 +16,10 @@
 #include <vector>
 
 #include "../../../lib/command/command.hpp"
+#include "../compiler/compiler.hpp"
 
 #include "./subcmd.cpp"
+
+
+std::string ches::CommandOptions::input = "i";
+std::string ches::CommandOptions::settings = "set";

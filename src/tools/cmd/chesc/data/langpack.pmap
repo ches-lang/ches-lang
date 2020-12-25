@@ -3,6 +3,9 @@
 error_0_en:unknown error
 error_0_ja:不明なエラー
 
+error_1_en:invalid command argument
+error_1_ja:無効なコマンド引数
+
 # warnings
 
 warn_0_en:unknown warning
@@ -12,6 +15,9 @@ warn_0_ja:不明な警告
 
 note_0_en:unknown note
 note_0_ja:不明なノート
+
+note_1_en:no input files
+note_1_ja:入力ファイルなし
 
 # phrases
 

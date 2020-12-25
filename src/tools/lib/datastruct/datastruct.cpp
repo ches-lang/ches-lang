@@ -14,6 +14,9 @@
 
 
 namespace ches {
+    typedef unsigned char   byte;
+
+
     // note: 通常のmapと要素の順序管理が異なる (unordered_mapを使用するため)
     struct PropMap : public std::unordered_map<std::string, std::string> {
         bool loaded = false;
