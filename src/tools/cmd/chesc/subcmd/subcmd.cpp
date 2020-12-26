@@ -48,7 +48,8 @@ namespace ches {
                     Console::log(LogType_Note, Note_InvalidCommandArgument, { { "option", "-" + CommandOptions::input } });
 
                 Compiler cmp;
-                std::cout << "cmp" << std::endl;
+
+                std::cout << Console::getLangText("msg_compile_success") << std::endl;
             } catch(FileError excep) {
                 std::cout << "fileerror (" << excep.type << ")" << std::endl;
             }

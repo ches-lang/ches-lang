@@ -39,39 +39,47 @@ namespace ches {
 
 
     class Console {
-    private:
+    public:
         static PropMap langPack;
+        static std::string langPackFilePath;
+
         // value: 2文字の言語コード; デフォルトは英語 ("en")
         static std::string langCode;
 
-        inline static std::string getLogPropName(LogType logType, int logNum) {
-            return logTypeNameMap.at(logType) + "_" + std::to_string(logNum);
+        inline static std::string getLangText(std::string propName) {
+            std::string propKey = propName + "_" + Console::langCode;
+            return Console::langPack.get(propKey);
         }
 
-    public:
+        inline static std::string getLangText(LogType logType, int logNum) {
+            std::string propName = logTypeNameMap.at(logType) + "_" + std::to_string(logNum);
+            return Console::getLangText(propName);
+        }
+
         static void log(LogType logType, int logNum, log_detail_map detailMap = {}, bool terminate = false) {
             if(!Console::langPack.loaded)
-                Console::langPack.load("./src/tools/cmd/chesc/data/langpack.pmap");
+                Console::langPack.load(Console::langPackFilePath);
 
-            std::string logTypeName = logTypeNameMap.at(logType);
             int logTypeColor = logTypeColorMap.at(logType);
+            std::string logTitle = logTypeNameMap.at(logType) + "_" + std::to_string(logNum);
+            std::string logMsg = Console::getLangText(logType, logNum);
 
-            std::string logPropName = Console::getLogPropName(logType, logNum);
-            std::string logMsg = Console::langPack.get(logPropName + "_" + Console::langCode);
+            std::cout << "\033[" << logTypeColor << "m|" << logTitle << "|\033[m " << logMsg << std::endl;
 
-            std::cout << "\033[" << logTypeColor << "m|" << logPropName << "|\033[m " << logMsg << std::endl;
+            for(auto detailPair : detailMap) {
+                std::string detailName = Console::getLangText(detailPair.first);
+                std::string detailValue = detailPair.second;
+
+                std::cout << "\t" << detailName << ": " << detailValue << std::endl;
+            }
+
             std::cout << std::endl;
 
             if(terminate) {
-                std::string terminateMsg = Console::langPack.get("msg_terminate_" + Console::langCode);
+                std::string terminateMsg = Console::getLangText("msg_terminate");
                 std::cout << terminateMsg << std::endl;
                 exit(-1);
             }
-        }
-
-        // spec: langCodeが不適切な形式であっても値を受け入れる
-        static void setLangCode(std::string langCode) {
-            Console::langCode = langCode;
         }
     };
 }

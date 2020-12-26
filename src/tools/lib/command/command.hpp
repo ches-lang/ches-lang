@@ -48,7 +48,7 @@ ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
     std::string langPropKey = "lang";
 
     if(this->settings.exists(langPropKey))
-        ches::Console::setLangCode(this->settings.get(langPropKey));
+        ches::Console::langCode = this->settings.get(langPropKey);
 
     // proc: -setオプションのロード
 

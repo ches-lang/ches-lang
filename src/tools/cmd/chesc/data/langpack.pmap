@@ -30,7 +30,13 @@ index_ja:インデックス
 number_en:number
 number_ja:数値
 
+option_en:option
+option_ja:オプション
+
 # messages
+
+msg_compile_success_en:Compiling has succeeded.
+msg_compile_success_ja:コンパイルが完了しました。
 
 msg_terminate_en:Terminated with the log.
 msg_terminate_ja:ログとともに終了しました。

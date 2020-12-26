@@ -22,4 +22,6 @@
 
 
 ches::PropMap ches::Console::langPack;
+std::string ches::Console::langPackFilePath = "./src/tools/cmd/chesc/data/langpack.pmap";
+
 std::string ches::Console::langCode = "en";
