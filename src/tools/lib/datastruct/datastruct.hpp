@@ -32,7 +32,7 @@ void ches::PropMap::load(std::string filePath) {
     }
 
     for(std::string line : lineVec) {
-        line = PropMap::trimSpaces(line);
+        line = trim_string_spaces(line);
 
         if(line.size() == 0)
             continue;
@@ -49,7 +49,7 @@ void ches::PropMap::load(std::string filePath) {
         std::string propValue = line.substr(sepIndex + 1);
 
         // note: valueの両端スペースを削除してから各項目をチェックすること
-        propValue = PropMap::trimSpaces(propValue);
+        propValue = trim_string_spaces(propValue);
 
         if(propKey.size() == 0 || propValue.size() == 0)
             throw FileError(FileError_InvalidNotation);

@@ -29,6 +29,8 @@ ches::CommandError::CommandError(CommandErrorType type) {
 }
 
 
+std::string ches::Command::settingFilePath = "./src/tools/cmd/chesc/data/settings.pmap";
+
 ches::Command::Command() {}
 
 ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
@@ -41,19 +43,23 @@ ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
 
     // proc: 設定ファイルのロード
 
-    this->settings.load("./src/tools/cmd/chesc/data/settings.pmap");
+    this->settings.load(Command::settingFilePath);
 
     // proc: 言語コードの変更
 
     std::string langPropKey = "lang";
 
     if(this->settings.exists(langPropKey))
-        ches::Console::langCode = this->settings.get(langPropKey);
+        Console::langCode = this->settings.get(langPropKey);
 
     // proc: -setオプションのロード
 
     if(this->options.exists("set")) {
-        std::cout<<"setopt"<<std::endl;
+        try {
+            this->proceedSetOption(this->options.at("set"));
+        } catch(CommandError excep) {
+            throw excep;
+        }
     }
 }
 
@@ -91,7 +97,7 @@ ches::PropMap ches::Command::getCmdOptions() {
 
         // note: オプション名が "-" のみの場合も弾く
         if(targetArg.size() <= 1 || targetArg.at(0) != '-')
-            throw CommandError(CommandError_InvalidArgument);
+            throw CommandError(CommandError_InvalidOptionName);
 
         std::string optName = targetArg.substr(1);
         std::string optArg = "";
@@ -113,4 +119,38 @@ ches::PropMap ches::Command::getCmdOptions() {
     }
 
     return options;
+}
+
+// note: optionValueと同じ形式の文字列を扱う必要がある場合は、他の関数に解析処理をまとめること
+// arg (optionValue): "a: b, c: d ..." というような形式の文字列
+// excep: CommandError
+void ches::Command::proceedSetOption(std::string optionValue) {
+    while(true) {
+        int endIndex = optionValue.find(",");
+        // note: セパレータが見つからない場合は第二引数にstd::string::nposを渡す
+        std::string option = optionValue.substr(0, endIndex);
+
+        int sepIndex = option.find(":");
+
+        // note: ペア内に":"がない場合はエラー
+        if(sepIndex == std::string::npos)
+            throw CommandError(CommandError_InvalidOptionValue);
+
+        std::string settingName = trim_string_spaces(option.substr(0, sepIndex));
+        std::string settingValue = trim_string_spaces(option.substr(sepIndex + 1));
+
+        if(settingName.size() == 0 || settingValue.size() == 0)
+            throw CommandError(CommandError_InvalidOptionValue);
+
+        if(!this->settings.exists(settingName))
+            throw CommandError(CommandError_UnknownOptionName);
+
+        this->settings[settingName] = settingValue;
+
+        // note: これ以上ペアがなければbreak
+        if(endIndex == std::string::npos)
+            break;
+
+        optionValue = optionValue.substr(endIndex + 1);
+    }
 }

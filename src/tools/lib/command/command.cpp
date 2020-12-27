@@ -23,7 +23,9 @@ typedef std::unordered_map<std::string, cmd_proc>           cmd_proc_map;
 namespace ches {
     enum CommandErrorType {
         CommandError_DuplicatedOptionName,
-        CommandError_InvalidArgument,
+        CommandError_InvalidOptionName,
+        CommandError_InvalidOptionValue,
+        CommandError_UnknownOptionName,
         CommandError_UnknownSubCommand
     };
 
@@ -47,6 +49,7 @@ namespace ches {
 
         bool usedDefaultName = false;
 
+        static std::string settingFilePath;
         PropMap settings;
 
         Command();
@@ -69,5 +72,7 @@ namespace ches {
         std::string getCmdName(std::string defaultCmdName);
 
         PropMap getCmdOptions();
+
+        void proceedSetOption(std::string optionValue);
     };
 }
