@@ -14,6 +14,7 @@
 
 #include <functional>
 #include <iostream>
+#include <regex>
 #include <unordered_map>
 #include <vector>
 
@@ -28,38 +29,47 @@ ches::CommandError::CommandError(CommandErrorType type) {
     this->type = type;
 }
 
+ches::CommandError::CommandError(CommandErrorType type, log_detail_map details) {
+    this->type = type;
+    this->details = details;
+}
+
+
+std::string ches::CommandOptionKeys::logLimit = "log-limit";
+
+std::string ches::SettingKeys::lang = "lang";
+std::string ches::SettingKeys::logLimit = "logLimit";
+
 
 std::string ches::Command::settingFilePath = "./src/tools/cmd/chesc/data/settings.pmap";
 
 ches::Command::Command() {}
 
+// todo: それぞれの処理を関数ごとに分ける
+// excep: CommandError
 ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
-    // note: コマンド名 (最初の引数) をスキップ
-    for(int i = 1; i < argc; i++)
-        this->args.push_back(std::string(argv[i]));
+    try {
+        // note: コマンド名 (最初の引数) をスキップ
+        for(int i = 1; i < argc; i++)
+            this->args.push_back(std::string(argv[i]));
 
-    this->name = this->getCmdName(defaultCmdName);
-    this->options = this->getCmdOptions();
+        this->name = this->getCmdName(defaultCmdName);
+        this->options = this->getCmdOptions();
 
-    // proc: 設定ファイルのロード
+        // proc: 設定ファイルのロード
 
-    this->settings.load(Command::settingFilePath);
+        this->settings.load(Command::settingFilePath);
 
-    // proc: 言語コードの変更
+        // proc: 言語コードの変更
 
-    std::string langPropKey = "lang";
+        if(this->settings.exists(SettingKeys::lang))
+            Console::langCode = this->settings.get(SettingKeys::lang);
 
-    if(this->settings.exists(langPropKey))
-        Console::langCode = this->settings.get(langPropKey);
+        // proc: -log-limitオプションのロード
 
-    // proc: -setオプションのロード
-
-    if(this->options.exists("set")) {
-        try {
-            this->proceedSetOption(this->options.at("set"));
-        } catch(CommandError excep) {
-            throw excep;
-        }
+        this->proceedLogLimitOption();
+    } catch(CommandError excep) {
+        throw excep;
     }
 }
 
@@ -121,36 +131,24 @@ ches::PropMap ches::Command::getCmdOptions() {
     return options;
 }
 
-// note: optionValueと同じ形式の文字列を扱う必要がある場合は、他の関数に解析処理をまとめること
-// arg (optionValue): "a: b, c: d ..." というような形式の文字列
 // excep: CommandError
-void ches::Command::proceedSetOption(std::string optionValue) {
-    while(true) {
-        int endIndex = optionValue.find(",");
-        // note: セパレータが見つからない場合は第二引数にstd::string::nposを渡す
-        std::string option = optionValue.substr(0, endIndex);
+void ches::Command::proceedLogLimitOption() {
+    std::string logLimit = CommandOptionKeys::logLimit;
+    std::string value = this->options.at(logLimit);
+    std::regex regex("[^0-9]");
 
-        int sepIndex = option.find(":");
+    CommandError error = CommandError(CommandError_InvalidOptionValue, { { "key", logLimit }, { "value", value } });
 
-        // note: ペア内に":"がない場合はエラー
-        if(sepIndex == std::string::npos)
-            throw CommandError(CommandError_InvalidOptionValue);
+    if(this->options.exists(logLimit)) {
+        if(std::regex_search(value, regex))
+            throw error;
 
-        std::string settingName = trim_string_spaces(option.substr(0, sepIndex));
-        std::string settingValue = trim_string_spaces(option.substr(sepIndex + 1));
-
-        if(settingName.size() == 0 || settingValue.size() == 0)
-            throw CommandError(CommandError_InvalidOptionValue);
-
-        if(!this->settings.exists(settingName))
-            throw CommandError(CommandError_UnknownOptionName);
-
-        this->settings[settingName] = settingValue;
-
-        // note: これ以上ペアがなければbreak
-        if(endIndex == std::string::npos)
-            break;
-
-        optionValue = optionValue.substr(endIndex + 1);
+        try {
+            Console::logLimit = std::stoi(value);
+        } catch(std::invalid_argument excep) {
+            throw error;
+        } catch(std::out_of_range excep) {
+            throw error;
+        }
     }
 }

@@ -13,9 +13,6 @@
 #pragma once
 
 
-// class Options
-
-
 typedef std::function<void(ches::PropMap&, ches::PropMap&)> cmd_proc;
 typedef std::unordered_map<std::string, cmd_proc>           cmd_proc_map;
 
@@ -33,10 +30,24 @@ namespace ches {
     class CommandError : std::exception {
     public:
         CommandErrorType type;
+        log_detail_map details;
 
         CommandError();
 
         CommandError(CommandErrorType type);
+
+        CommandError(CommandErrorType type, log_detail_map details);
+    };
+
+
+    struct CommandOptionKeys {
+        static std::string logLimit;
+    };
+
+
+    struct SettingKeys {
+        static std::string lang;
+        static std::string logLimit;
     };
 
 
@@ -73,6 +84,6 @@ namespace ches {
 
         PropMap getCmdOptions();
 
-        void proceedSetOption(std::string optionValue);
+        void proceedLogLimitOption();
     };
 }
