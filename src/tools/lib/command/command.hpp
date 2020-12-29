@@ -135,6 +135,7 @@ ches::PropMap ches::Command::getCmdOptions() {
 void ches::Command::proceedLogLimitOption() {
     std::string logLimit = CommandOptionKeys::logLimit;
     std::string value = this->options.at(logLimit);
+    // note: マイナス値を許容しないためハイフンは除外する
     std::regex regex("[^0-9]");
 
     CommandError error = CommandError(CommandError_InvalidOptionValue, { { "key", logLimit }, { "value", value } });
@@ -145,6 +146,7 @@ void ches::Command::proceedLogLimitOption() {
 
         try {
             Console::logLimit = std::stoi(value);
+            std::cout<<Console::logLimit<<std::endl;
         } catch(std::invalid_argument excep) {
             throw error;
         } catch(std::out_of_range excep) {

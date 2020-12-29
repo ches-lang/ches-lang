@@ -45,8 +45,8 @@ namespace ches {
 
         // note: 2文字の言語コード; デフォルト値は英語 ("en")
         static std::string langCode;
-        // note: デフォルト値は制限なし (-1); 値はコマンド設定による
-        static int logLimit;
+        // note: デフォルト値は制限なし (0); 値はコマンド設定による
+        static unsigned int logLimit;
 
         inline static std::string getLangText(std::string propName) {
             std::string propKey = propName + "_" + Console::langCode;
