@@ -16,8 +16,11 @@ warn_0_ja:不明な警告
 note_0_en:unknown note
 note_0_ja:不明なノート
 
-note_1_en:no input files
-note_1_ja:入力ファイルなし
+note_1_en:log count has limited
+note_1_ja:ログ制限
+
+note_2_en:no input files
+note_2_ja:入力ファイルなし
 
 # phrases
 
@@ -26,6 +29,9 @@ char_ja:文字
 
 index_en:index
 index_ja:インデックス
+
+log_limit_en:ログ制限
+log_limit_ja:ログ制限
 
 number_en:number
 number_ja:数値

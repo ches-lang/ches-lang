@@ -21,8 +21,6 @@
 #include "./console.cpp"
 
 
-ches::PropMap ches::Console::langPack;
-std::string ches::Console::langPackFilePath = "./src/tools/cmd/chesc/data/langpack.pmap";
-
-std::string ches::Console::langCode = "en";
+unsigned int ches::Console::logCount = 0;
 unsigned int ches::Console::logLimit = 0;
+int ches::Console::logLimitLogNum = 0;

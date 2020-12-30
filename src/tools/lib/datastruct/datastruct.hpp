@@ -62,3 +62,10 @@ void ches::PropMap::load(std::string filePath) {
 
     this->loaded = true;
 }
+
+
+ches::LangPack ches::LangPack::data;
+std::string ches::LangPack::langCode = "en";
+
+
+ches::Settings ches::Settings::data;

@@ -13,8 +13,8 @@
 #pragma once
 
 
-typedef std::function<void(ches::PropMap&, ches::PropMap&)> cmd_proc;
-typedef std::unordered_map<std::string, cmd_proc>           cmd_proc_map;
+typedef std::function<void(ches::PropMap&)>         cmd_proc;
+typedef std::unordered_map<std::string, cmd_proc>   cmd_proc_map;
 
 
 namespace ches {
@@ -59,9 +59,6 @@ namespace ches {
         cmd_proc_map procMap;
 
         bool usedDefaultName = false;
-
-        static std::string settingFilePath;
-        PropMap settings;
 
         Command();
 

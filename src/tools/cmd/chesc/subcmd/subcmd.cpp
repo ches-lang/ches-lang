@@ -32,7 +32,8 @@ namespace ches {
 
     enum NoteLogProp {
         Note_UnknownNote,
-        Note_InvalidCommandArgument
+        Note_LogLimit,
+        Note_InvalidCommandArgument,
     };
 
 
@@ -42,14 +43,14 @@ namespace ches {
             cmd.addProc("cmp", ChesSubCommands::cmd_cmp);
         }
 
-        static void cmd_cmp(PropMap &options, PropMap &settings) {
+        static void cmd_cmp(PropMap &options) {
             try {
                 if(!options.exists(CommandOptions::input))
                     Console::log(LogType_Note, Note_InvalidCommandArgument, { { "option", "-" + CommandOptions::input } });
 
                 Compiler cmp;
 
-                std::cout << Console::getLangText("msg_compile_success") << std::endl;
+                std::cout << LangPack::data.get("msg_compile_success") << std::endl;
             } catch(FileError excep) {
                 std::cout << "fileerror (" << excep.type << ")" << std::endl;
             }

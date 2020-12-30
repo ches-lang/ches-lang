@@ -41,8 +41,6 @@ std::string ches::SettingKeys::lang = "lang";
 std::string ches::SettingKeys::logLimit = "logLimit";
 
 
-std::string ches::Command::settingFilePath = "./src/tools/cmd/chesc/data/settings.pmap";
-
 ches::Command::Command() {}
 
 // todo: それぞれの処理を関数ごとに分ける
@@ -56,17 +54,7 @@ ches::Command::Command(int argc, char* argv[], std::string defaultCmdName) {
         this->name = this->getCmdName(defaultCmdName);
         this->options = this->getCmdOptions();
 
-        // proc: 設定ファイルのロード
-
-        this->settings.load(Command::settingFilePath);
-
-        // proc: 言語コードの変更
-
-        if(this->settings.exists(SettingKeys::lang))
-            Console::langCode = this->settings.get(SettingKeys::lang);
-
-        // proc: -log-limitオプションのロード
-
+        // proc: -log-limitオプションの処理
         this->proceedLogLimitOption();
     } catch(CommandError excep) {
         throw excep;
@@ -77,7 +65,7 @@ void ches::Command::run() {
     if(this->procMap.count(this->name) == 0)
         throw CommandError(CommandError_UnknownSubCommand);
 
-    this->procMap.at(this->name)(this->options, settings);
+    this->procMap.at(this->name)(this->options);
 }
 
 std::string ches::Command::getCmdName(std::string defaultCmdName) {
@@ -134,7 +122,11 @@ ches::PropMap ches::Command::getCmdOptions() {
 // excep: CommandError
 void ches::Command::proceedLogLimitOption() {
     std::string logLimit = CommandOptionKeys::logLimit;
-    std::string value = this->options.at(logLimit);
+
+    if(!this->options.exists(logLimit))
+        return;
+
+    std::string value = this->options.get(logLimit);
     // note: マイナス値を許容しないためハイフンは除外する
     std::regex regex("[^0-9]");
 
@@ -146,7 +138,6 @@ void ches::Command::proceedLogLimitOption() {
 
         try {
             Console::logLimit = std::stoi(value);
-            std::cout<<Console::logLimit<<std::endl;
         } catch(std::invalid_argument excep) {
             throw error;
         } catch(std::out_of_range excep) {
