@@ -62,6 +62,7 @@ namespace ches {
 
         Command();
 
+        // note: Command()にて諸情報をロードしてからログ出力などを行うこと
         // excep: CommandError
         Command(int argc, char* argv[], std::string defaultCmdName = "");
 

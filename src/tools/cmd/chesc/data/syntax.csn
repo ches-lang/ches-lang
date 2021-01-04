@@ -1,12 +1,12 @@
-# 
-# Chestnut Syntax Notation
-#     for Chestnut 0.0.0
-# 
-# GitHub Repository:
-#     https://github.com/Garnet3106/chestnut/
-# 
-# Copyright © 2020 Garnet3106 All rights reserved. 
-# 
+; 
+; Chestnut Syntax Notation
+;     for Chestnut 0.0.0
+; 
+; GitHub Repository:
+;     https://github.com/Garnet3106/chestnut/
+; 
+; Copyright © 2020 Garnet3106 All rights reserved. 
+; 
 
 # tokens
 
@@ -16,7 +16,7 @@ semicolon = ";"
 new_line = "\n"
 new_statement = new_line, semicolon
 
-number /[0-9]/
+number = /[0-9]+/
 
 plus = "+"
 hyphen = "-"
@@ -29,12 +29,14 @@ right_round_paren = ")"
 left_square_paren = "["
 right_square_paren = "]"
 
-# syntax
+# expressions
 
 add_number = number plus number
 sub_number = number hyphen number
 mul_number = number asterisk number
 div_number = number slash number
+
+# statements
 
 line_comment = slash slash /*/ new_line
 block_comment = slash asterisk /*/ asterisk slash
