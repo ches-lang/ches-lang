@@ -15,6 +15,7 @@ Chesコンパイラは、ChesコードをCVMコードに変換する。
 ## 付随ページ
 
 - [AST (抽象構文木)](./ast/index.md)
+- [CPEG (Chestnut-PEG)](./ast/index.md)
 - [レクサ (字句解析器)](./lexer/index.md)
 - [パーサ (構文解析器)](./parser/index.md)
 
