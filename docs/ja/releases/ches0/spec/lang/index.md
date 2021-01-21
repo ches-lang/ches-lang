@@ -6,9 +6,15 @@
 
 - [型変換 (キャスト)](./cast/index.md)
 - [クラス](./class/index.md)
+- [コーディングスタイル](./codingstyle/index.md)
+- [コメントアウト](./commentout/index.md)
+- [仕様コメント](./comments/index.md)
+- [ディレクトリ構造](./dirstruct/index.md)
 - [関数](./function/index.md)
 - [数値](./number/index.md)
+- [オブジェクト](./object/index.md)
 - [変数](./variable/index.md)
+    - [変数型](./variable/type/index.md)
 
 ---
 
