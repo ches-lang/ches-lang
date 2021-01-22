@@ -9,10 +9,12 @@ void @entry()
 
     if !file.exists()
         println("I could not find the path!")
+        ret
     end
 
     if !file.isFile()
         println("I don't know a path like this.")
+        ret
     end
 
     for !file.eof
