@@ -1,0 +1,20 @@
+class examples.Console
+
+use sys
+
+
+void @entry()
+    println("What's your name?")
+    str name = readln()
+
+    println("Are you a beginner? (y / others)")
+    bol isBeginner = read() == 'y'
+
+    println("Nice to meet you, " ~ name ~ "!")
+
+    if(isBeginner)
+        println("Let's study Chestnut together!")
+    else
+        println("Enjoy Chestnut programming!")
+    end
+end

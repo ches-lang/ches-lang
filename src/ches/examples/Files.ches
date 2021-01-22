@@ -1,0 +1,26 @@
+class examples.Files
+
+use sys
+
+
+void @entry()
+    str path = readln()
+    File file = new(path)
+
+    if !file.exists()
+        println("I could not find the path!")
+    end
+
+    if !file.isFile()
+        println("I don't know a path like this.")
+    end
+
+    for !file.eof
+        char ch = file.readNextChar() >> Error err
+        print(ch)
+    fin
+        println("[EOF]")
+    else
+        println("[no content]")
+    end
+end
