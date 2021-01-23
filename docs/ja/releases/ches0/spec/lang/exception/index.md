@@ -2,6 +2,23 @@
 
 [ドキュメント](../../../../../../index.md) > [日本語](../../../../../index.md) > [リリース](../../../../index.md) > [Ches 0](../../../index.md) > [言語仕様書](../../index.md) > [言語仕様リンク](../index.md) > [例外](./index.md)
 
+## 構文
+
+```
+関数名(引数) ? 失敗時の処理, 成功時の処理
+
+# - 失敗時の処理 ... Func<void>(Except)
+# - 成功時の処理 ... Func<void>()
+
+# 改行する例
+関数名(引数) ?
+    fail(Except except)
+        # 失敗時の処理
+    end, success()
+        # 成功時の処理
+    end
+```
+
 ## コード例
 
 ```
@@ -12,23 +29,27 @@ class NameExcept
 
 str .msg = ""
 
-@NameExcept()
+@const()
 end
 
-@NameExcept(str msg)
+@const(str msg)
     .msg = msg
 end
 ```
 
 ```
-# 例外処理
+class NamePrinter
+
+
 void @entry()
-    printYourName("Garnet")
-        success
-            println("Your name has printed on your console!")
-        end
+    str inputName = readln()
+
+    # 例外処理
+    printYourName(inputName) ?
         fail(NameExcept except)
             println("It looks like the program has failed...")
+        end, success()
+            println("Your name has printed on your console!")
         end
 end
 
