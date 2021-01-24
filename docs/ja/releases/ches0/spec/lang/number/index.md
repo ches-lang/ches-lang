@@ -29,7 +29,7 @@
 
 ## 型変換
 
-[型変換](../cast/index.md) を参照。
+[型変換](../variable/type/cast/index.md) を参照。
 
 ## オーバーフロー
 

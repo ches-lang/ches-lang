@@ -5,7 +5,6 @@
 ## 付随ページ
 
 - [属性](./attribute/index.md)
-- [型変換](./cast/index.md)
 - [クラス](./class/index.md)
     - [継承](./class/inheritance/index.md)
 - [コーディングスタイル](./codingstyle/index.md)
@@ -21,6 +20,7 @@
 - [オブジェクト](./object/index.md)
 - [変数](./variable/index.md)
     - [変数型](./variable/type/index.md)
+        - [型変換](./variable/type/cast/index.md)
 
 ---
 

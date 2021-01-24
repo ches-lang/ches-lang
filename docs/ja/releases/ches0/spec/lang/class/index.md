@@ -66,6 +66,10 @@ publicなメンバにアクセス修飾子を記述する必要はない。
 
 (例: `int .num = 10`)
 
+## 継承
+
+[継承](./inheritance/index.md) を参照。
+
 ---
 
 Copyright © 2020 Garnet3106 All rights reserved.
