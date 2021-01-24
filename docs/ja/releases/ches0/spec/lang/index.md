@@ -4,6 +4,7 @@
 
 ## 付随ページ
 
+- [属性](./attribute/index.md)
 - [型変換](./cast/index.md)
 - [クラス](./class/index.md)
 - [コーディングスタイル](./codingstyle/index.md)

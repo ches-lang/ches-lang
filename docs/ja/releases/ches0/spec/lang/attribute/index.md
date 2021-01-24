@@ -1,0 +1,71 @@
+# 属性
+
+[ドキュメント](../../../../../../index.md) > [日本語](../../../../../index.md) > [リリース](../../../../index.md) > [Ches 0](../../../index.md) > [言語仕様書](../../index.md) > [言語仕様リンク](../index.md) > [属性](./index.md)
+
+## 概要
+
+クラスメンバに対して任意の情報を付与できる。
+
+## 構文
+
+```
+## 属性の付与 ##
+
+@属性クラスインスタンス
+メンバ定義
+
+## コード例 ##
+
+@Attr("Any Messages...")
+メンバ定義
+```
+
+### 使用例
+
+```
+class Calculator
+
+
+@FuncArgAttr("secs", "元の時間 (秒)")
+@FuncArgAttr("meters", "元の長さ (メートル)")
+@FuncExceptAttr(ArgExcept)
+@FuncRetAttr("結果の速さ (毎秒メートル)")
+f32 getSecSpeed(f32 secs, f32 meters)
+    if secs > 0 || meters > 0
+        throw ArgExcept()
+    end
+
+    ret meters / hours
+end
+```
+
+## 定義
+
+属性を作成する際には `Attr` クラスを継承する。
+
+このようなクラスを `属性クラス` という。
+
+### 定義例
+
+```
+class BetaAttr
+
+
+str msg = ""
+
+
+@const()
+end
+
+@const(str msg)
+    this.msg = msg
+end
+```
+
+### 属性クラス一覧
+
+標準ライブラリの属性クラスについては [Attr]() を参照。
+
+---
+
+Copyright © 2020 Garnet3106 All rights reserved.
