@@ -5,45 +5,47 @@
 ## 構文
 
 ```
-<クラス名>
+class クラス名
 
-<メンバ1>
 
-<メンバ2>
+メンバ1
+メンバ2
 
-    .
-    .
-    .
+関数1
+関数2
 ```
 
 ### コード例
 
 ```
-Names  // クラス名
+## クラス定義 ##
 
-// 静的メンバ変数
+class Names
+
+## メンバ変数 ##
+
 str creatorName = "Garnet"
+pub dyn str name = "Micheal"
 
-// メンバ変数
-str .name = "Micheal"
+## メンバ関数 ##
 
-// 静的メンバ関数
 greetCreator()
     println("Hello, " ~ creatorName ~ "!")
 end
 
-// メンバ関数
-.changeName(str newName)
+dyn changeName(str newName)
     .name = newName
 end
 ```
 
 ## アクセス修飾子
 
-|修飾子|スコープ|
+|修飾子|アクセス範囲|
 |:-:|:-:|
-|public|全体|
-|private|クラス内|
+|pub|全体|
+|prv|クラス内 [\*1]|
+
+[\*1] 継承先クラスからのアクセスは不可。
 
 ## メンバ
 
