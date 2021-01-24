@@ -26,10 +26,10 @@
 class Calculator
 
 
-@FuncArgAttr("secs", "元の時間 (秒)")
-@FuncArgAttr("meters", "元の長さ (メートル)")
-@FuncExceptAttr(ArgExcept)
-@FuncRetAttr("結果の速さ (毎秒メートル)")
+@ArgAttr("secs", "元の時間 (秒)")
+@ArgAttr("meters", "元の長さ (メートル)")
+@ExceptAttr(ArgExcept)
+@RetAttr("結果の速さ (毎秒メートル)")
 f32 getSecSpeed(f32 secs, f32 meters)
     if secs > 0 || meters > 0
         throw ArgExcept()
@@ -38,17 +38,18 @@ f32 getSecSpeed(f32 secs, f32 meters)
     ret meters / hours
 end
 ```
-
 ## 定義
 
 属性を作成する際には `Attr` クラスを継承する。
 
 このようなクラスを `属性クラス` という。
 
+属性クラス名の最後には `Attr` を付けること。( 例: `BetaAttr` )
+
 ### 定義例
 
 ```
-class BetaAttr
+class BetaAttr : Attr
 
 
 str msg = ""
