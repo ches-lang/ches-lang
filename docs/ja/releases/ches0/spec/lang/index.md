@@ -4,7 +4,7 @@
 
 ## 付随ページ
 
-- [型変換 (キャスト)](./cast/index.md)
+- [型変換](./cast/index.md)
 - [クラス](./class/index.md)
 - [コーディングスタイル](./codingstyle/index.md)
 - [コメントアウト](./commentout/index.md)
@@ -13,6 +13,8 @@
 - [例外](./exception/index.md)
 - [関数](./function/index.md)
     - [関数式](./function/expression/index.md)
+    - [return](./function/return/index.md)
+- [リテラル](./literal/index.md)
 - [数値](./number/index.md)
 - [オブジェクト](./object/index.md)
 - [変数](./variable/index.md)

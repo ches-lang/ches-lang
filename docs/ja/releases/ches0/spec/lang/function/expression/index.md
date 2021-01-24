@@ -21,6 +21,9 @@ end
 ## コード例
 
 ```
+class Calculator
+
+
 void @entry()
     runCalcFunc(calc(int x, int y)
         ret x + y
