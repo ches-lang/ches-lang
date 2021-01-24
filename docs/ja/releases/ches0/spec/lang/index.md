@@ -7,6 +7,7 @@
 - [属性](./attribute/index.md)
 - [型変換](./cast/index.md)
 - [クラス](./class/index.md)
+    - [継承](./class/inheritance/index.md)
 - [コーディングスタイル](./codingstyle/index.md)
 - [コメントアウト](./commentout/index.md)
 - [仕様コメント](./comments/index.md)
