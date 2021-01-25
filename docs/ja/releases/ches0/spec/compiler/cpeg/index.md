@@ -48,6 +48,10 @@ line_comment := numsign !.* new_line
 
 ## 出力データ
 
+CPEGで解析した結果はASTとして出力される。
+
+[AST (抽象構文木)](../ast/index.md) を参照。
+
 ```
 ## ソース ##
 
