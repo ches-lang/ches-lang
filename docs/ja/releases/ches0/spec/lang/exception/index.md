@@ -2,21 +2,20 @@
 
 [ドキュメント](../../../../../../index.md) > [日本語](../../../../../index.md) > [リリース](../../../../index.md) > [Ches 0](../../../index.md) > [言語仕様書](../../index.md) > [言語仕様リンク](../index.md) > [例外](./index.md)
 
+## 概要
+
+例外は関数の処理におけるエラーである。
+
+例外を発生させることをスロー、例外の処理をすることをキャッチという。
+
 ## 構文
 
 ```
-関数名(引数) ? 失敗時の処理, 成功時の処理
-
-# - 失敗時の処理 ... Func<void>(Except)
-# - 成功時の処理 ... Func<void>()
-
-# 改行する例
-関数名(引数) ?
-    fail(Except except)
-        # 失敗時の処理
-    end, success()
-        # 成功時の処理
-    end
+catch 関数名(引数)
+    # 失敗時の処理
+succ
+    # 成功時の処理
+end
 ```
 
 ## コード例
@@ -44,13 +43,11 @@ class NamePrinter
 void @entry()
     str inputName = readln()
 
-    # 例外処理
-    printYourName(inputName) ?
-        fail(NameExcept except)
-            println("It looks like the program has failed...")
-        end, success()
-            println("Your name has printed on your console!")
-        end
+    catch printYourName(inputName) ? NameExcept except
+        println("It looks like the program has failed...")
+    succ
+        println("Your name has printed on your console!")
+    end
 end
 
 
