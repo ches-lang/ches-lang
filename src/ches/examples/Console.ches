@@ -1,5 +1,6 @@
 class examples.Console
 
+
 use sys
 
 

@@ -5,24 +5,27 @@
 ## 構文
 
 ```
-// 定義
+# 定義
 <型名> <変数名>
 
-// 初期化
+# 初期化
 <型名> <変数名> = <初期化値>
 ```
 
 ### コード例
 
 ```
-// 定義
+## 定義 ##
+
 int number
 dec decimal
 chr character
 str string
 Class object
 
-// 初期化
+
+## 初期化 ##
+
 int number = 128
 dec decimal = 3.14
 chr character = 'A'

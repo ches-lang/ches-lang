@@ -24,6 +24,9 @@ end
 class TV
 
 
+use sys
+
+
 prop bool power = false
     set
         if power == val

@@ -7,7 +7,10 @@
 ## 構文
 
 ```
+# 戻り値なし (void)
 ret
+
+# 戻り値あり
 ret 返り値
 ```
 
@@ -15,6 +18,9 @@ ret 返り値
 
 ```
 class Hello
+
+
+use sys
 
 
 void @entry()

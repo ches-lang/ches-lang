@@ -14,6 +14,7 @@
 @属性クラスインスタンス
 メンバ定義
 
+
 ## コード例 ##
 
 @Attr("Any Messages...")
@@ -24,6 +25,9 @@
 
 ```
 class Calculator
+
+
+use sys
 
 
 @ArgAttr("secs", "元の時間 (秒)")

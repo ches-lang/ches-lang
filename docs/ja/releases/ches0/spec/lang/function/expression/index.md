@@ -24,6 +24,9 @@ end
 class Calculator
 
 
+use sys
+
+
 void @entry()
     runCalcFunc(calc(int x, int y)
         ret x + y

@@ -1,6 +1,8 @@
 class examples.Files
 
+
 use sys
+use sys.file
 
 
 void @entry()
@@ -18,7 +20,10 @@ void @entry()
     end
 
     for !file.eof
-        char ch = file.readNextChar() >> Error err
+        char ch = file.readNextChar() ? (Except except)
+            println("Error: " ~ except.type.toStr())
+        end
+
         print(ch)
     fin
         println("[EOF]")

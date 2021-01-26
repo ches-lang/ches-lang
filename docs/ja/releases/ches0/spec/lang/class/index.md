@@ -22,10 +22,12 @@ class クラス名
 
 class Names
 
+
 ## メンバ変数 ##
 
 str creatorName = "Garnet"
 pub dyn str name = "Micheal"
+
 
 ## メンバ関数 ##
 

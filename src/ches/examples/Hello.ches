@@ -1,5 +1,6 @@
 class examples.Hello
 
+
 use sys
 
 

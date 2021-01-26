@@ -24,6 +24,9 @@ end
 class BeefedUpPC : PCInterface
 
 
+use sys
+
+
 dyn ovr bool destroyed = false
 
 dyn ovr void destroy()

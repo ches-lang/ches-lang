@@ -11,6 +11,13 @@
 ## 構文
 
 ```
+## throw ##
+
+throw 例外インスタンス
+
+
+## 例外キャッチ ##
+
 catch 関数名(引数)
     # 失敗時の処理
 succ
@@ -21,12 +28,18 @@ end
 ## コード例
 
 ```
-# 例外クラス定義
+## 例外クラス定義 ##
 
-class NameExcept
+
+use sys
+
+
+# Exceptクラスを継承する
+class NameExcept : Except
 
 
 str .msg = ""
+
 
 @const()
 end
@@ -38,6 +51,9 @@ end
 
 ```
 class NamePrinter
+
+
+use sys
 
 
 void @entry()

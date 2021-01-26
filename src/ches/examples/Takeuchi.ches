@@ -1,6 +1,9 @@
 class examples.Takeuchi
 
 
+use sys
+
+
 void @entry()
     tarai(0, 1, 2)
 end
