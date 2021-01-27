@@ -6,8 +6,6 @@
 
 ソースコードの中間表現として使用する抽象的な構文木である。
 
-## 構造
-
 ---
 
 Copyright © 2020 Garnet3106 All rights reserved.
