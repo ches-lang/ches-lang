@@ -2,13 +2,12 @@
 
 [ドキュメント](../../../index.md) > [日本語](../../index.md) > [リリース](../index.md) > [Ches 0](./index.md)
 
-## リリースノート
+## 付随ページ
 
-[リリースノート](./note/index.md) を参照。
-
-## バージョン一覧
-
-[バージョン > バージョン一覧](./versions/index.md) を参照。
+- [設計書](./design/index.md)
+- [リリースノート](./note/index.md)
+- [言語仕様書](./note/index.md)
+- [バージョン](./versions/index.md)
 
 ---
 
