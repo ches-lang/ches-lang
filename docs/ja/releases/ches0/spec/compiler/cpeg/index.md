@@ -8,8 +8,10 @@ Chestnutコンパイラの構文定義に使用する。
 
 ## 構文
 
+規則名は `非終端記号` 、規則名を除く右辺の各規則は `終端記号` である。
+
 ```
-構文名 := 値1 値2 ...
+規則名 := 規則
 
 # 行コメント
 ## ブロックコメント ##
@@ -27,9 +29,10 @@ Chestnutコンパイラの構文定義に使用する。
 |expr\*|0回以上の繰り返し|0回以上の直前値の繰り返し|`""*`|
 |expr+|1回以上の繰り返し|1回以上の直前値の繰り返し|`IF+`|
 |expr?|0回または1回|直前文字の1回以上の繰り返し|`IF+`|
-|&expr1 expr2|肯定先読み|肯定先読みを行う|`&.* "\n"`|
-|!expr1 expr2|否定先読み|否定先読みを行う|`!.* "\n"`|
-|expr:name|構文名上書き|構文名を上書きする|`class id:class_name`|
+|&expr1 expr2|肯定先読み|成功しても入力を進めない|`&"\n" "\r"`|
+|!expr1 expr2|否定先読み|成功しても入力を進めない|`!"\n" .`|
+|N :=|規則定義|右辺の規則を規則名として定義|`class := "class" id`|
+|N1:N2|規則名上書き|規則名を上書き|`class id:class_name`|
 
 #### 使用例
 
@@ -44,7 +47,7 @@ line_comment := numsign !.* new_line
 
 ## 命名規則
 
-構文名は `snake_case` で記述する。
+規則名は `snake_case` で記述する。
 
 ## 出力データ
 
@@ -59,15 +62,13 @@ hoge("String", 123)
 
 ## CPEGコード ##
 
-double_quot := "\""
-back_slash := "\\"
-string := double_quot !.* !back_slash double_quot
+spacing := " " > "\t"
 
-func_call := id:func_name paren_rnd_left args paren_rnd_right
-func_call_args := string
+char := "\\" . > !"\"" .
+string := "\"" char* "\""
 
-paren_rnd_left := "("
-paren_rnd_right := ")"
+func_call := id:func_name spacing* "(" spacing* func_call_args spacing* ")"
+func_call_args := value? > (value ",")* value
 
 id := [0-9a-Z_]*
 
@@ -76,7 +77,10 @@ id := [0-9a-Z_]*
 func_call
     |- func_name: hoge
     |- args
-        |- string: "Hello, world!"
+        |- string
+            |- "
+            |- Hello, world!
+            |- "
         |- number: 123
 ```
 
