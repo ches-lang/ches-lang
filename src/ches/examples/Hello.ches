@@ -1,9 +1,0 @@
-class examples.Hello
-
-
-use sys
-
-
-void @entry()
-    println("Hello, world")
-end
