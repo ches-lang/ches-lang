@@ -8,7 +8,7 @@ ChesPackではChestnut向けパッケージの管理や公開をすることが�
 
 ## コマンド
 
-[CHESP コマンド](../cmdline/chesp/index.md) を参照。
+[ChesP コマンド](../cmdline/chesp/index.md) を参照。
 
 ---
 

@@ -4,8 +4,9 @@
 
 ## コマンド一覧
 
-- [chesc](./chesc/index.md) ... Chesコンパイラを実行する
-- [cvm](./cvm/index.md) ... CVMを実行する
+- [ChesC](./chesc/index.md) ... Chesコンパイラを使用する
+- [ChesP](./chesp/index.md) ... ChesPackを使用する
+- [CVM](./cvm/index.md) ... CVMを使用する
 
 ## コマンドオプション
 
