@@ -70,7 +70,7 @@ string := "\"" char* "\""
 func_call := id:func_name spacing* "(" spacing* func_call_args spacing* ")"
 func_call_args := value? > (value ",")* value
 
-id := [0-9a-Z_]*
+id := [a-Z_] [0-9a-Z_]*
 
 ## 出力データ ##
 
