@@ -18,7 +18,7 @@
 
 int main(int argc, char *argv[]) {
     try {
-        ches::shared::Command cmd(argc, argv, "cmp", "-i");
+        ches::shared::Command cmd(argc, argv, "cmp");
         cmd.print();
     } catch(ches::shared::CommandException excep) {
         std::cout << "CommandException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;

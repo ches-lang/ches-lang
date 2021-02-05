@@ -17,8 +17,8 @@ namespace ches::shared {
     enum CommandExceptionType {
         CommandException_Unknown,
         CommandException_UnknownOptionName,
-        CommandException_InvalidOptionName,
-        CommandException_OptionNameAlreadyExists
+        CommandException_OptionNameAlreadyExists,
+        CommandException_UnexpectedOptionValue
     };
 
 
@@ -78,16 +78,15 @@ namespace ches::shared {
     struct Command {
     public:
         std::string cmdName = "";
-        CommandOptionMap optionMap;
-
         std::string defaultCmdName = "";
-        std::string defaultOptionName = "";
+
+        CommandOptionMap optionMap;
 
         Command();
 
-        Command(int argc, char *argv[], std::string defaultCmdName, std::string defaultOptionName);
+        Command(int argc, char *argv[], std::string defaultCmdName);
 
-        Command(std::vector<std::string> args, std::string defaultCmdName, std::string defaultOptionName);
+        Command(std::vector<std::string> args, std::string defaultCmdName);
 
         void print();
 

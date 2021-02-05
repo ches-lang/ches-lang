@@ -43,9 +43,8 @@ ches::shared::CommandOptionMap::CommandOptionMap() {}
 
 ches::shared::Command::Command() {}
 
-ches::shared::Command::Command(int argc, char* argv[], std::string defaultCmdName = "", std::string defaultOptionName = "") {
+ches::shared::Command::Command(int argc, char* argv[], std::string defaultCmdName = "") {
     this->defaultCmdName = defaultCmdName;
-    this->defaultOptionName = defaultOptionName;
 
     std::vector<std::string> args;
 
@@ -55,9 +54,8 @@ ches::shared::Command::Command(int argc, char* argv[], std::string defaultCmdNam
     this->loadFromArgs(args);
 }
 
-ches::shared::Command::Command(std::vector<std::string> args, std::string defaultCmdName = "", std::string defaultOptionName = "") {
+ches::shared::Command::Command(std::vector<std::string> args, std::string defaultCmdName = "") {
     this->defaultCmdName = defaultCmdName;
-    this->defaultOptionName = defaultOptionName;
 
     this->loadFromArgs(args);
 }
@@ -92,19 +90,25 @@ void ches::shared::Command::print() {
 }
 
 void ches::shared::Command::loadFromArgs(std::vector<std::string> args) {
-    if(args.size() <= 1) {
+    if(args.size() < 2) {
         this->cmdName = this->defaultCmdName;
-        this->optionMap.addOption(this->defaultOptionName);
         return;
     }
 
-    this->cmdName = args.at(1);
-
-    std::string optionName_tmp = this->defaultOptionName;
+    std::string optionName_tmp = "";
     std::vector<std::string> optionValues_tmp;
 
-    for(int i = 2; i < args.size(); i++) {
-        std::string value = args.at(i);
+    int index = 2;
+
+    if(args.at(1).size() == 0 || args.at(1).at(0) != '-') {
+        this->cmdName = args.at(1);
+    } else {
+        this->cmdName = this->defaultCmdName;
+        index--;
+    }
+
+    for(; index < args.size(); index++) {
+        std::string value = args.at(index);
 
         if(value.size() == 0)
             continue;
@@ -114,12 +118,16 @@ void ches::shared::Command::loadFromArgs(std::vector<std::string> args) {
                 this->optionMap.addOption(optionName_tmp, optionValues_tmp);
 
             optionName_tmp = value;
-            optionValues_tmp.empty();
+            optionValues_tmp.clear();
             continue;
         }
+
+        if(optionName_tmp == "")
+            throw CommandException(CommandException_UnexpectedOptionValue);
 
         optionValues_tmp.push_back(value);
     }
 
-    this->optionMap.addOption(optionName_tmp, optionValues_tmp);
+    if(optionName_tmp != "")
+        this->optionMap.addOption(optionName_tmp, optionValues_tmp);
 }
