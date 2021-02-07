@@ -14,6 +14,7 @@
 
 
 #include <exception>
+#include <functional>
 #include <iostream>
 #include <regex>
 #include <string>
@@ -23,27 +24,30 @@
 #include "command.cpp"
 
 
-ches::shared::CommandException::CommandException() {}
+using namespace ches::shared;
 
-ches::shared::CommandException::CommandException(CommandExceptionType type) {
+
+CommandException::CommandException() {}
+
+CommandException::CommandException(CommandExceptionType type) {
     this->type = type;
 }
 
-ches::shared::CommandException::CommandException(CommandExceptionType type, std::string target) {
+CommandException::CommandException(CommandExceptionType type, std::string target) {
     this->type = type;
     this->target = target;
 }
 
 
-ches::shared::CommandOption::CommandOption() {}
+CommandOption::CommandOption() {}
 
 
-ches::shared::CommandOptionMap::CommandOptionMap() {}
+CommandOptionMap::CommandOptionMap() {}
 
 
-ches::shared::Command::Command() {}
+Command::Command() {}
 
-ches::shared::Command::Command(int argc, char* argv[], std::string defaultCmdName = "") {
+Command::Command(int argc, char* argv[], std::string defaultCmdName = "") {
     this->defaultCmdName = defaultCmdName;
 
     std::vector<std::string> args;
@@ -54,21 +58,28 @@ ches::shared::Command::Command(int argc, char* argv[], std::string defaultCmdNam
     this->loadFromArgs(args);
 }
 
-ches::shared::Command::Command(std::vector<std::string> args, std::string defaultCmdName = "") {
+Command::Command(std::vector<std::string> args, std::string defaultCmdName = "") {
     this->defaultCmdName = defaultCmdName;
 
     this->loadFromArgs(args);
 }
 
-void ches::shared::Command::print() {
+void Command::addCommandProc(std::string cmdName, Command::CommandProc proc) {
+    if(this->cmdProcMap.count(cmdName) == 1)
+        throw CommandException(CommandException_CommandNameAlreadyExists, cmdName);
+
+    this->cmdProcMap[cmdName] = proc;
+}
+
+void Command::print() {
     std::cout << "[deb] optName: " << this->cmdName << std::endl;
 
     int mapIndex = 0;
 
-    for(auto [ optionName, optionValue ] : this->optionMap) {
+    for(auto [ optionName, optionValue ] : this->cmdOptionMap) {
         std::cout << "    " << optionName << ": ";
 
-        std::vector<std::string> optionValueVec = this->optionMap.at(optionName).values;
+        std::vector<std::string> optionValueVec = this->cmdOptionMap.at(optionName).values;
         int optionIndex = 0;
 
         for(std::string optionValue : optionValueVec) {
@@ -85,11 +96,18 @@ void ches::shared::Command::print() {
         mapIndex++;
     }
 
-    if(mapIndex >= this->optionMap.size())
+    if(mapIndex >= this->cmdOptionMap.size())
         std::cout << std::endl << std::endl;
 }
 
-void ches::shared::Command::loadFromArgs(std::vector<std::string> args) {
+void Command::run() {
+    if(this->cmdProcMap.count(this->cmdName) == 0)
+        throw CommandException(CommandException_UnknownCommandName, this->cmdName);
+
+    this->cmdProcMap.at(this->cmdName)(*this);
+}
+
+void Command::loadFromArgs(std::vector<std::string> args) {
     if(args.size() < 2) {
         this->cmdName = this->defaultCmdName;
         return;
@@ -115,7 +133,7 @@ void ches::shared::Command::loadFromArgs(std::vector<std::string> args) {
 
         if(value.at(0) == '-') {
             if(optionName_tmp != "")
-                this->optionMap.addOption(optionName_tmp, optionValues_tmp);
+                this->cmdOptionMap.addOption(optionName_tmp, optionValues_tmp);
 
             optionName_tmp = value;
             optionValues_tmp.clear();
@@ -129,5 +147,15 @@ void ches::shared::Command::loadFromArgs(std::vector<std::string> args) {
     }
 
     if(optionName_tmp != "")
-        this->optionMap.addOption(optionName_tmp, optionValues_tmp);
+        this->cmdOptionMap.addOption(optionName_tmp, optionValues_tmp);
+}
+
+
+void SubCommands::run() {
+    try {
+        this->cmd.run();
+    } catch(CommandException excep) {
+        if(excep.type == CommandException_UnknownCommandName)
+            std::cout << "Unknown Command: " << excep.target << std::endl;
+    }
 }

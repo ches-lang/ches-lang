@@ -12,15 +12,22 @@
 
 #include "../../shared/command/command.hpp"
 
+#include "./subcmd/subcmd.hpp"
+
 #include <iostream>
 #include <string>
 
 
+using namespace ches::shared;
+using namespace ches::cmd::chesc;
+
+
 int main(int argc, char *argv[]) {
     try {
-        ches::shared::Command cmd(argc, argv, "cmp");
-        cmd.print();
-    } catch(ches::shared::CommandException excep) {
+        Command cmd(argc, argv, "cmp");
+        ChescCommand chescCmd(cmd);
+        chescCmd.run();
+    } catch(CommandException excep) {
         std::cout << "CommandException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
     }
 }
