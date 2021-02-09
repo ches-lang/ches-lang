@@ -19,11 +19,6 @@ extern std::string operator+(std::string value1, int value2) {
 
 
 namespace ches::shared {
-    enum A {
-        A_A
-    };
-
-
     class Console {
     public:
         static Console debug;

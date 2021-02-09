@@ -1,0 +1,6 @@
+command.error.commandNameAlreadyExists=ekzistata komanda nomo
+command.error.optionNameAlreadyExists=ekzistata elektebla nomo
+command.error.unexpectedOptionValue=malatendata elektebla nomo
+command.error.unknownError=nekonata eraro
+command.error.unknownCommandName=nekonata komanda nomo
+command.error.unknownOptionName=nekonata elektebla nomo

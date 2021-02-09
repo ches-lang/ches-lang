@@ -1,0 +1,6 @@
+command.error.commandNameAlreadyExists=command name already exists
+command.error.optionNameAlreadyExists=option name already exists
+command.error.unexpectedOptionValue=unexpected option value
+command.error.unknownError=unknown error
+command.error.unknownCommandName=unknown command name
+command.error.unknownOptionName=unknown option name

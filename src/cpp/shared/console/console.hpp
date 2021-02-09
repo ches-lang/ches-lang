@@ -39,7 +39,7 @@ Console::Console(std::string typeName, int typeColor) {
 
 void Console::print(int title, std::unordered_map<int, std::string> detailMap) {
     // todo: Use langpack value.
-    std::string titleStr = std::regex_replace(title, std::regex("\n"), " ");
+    std::string titleStr = std::regex_replace(std::to_string(title), std::regex("\n"), " ");
     std::cout << "\033[" << this->typeColor << "m[" << this->typeName << "]\033[m " << titleStr << std::endl;
 
     for(auto const [ key, value ] : detailMap) {

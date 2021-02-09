@@ -1,0 +1,6 @@
+command.error.commandNameAlreadyExists=既に存在するコマンド名
+command.error.optionNameAlreadyExists=既に存在するコマンド名
+command.error.unexpectedOptionValue=予期しないオプション値
+command.error.unknownError=不明なエラー
+command.error.unknownCommandName=不明なコマンド名
+command.error.unknownOptionName=不明なオプション名
