@@ -6,7 +6,6 @@
 
 - [設計書](./design/index.md)
 - [リリースノート](./note/index.md)
-- [言語仕様書](./note/index.md)
 - [バージョン](./versions/index.md)
 
 ---
