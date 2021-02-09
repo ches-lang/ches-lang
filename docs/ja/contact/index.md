@@ -20,4 +20,4 @@ Chestnutに関する問題報告は [こちら](https://github.com/Garnet3106/ch
 
 ---
 
-Copyright © 2020 Garnet3106 All rights reserved.
+Copyright © 2020-2021 Garnet3106 All rights reserved.

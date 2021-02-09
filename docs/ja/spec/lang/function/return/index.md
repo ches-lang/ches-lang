@@ -35,4 +35,4 @@ end
 
 ---
 
-Copyright © 2020 Garnet3106 All rights reserved.
+Copyright © 2020-2021 Garnet3106 All rights reserved.
