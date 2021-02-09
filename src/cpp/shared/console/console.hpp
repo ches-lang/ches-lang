@@ -23,7 +23,7 @@
 using namespace ches::shared;
 
 
-Console Console::debug = Console("debug");
+Console Console::debug = Console("debug", 30);
 Console Console::error = Console("error", 31);
 Console Console::note = Console("note", 36);
 Console Console::warn = Console("warn", 35);
