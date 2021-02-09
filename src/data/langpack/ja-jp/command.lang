@@ -1,3 +1,11 @@
+# Chestnut 0.0.0
+#
+# GitHub Repository:
+#     https://github.com/Garnet3106/chestnut/
+#
+# Copyright © 2020-2021 Garnet3106 All rights reserved. 
+
+
 command.error.commandNameAlreadyExists=既に存在するコマンド名
 command.error.optionNameAlreadyExists=既に存在するコマンド名
 command.error.unexpectedOptionValue=予期しないオプション値
