@@ -14,7 +14,10 @@
 namespace ches::shared {
     enum LangPackExceptionType {
         LangPackException_Unknown,
-        LangPackException_CouldNotOpenLangFile
+        LangPackException_CouldNotOpenLangFile,
+        LangPackException_DuplicatedPropName,
+        LangPackException_InvalidPropName,
+        LangPackException_InvalidSyntax
     };
 
 
@@ -33,11 +36,14 @@ namespace ches::shared {
 
     class LangPack {
     private:
-        std::string filePath = "";
+        std::string absFilePath = "";
         std::unordered_map<std::string, std::string> langDataMap;
 
     public:
-        LangPack(std::string filePath);
+        /*
+         * arg: absFilePath: 言語ファイルの絶対パス
+         */
+        LangPack(std::string absFilePath);
 
         /*
          * ret: プロパティ名が見つからない場合は propName を返す
@@ -51,5 +57,7 @@ namespace ches::shared {
          * except: LangPackException [CouldNotOpenLangFile]
          */
         void loadLangPack();
+
+        void removeBothSideSpaces(std::string &str);
     };
 }

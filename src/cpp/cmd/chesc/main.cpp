@@ -24,7 +24,7 @@ using namespace ches::cmd::chesc;
 
 int main(int argc, char *argv[]) {
     try {
-        LangPack pack("../../src/data/langpack/ja-jp/command.lang");
+        LangPack pack("/Users/Garnet3106/Desktop/fontokodoj/chestnut/src/data/langpack/ja-jp/command.lang");
         pack.print();
 
         Command cmd(argc, argv, "cmp");
