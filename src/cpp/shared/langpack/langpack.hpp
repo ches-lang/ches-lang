@@ -11,12 +11,12 @@
 #pragma once
 
 
-#include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "../filemanager/filemanager.hpp"
 
 #include "./langpack.cpp"
 
@@ -66,33 +66,10 @@ void LangPack::print() {
 
 void LangPack::loadLangPack() {
     try {
-        LangPackException fileOpenExcep(LangPackException_CouldNotOpenLangFile, this->absDirPath);
+        std::vector<std::string> filePathVec = FileManager::getFilePathsInDirectory(this->absDirPath);
 
-        if(!std::filesystem::exists(this->absDirPath))
-            throw fileOpenExcep;
-
-        if(!std::filesystem::is_directory(this->absDirPath))
-            throw fileOpenExcep;
-
-        auto dirItr = std::filesystem::directory_iterator(this->absDirPath);
-
-        for(const auto file : dirItr) {
-            if(!file.exists())
-                throw fileOpenExcep;
-
-            if(file.is_directory())
-                throw fileOpenExcep;
-
-            std::ifstream ifs(file.path());
-
-            if(!ifs.is_open())
-                throw fileOpenExcep;
-
-            std::vector<std::string> lineVec;
-            std::string line_tmp;
-
-            while(getline(ifs, line_tmp))
-                lineVec.push_back(line_tmp);
+        for(const std::string filePath : filePathVec) {
+            std::vector<std::string> lineVec = FileManager::getLines(filePath);
 
             for(std::string line : lineVec) {
                 if(line.size() == 0)
