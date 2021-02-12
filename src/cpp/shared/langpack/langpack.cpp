@@ -36,28 +36,32 @@ namespace ches::shared {
 
     class LangPack {
     private:
-        std::string absFilePath = "";
+        std::string absDirPath = "";
         std::unordered_map<std::string, std::string> langDataMap;
 
     public:
-        /*
-         * arg: absFilePath: 言語ファイルの絶対パス
-         */
-        LangPack(std::string absFilePath);
+        static LangPack pack;
 
         /*
-         * ret: プロパティ名が見つからない場合は propName を返す
+         * arg: absDirPath: 言語パックディレクトリの絶対パス
          */
-        std::string getPropValue(std::string propName);
+        LangPack(std::string absDirPath);
+
+        /*
+         * ret: プロパティ名が存在するかどうか
+         */
+        bool exists(std::string propName);
+
+        /*
+         * ret: プロパティ名が見つかれば対応するプロパティ値、見つからなければ propName を返す
+         */
+        std::string get(std::string propName);
 
         void print();
 
     private:
-        /*
-         * except: LangPackException [CouldNotOpenLangFile]
-         */
         void loadLangPack();
 
-        void removeBothSideSpaces(std::string &str);
+        void removeBothSideSpaces(std::string &text);
     };
 }

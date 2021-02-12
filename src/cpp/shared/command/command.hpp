@@ -15,11 +15,15 @@
 #include <functional>
 #include <iostream>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "command.cpp"
+#include "../console/console.hpp"
+#include "../langpack/langpack.hpp"
+
+#include "./command.cpp"
 
 
 using namespace ches::shared;
@@ -45,17 +49,6 @@ CommandOptionMap::CommandOptionMap() {}
 
 Command::Command() {}
 
-Command::Command(int argc, char* argv[], std::string defaultCmdName = "") {
-    this->defaultCmdName = defaultCmdName;
-
-    std::vector<std::string> args;
-
-    for(int i = 0; i < argc; i++)
-        args.push_back(argv[i]);
-
-    this->loadFromArgs(args);
-}
-
 Command::Command(std::vector<std::string> args, std::string defaultCmdName = "") {
     this->defaultCmdName = defaultCmdName;
 
@@ -70,39 +63,34 @@ void Command::addCommandProc(std::string cmdName, Command::CommandProc proc) {
 }
 
 void Command::print() {
-    std::cout << "[deb] optName: " << this->cmdName << std::endl;
+    std::unordered_map<std::string, std::string> optionMap;
 
-    int mapIndex = 0;
+    for(auto const [ name, option ] : this->cmdOptionMap) {
+        std::string joinedOptionValues = "";
 
-    for(auto [ optionName, optionValue ] : this->cmdOptionMap) {
-        std::cout << "    " << optionName << ": ";
+        for(int i = 0; i < option.values.size(); i++) {
+            joinedOptionValues += option.values.at(i);
 
-        std::vector<std::string> optionValueVec = this->cmdOptionMap.at(optionName).values;
-        int optionIndex = 0;
-
-        for(std::string optionValue : optionValueVec) {
-            std::cout << optionValue;
-
-            optionIndex++;
-
-            if(optionIndex < optionValueVec.size())
-                std::cout << ", ";
+            if(i + 1 < option.values.size())
+                joinedOptionValues += ", ";
         }
 
-        std::cout << std::endl;
-
-        mapIndex++;
+        optionMap[name] = joinedOptionValues;
     }
 
-    if(mapIndex >= this->cmdOptionMap.size())
-        std::cout << std::endl << std::endl;
+    Console::debug.print("{^command.word.optionList}", optionMap);
 }
 
 void Command::run() {
     if(this->cmdProcMap.count(this->cmdName) == 0)
         throw CommandException(CommandException_UnknownCommandName, this->cmdName);
 
-    this->cmdProcMap.at(this->cmdName)(*this);
+    try {
+        this->cmdProcMap.at(this->cmdName)(*this);
+    } catch(...) {
+        Console::error.print("{^command.error.uncaughtErrorInSubCommand}");
+        exit(-1);
+    }
 }
 
 void Command::loadFromArgs(std::vector<std::string> args) {
@@ -139,7 +127,7 @@ void Command::loadFromArgs(std::vector<std::string> args) {
         }
 
         if(optionName_tmp == "")
-            throw CommandException(CommandException_UnexpectedOptionValue);
+            throw CommandException(CommandException_UnexpectedOptionValue, value);
 
         optionValues_tmp.push_back(value);
     }
@@ -153,7 +141,16 @@ void SubCommands::run() {
     try {
         this->cmd.run();
     } catch(CommandException excep) {
-        if(excep.type == CommandException_UnknownCommandName)
-            std::cout << "Unknown Command: " << excep.target << std::endl;
+        switch(excep.type) {
+            case CommandException_UnknownCommandName:
+            Console::error.print("{^command.error.unknownCommandName}", { { "{^command.word.commandName}", excep.target } });
+            break;
+
+            default:
+            Console::error.print("{^command.error.unknownCommandError}");
+            break;
+        }
+
+        exit(-1);
     }
 }

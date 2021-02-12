@@ -14,10 +14,10 @@
 namespace ches::cmd::chesc {
     class ChescCommand : public SubCommands {
     public:
-        ChescCommand(Command cmd);
+        ChescCommand(int argc, char* argv[], std::string defaultCmdName);
 
     private:
-        void init() override;
+        void init(std::vector<std::string> args, std::string defaultCmdName) override;
 
         static void cmd_cmp(Command cmd) {
             std::cout << "cmp" << std::endl;

@@ -36,92 +36,140 @@ LangPackException::LangPackException(LangPackExceptionType type, std::string tar
 }
 
 
-LangPack::LangPack(std::string absFilePath) {
-    this->absFilePath = absFilePath;
+LangPack LangPack::pack = LangPack("/Users/Garnet3106/Desktop/fontokodoj/chestnut/src/data/langpack/ja-jp/");
+
+LangPack::LangPack(std::string absDirPath) {
+    this->absDirPath = absDirPath;
     this->loadLangPack();
 }
 
-std::string LangPack::getPropValue(std::string propName) {
-    if(this->langDataMap.count(propName) == 0)
+bool LangPack::exists(std::string propName) {
+    return this->langDataMap.count(propName);
+}
+
+std::string LangPack::get(std::string propName) {
+    if(!this->exists(propName))
         return propName;
 
     return this->langDataMap.at(propName);
 }
 
 void LangPack::print() {
-    std::cout << "size: " << this->langDataMap.size() << std::endl;
+    std::cout << "[debug] LangPack Properties ( whole size: " << this->langDataMap.size() << " )" << std::endl;
 
     for(auto [ key, value ] : this->langDataMap)
         std::cout << "\t" << key << ": " << value << "," << std::endl;
+
+    if(this->langDataMap.size() > 0)
+        std::cout << std::endl;
 }
 
 void LangPack::loadLangPack() {
-    LangPackException fileOpenExcep(LangPackException_CouldNotOpenLangFile, this->absFilePath);
+    try {
+        LangPackException fileOpenExcep(LangPackException_CouldNotOpenLangFile, this->absDirPath);
 
-    if(!std::filesystem::exists(this->absFilePath))
-        throw fileOpenExcep;
+        if(!std::filesystem::exists(this->absDirPath))
+            throw fileOpenExcep;
 
-    if(std::filesystem::is_directory(this->absFilePath))
-        throw fileOpenExcep;
+        if(!std::filesystem::is_directory(this->absDirPath))
+            throw fileOpenExcep;
 
-    std::ifstream ifs(this->absFilePath);
+        auto dirItr = std::filesystem::directory_iterator(this->absDirPath);
 
-    if(!ifs.is_open())
-        throw fileOpenExcep;
+        for(const auto file : dirItr) {
+            if(!file.exists())
+                throw fileOpenExcep;
 
-    std::vector<std::string> lineVec;
-    std::string line_tmp;
+            if(file.is_directory())
+                throw fileOpenExcep;
 
-    while(getline(ifs, line_tmp))
-        lineVec.push_back(line_tmp);
+            std::ifstream ifs(file.path());
 
-    for(std::string line : lineVec) {
-        if(line.size() == 0)
-            continue;
+            if(!ifs.is_open())
+                throw fileOpenExcep;
 
-        if(line.at(0) == '#')
-            continue;
+            std::vector<std::string> lineVec;
+            std::string line_tmp;
 
-        int separatorIndex = 0;
+            while(getline(ifs, line_tmp))
+                lineVec.push_back(line_tmp);
 
-        for(separatorIndex = 0; separatorIndex < line.size(); separatorIndex++)
-            if(line.at(separatorIndex) == '=')
-                break;
+            for(std::string line : lineVec) {
+                if(line.size() == 0)
+                    continue;
 
-        if(line.size() == separatorIndex)
-            throw LangPackException(LangPackException_InvalidSyntax);
+                if(line.at(0) == '#')
+                    continue;
 
-        std::string propName = line.substr(0, separatorIndex);
-        std::string propValue = line.substr(separatorIndex + 1);
+                int separatorIndex = 0;
 
-        LangPack::removeBothSideSpaces(propName);
-        LangPack::removeBothSideSpaces(propValue);
+                for(separatorIndex = 0; separatorIndex < line.size(); separatorIndex++)
+                    if(line.at(separatorIndex) == '=')
+                        break;
 
-        if(propName == "")
-            throw LangPackException(LangPackException_InvalidPropName);
+                if(line.size() == separatorIndex)
+                    throw LangPackException(LangPackException_InvalidSyntax);
 
-        if(this->langDataMap.count(propName) == 1)
-            throw LangPackException(LangPackException_DuplicatedPropName);
+                std::string propName = line.substr(0, separatorIndex);
+                std::string propValue = line.substr(separatorIndex + 1);
 
-        this->langDataMap[propName] = propValue;
+                LangPack::removeBothSideSpaces(propName);
+                LangPack::removeBothSideSpaces(propValue);
+
+                if(propName == "")
+                    throw LangPackException(LangPackException_InvalidPropName);
+
+                if(this->exists(propName))
+                    throw LangPackException(LangPackException_DuplicatedPropName);
+
+                this->langDataMap[propName] = propValue;
+            }
+        }
+    } catch(LangPackException excep) {
+        // note: 言語データが利用できないため、switchを使って例外名を取得する
+        std::string excepName;
+
+        switch(excep.type) {
+            case LangPackException_CouldNotOpenLangFile:
+            excepName = "CouldNotOpenLangFile";
+            break;
+
+            case LangPackException_DuplicatedPropName:
+            excepName = "DuplicatedPropName";
+            break;
+
+            case LangPackException_InvalidPropName:
+            excepName = "InvalidPropName";
+            break;
+
+            case LangPackException_InvalidSyntax:
+            excepName = "InvalidSyntax";
+            break;
+
+            default:
+            excepName = "UnknownLangPackError";
+            break;
+        }
+
+        std::cout << "error (" << excepName << ") on LangPack::loadLangPack" << std::endl;
     }
 }
 
-void LangPack::removeBothSideSpaces(std::string &str) {
+void LangPack::removeBothSideSpaces(std::string &text) {
     int beforeSpaceLen, behindSpaceLen = 0;
 
-    for(; beforeSpaceLen < str.size(); beforeSpaceLen++)
-        if(str.at(beforeSpaceLen) != ' ')
+    for(; beforeSpaceLen < text.size(); beforeSpaceLen++)
+        if(text.at(beforeSpaceLen) != ' ')
             break;
 
-    for(; behindSpaceLen < str.size(); behindSpaceLen++)
-        if(str.at(str.size() - behindSpaceLen - 1) != ' ')
+    for(; behindSpaceLen < text.size(); behindSpaceLen++)
+        if(text.at(text.size() - behindSpaceLen - 1) != ' ')
             break;
 
     if(beforeSpaceLen != 0 && beforeSpaceLen == behindSpaceLen) {
-        str = "";
+        text = "";
         return;
     }
 
-    str = str.substr(beforeSpaceLen, str.size() - behindSpaceLen - beforeSpaceLen);
+    text = text.substr(beforeSpaceLen, text.size() - behindSpaceLen - beforeSpaceLen);
 }

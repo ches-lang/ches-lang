@@ -24,11 +24,7 @@ using namespace ches::cmd::chesc;
 
 int main(int argc, char *argv[]) {
     try {
-        LangPack pack("/Users/Garnet3106/Desktop/fontokodoj/chestnut/src/data/langpack/ja-jp/command.lang");
-        pack.print();
-
-        Command cmd(argc, argv, "cmp");
-        ChescCommand chescCmd(cmd);
+        ChescCommand chescCmd(argc, argv, "cmp");
         chescCmd.run();
     } catch(CommandException excep) {
         std::cout << "CommandException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;

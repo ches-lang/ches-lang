@@ -23,7 +23,7 @@
 using namespace ches::shared;
 
 
-Console Console::debug = Console("debug", 30);
+Console Console::debug = Console("debug", 33);
 Console Console::error = Console("error", 31);
 Console Console::note = Console("note", 36);
 Console Console::warn = Console("warn", 35);
@@ -35,15 +35,23 @@ Console::Console(std::string typeName, int typeColor) {
     this->typeColor = typeColor;
 }
 
-void Console::print(int title, std::unordered_map<int, std::string> detailMap) {
-    // todo: Use langpack value.
-    std::string titleStr = std::regex_replace(std::to_string(title), std::regex("\n"), " ");
-    std::cout << "\033[" << this->typeColor << "m[" << this->typeName << "]\033[m " << titleStr << std::endl;
+void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap) {
+    Console::translateText(title);
+    std::string outputTitle = std::regex_replace(title, std::regex("\n"), " ");
+
+    std::cout << "\033[" << this->typeColor << "m[" << this->typeName << "]\033[m " << outputTitle << std::endl;
 
     for(auto const [ key, value ] : detailMap) {
-        std::string outputValue = std::regex_replace(value, std::regex("\n"), " ");
-        // todo: Use langpack value.
-        std::cout << "\t" << key << ": " << value << std::endl;
+        std::string outputKey = key;
+        std::string outputValue = value;
+
+        Console::translateText(outputKey);
+        Console::translateText(outputValue);
+
+        outputKey = std::regex_replace(outputKey, std::regex("\n"), " ");
+        outputValue = std::regex_replace(outputValue, std::regex("\n"), " ");
+
+        std::cout << "\t" << outputKey << ": " << outputValue << std::endl;
     }
 
     std::cout << std::endl;

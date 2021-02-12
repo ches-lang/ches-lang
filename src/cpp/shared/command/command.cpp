@@ -73,21 +73,19 @@ namespace ches::shared {
 
     struct Command {
     public:
+        typedef std::function<void(Command)>                    CommandProc;
+        typedef std::unordered_map<std::string, CommandProc>    CommandProcMap;
+
         std::string cmdName = "";
         std::string defaultCmdName = "";
 
         CommandOptionMap cmdOptionMap;
-
-        typedef std::function<void(Command)>                    CommandProc;
-        typedef std::unordered_map<std::string, CommandProc>    CommandProcMap;
 
     private:
         CommandProcMap cmdProcMap;
 
     public:
         Command();
-
-        Command(int argc, char *argv[], std::string defaultCmdName);
 
         Command(std::vector<std::string> args, std::string defaultCmdName);
 
@@ -105,17 +103,18 @@ namespace ches::shared {
 
     private:
         /*
-         * except: CommandException [CommandNameAlreadyExists]
+         * except: CommandException [UnexpectedOptionValue]
          */
         void loadFromArgs(std::vector<std::string> args);
     };
 
 
     class SubCommands {
-    public:
+    protected:
         Command cmd;
 
-        virtual void init() = 0;
+    public:
+        virtual void init(std::vector<std::string> args, std::string defaultCmdName) = 0;
 
         void run();
     };
