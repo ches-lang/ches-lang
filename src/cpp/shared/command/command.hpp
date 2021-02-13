@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "../console/console.hpp"
-#include "../langpack/langpack.hpp"
+#include "../configulation/configulation.hpp"
 
 #include "./command.cpp"
 

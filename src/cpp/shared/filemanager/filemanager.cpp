@@ -53,26 +53,29 @@ namespace ches::shared {
             return std::filesystem::is_directory(path);
         }
 
+        /*
+         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable, Unknown]
+         */
         static std::vector<std::string> getLines(std::string filePath) {
             std::vector<std::string> lineVec;
 
             try {
                 if(!FileManager::exists(filePath))
-                    throw FileManagerException(FileManagerException_PathNotFound);
+                    throw FileManagerException(FileManagerException_PathNotFound, filePath);
 
                 if(FileManager::isDirectory(filePath))
-                    throw FileManagerException(FileManagerException_NotFilePath);
+                    throw FileManagerException(FileManagerException_NotFilePath, filePath);
 
                 std::ifstream ifs(filePath);
                 std::string line_tmp;
 
                 if(!ifs.is_open())
-                    throw FileManagerException(FileManagerException_FileUnopenable);
+                    throw FileManagerException(FileManagerException_FileUnopenable, filePath);
 
                 while(getline(ifs, line_tmp))
                     lineVec.push_back(line_tmp);
             } catch(std::exception) {
-                throw FileManagerException(FileManagerException_Unknown);
+                throw FileManagerException(FileManagerException_Unknown, filePath);
             }
 
             return lineVec;

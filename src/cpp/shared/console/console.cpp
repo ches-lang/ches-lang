@@ -54,8 +54,8 @@ namespace ches::shared {
                         std::string matched = searchResults.str(0);
                         std::string propName = matched.substr(2, matched.size() - 3);
 
-                        if(LangPack::pack.exists(propName)) {
-                            std::string propValue = LangPack::pack.get(propName);
+                        if(Configulation::langPack.exists(propName)) {
+                            std::string propValue = Configulation::langPack.get(propName);
                             text.replace(beginIndex + pos, len, propValue);
 
                             beginIndex += pos + propValue.size();

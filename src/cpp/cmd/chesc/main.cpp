@@ -8,7 +8,7 @@
  */
 
 
-#include "../../shared/langpack/langpack.hpp"
+#include "../../shared/configulation/configulation.hpp"
 #include "../../shared/command/command.hpp"
 #include "../../shared/console/console.hpp"
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
         chescCmd.run();
     } catch(CommandException excep) {
         std::cout << "CommandException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
-    } catch(LangPackException excep) {
-        std::cout << "LangPackException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
+    } catch(ConfigulationException excep) {
+        std::cout << "ConfigulationException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
     }
 }
