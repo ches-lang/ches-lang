@@ -39,15 +39,18 @@ namespace ches::shared {
         std::unordered_map<std::string, std::string> dataMap;
 
     public:
+        static std::string homeDirEnvName;
+        static std::string homeDirPath;
+
         static Configulation settings;
         static Configulation langPack;
 
         Configulation();
 
         /*
-         * arg: path: configデータのディレクトリパスまたはファイルパス
+         * arg: path: configデータのホームディレクトリから見た相対的なディレクトリパスまたはファイルパス
          */
-        Configulation(std::string path);
+        Configulation(std::string relPath);
 
         /*
          * ret: プロパティ名が存在するかどうか
@@ -58,6 +61,18 @@ namespace ches::shared {
          * ret: プロパティ名が見つかれば対応するプロパティ値、見つからなければ propName を返す
          */
         std::string get(std::string key);
+
+        /*
+         * ret: 環境変数が存在する場合は設定値、存在しない場合は空文字を返す
+         */
+        inline static std::string getEnvironmentVariable(std::string envName) {
+            const char *value = std::getenv(envName.c_str());
+
+            if(value == NULL)
+                return "";
+
+            return value;
+        }
 
         void print();
 

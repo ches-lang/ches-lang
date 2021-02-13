@@ -36,13 +36,21 @@ ConfigulationException::ConfigulationException(ConfigulationExceptionType type, 
 }
 
 
-Configulation Configulation::settings = Configulation("/Users/Garnet3106/Desktop/fontokodoj/chestnut/src/data/langpack/ja-jp/");
-Configulation Configulation::langPack = Configulation("/Users/Garnet3106/Desktop/fontokodoj/chestnut/src/data/langpack/ja-jp/");
+std::string Configulation::homeDirEnvName = "CHES_HOME";
+std::string Configulation::homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
+
+Configulation Configulation::settings = Configulation("0.0.0/settings/");
+Configulation Configulation::langPack = Configulation("0.0.0/langpack/ja-jp/");
 
 Configulation::Configulation() {}
 
 Configulation::Configulation(std::string path) {
-    this->path = path;
+    if(Configulation::homeDirPath == "") {
+        std::cout << "configulation error: Environment variable '" << Configulation::homeDirEnvName << "' is not set.";
+        exit(-1);
+    }
+
+    this->path = Configulation::homeDirPath + path;
     this->loadData();
 }
 
