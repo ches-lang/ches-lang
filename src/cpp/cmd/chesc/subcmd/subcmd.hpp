@@ -41,6 +41,10 @@ void ChescCommand::init(std::vector<std::string> args, std::string defaultCmdNam
             Console::error.print("{^command.error.commandNameAlreadyExists}", { { "{^command.word.commandName}", excep.target } });
             break;
 
+            case CommandException_InvalidOptionName:
+            Console::error.print("{^command.error.invalidOptionName}", { { "{^command.word.optionName}", excep.target } });
+            break;
+
             case CommandException_OptionNameAlreadyExists:
             Console::error.print("{^command.error.optionNameAlreadyExists}", { { "{^command.word.optionName}", excep.target } });
             break;

@@ -14,11 +14,12 @@
 namespace ches::shared {
     enum CommandExceptionType {
         CommandException_Unknown,
+        CommandException_CommandNameAlreadyExists,
+        CommandException_InvalidOptionName,
+        CommandException_OptionNameAlreadyExists,
+        CommandException_UnexpectedOptionValue,
         CommandException_UnknownCommandName,
         CommandException_UnknownOptionName,
-        CommandException_CommandNameAlreadyExists,
-        CommandException_OptionNameAlreadyExists,
-        CommandException_UnexpectedOptionValue
     };
 
 
@@ -87,6 +88,9 @@ namespace ches::shared {
     public:
         Command();
 
+        /*
+         * except: Command::loadFromArgs() と同様
+         */
         Command(std::vector<std::string> args, std::string defaultCmdName);
 
         /*
@@ -103,7 +107,7 @@ namespace ches::shared {
 
     private:
         /*
-         * except: CommandException [UnexpectedOptionValue]
+         * except: CommandException [InvalidOptionName, UnexpectedOptionValue]
          */
         void loadFromArgs(std::vector<std::string> args);
     };

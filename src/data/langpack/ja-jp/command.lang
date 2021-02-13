@@ -7,6 +7,7 @@
 
 
 command.error.commandNameAlreadyExists=既に存在するコマンド名
+command.error.invalidOptionName=無効なオプション名
 command.error.optionNameAlreadyExists=既に存在するオプション名
 command.error.uncaughtErrorInSubCommand=未捕捉のサブコマンド内エラー
 command.error.unexpectedOptionValue=予期しないオプション値

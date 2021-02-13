@@ -118,6 +118,9 @@ void Command::loadFromArgs(std::vector<std::string> args) {
             continue;
 
         if(value.at(0) == '-') {
+            if(value.size() == 1)
+                throw CommandException(CommandException_InvalidOptionName, value);
+
             if(optionName_tmp != "")
                 this->cmdOptionMap.addOption(optionName_tmp, optionValues_tmp);
 
