@@ -28,10 +28,8 @@ namespace ches::cmd::chesc {
         }
 
         static void cmd_set(Command &cmd) {
-            if(cmd.cmdOptionMap.size() == 0) {
-                Console::note.print("{^chesc.note.specifySettingName}");
-                exit(-1);
-            }
+            if(cmd.cmdOptionMap.size() == 0)
+                Console::note.print("{^chesc.note.specifySettingName}", true);
 
             std::unordered_map<std::string, std::string> outputOptionMap;
             std::unordered_map<std::string, std::string> editedOptionMap;
@@ -39,10 +37,8 @@ namespace ches::cmd::chesc {
             for(const auto [ key, value ] : cmd.cmdOptionMap) {
                 std::string settingKey = key.substr(1);
 
-                if(!Configulation::settings.exists(settingKey)) {
-                    Console::error.print("{^chesc.error.unknownSettingName}", { { "{^chesc.word.settingName}", settingKey } });
-                    exit(-1);
-                }
+                if(!Configulation::settings.exists(settingKey))
+                    Console::error.print("{^chesc.error.unknownSettingName}", { { "{^chesc.word.settingName}", settingKey } }, true);
 
                 std::string settingValue = Configulation::settings.get(settingKey);
 
@@ -58,8 +54,7 @@ namespace ches::cmd::chesc {
                     } break;
 
                     default: {
-                        Console::error.print("{^chesc.error.tooManyOptionValues}", { { "{^chesc.word.optionName}", settingKey } });
-                        exit(-1);
+                        Console::error.print("{^chesc.error.tooManyOptionValues}", { { "{^chesc.word.optionName}", settingKey } }, true);
                     } break;
                 }
             }
@@ -92,20 +87,17 @@ namespace ches::cmd::chesc {
                         break;
                     }
 
-                    Console::error.print("{^setting.error.failedToParseSettingData}", { { "{^error.word.errorType}", excepTypeName } });
-                    exit(-1);
+                    Console::error.print("{^setting.error.failedToParseSettingData}", { { "{^error.word.errorType}", excepTypeName } }, true);
                 } catch(FileManagerException excep) {
                     switch(excep.type) {
                         case FileManagerException_NotFilePath:
                         case FileManagerException_PathNotFound:
                         case FileManagerException_FileUnopenable:
-                        Console::error.print("{^setting.error.failedToSaveSettingFile}", { { "{^file.word.path}", excep.target } });
-                        exit(-1);
+                        Console::error.print("{^setting.error.failedToSaveSettingFile}", { { "{^file.word.path}", excep.target } }, true);
                         break;
 
                         default:
-                        Console::error.print("{^file.error.unknownFileError}", { { "file.word.path", excep.target } });
-                        exit(-1);
+                        Console::error.print("{^file.error.unknownFileError}", { { "file.word.path", excep.target } }, true);
                         break;
                     }
                 }

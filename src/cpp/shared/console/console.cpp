@@ -34,7 +34,9 @@ namespace ches::shared {
          */
         Console(std::string typeName, int typeColor = 30);
 
-        void print(std::string title, std::unordered_map<std::string, std::string> detailMap = {});
+        void print(std::string title, bool terminateProc);
+
+        void print(std::string title, std::unordered_map<std::string, std::string> detailMap = {}, bool terminateProc = false);
 
         static void translateText(std::string &text) {
             try {

@@ -88,8 +88,7 @@ void Command::run() {
     try {
         this->cmdProcMap.at(this->cmdName)(*this);
     } catch(...) {
-        Console::error.print("{^command.error.uncaughtErrorInSubCommand}");
-        exit(-1);
+        Console::error.print("{^command.error.uncaughtErrorInSubCommand}", true);
     }
 }
 
@@ -149,14 +148,12 @@ void SubCommands::run() {
     } catch(CommandException excep) {
         switch(excep.type) {
             case CommandException_UnknownCommandName:
-            Console::error.print("{^command.error.unknownCommandName}", { { "{^command.word.commandName}", excep.target } });
+            Console::error.print("{^command.error.unknownCommandName}", { { "{^command.word.commandName}", excep.target } }, true);
             break;
 
             default:
-            Console::error.print("{^command.error.unknownCommandError}");
+            Console::error.print("{^command.error.unknownCommandError}", true);
             break;
         }
-
-        exit(-1);
     }
 }

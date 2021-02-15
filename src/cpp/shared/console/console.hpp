@@ -35,7 +35,11 @@ Console::Console(std::string typeName, int typeColor) {
     this->typeColor = typeColor;
 }
 
-void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap) {
+void Console::print(std::string title, bool terminateProc) {
+    this->print(title, {}, terminateProc);
+}
+
+void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap, bool terminateProc) {
     Console::translateText(title);
     std::string outputTitle = std::regex_replace(title, std::regex("\n"), " ");
 
@@ -55,4 +59,7 @@ void Console::print(std::string title, std::unordered_map<std::string, std::stri
     }
 
     std::cout << std::endl;
+
+    if(terminateProc)
+        exit(-1);
 }
