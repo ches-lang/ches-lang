@@ -30,5 +30,11 @@ int main(int argc, char *argv[]) {
         std::cout << "CommandException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
     } catch(ConfigulationException excep) {
         std::cout << "ConfigulationException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
+    } catch(std::out_of_range excep) {
+        std::cout << "OutOfRangeException" << std::endl;
+    } catch(std::exception excep) {
+        std::cout << "OutOfRangeException: " << excep.what() << std::endl;
+    } catch(...) {
+        std::cout << "UnknownException" << std::endl;
     }
 }

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "../filemanager/filemanager.hpp"
@@ -39,19 +40,55 @@ ConfigulationException::ConfigulationException(ConfigulationExceptionType type, 
 std::string Configulation::homeDirEnvName = "CHES_HOME";
 std::string Configulation::homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
 
-Configulation Configulation::settings = Configulation("0.0.0/settings/");
-Configulation Configulation::langPack = Configulation("0.0.0/langpack/ja-jp/");
+Configulation Configulation::settings = Configulation("/0.0.0/settings/chesc.cnf");
+Configulation Configulation::langPack = Configulation("/0.0.0/langpack/ja-jp/");
 
 Configulation::Configulation() {}
 
 Configulation::Configulation(std::string path) {
     if(Configulation::homeDirPath == "") {
-        std::cout << "configulation error: Environment variable '" << Configulation::homeDirEnvName << "' is not set.";
+        std::cout << "configulation error: Environment variable '" << Configulation::homeDirEnvName << "' is not set or empty." << std::endl;
         exit(-1);
     }
 
     this->path = Configulation::homeDirPath + path;
     this->loadData();
+}
+
+void Configulation::edit(std::unordered_map<std::string, std::string> editedOptionMap) {
+    for(const auto [ key, value ] : editedOptionMap)
+        if(!this->exists(key))
+            throw ConfigulationException(ConfigulationException_UnknownPropName);
+
+    std::vector<std::string> lineVec;
+
+    try {
+        lineVec = FileManager::getLines(this->path);
+    } catch(FileManagerException excep) {
+        throw excep;
+    }
+
+    for(int i = 0; i < lineVec.size(); i++) {
+        std::pair<std::string, std::string> prop;
+
+        try {
+            prop = Configulation::toPropPair(lineVec.at(i));
+        } catch(ConfigulationException excep) {
+            throw excep;
+        }
+
+        if(prop == (std::pair<std::string, std::string>){})
+            continue;
+
+        if(editedOptionMap.count(prop.first) == 1)
+            lineVec.at(i) = prop.first + "=" + editedOptionMap.at(prop.first);
+    }
+
+    try {
+        FileManager::writeLines(this->path, lineVec);
+    } catch(FileManagerException excep) {
+        throw excep;
+    }
 }
 
 bool Configulation::exists(std::string key) {
@@ -123,34 +160,15 @@ void Configulation::loadData() {
 
     try {
         for(std::string line : lineVec) {
-            if(line.size() == 0)
+            std::pair<std::string, std::string> prop = Configulation::toPropPair(line);
+
+            if(prop == (std::pair<std::string, std::string>){})
                 continue;
 
-            if(line.at(0) == '#')
-                continue;
-
-            int separatorIndex = 0;
-
-            for(separatorIndex = 0; separatorIndex < line.size(); separatorIndex++)
-                if(line.at(separatorIndex) == '=')
-                    break;
-
-            if(line.size() == separatorIndex)
-                throw ConfigulationException(ConfigulationException_InvalidSyntax);
-
-            std::string propName = line.substr(0, separatorIndex);
-            std::string propValue = line.substr(separatorIndex + 1);
-
-            Configulation::removeBothSideSpaces(propName);
-            Configulation::removeBothSideSpaces(propValue);
-
-            if(propName == "")
-                throw ConfigulationException(ConfigulationException_InvalidPropName);
-
-            if(this->exists(propName))
+            if(this->exists(prop.first))
                 throw ConfigulationException(ConfigulationException_DuplicatedPropName);
 
-            this->dataMap[propName] = propValue;
+            this->dataMap[prop.first] = prop.second;
         }
     } catch(ConfigulationException excep) {
         // note: 言語データが利用できないため、switchを使ってエラー名を取得する

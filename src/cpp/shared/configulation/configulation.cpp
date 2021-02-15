@@ -16,7 +16,8 @@ namespace ches::shared {
         ConfigulationException_Unknown,
         ConfigulationException_DuplicatedPropName,
         ConfigulationException_InvalidPropName,
-        ConfigulationException_InvalidSyntax
+        ConfigulationException_InvalidSyntax,
+        ConfigulationException_UnknownPropName
     };
 
 
@@ -53,6 +54,12 @@ namespace ches::shared {
         Configulation(std::string relPath);
 
         /*
+         * arg: editedOptionMap: 設定値を編集したオプションマップ
+         * excep: FileManager::getLines(std::string) と同様 / Configulation::toPropPair(std::string) と同様 / ConfigulationException [UnknownPropName]
+         */
+        void edit(std::unordered_map<std::string, std::string> editedOptionMap);
+
+        /*
          * ret: プロパティ名が存在するかどうか
          */
         bool exists(std::string key);
@@ -76,28 +83,66 @@ namespace ches::shared {
 
         void print();
 
+        /*
+         * note: プロパティ名の重複検査は行われない
+         * ret: プロパティ形式の行であればプロパティ名とプロパティ値のペア、そうでなければ null_ptr を返す
+         * excep: ConfigulationException [InvalidSyntax, InvalidPropName]
+         */
+        static std::pair<std::string, std::string> toPropPair(std::string line) {
+            if(line.size() == 0)
+                return {};
+
+            if(line.at(0) == '#')
+                return {};
+
+            int separatorIndex = 0;
+
+            for(; separatorIndex < line.size(); separatorIndex++)
+                if(line.at(separatorIndex) == '=')
+                    break;
+
+            if(line.size() == separatorIndex)
+                throw ConfigulationException(ConfigulationException_InvalidSyntax);
+
+            std::string propName = line.substr(0, separatorIndex);
+            std::string propValue = line.substr(separatorIndex + 1);
+
+            Configulation::removeBothSideSpaces(propName);
+            Configulation::removeBothSideSpaces(propValue);
+
+            if(propName == "")
+                throw ConfigulationException(ConfigulationException_InvalidPropName);
+
+            return std::make_pair(propName, propValue);
+        }
+
     protected:
         void loadData();
 
     private:
-        void removeBothSideSpaces(std::string &text) {
-            int beforeSpaceLen, behindSpaceLen = 0;
+        static void removeBothSideSpaces(std::string &text) {
+            try {
+                int beforeSpaceLen = 0;
+                int behindSpaceLen = 0;
 
-            for(; beforeSpaceLen < text.size(); beforeSpaceLen++)
-                if(text.at(beforeSpaceLen) != ' ')
-                    break;
+                for(; beforeSpaceLen < text.size(); beforeSpaceLen++)
+                    if(text.at(beforeSpaceLen) != ' ')
+                        break;
 
-            for(; behindSpaceLen < text.size(); behindSpaceLen++)
-                if(text.at(text.size() - behindSpaceLen - 1) != ' ')
-                    break;
+                for(; behindSpaceLen < text.size(); behindSpaceLen++)
+                    if(text.at(text.size() - behindSpaceLen - 1) != ' ')
+                        break;
 
-            if(beforeSpaceLen != 0 && beforeSpaceLen == behindSpaceLen) {
-                text = "";
-                return;
+                if(beforeSpaceLen != 0 && beforeSpaceLen == behindSpaceLen) {
+                    text = "";
+                    return;
+                }
+
+                text = text.substr(beforeSpaceLen, text.size() - behindSpaceLen - beforeSpaceLen);
+            } catch(std::out_of_range excep) {
+                std::cout << "String Parse Error (std::out_of_range) \"" + text + "\"" << std::endl;
+                exit(-1);
             }
-
-            text = text.substr(beforeSpaceLen, text.size() - behindSpaceLen - beforeSpaceLen);
         }
     };
 }
-

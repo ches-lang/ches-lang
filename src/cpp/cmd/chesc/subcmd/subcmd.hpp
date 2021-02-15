@@ -11,6 +11,11 @@
 #pragma once
 
 
+#include <iostream>
+#include <string>
+#include <unordered_map>
+
+#include "../../../shared/filemanager/filemanager.hpp"
 #include "../../../shared/command/command.hpp"
 
 #include "./subcmd.cpp"
@@ -35,6 +40,7 @@ void ChescCommand::init(std::vector<std::string> args, std::string defaultCmdNam
 
         this->cmd.addCommandProc("cmp", ChescCommand::cmd_cmp);
         this->cmd.addCommandProc("help", ChescCommand::cmd_help);
+        this->cmd.addCommandProc("set", ChescCommand::cmd_set);
     } catch(CommandException excep) {
         switch(excep.type) {
             case CommandException_CommandNameAlreadyExists:

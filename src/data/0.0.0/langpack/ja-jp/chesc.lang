@@ -1,0 +1,16 @@
+# Chestnut 0.0.0
+#
+# GitHub Repository:
+#     https://github.com/Garnet3106/chestnut/
+#
+# Copyright © 2020-2021 Garnet3106 All rights reserved. 
+
+
+chesc.error.tooManyOptionValues=多すぎるオプション値
+chesc.error.unknownSettingName=不明な設定名
+
+chesc.note.settingList=設定一覧
+chesc.note.specifySettingName=設定名を指定してください
+
+chesc.word.optionName=オプション名
+chesc.word.settingName=設定名

@@ -80,5 +80,28 @@ namespace ches::shared {
 
             return lineVec;
         }
+
+        /*
+         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable, Unknown]
+         */
+        static void writeLines(std::string filePath, std::vector<std::string> lineVec) {
+            try {
+                if(!FileManager::exists(filePath))
+                    throw FileManagerException(FileManagerException_PathNotFound, filePath);
+
+                if(FileManager::isDirectory(filePath))
+                    throw FileManagerException(FileManagerException_NotFilePath, filePath);
+
+                std::ofstream ofs(filePath);
+
+                if(!ofs.is_open())
+                    throw FileManagerException(FileManagerException_FileUnopenable, filePath);
+
+                for(std::string line : lineVec)
+                    ofs << line << std::endl;
+            } catch(std::exception) {
+                throw FileManagerException(FileManagerException_Unknown, filePath);
+            }
+        }
     };
 }

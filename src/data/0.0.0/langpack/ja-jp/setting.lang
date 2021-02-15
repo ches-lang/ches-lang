@@ -1,0 +1,10 @@
+# Chestnut 0.0.0
+#
+# GitHub Repository:
+#     https://github.com/Garnet3106/chestnut/
+#
+# Copyright © 2020-2021 Garnet3106 All rights reserved. 
+
+
+setting.error.failedToSaveSettingFile=設定ファイルの保存失敗
+setting.error.failedToParseSettingData=設定データのパース失敗

@@ -74,7 +74,7 @@ namespace ches::shared {
 
     struct Command {
     public:
-        typedef std::function<void(Command)>                    CommandProc;
+        typedef std::function<void(Command&)>                    CommandProc;
         typedef std::unordered_map<std::string, CommandProc>    CommandProcMap;
 
         std::string cmdName = "";
@@ -89,25 +89,25 @@ namespace ches::shared {
         Command();
 
         /*
-         * except: Command::loadFromArgs() と同様
+         * excep: Command::loadFromArgs(std::vector<std::string>) と同様
          */
         Command(std::vector<std::string> args, std::string defaultCmdName);
 
         /*
-         * except: CommandException [CommandNameAlreadyExists]
+         * excep: CommandException [CommandNameAlreadyExists]
          */
         void addCommandProc(std::string cmdName, CommandProc proc);
 
         void print();
 
         /*
-         * except: CommandException [UnknownCommandName]
+         * excep: CommandException [UnknownCommandName]
          */
         void run();
 
     private:
         /*
-         * except: CommandException [InvalidOptionName, UnexpectedOptionValue]
+         * excep: CommandException [InvalidOptionName, UnexpectedOptionValue]
          */
         void loadFromArgs(std::vector<std::string> args);
     };

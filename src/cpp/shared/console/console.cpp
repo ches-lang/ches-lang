@@ -66,7 +66,7 @@ namespace ches::shared {
                         break;
                     }
                 }
-            } catch(std::regex_error ignoredExcep) {
+            } catch(std::regex_error excep) {
                 std::cout << "error (std::regex_error) on Console::translateText(std::string&)" << std::endl;
             }
         }
