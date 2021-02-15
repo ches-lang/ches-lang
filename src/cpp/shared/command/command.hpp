@@ -129,6 +129,9 @@ void Command::loadFromArgs(std::vector<std::string> args) {
             continue;
         }
 
+        if(value.size() >= 2 && value.substr(0, 2) == "\\-")
+            value = value.substr(1);
+
         if(optionName_tmp == "")
             throw CommandException(CommandException_UnexpectedOptionValue, value);
 

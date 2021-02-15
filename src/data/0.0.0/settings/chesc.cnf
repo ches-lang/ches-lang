@@ -6,5 +6,5 @@
 # Copyright © 2020-2021 Garnet3106 All rights reserved. 
 
 
-lang=ja-jp
-log-limit=1
+lang=en-us
+log-limit=-1
