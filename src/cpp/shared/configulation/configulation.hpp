@@ -80,8 +80,14 @@ void Configulation::edit(std::unordered_map<std::string, std::string> editedOpti
         if(prop == (std::pair<std::string, std::string>){})
             continue;
 
-        if(editedOptionMap.count(prop.first) == 1)
-            lineVec.at(i) = prop.first + "=" + editedOptionMap.at(prop.first);
+        if(editedOptionMap.count(prop.first) == 1) {
+            std::string newValue = editedOptionMap.at(prop.first);
+
+            if(newValue.find("\n") != std::string::npos)
+                throw ConfigulationException(ConfigulationException_InvalidPropValue, newValue);
+
+            lineVec.at(i) = prop.first + "=" + newValue;
+        }
     }
 
     try {

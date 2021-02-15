@@ -75,6 +75,10 @@ namespace ches::cmd::chesc {
                         excepTypeName = "invalid prop name";
                         break;
 
+                        case ConfigulationException_InvalidPropValue:
+                        excepTypeName = "invalid prop value";
+                        break;
+
                         case ConfigulationException_InvalidSyntax:
                         excepTypeName = "invalid syntax";
                         break;

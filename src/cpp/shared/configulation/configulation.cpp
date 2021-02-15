@@ -16,6 +16,7 @@ namespace ches::shared {
         ConfigulationException_Unknown,
         ConfigulationException_DuplicatedPropName,
         ConfigulationException_InvalidPropName,
+        ConfigulationException_InvalidPropValue,
         ConfigulationException_InvalidSyntax,
         ConfigulationException_UnknownPropName
     };
@@ -55,7 +56,7 @@ namespace ches::shared {
 
         /*
          * arg: editedOptionMap: 設定値を編集したオプションマップ
-         * excep: FileManager::getLines(std::string) と同様 / Configulation::toPropPair(std::string) と同様 / ConfigulationException [UnknownPropName]
+         * excep: FileManager::getLines(std::string) と同様 / Configulation::toPropPair(std::string) と同様 / ConfigulationException [InvalidPropValue, UnknownPropName]
          */
         void edit(std::unordered_map<std::string, std::string> editedOptionMap);
 
