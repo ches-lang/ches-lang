@@ -15,9 +15,11 @@ namespace ches::shared {
     enum ConfigulationExceptionType {
         ConfigulationException_Unknown,
         ConfigulationException_DuplicatedPropName,
+        ConfigulationException_InvalidEnvironmentVariable,
         ConfigulationException_InvalidPropName,
         ConfigulationException_InvalidPropValue,
         ConfigulationException_InvalidSyntax,
+        ConfigulationException_UndefinedSettingProperty,
         ConfigulationException_UnknownPropName
     };
 
@@ -42,17 +44,13 @@ namespace ches::shared {
 
     public:
         static std::string homeDirEnvName;
-        static std::string homeDirPath;
 
         static Configulation settings;
         static Configulation langPack;
 
         Configulation();
 
-        /*
-         * arg: path: configデータのホームディレクトリから見た相対的なディレクトリパスまたはファイルパス
-         */
-        Configulation(std::string relPath);
+        Configulation(std::string path);
 
         /*
          * arg: editedOptionMap: 設定値を編集したオプションマップ
@@ -80,6 +78,26 @@ namespace ches::shared {
                 return "";
 
             return value;
+        }
+
+        /*
+         * ConfigulationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
+         */
+        static void loadEachData() {
+            std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
+
+            if(homeDirPath == "")
+                throw ConfigulationException(ConfigulationException_InvalidEnvironmentVariable);
+
+            Configulation::settings = Configulation(homeDirPath + "/0.0.0/settings/chesc.cnf");
+
+            std::string langSettingName = "lang";
+            std::string langSettingValue = Configulation::settings.get(langSettingName);
+
+            if(!Configulation::settings.exists(langSettingName) || langSettingValue == "")
+                throw ConfigulationException(ConfigulationException_UndefinedSettingProperty, langSettingName);
+
+            Configulation::langPack = Configulation(homeDirPath + "/0.0.0/langpack/" + langSettingValue);
         }
 
         void print();

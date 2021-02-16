@@ -38,20 +38,14 @@ ConfigulationException::ConfigulationException(ConfigulationExceptionType type, 
 
 
 std::string Configulation::homeDirEnvName = "CHES_HOME";
-std::string Configulation::homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
 
-Configulation Configulation::settings = Configulation("/0.0.0/settings/chesc.cnf");
-Configulation Configulation::langPack = Configulation("/0.0.0/langpack/ja-jp/");
+Configulation Configulation::settings;
+Configulation Configulation::langPack;
 
 Configulation::Configulation() {}
 
 Configulation::Configulation(std::string path) {
-    if(Configulation::homeDirPath == "") {
-        std::cout << "configulation error: Environment variable '" << Configulation::homeDirEnvName << "' is not set or empty." << std::endl;
-        exit(-1);
-    }
-
-    this->path = Configulation::homeDirPath + path;
+    this->path = path;
     this->loadData();
 }
 

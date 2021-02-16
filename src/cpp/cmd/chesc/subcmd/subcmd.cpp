@@ -49,6 +49,9 @@ namespace ches::cmd::chesc {
 
                     case 1: {
                         std::string newValue = value.values.at(0);
+
+                        ChescCommand::checkSettingPropFormat(settingKey, newValue);
+
                         outputOptionMap[settingKey] = settingValue + " -> " + newValue;
                         editedOptionMap[settingKey] = newValue;
                     } break;
@@ -104,6 +107,21 @@ namespace ches::cmd::chesc {
             }
 
             Console::note.print("{^chesc.note.settingList}", outputOptionMap);
+        }
+
+        static void checkSettingPropFormat(std::string propName, std::string propValue) {
+            if(propName == "lang") {
+                if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
+                    Console::error.print("{^setting.error.invalidLangName}", { { "{^setting.word.langName}", propValue } }, true);
+
+                std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
+                std::string path = homeDirPath + "/0.0.0/langpack/" + propValue;
+
+                if(!FileManager::exists(path) || !FileManager::isDirectory(path))
+                    Console::error.print("{^setting.error.settingFilePathNotFound}", { { "{^file.word.path}", path } }, true);
+
+                return;
+            }
         }
     };
 }

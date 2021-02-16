@@ -12,11 +12,13 @@
 
 
 #include <iostream>
+#include <regex>
 #include <string>
 #include <unordered_map>
 
 #include "../../../shared/filemanager/filemanager.hpp"
 #include "../../../shared/command/command.hpp"
+#include "../../../shared/configulation/configulation.hpp"
 
 #include "./subcmd.cpp"
 

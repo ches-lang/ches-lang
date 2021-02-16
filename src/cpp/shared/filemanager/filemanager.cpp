@@ -43,8 +43,12 @@ namespace ches::shared {
             std::vector<std::string> filePaths;
             auto dirItr = std::filesystem::directory_iterator(dirPath);
 
-            for(auto file : dirItr)
-                filePaths.push_back(file.path());
+            for(auto item : dirItr) {
+                std::string path = item.path();
+
+                if(!FileManager::isDirectory(path))
+                    filePaths.push_back(path);
+            }
 
             return filePaths;
         }

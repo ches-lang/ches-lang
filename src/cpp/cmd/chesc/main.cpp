@@ -24,6 +24,8 @@ using namespace ches::cmd::chesc;
 
 int main(int argc, char *argv[]) {
     try {
+        Configulation::loadEachData();
+
         ChescCommand chescCmd(argc, argv, "cmp");
         chescCmd.run();
     } catch(CommandException excep) {
