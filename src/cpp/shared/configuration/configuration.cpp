@@ -88,7 +88,7 @@ namespace ches::shared {
                 if(homeDirPath == "")
                     throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
 
-                Configuration::settings.loadData(homeDirPath + "/0.0.0/settings/chesc.cnf");
+                Configuration::settings.loadData(homeDirPath + "/settings/chesc.cnf");
 
                 std::string langSettingName = "lang";
                 std::string langSettingValue = Configuration::settings.get(langSettingName);
@@ -96,7 +96,7 @@ namespace ches::shared {
                 if(!Configuration::settings.exists(langSettingName) || langSettingValue == "")
                     throw ConfigurationException(ConfigurationException_UndefinedSettingProperty, langSettingName);
 
-                Configuration::langPack.loadData(homeDirPath + "/0.0.0/langpack/" + langSettingValue);
+                Configuration::langPack.loadData(homeDirPath + "/langpack/" + langSettingValue);
             } catch(FileManagerException excep) {
                 throw excep;
             } catch(ConfigurationException excep) {

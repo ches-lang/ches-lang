@@ -81,7 +81,7 @@ namespace ches::cmd::chesc {
                     Console::error.print("{^config.setting.error.invalidLanguageName}", { { "{^config.setting.words.languageName}", propValue } }, true);
 
                 std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
-                std::string path = homeDirPath + "/0.0.0/langpack/" + propValue;
+                std::string path = homeDirPath + "/langpack/" + propValue;
 
                 if(!FileManager::exists(path) || !FileManager::isDirectory(path))
                     Console::error.print("{^config.setting.error.settingFilePathNotFound}", { { "{^file.words.path}", path } }, true);
