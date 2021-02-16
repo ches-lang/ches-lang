@@ -25,7 +25,13 @@ using namespace ches::cmd::chesc;
 int main(int argc, char *argv[]) {
     try {
         Configulation::loadEachData();
+    } catch(FileManagerException excep) {
+        Console::error.print("{^configulation.error.failedToLoadConfigulationFile}", { { "{^file.word.path}", excep.target }, { "{^error.word.errorType}", std::to_string(excep.type) } }, true);
+    } catch(ConfigulationException excep) {
+        Console::error.print("{^configulation.error.failedToLoadConfigulationFile}", { { "{^file.word.path}", excep.target }, { "{^error.word.errorType}", std::to_string(excep.type) } }, true);
+    }
 
+    try {
         ChescCommand chescCmd(argc, argv, "cmp");
         chescCmd.run();
     } catch(CommandException excep) {

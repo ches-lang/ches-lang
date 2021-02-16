@@ -44,10 +44,6 @@ Configulation Configulation::langPack;
 
 Configulation::Configulation() {}
 
-Configulation::Configulation(std::string path) {
-    this->path = path;
-    this->loadData();
-}
 
 void Configulation::edit(std::unordered_map<std::string, std::string> editedOptionMap) {
     for(const auto [ key, value ] : editedOptionMap)
@@ -102,17 +98,9 @@ std::string Configulation::get(std::string key) {
     return this->dataMap.at(key);
 }
 
-void Configulation::print() {
-    std::cout << "[debug] Configulation Properties ( whole size: " << this->dataMap.size() << " )" << std::endl;
+void Configulation::loadData(std::string path) {
+    this->path = path;
 
-    for(auto [ key, value ] : this->dataMap)
-        std::cout << "\t" << key << ": " << value << "," << std::endl;
-
-    if(this->dataMap.size() > 0)
-        std::cout << std::endl;
-}
-
-void Configulation::loadData() {
     std::vector<std::string> lineVec;
 
     try {
@@ -132,30 +120,7 @@ void Configulation::loadData() {
             lineVec = FileManager::getLines(this->path);
         }
     } catch(FileManagerException excep) {
-        // note: 言語データが利用できないため、switchを使ってエラー名を取得する
-
-        std::string errorName;
-
-        switch(excep.type) {
-            case FileManagerException_FileUnopenable:
-            errorName = "FileUnopenable";
-            break;
-
-            case FileManagerException_NotFilePath:
-            errorName = "NotFilePath";
-            break;
-
-            case FileManagerException_PathNotFound:
-            errorName = "PathNotFound";
-            break;
-
-            default:
-            errorName = "UnknownFileManagerError";
-            break;
-        }
-
-        std::cout << "error (FileError: " << errorName << "; " << excep.target << ") on Configulation::loadData()" << std::endl;
-        exit(-1);
+        throw excep;
     }
 
     try {
@@ -171,29 +136,16 @@ void Configulation::loadData() {
             this->dataMap[prop.first] = prop.second;
         }
     } catch(ConfigulationException excep) {
-        // note: 言語データが利用できないため、switchを使ってエラー名を取得する
-
-        std::string errorName;
-
-        switch(excep.type) {
-            case ConfigulationException_DuplicatedPropName:
-            errorName = "DuplicatedPropName";
-            break;
-
-            case ConfigulationException_InvalidPropName:
-            errorName = "InvalidPropName";
-            break;
-
-            case ConfigulationException_InvalidSyntax:
-            errorName = "InvalidSyntax";
-            break;
-
-            default:
-            errorName = "UnknownConfigulationError";
-            break;
-        }
-
-        std::cout << "error (" << errorName << "; " << excep.target << ") on Configulation::loadConfigulation" << std::endl;
-        exit(-1);
+        throw excep;
     }
+}
+
+void Configulation::print() {
+    std::cout << "[debug] Configulation Properties ( whole size: " << this->dataMap.size() << " )" << std::endl;
+
+    for(auto [ key, value ] : this->dataMap)
+        std::cout << "\t" << key << ": " << value << "," << std::endl;
+
+    if(this->dataMap.size() > 0)
+        std::cout << std::endl;
 }

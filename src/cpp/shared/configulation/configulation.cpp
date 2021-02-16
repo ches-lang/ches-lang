@@ -50,8 +50,6 @@ namespace ches::shared {
 
         Configulation();
 
-        Configulation(std::string path);
-
         /*
          * arg: editedOptionMap: 設定値を編集したオプションマップ
          * excep: FileManager::getLines(std::string) と同様 / Configulation::toPropPair(std::string) と同様 / ConfigulationException [InvalidPropValue, UnknownPropName]
@@ -81,24 +79,35 @@ namespace ches::shared {
         }
 
         /*
-         * ConfigulationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
+         * excep: Configulatioin::loadData(std::string) と同様 / ConfigulationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
          */
         static void loadEachData() {
-            std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
+            try {
+                std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
 
-            if(homeDirPath == "")
-                throw ConfigulationException(ConfigulationException_InvalidEnvironmentVariable);
+                if(homeDirPath == "")
+                    throw ConfigulationException(ConfigulationException_InvalidEnvironmentVariable);
 
-            Configulation::settings = Configulation(homeDirPath + "/0.0.0/settings/chesc.cnf");
+                Configulation::settings.loadData(homeDirPath + "/0.0.0/settings/chesc.cnf");
 
-            std::string langSettingName = "lang";
-            std::string langSettingValue = Configulation::settings.get(langSettingName);
+                std::string langSettingName = "lang";
+                std::string langSettingValue = Configulation::settings.get(langSettingName);
 
-            if(!Configulation::settings.exists(langSettingName) || langSettingValue == "")
-                throw ConfigulationException(ConfigulationException_UndefinedSettingProperty, langSettingName);
+                if(!Configulation::settings.exists(langSettingName) || langSettingValue == "")
+                    throw ConfigulationException(ConfigulationException_UndefinedSettingProperty, langSettingName);
 
-            Configulation::langPack = Configulation(homeDirPath + "/0.0.0/langpack/" + langSettingValue);
+                Configulation::langPack.loadData(homeDirPath + "/0.0.0/langpack/" + langSettingValue);
+            } catch(FileManagerException excep) {
+                throw excep;
+            } catch(ConfigulationException excep) {
+                throw excep;
+            }
         }
+
+        /*
+         * excep: FileManager::getLines(std::string) と同様 / toPropPair(std::string) と同様 / ConfigulationException [DuplicatedPropName]
+         */
+        void loadData(std::string path);
 
         void print();
 
@@ -134,9 +143,6 @@ namespace ches::shared {
 
             return std::make_pair(propName, propValue);
         }
-
-    protected:
-        void loadData();
 
     private:
         static void removeBothSideSpaces(std::string &text) {
