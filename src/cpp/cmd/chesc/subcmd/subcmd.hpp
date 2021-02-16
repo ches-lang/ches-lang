@@ -18,7 +18,7 @@
 
 #include "../../../shared/filemanager/filemanager.hpp"
 #include "../../../shared/command/command.hpp"
-#include "../../../shared/configulation/configulation.hpp"
+#include "../../../shared/configuration/configuration.hpp"
 
 #include "./subcmd.cpp"
 

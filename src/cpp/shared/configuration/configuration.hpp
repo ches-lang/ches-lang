@@ -19,36 +19,36 @@
 
 #include "../filemanager/filemanager.hpp"
 
-#include "./configulation.cpp"
+#include "./configuration.cpp"
 
 
 using namespace ches::shared;
 
 
-ConfigulationException::ConfigulationException() {}
+ConfigurationException::ConfigurationException() {}
 
-ConfigulationException::ConfigulationException(ConfigulationExceptionType type) {
+ConfigurationException::ConfigurationException(ConfigurationExceptionType type) {
     this->type = type;
 }
 
-ConfigulationException::ConfigulationException(ConfigulationExceptionType type, std::string target) {
+ConfigurationException::ConfigurationException(ConfigurationExceptionType type, std::string target) {
     this->type = type;
     this->target = target;
 }
 
 
-std::string Configulation::homeDirEnvName = "CHES_HOME";
+std::string Configuration::homeDirEnvName = "CHES_HOME";
 
-Configulation Configulation::settings;
-Configulation Configulation::langPack;
+Configuration Configuration::settings;
+Configuration Configuration::langPack;
 
-Configulation::Configulation() {}
+Configuration::Configuration() {}
 
 
-void Configulation::edit(std::unordered_map<std::string, std::string> editedOptionMap) {
+void Configuration::edit(std::unordered_map<std::string, std::string> editedOptionMap) {
     for(const auto [ key, value ] : editedOptionMap)
         if(!this->exists(key))
-            throw ConfigulationException(ConfigulationException_UnknownPropName);
+            throw ConfigurationException(ConfigurationException_UnknownPropName);
 
     std::vector<std::string> lineVec;
 
@@ -62,8 +62,8 @@ void Configulation::edit(std::unordered_map<std::string, std::string> editedOpti
         std::pair<std::string, std::string> prop;
 
         try {
-            prop = Configulation::toPropPair(lineVec.at(i));
-        } catch(ConfigulationException excep) {
+            prop = Configuration::toPropPair(lineVec.at(i));
+        } catch(ConfigurationException excep) {
             throw excep;
         }
 
@@ -74,7 +74,7 @@ void Configulation::edit(std::unordered_map<std::string, std::string> editedOpti
             std::string newValue = editedOptionMap.at(prop.first);
 
             if(newValue.find("\n") != std::string::npos)
-                throw ConfigulationException(ConfigulationException_InvalidPropValue, newValue);
+                throw ConfigurationException(ConfigurationException_InvalidPropValue, newValue);
 
             lineVec.at(i) = prop.first + "=" + newValue;
         }
@@ -87,18 +87,18 @@ void Configulation::edit(std::unordered_map<std::string, std::string> editedOpti
     }
 }
 
-bool Configulation::exists(std::string key) {
+bool Configuration::exists(std::string key) {
     return this->dataMap.count(key);
 }
 
-std::string Configulation::get(std::string key) {
+std::string Configuration::get(std::string key) {
     if(!this->exists(key))
         return key;
 
     return this->dataMap.at(key);
 }
 
-void Configulation::loadData(std::string path) {
+void Configuration::loadData(std::string path) {
     this->path = path;
 
     std::vector<std::string> lineVec;
@@ -125,23 +125,23 @@ void Configulation::loadData(std::string path) {
 
     try {
         for(std::string line : lineVec) {
-            std::pair<std::string, std::string> prop = Configulation::toPropPair(line);
+            std::pair<std::string, std::string> prop = Configuration::toPropPair(line);
 
             if(prop == (std::pair<std::string, std::string>){})
                 continue;
 
             if(this->exists(prop.first))
-                throw ConfigulationException(ConfigulationException_DuplicatedPropName);
+                throw ConfigurationException(ConfigurationException_DuplicatedPropName);
 
             this->dataMap[prop.first] = prop.second;
         }
-    } catch(ConfigulationException excep) {
+    } catch(ConfigurationException excep) {
         throw excep;
     }
 }
 
-void Configulation::print() {
-    std::cout << "[debug] Configulation Properties ( whole size: " << this->dataMap.size() << " )" << std::endl;
+void Configuration::print() {
+    std::cout << "[debug] Configuration Properties ( whole size: " << this->dataMap.size() << " )" << std::endl;
 
     for(auto [ key, value ] : this->dataMap)
         std::cout << "\t" << key << ": " << value << "," << std::endl;

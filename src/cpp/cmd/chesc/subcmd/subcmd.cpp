@@ -37,10 +37,10 @@ namespace ches::cmd::chesc {
             for(const auto [ key, value ] : cmd.cmdOptionMap) {
                 std::string settingKey = key.substr(1);
 
-                if(!Configulation::settings.exists(settingKey))
+                if(!Configuration::settings.exists(settingKey))
                     Console::error.print("{^config.setting.error.unknownSettingName}", { { "{^config.setting.words.settingName}", settingKey } }, true);
 
-                std::string settingValue = Configulation::settings.get(settingKey);
+                std::string settingValue = Configuration::settings.get(settingKey);
 
                 switch(value.values.size()) {
                     case 0: {
@@ -64,9 +64,9 @@ namespace ches::cmd::chesc {
 
             if(editedOptionMap.size() != 0) {
                 try {
-                    Configulation::settings.edit(editedOptionMap);
-                } catch(ConfigulationException excep) {
-                    Console::error.print("{^config.setting.error.failedToParseSettingData}", { { "{^general.words.errorType}", "ConfigulationException [" + std::to_string(excep.type) + "]" } }, true);
+                    Configuration::settings.edit(editedOptionMap);
+                } catch(ConfigurationException excep) {
+                    Console::error.print("{^config.setting.error.failedToParseSettingData}", { { "{^general.words.errorType}", "ConfigurationException [" + std::to_string(excep.type) + "]" } }, true);
                 } catch(FileManagerException excep) {
                     Console::error.print("{^config.setting.error.failedToSaveSettingData}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
                 }
@@ -80,7 +80,7 @@ namespace ches::cmd::chesc {
                 if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
                     Console::error.print("{^config.setting.error.invalidLanguageName}", { { "{^config.setting.words.languageName}", propValue } }, true);
 
-                std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
+                std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
                 std::string path = homeDirPath + "/0.0.0/langpack/" + propValue;
 
                 if(!FileManager::exists(path) || !FileManager::isDirectory(path))

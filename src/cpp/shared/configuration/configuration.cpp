@@ -12,32 +12,32 @@
 
 
 namespace ches::shared {
-    enum ConfigulationExceptionType {
-        ConfigulationException_Unknown,
-        ConfigulationException_DuplicatedPropName,
-        ConfigulationException_InvalidEnvironmentVariable,
-        ConfigulationException_InvalidPropName,
-        ConfigulationException_InvalidPropValue,
-        ConfigulationException_InvalidSyntax,
-        ConfigulationException_UndefinedSettingProperty,
-        ConfigulationException_UnknownPropName
+    enum ConfigurationExceptionType {
+        ConfigurationException_Unknown,
+        ConfigurationException_DuplicatedPropName,
+        ConfigurationException_InvalidEnvironmentVariable,
+        ConfigurationException_InvalidPropName,
+        ConfigurationException_InvalidPropValue,
+        ConfigurationException_InvalidSyntax,
+        ConfigurationException_UndefinedSettingProperty,
+        ConfigurationException_UnknownPropName
     };
 
 
-    class ConfigulationException {
+    class ConfigurationException {
     public:
-        ConfigulationExceptionType type;
+        ConfigurationExceptionType type;
         std::string target = "";
 
-        ConfigulationException();
+        ConfigurationException();
 
-        ConfigulationException(ConfigulationExceptionType type);
+        ConfigurationException(ConfigurationExceptionType type);
 
-        ConfigulationException(ConfigulationExceptionType type, std::string target);
+        ConfigurationException(ConfigurationExceptionType type, std::string target);
     };
 
 
-    class Configulation {
+    class Configuration {
     protected:
         std::string path = "";
         std::unordered_map<std::string, std::string> dataMap;
@@ -45,14 +45,14 @@ namespace ches::shared {
     public:
         static std::string homeDirEnvName;
 
-        static Configulation settings;
-        static Configulation langPack;
+        static Configuration settings;
+        static Configuration langPack;
 
-        Configulation();
+        Configuration();
 
         /*
          * arg: editedOptionMap: 設定値を編集したオプションマップ
-         * excep: FileManager::getLines(std::string) と同様 / Configulation::toPropPair(std::string) と同様 / ConfigulationException [InvalidPropValue, UnknownPropName]
+         * excep: FileManager::getLines(std::string) と同様 / Configuration::toPropPair(std::string) と同様 / ConfigurationException [InvalidPropValue, UnknownPropName]
          */
         void edit(std::unordered_map<std::string, std::string> editedOptionMap);
 
@@ -79,33 +79,33 @@ namespace ches::shared {
         }
 
         /*
-         * excep: Configulatioin::loadData(std::string) と同様 / ConfigulationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
+         * excep: Configulatioin::loadData(std::string) と同様 / ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
          */
         static void loadEachData() {
             try {
-                std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
+                std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
 
                 if(homeDirPath == "")
-                    throw ConfigulationException(ConfigulationException_InvalidEnvironmentVariable);
+                    throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
 
-                Configulation::settings.loadData(homeDirPath + "/0.0.0/settings/chesc.cnf");
+                Configuration::settings.loadData(homeDirPath + "/0.0.0/settings/chesc.cnf");
 
                 std::string langSettingName = "lang";
-                std::string langSettingValue = Configulation::settings.get(langSettingName);
+                std::string langSettingValue = Configuration::settings.get(langSettingName);
 
-                if(!Configulation::settings.exists(langSettingName) || langSettingValue == "")
-                    throw ConfigulationException(ConfigulationException_UndefinedSettingProperty, langSettingName);
+                if(!Configuration::settings.exists(langSettingName) || langSettingValue == "")
+                    throw ConfigurationException(ConfigurationException_UndefinedSettingProperty, langSettingName);
 
-                Configulation::langPack.loadData(homeDirPath + "/0.0.0/langpack/" + langSettingValue);
+                Configuration::langPack.loadData(homeDirPath + "/0.0.0/langpack/" + langSettingValue);
             } catch(FileManagerException excep) {
                 throw excep;
-            } catch(ConfigulationException excep) {
+            } catch(ConfigurationException excep) {
                 throw excep;
             }
         }
 
         /*
-         * excep: FileManager::getLines(std::string) と同様 / toPropPair(std::string) と同様 / ConfigulationException [DuplicatedPropName]
+         * excep: FileManager::getLines(std::string) と同様 / toPropPair(std::string) と同様 / ConfigurationException [DuplicatedPropName]
          */
         void loadData(std::string path);
 
@@ -114,7 +114,7 @@ namespace ches::shared {
         /*
          * note: プロパティ名の重複検査は行われない
          * ret: プロパティ形式の行であればプロパティ名とプロパティ値のペア、そうでなければ null_ptr を返す
-         * excep: ConfigulationException [InvalidSyntax, InvalidPropName]
+         * excep: ConfigurationException [InvalidSyntax, InvalidPropName]
          */
         static std::pair<std::string, std::string> toPropPair(std::string line) {
             if(line.size() == 0)
@@ -130,16 +130,16 @@ namespace ches::shared {
                     break;
 
             if(line.size() == separatorIndex)
-                throw ConfigulationException(ConfigulationException_InvalidSyntax);
+                throw ConfigurationException(ConfigurationException_InvalidSyntax);
 
             std::string propName = line.substr(0, separatorIndex);
             std::string propValue = line.substr(separatorIndex + 1);
 
-            Configulation::removeBothSideSpaces(propName);
-            Configulation::removeBothSideSpaces(propValue);
+            Configuration::removeBothSideSpaces(propName);
+            Configuration::removeBothSideSpaces(propValue);
 
             if(propName == "")
-                throw ConfigulationException(ConfigulationException_InvalidPropName);
+                throw ConfigurationException(ConfigurationException_InvalidPropName);
 
             return std::make_pair(propName, propValue);
         }

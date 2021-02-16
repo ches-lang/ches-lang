@@ -8,7 +8,7 @@
  */
 
 
-#include "../../shared/configulation/configulation.hpp"
+#include "../../shared/configuration/configuration.hpp"
 #include "../../shared/command/command.hpp"
 #include "../../shared/console/console.hpp"
 
@@ -24,11 +24,11 @@ using namespace ches::cmd::chesc;
 
 int main(int argc, char *argv[]) {
     try {
-        Configulation::loadEachData();
+        Configuration::loadEachData();
     } catch(FileManagerException excep) {
         Console::error.print("{^config.error.failedToReadConfigFile}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
-    } catch(ConfigulationException excep) {
-        Console::error.print("{^config.error.failedToParseConfigFile}", { { "{^file.words.path}", excep.target }, { "{^error.words.errorType}", "ConfigulationException [" + std::to_string(excep.type) + "]" } }, true);
+    } catch(ConfigurationException excep) {
+        Console::error.print("{^config.error.failedToParseConfigFile}", { { "{^file.words.path}", excep.target }, { "{^error.words.errorType}", "ConfigurationException [" + std::to_string(excep.type) + "]" } }, true);
     }
 
     try {
@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
         chescCmd.run();
     } catch(CommandException excep) {
         std::cout << "CommandException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
-    } catch(ConfigulationException excep) {
-        std::cout << "ConfigulationException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
+    } catch(ConfigurationException excep) {
+        std::cout << "ConfigurationException (" << excep.type << ") \"" << excep.target << "\"" << std::endl;
     } catch(std::out_of_range excep) {
         std::cout << "OutOfRangeException" << std::endl;
     } catch(std::exception excep) {
