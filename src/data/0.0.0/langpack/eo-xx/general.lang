@@ -6,5 +6,6 @@
 # Copyright © 2020-2021 Garnet3106 All rights reserved. 
 
 
-lang=en-us
-log-limit=-1
+general.error.unknownError=nekonata eraro
+
+general.words.errorType=erara tipo

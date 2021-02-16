@@ -1,0 +1,24 @@
+# Chestnut 0.0.0
+#
+# GitHub Repository:
+#     https://github.com/Garnet3106/chestnut/
+#
+# Copyright © 2020-2021 Garnet3106 All rights reserved. 
+
+
+config.error.failedToReadConfigFile=lego de konfig dosiero malsukcesis
+config.error.failedToParseConfigFile=analizo de konfig dosiero malsukcesis
+
+# config.setting
+
+config.setting.error.failedToParseSettingData=analizo de agorda dateno malsukcesis
+config.setting.error.failedToSaveSettingData=depono de agorda dateno malsukcesis
+config.setting.error.invalidLanguageName=nevalida lingva nomo
+config.setting.error.settingFilePathNotFound=agorda dosiera vojo netroviĝis
+config.setting.error.unknownSettingName=nekonata agorda nomo
+
+config.setting.note.settingList=agorda listo
+config.setting.note.specifySettingName=precizigi agorda nomo
+
+config.setting.words.languageName=lingva nomo
+config.setting.words.settingName=agorda nomo

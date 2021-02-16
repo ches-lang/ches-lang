@@ -6,9 +6,17 @@
 # Copyright © 2020-2021 Garnet3106 All rights reserved. 
 
 
-command.error.commandNameAlreadyExists=ekzistata komanda nomo
-command.error.optionNameAlreadyExists=ekzistata opcia nomo
-command.error.unexpectedOptionValue=malatendata opcia nomo
-command.error.unknownCommandError=nekonata eraro
+command.error.duplicatedCommandName=duobla komanda nomo
+command.error.invalidOptionName=nevalida opcia nomo
+command.error.duplicatedOptionName=duobla opcia nomo
+command.error.tooManyOptionValues=troa opcia valoro
+command.error.uncaughtErrorInSubCommand=nekaptita eraro en subkomando
+command.error.unexpectedOptionValue=neatendita opcia valoro
+command.error.unknownCommandError=nekonata komanda eraro
 command.error.unknownCommandName=nekonata komanda nomo
 command.error.unknownOptionName=nekonata opcia nomo
+
+command.words.commandName=komanda nomo
+command.words.optionList=opcia listo
+command.words.optionName=opcia nomo
+command.words.optionValue=opcia valoro

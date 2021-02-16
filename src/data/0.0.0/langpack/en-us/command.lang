@@ -6,9 +6,17 @@
 # Copyright © 2020-2021 Garnet3106 All rights reserved. 
 
 
-command.error.commandNameAlreadyExists=command name already exists
-command.error.optionNameAlreadyExists=option name already exists
+command.error.duplicatedCommandName=duplicated command name
+command.error.invalidOptionName=invalid option name
+command.error.duplicatedOptionName=duplicated option name
+command.error.tooManyOptionValues=too many option values
+command.error.uncaughtErrorInSubCommand=uncaught error in sub command
 command.error.unexpectedOptionValue=unexpected option value
-command.error.unknownCommandError=unknown error
+command.error.unknownCommandError=unknown command error
 command.error.unknownCommandName=unknown command name
 command.error.unknownOptionName=unknown option name
+
+command.words.commandName=command name
+command.words.optionList=option list
+command.words.optionName=option name
+command.words.optionValue=option value

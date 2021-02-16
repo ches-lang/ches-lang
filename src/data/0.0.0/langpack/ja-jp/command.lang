@@ -9,6 +9,7 @@
 command.error.duplicatedCommandName=重複したコマンド名
 command.error.invalidOptionName=無効なオプション名
 command.error.duplicatedOptionName=重複したオプション名
+command.error.tooManyOptionValues=過多なオプション値
 command.error.uncaughtErrorInSubCommand=未捕捉のサブコマンド内エラー
 command.error.unexpectedOptionValue=予期しないオプション値
 command.error.unknownCommandError=不明なコマンドエラー

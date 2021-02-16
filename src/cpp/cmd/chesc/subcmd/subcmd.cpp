@@ -57,7 +57,7 @@ namespace ches::cmd::chesc {
                     } break;
 
                     default: {
-                        Console::error.print("{^config.setting.error.tooManyOptionValues}", { { "{^config.setting.words.optionName}", settingKey } }, true);
+                        Console::error.print("{^command.tooManyOptionValues}", { { "{^command.words.optionName}", settingKey } }, true);
                     } break;
                 }
             }
@@ -68,7 +68,7 @@ namespace ches::cmd::chesc {
                 } catch(ConfigulationException excep) {
                     Console::error.print("{^config.setting.error.failedToParseSettingData}", { { "{^general.words.errorType}", "ConfigulationException [" + std::to_string(excep.type) + "]" } }, true);
                 } catch(FileManagerException excep) {
-                    Console::error.print("{^config.setting.error.failedToSaveSettingFile}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
+                    Console::error.print("{^config.setting.error.failedToSaveSettingData}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace ches::cmd::chesc {
         static void checkSettingPropFormat(std::string propName, std::string propValue) {
             if(propName == "lang") {
                 if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
-                    Console::error.print("{^config.setting.error.invalidLangName}", { { "{^config.setting.words.langName}", propValue } }, true);
+                    Console::error.print("{^config.setting.error.invalidLanguageName}", { { "{^config.setting.words.languageName}", propValue } }, true);
 
                 std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
                 std::string path = homeDirPath + "/0.0.0/langpack/" + propValue;
