@@ -11,11 +11,6 @@
 #pragma once
 
 
-extern std::string operator+(std::string value1, int value2) {
-    return value1 + std::to_string(value2);
-}
-
-
 namespace ches::shared {
     class Console {
     public:

@@ -14,9 +14,9 @@
 namespace ches::shared {
     enum CommandExceptionType {
         CommandException_Unknown,
-        CommandException_CommandNameAlreadyExists,
+        CommandException_DuplicatedCommandName,
+        CommandException_DuplicatedOptionName,
         CommandException_InvalidOptionName,
-        CommandException_OptionNameAlreadyExists,
         CommandException_UnexpectedOptionValue,
         CommandException_UnknownCommandName,
         CommandException_UnknownOptionName,
@@ -63,7 +63,7 @@ namespace ches::shared {
 
         inline void addOption(std::string optionName, std::vector<std::string> optionValues = {}) {
             if(this->count(optionName) == 1)
-                throw CommandException(CommandException_OptionNameAlreadyExists, optionName);
+                throw CommandException(CommandException_DuplicatedOptionName, optionName);
 
             CommandOption option;
             option.values = optionValues;
@@ -94,7 +94,7 @@ namespace ches::shared {
         Command(std::vector<std::string> args, std::string defaultCmdName);
 
         /*
-         * excep: CommandException [CommandNameAlreadyExists]
+         * excep: CommandException [DuplicatedCommandName]
          */
         void addCommandProc(std::string cmdName, CommandProc proc);
 

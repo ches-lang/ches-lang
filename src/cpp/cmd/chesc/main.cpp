@@ -26,9 +26,9 @@ int main(int argc, char *argv[]) {
     try {
         Configulation::loadEachData();
     } catch(FileManagerException excep) {
-        Console::error.print("{^configulation.error.failedToLoadConfigulationFile}", { { "{^file.word.path}", excep.target }, { "{^error.word.errorType}", std::to_string(excep.type) } }, true);
+        Console::error.print("{^config.error.failedToReadConfigFile}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
     } catch(ConfigulationException excep) {
-        Console::error.print("{^configulation.error.failedToLoadConfigulationFile}", { { "{^file.word.path}", excep.target }, { "{^error.word.errorType}", std::to_string(excep.type) } }, true);
+        Console::error.print("{^config.error.failedToParseConfigFile}", { { "{^file.words.path}", excep.target }, { "{^error.words.errorType}", "ConfigulationException [" + std::to_string(excep.type) + "]" } }, true);
     }
 
     try {
@@ -43,6 +43,6 @@ int main(int argc, char *argv[]) {
     } catch(std::exception excep) {
         std::cout << "OutOfRangeException: " << excep.what() << std::endl;
     } catch(...) {
-        std::cout << "UnknownException" << std::endl;
+        Console::error.print("{^general.error.unknownError}", true);
     }
 }

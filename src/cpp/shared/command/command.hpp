@@ -57,7 +57,7 @@ Command::Command(std::vector<std::string> args, std::string defaultCmdName = "")
 
 void Command::addCommandProc(std::string cmdName, Command::CommandProc proc) {
     if(this->cmdProcMap.count(cmdName) == 1)
-        throw CommandException(CommandException_CommandNameAlreadyExists, cmdName);
+        throw CommandException(CommandException_DuplicatedCommandName, cmdName);
 
     this->cmdProcMap[cmdName] = proc;
 }
@@ -78,7 +78,7 @@ void Command::print() {
         optionMap[name] = joinedOptionValues;
     }
 
-    Console::debug.print("{^command.word.optionList}", optionMap);
+    Console::debug.print("{^command.words.optionList}", optionMap);
 }
 
 void Command::run() {
@@ -148,7 +148,7 @@ void SubCommands::run() {
     } catch(CommandException excep) {
         switch(excep.type) {
             case CommandException_UnknownCommandName:
-            Console::error.print("{^command.error.unknownCommandName}", { { "{^command.word.commandName}", excep.target } }, true);
+            Console::error.print("{^command.error.unknownCommandName}", { { "{^command.words.commandName}", excep.target } }, true);
             break;
 
             default:

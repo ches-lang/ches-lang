@@ -45,20 +45,20 @@ void ChescCommand::init(std::vector<std::string> args, std::string defaultCmdNam
         this->cmd.addCommandProc("set", ChescCommand::cmd_set);
     } catch(CommandException excep) {
         switch(excep.type) {
-            case CommandException_CommandNameAlreadyExists:
-            Console::error.print("{^command.error.commandNameAlreadyExists}", { { "{^command.word.commandName}", excep.target } }, true);
+            case CommandException_DuplicatedCommandName:
+            Console::error.print("{^command.error.duplicatedCommandName}", { { "{^command.words.commandName}", excep.target } }, true);
             break;
 
             case CommandException_InvalidOptionName:
-            Console::error.print("{^command.error.invalidOptionName}", { { "{^command.word.optionName}", excep.target } }, true);
+            Console::error.print("{^command.error.invalidOptionName}", { { "{^command.words.optionName}", excep.target } }, true);
             break;
 
-            case CommandException_OptionNameAlreadyExists:
-            Console::error.print("{^command.error.optionNameAlreadyExists}", { { "{^command.word.optionName}", excep.target } }, true);
+            case CommandException_DuplicatedOptionName:
+            Console::error.print("{^command.error.duplicatedOptionName}", { { "{^command.words.optionName}", excep.target } }, true);
             break;
 
             case CommandException_UnexpectedOptionValue:
-            Console::error.print("{^command.error.unexpectedOptionValue}", { { "{^command.word.optionValue}", excep.target } }, true);
+            Console::error.print("{^command.error.unexpectedOptionValue}", { { "{^command.words.optionValue}", excep.target } }, true);
             break;
 
             default:

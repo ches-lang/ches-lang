@@ -1,0 +1,27 @@
+# Chestnut 0.0.0
+#
+# GitHub Repository:
+#     https://github.com/Garnet3106/chestnut/
+#
+# Copyright © 2020-2021 Garnet3106 All rights reserved. 
+
+
+config.error.failedToReadConfigFile=構成ファイルの読み込みに失敗しました
+config.error.failedToParseConfigFile=構成ファイルのパースに失敗しました
+config.error.unknownConfigulationError=不明な構成エラー
+
+# config.setting
+
+config.setting.error.failedToSaveSettingFile=設定ファイルの保存に失敗しました
+config.setting.error.failedToParseSettingData=設定データのパースに失敗しました
+config.setting.error.invalidLangName=無効な言語名
+config.setting.error.settingFilePathNotFound=設定ファイルパスが見つかりません
+config.setting.error.tooManyOptionValues=過多なオプション値
+config.setting.error.unknownSettingName=不明な設定名
+
+config.setting.note.specifySettingName=設定名を指定してください
+
+config.setting.words.langName=言語名
+config.setting.words.optionName=オプション名
+config.setting.note.settingList=設定一覧
+config.setting.words.settingName=設定名

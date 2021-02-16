@@ -29,7 +29,7 @@ namespace ches::cmd::chesc {
 
         static void cmd_set(Command &cmd) {
             if(cmd.cmdOptionMap.size() == 0)
-                Console::note.print("{^chesc.note.specifySettingName}", true);
+                Console::note.print("{^config.setting.note.specifySettingName}", true);
 
             std::unordered_map<std::string, std::string> outputOptionMap;
             std::unordered_map<std::string, std::string> editedOptionMap;
@@ -38,7 +38,7 @@ namespace ches::cmd::chesc {
                 std::string settingKey = key.substr(1);
 
                 if(!Configulation::settings.exists(settingKey))
-                    Console::error.print("{^chesc.error.unknownSettingName}", { { "{^chesc.word.settingName}", settingKey } }, true);
+                    Console::error.print("{^config.setting.error.unknownSettingName}", { { "{^config.setting.words.settingName}", settingKey } }, true);
 
                 std::string settingValue = Configulation::settings.get(settingKey);
 
@@ -57,7 +57,7 @@ namespace ches::cmd::chesc {
                     } break;
 
                     default: {
-                        Console::error.print("{^chesc.error.tooManyOptionValues}", { { "{^chesc.word.optionName}", settingKey } }, true);
+                        Console::error.print("{^config.setting.error.tooManyOptionValues}", { { "{^config.setting.words.optionName}", settingKey } }, true);
                     } break;
                 }
             }
@@ -66,59 +66,25 @@ namespace ches::cmd::chesc {
                 try {
                     Configulation::settings.edit(editedOptionMap);
                 } catch(ConfigulationException excep) {
-                    std::string excepTypeName;
-
-                    switch(excep.type) {
-                        case ConfigulationException_InvalidPropName:
-                        excepTypeName = "invalid prop name";
-                        break;
-
-                        case ConfigulationException_InvalidPropValue:
-                        excepTypeName = "invalid prop value";
-                        break;
-
-                        case ConfigulationException_InvalidSyntax:
-                        excepTypeName = "invalid syntax";
-                        break;
-
-                        case ConfigulationException_UnknownPropName:
-                        excepTypeName = "unknown prop name";
-                        break;
-
-                        default:
-                        excepTypeName = "unknown error";
-                        break;
-                    }
-
-                    Console::error.print("{^setting.error.failedToParseSettingData}", { { "{^error.word.errorType}", excepTypeName } }, true);
+                    Console::error.print("{^config.setting.error.failedToParseSettingData}", { { "{^general.words.errorType}", "ConfigulationException [" + std::to_string(excep.type) + "]" } }, true);
                 } catch(FileManagerException excep) {
-                    switch(excep.type) {
-                        case FileManagerException_NotFilePath:
-                        case FileManagerException_PathNotFound:
-                        case FileManagerException_FileUnopenable:
-                        Console::error.print("{^setting.error.failedToSaveSettingFile}", { { "{^file.word.path}", excep.target } }, true);
-                        break;
-
-                        default:
-                        Console::error.print("{^file.error.unknownFileError}", { { "file.word.path", excep.target } }, true);
-                        break;
-                    }
+                    Console::error.print("{^config.setting.error.failedToSaveSettingFile}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
                 }
             }
 
-            Console::note.print("{^chesc.note.settingList}", outputOptionMap);
+            Console::note.print("{^config.setting.note.settingList}", outputOptionMap);
         }
 
         static void checkSettingPropFormat(std::string propName, std::string propValue) {
             if(propName == "lang") {
                 if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
-                    Console::error.print("{^setting.error.invalidLangName}", { { "{^setting.word.langName}", propValue } }, true);
+                    Console::error.print("{^config.setting.error.invalidLangName}", { { "{^config.setting.words.langName}", propValue } }, true);
 
                 std::string homeDirPath = Configulation::getEnvironmentVariable(Configulation::homeDirEnvName);
                 std::string path = homeDirPath + "/0.0.0/langpack/" + propValue;
 
                 if(!FileManager::exists(path) || !FileManager::isDirectory(path))
-                    Console::error.print("{^setting.error.settingFilePathNotFound}", { { "{^file.word.path}", path } }, true);
+                    Console::error.print("{^config.setting.error.settingFilePathNotFound}", { { "{^file.words.path}", path } }, true);
 
                 return;
             }
