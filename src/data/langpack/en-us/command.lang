@@ -16,7 +16,13 @@ command.error.unknownCommandError=unknown command error
 command.error.unknownCommandName=unknown command name
 command.error.unknownOptionName=unknown option name
 
+command.help.cmp=Compile ches file(s).
+command.help.help=Show command help.
+command.help.set=Check or change the command setting(s).
+
+command.words.commandHelp=command help
 command.words.commandName=command name
 command.words.optionList=option list
 command.words.optionName=option name
 command.words.optionValue=option value
+command.words.subCommandList=sub command list

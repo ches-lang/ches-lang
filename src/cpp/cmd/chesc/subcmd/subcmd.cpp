@@ -24,7 +24,11 @@ namespace ches::cmd::chesc {
         }
 
         static void cmd_help(Command &cmd) {
-            std::cout << "help" << std::endl;
+            Console::note.print("{^command.words.commandHelp} - {^command.words.subCommandList}", {
+                { "cmp", "{^command.help.cmp}" },
+                { "help", "{^command.help.help}" },
+                { "set", "{^command.help.set}" }
+            });
         }
 
         static void cmd_set(Command &cmd) {

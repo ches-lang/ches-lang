@@ -16,7 +16,13 @@ command.error.unknownCommandError=nekonata komanda eraro
 command.error.unknownCommandName=nekonata komanda nomo
 command.error.unknownOptionName=nekonata opcia nomo
 
+command.help.cmp=Traduki Ches'a(j)n dosiero(j)n.
+command.help.help=Vidigi komandan helpon.
+command.help.set=Konstati aŭ ŝanĝi la komanda(j)n agordo(j)n.
+
+command.words.commandHelp=komanda helpo
 command.words.commandName=komanda nomo
 command.words.optionList=opcia listo
 command.words.optionName=opcia nomo
 command.words.optionValue=opcia valoro
+command.words.subCommandList=subkomanda listo

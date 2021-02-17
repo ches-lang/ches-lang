@@ -16,7 +16,13 @@ command.error.unknownCommandError=不明なコマンドエラー
 command.error.unknownCommandName=不明なコマンド名
 command.error.unknownOptionName=不明なオプション名
 
+command.help.cmp=Chesファイルをコンパイルする
+command.help.help=コマンドヘルプを表示する
+command.help.set=コマンド設定を確認または変更する
+
+command.words.commandHelp=コマンドヘルプ
 command.words.commandName=コマンド名
 command.words.optionList=オプション一覧
 command.words.optionName=オプション名
 command.words.optionValue=オプション値
+command.words.subCommandList=サブコマンド一覧
