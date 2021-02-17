@@ -6,6 +6,7 @@
 
 - [連絡先](./contact/index.md)
 - [FAQ](./faq/index.md)
+- [学習](./learning/index.md)
 - [ライセンス](./license/index.md)
 - [リリース](./releases/index.md)
 - [言語仕様書](./spec/index.md)

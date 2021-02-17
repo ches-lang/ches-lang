@@ -20,6 +20,8 @@
 #include "../../../shared/command/command.hpp"
 #include "../../../shared/configuration/configuration.hpp"
 
+#include "../compiler/compiler.hpp"
+
 #include "./subcmd.cpp"
 
 
