@@ -14,11 +14,12 @@ config.error.failedToParseConfigFile=構成ファイルのパースに失敗し�
 config.setting.error.failedToParseSettingData=設定データのパースに失敗しました
 config.setting.error.failedToSaveSettingData=設定データの保存に失敗しました
 config.setting.error.invalidLanguageName=無効な言語名
+config.setting.error.invalidSettingValue=無効な設定値
 config.setting.error.settingFilePathNotFound=設定ファイルパスが見つかりません
 config.setting.error.unknownSettingName=不明な設定名
 
 config.setting.note.settingList=設定一覧
 config.setting.note.specifySettingName=設定名を指定してください
 
-config.setting.words.languageName=言語名
 config.setting.words.settingName=設定名
+config.setting.words.settingValue=設定値

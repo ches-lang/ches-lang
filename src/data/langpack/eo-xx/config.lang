@@ -14,11 +14,12 @@ config.error.failedToParseConfigFile=analizo de konfig dosiero malsukcesis
 config.setting.error.failedToParseSettingData=analizo de agorda dateno malsukcesis
 config.setting.error.failedToSaveSettingData=depono de agorda dateno malsukcesis
 config.setting.error.invalidLanguageName=nevalida lingva nomo
+config.setting.error.invalidSettingValue=nevalida agorda valoro
 config.setting.error.settingFilePathNotFound=agorda dosiera vojo netroviĝis
 config.setting.error.unknownSettingName=nekonata agorda nomo
 
 config.setting.note.settingList=agorda listo
 config.setting.note.specifySettingName=precizigi agorda nomo
 
-config.setting.words.languageName=lingva nomo
 config.setting.words.settingName=agorda nomo
+config.setting.words.settingValue=agorda valoro

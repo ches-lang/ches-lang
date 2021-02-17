@@ -76,15 +76,29 @@ namespace ches::cmd::chesc {
         }
 
         static void checkSettingPropFormat(std::string propName, std::string propValue) {
-            if(propName == "lang") {
+            if(propName == Configuration::langSettingName) {
                 if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
-                    Console::error.print("{^config.setting.error.invalidLanguageName}", { { "{^config.setting.words.languageName}", propValue } }, true);
+                    Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^general.words.errorType}", "{^config.setting.error.invalidLanguageName}" },
+                        { "{^config.setting.words.settingName}", propName }, { "{^config.setting.words.settingValue}", propValue } }, true);
 
                 std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
                 std::string path = homeDirPath + "/langpack/" + propValue;
 
                 if(!FileManager::exists(path) || !FileManager::isDirectory(path))
-                    Console::error.print("{^config.setting.error.settingFilePathNotFound}", { { "{^file.words.path}", path } }, true);
+                    Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^general.words.errorType}", "{^config.setting.error.settingFilePathNotFound}" },
+                        { "{^config.setting.words.settingName}", propName }, { "{^config.setting.words.settingValue}", propValue }, { "{^file.words.path}", path } }, true);
+
+                return;
+            }
+
+            if(propName == Console::logLimitSettingName) {
+                int logLimit;
+
+                try {
+                    Console::logLimitToInt(propValue);
+                } catch(ConfigurationException excep) {
+                    Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^config.setting.words.settingName}", propName }, { "{^config.setting.words.settingValue}", propValue } }, true);
+                }
 
                 return;
             }

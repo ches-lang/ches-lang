@@ -23,6 +23,13 @@
 using namespace ches::shared;
 
 
+bool Console::logLimitLoaded = false;
+
+int Console::logLimit = -1;
+std::string Console::logLimitSettingName = "log-limit";
+
+int Console::logCount = 0;
+
 Console Console::debug = Console("debug", 33);
 Console Console::error = Console("error", 31);
 Console Console::note = Console("note", 36);
@@ -40,6 +47,30 @@ void Console::print(std::string title, bool terminateProc) {
 }
 
 void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap, bool terminateProc) {
+    if(!Console::logLimitLoaded) {
+        try {
+            Console::logLimit = Console::getLogLimit();
+            Console::logLimitLoaded = true;
+        } catch(ConfigurationException excep) {
+            Console::logLimit = -1;
+            // note: 無限ループを防止するため、コンソール出力前に logLimitLoaded を true にする
+            Console::logLimitLoaded = true;
+
+            Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^config.setting.words.settingName}", "log-limit" }, { "{^config.setting.words.settingValue}", excep.target } });
+        }
+    }
+
+    if(logLimit != -1 && logLimit <= Console::logCount) {
+        int tmpLogLimit = Console::logLimit;
+        Console::logLimit = -1;
+
+        Console::note.print("{^console.note.logCountHasBeenLimited}", { { "{^console.words.logLimit}", std::to_string(tmpLogLimit) } }, true);
+
+        return;
+    }
+
+    Console::logCount++;
+
     Console::translateText(title);
     std::string outputTitle = std::regex_replace(title, std::regex("\n"), " ");
 

@@ -13,7 +13,15 @@
 
 namespace ches::shared {
     class Console {
+    private:
+        static bool logLimitLoaded;
+
     public:
+        static int logLimit;
+        static std::string logLimitSettingName;
+
+        static int logCount;
+
         static Console debug;
         static Console error;
         static Console note;
@@ -28,6 +36,47 @@ namespace ches::shared {
          * arg: typeColor: ANSI Color Code
          */
         Console(std::string typeName, int typeColor = 30);
+
+        /*
+         * excep: ConfigurationException [InvalidSettingValue]
+         */
+        static int logLimitToInt(std::string value) {
+            int logLimit;
+
+            try {
+                if(!std::regex_match(value, std::regex("\\-?[0-9]+")))
+                    throw nullptr;
+
+                logLimit = std::stoi(value);
+
+                if(logLimit < -1)
+                    throw nullptr;
+            } catch(...) {
+                throw ConfigurationException(ConfigurationException_InvalidSettingValue);
+            }
+
+            return logLimit;
+        }
+
+        /*
+         * excep: Console::logLimitToInt(std::string) と同様
+         */
+        static int getLogLimit() {
+            std::string logLimitSettingValue = Configuration::settings.get(Console::logLimitSettingName);
+
+            if(!Configuration::settings.exists(logLimitSettingName))
+                return -1;
+
+            int logLimit;
+
+            try {
+                logLimit = Console::logLimitToInt(logLimitSettingValue);
+            } catch(ConfigurationException excep) {
+                throw excep;
+            }
+
+            return logLimit;
+        }
 
         void print(std::string title, bool terminateProc);
 

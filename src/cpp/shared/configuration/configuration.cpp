@@ -18,6 +18,7 @@ namespace ches::shared {
         ConfigurationException_InvalidEnvironmentVariable,
         ConfigurationException_InvalidPropName,
         ConfigurationException_InvalidPropValue,
+        ConfigurationException_InvalidSettingValue,
         ConfigurationException_InvalidSyntax,
         ConfigurationException_UndefinedSettingProperty,
         ConfigurationException_UnknownPropName
@@ -47,6 +48,8 @@ namespace ches::shared {
 
         static Configuration settings;
         static Configuration langPack;
+
+        static std::string langSettingName;
 
         Configuration();
 
@@ -79,7 +82,7 @@ namespace ches::shared {
         }
 
         /*
-         * excep: Configulatioin::loadData(std::string) と同様 / ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
+         * excep: Configuratioin::loadData(std::string) と同様 / ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
          */
         static void loadEachData() {
             try {
@@ -90,8 +93,7 @@ namespace ches::shared {
 
                 Configuration::settings.loadData(homeDirPath + "/settings/chesc.cnf");
 
-                std::string langSettingName = "lang";
-                std::string langSettingValue = Configuration::settings.get(langSettingName);
+                std::string langSettingValue = Configuration::settings.get(Configuration::langSettingName);
 
                 if(!Configuration::settings.exists(langSettingName) || langSettingValue == "")
                     throw ConfigurationException(ConfigurationException_UndefinedSettingProperty, langSettingName);

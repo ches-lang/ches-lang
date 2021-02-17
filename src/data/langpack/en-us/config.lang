@@ -14,11 +14,12 @@ config.error.failedToParseConfigFile=failed to parse config file
 config.setting.error.failedToParseSettingData=failed to parse setting data
 config.setting.error.failedToSaveSettingData=failed to save setting data
 config.setting.error.invalidLanguageName=invalid language name
+config.setting.error.invalidSettingValue=invalid setting value
 config.setting.error.settingFilePathNotFound=setting file path not found
 config.setting.error.unknownSettingName=unknown setting name
 
 config.setting.note.specifySettingName=specify setting name
 config.setting.note.settingList=setting list
 
-config.setting.words.languageName=language name
 config.setting.words.settingName=setting name
+config.setting.words.settingValue=setting value

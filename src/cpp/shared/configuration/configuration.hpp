@@ -42,6 +42,8 @@ std::string Configuration::homeDirEnvName = "CHES_HOME";
 Configuration Configuration::settings;
 Configuration Configuration::langPack;
 
+std::string Configuration::langSettingName = "lang";
+
 Configuration::Configuration() {}
 
 
