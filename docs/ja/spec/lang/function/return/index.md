@@ -19,9 +19,7 @@ ret 返り値
 ```
 class Hello
 
-
 use sys
-
 
 void @entry()
     println(getGreetingMsg())
@@ -30,6 +28,23 @@ end
 str getGreetingMsg()
     # str値を返す
     ret "Hello!"
+end
+```
+
+## 多値返却
+
+多値返却には [タプル](../../tuple/index.md) を用いる。
+
+```
+Main
+
+void @entry()
+    (str name, int birthYear) profile = Main.getMyProfile()
+    println(profile.name ~ ": " ~ profile.age.toStr())
+end
+
+(str name, int birthYear) getMyProfile()
+    ret { "Garnet", 2004 }
 end
 ```
 
