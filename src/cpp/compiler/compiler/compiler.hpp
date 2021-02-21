@@ -11,9 +11,15 @@
 #pragma once
 
 
-namespace ches::cmd::chesc {
-    class Compiler {
-    public:
-        Compiler();
-    };
-}
+#include <string>
+
+#include "../syntax/syntax.cpp"
+
+#include "./compiler.cpp"
+
+
+using namespace ches::compiler;
+using namespace ches::shared;
+
+
+Compiler::Compiler() {}

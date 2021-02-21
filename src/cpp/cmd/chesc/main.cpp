@@ -18,8 +18,9 @@
 #include <string>
 
 
-using namespace ches::shared;
 using namespace ches::cmd::chesc;
+using namespace ches::compiler;
+using namespace ches::shared;
 
 
 int main(int argc, char *argv[]) {

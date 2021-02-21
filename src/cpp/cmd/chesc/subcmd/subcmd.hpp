@@ -20,13 +20,13 @@
 #include "../../../shared/command/command.hpp"
 #include "../../../shared/configuration/configuration.hpp"
 
-#include "../compiler/compiler.hpp"
+#include "../../../compiler/compiler/compiler.hpp"
 
 #include "./subcmd.cpp"
 
 
-using namespace ches::shared;
 using namespace ches::cmd::chesc;
+using namespace ches::shared;
 
 
 ChescCommand::ChescCommand(int argc, char* argv[], std::string defaultCmdName = "") {

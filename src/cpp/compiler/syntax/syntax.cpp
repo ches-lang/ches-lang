@@ -11,7 +11,7 @@
 #pragma once
 
 
-namespace ches::cmd::chesc {
+namespace ches::compiler {
     struct SyntaxTreeNode {
     public:
         std::string name = "";

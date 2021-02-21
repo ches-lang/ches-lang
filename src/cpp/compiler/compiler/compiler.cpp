@@ -11,9 +11,9 @@
 #pragma once
 
 
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
-#include "./syntax.cpp"
+namespace ches::compiler {
+    class Compiler {
+    public:
+        Compiler();
+    };
+}

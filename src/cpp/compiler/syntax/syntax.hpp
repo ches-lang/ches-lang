@@ -12,12 +12,14 @@
 
 
 #include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
-#include "./compiler.cpp"
+#include "../../shared/console/console.hpp"
+
+#include "./syntax.cpp"
 
 
+using namespace ches::compiler;
 using namespace ches::shared;
-using namespace ches::cmd::chesc;
-
-
-Compiler::Compiler() {}
