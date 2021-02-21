@@ -21,18 +21,19 @@ Chestnutコンパイラの構文定義に使用する。
 
 |構文|名称|説明|例|
 |:-:|:-:|:-:|:-:|
-|"string"|文字列リテラル|文字列|`"class"`|
-|[abc0-9]|文字クラス|括弧内のいずれかの1文字|`[a-zA-Z_]`|
-|.|ワイルドカード|任意の1文字|`.*`|
-|expr1 expr2|連接|成功すれば1つ右に移って検査|`class id`|
-|expr1 > expr2|選択|失敗すれば1つ右に移って再検査|`"class" id > "global"`|
-|expr\*|0回以上の繰り返し|0回以上の直前値の繰り返し|`""*`|
-|expr+|1回以上の繰り返し|1回以上の直前値の繰り返し|`IF+`|
-|expr?|0回または1回|直前文字の1回以上の繰り返し|`IF+`|
-|&expr1 expr2|肯定先読み|成功しても入力を進めない|`&"\n" "\r"`|
-|!expr1 expr2|否定先読み|成功しても入力を進めない|`!"\n" .`|
-|N :=|規則定義|右辺の規則を規則名として定義|`class := "class" id`|
-|N1:N2|規則名上書き|規則名を上書き|`class id:class_name`|
+|"string"|文字列リテラル<br>( string literal )|文字列|`"class"`|
+|[abc0-9]|文字クラス<br>( character class )|括弧内のいずれかの1文字|`[a-zA-Z_]`|
+|.|ワイルドカード<br>( wild card )|任意の1文字|`.*`|
+|e~1~ e~2~|連接<br>( sequence )|成功すれば1つ右に移って検査|`class id`|
+|(e~1~ e~2~)|連接グループ<br>( sequence group )|連接をグループ化する|`(class id)?`|
+|e~1~ > e~2~|選択<br>( ordered choice )|失敗すれば1つ右に移って再検査|`"class" id > "global"`|
+|e\*|0回以上<br>( zero-or-more )|0回以上の直前の繰り返し|`""*`|
+|e+|1回以上<br>( one-or-more )|1回以上の直前の繰り返し|`IF+`|
+|e?|0回または1回<br>( zero-or-one )|直前の1回以上の繰り返し|`IF+`|
+|&e~1~ e~2~|肯定先読み<br>( positive-lookbehind )|成功しても入力を進めない|`&"\n" "\r"`|
+|!e~1~ e~2~|否定先読み<br>( negative-lookbehind ) |成功しても入力を進めない|`!"\n" .`|
+|N :=|定義<br>( definition )|右辺の規則を規則名として定義|`class := "class" id`|
+|N~1~:N~2~|再命名<br>( renaming )|規則名を上書き|`class id:class_name`|
 
 #### 使用例
 
@@ -75,13 +76,15 @@ id := [a-Z_] [0-9a-Z_]*
 ## 出力データ ##
 
 func_call
-    |- func_name: hoge
+    |- func_name
+        |- hoge
     |- args
         |- string
             |- "
             |- Hello, world!
             |- "
-        |- number: 123
+        |- number
+            |- 123
 ```
 
 ---
