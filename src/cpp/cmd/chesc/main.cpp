@@ -19,7 +19,6 @@
 
 
 using namespace ches::cmd::chesc;
-using namespace ches::compiler;
 using namespace ches::shared;
 
 

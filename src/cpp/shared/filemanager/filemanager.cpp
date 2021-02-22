@@ -14,9 +14,10 @@
 namespace ches::shared {
     enum FileManagerExceptionType {
         FileManagerException_Unknown,
+        FileManagerException_FileUnopenable,
+        FileManagerException_InvalidPath,
         FileManagerException_NotFilePath,
-        FileManagerException_PathNotFound,
-        FileManagerException_FileUnopenable
+        FileManagerException_PathNotFound
     };
 
 
