@@ -15,22 +15,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../shared/console/console.hpp"
+#include "../../shared/filemanager/filemanager.hpp"
 
 #include "./syntax.cpp"
 
 
 using namespace ches::compiler;
 using namespace ches::shared;
-
-
-CPEGExpressionException::CPEGExpressionException() {}
-
-CPEGExpressionException::CPEGExpressionException(CPEGExpressionExceptionType type) {
-    this->type = type;
-}
-
-CPEGExpressionException::CPEGExpressionException(CPEGExpressionExceptionType type, std::unordered_map<std::string, std::string> detailMap) {
-    this->type = type;
-    this->detailMap = detailMap;
-}

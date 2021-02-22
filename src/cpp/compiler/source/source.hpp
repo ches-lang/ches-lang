@@ -17,6 +17,7 @@
 
 #include "../../shared/console/console.hpp"
 
+#include "../cpeg/cpeg.hpp"
 #include "../syntax/syntax.hpp"
 
 #include "./source.cpp"
