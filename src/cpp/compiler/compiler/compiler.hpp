@@ -12,8 +12,9 @@
 
 
 #include <string>
+#include <vector>
 
-#include "../syntax/syntax.cpp"
+#include "../source/source.hpp"
 
 #include "./compiler.cpp"
 
@@ -22,4 +23,6 @@ using namespace ches::compiler;
 using namespace ches::shared;
 
 
-Compiler::Compiler() {}
+Compiler::Compiler(std::string sourcePath) {
+    this->sourcePath = sourcePath;
+}

@@ -13,7 +13,10 @@
 
 namespace ches::compiler {
     class Compiler {
+        std::string sourcePath;
+        std::vector<SourceFile> sourceFiles;
+
     public:
-        Compiler();
+        Compiler(std::string sourcePath);
     };
 }

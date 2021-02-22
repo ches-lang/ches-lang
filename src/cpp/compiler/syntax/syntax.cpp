@@ -12,6 +12,24 @@
 
 
 namespace ches::compiler {
+    enum CPEGExpressionExceptionType {
+        CPEGExpressionException_Unknown
+    };
+
+
+    class CPEGExpressionException {
+    public:
+        CPEGExpressionExceptionType type;
+        std::unordered_map<std::string, std::string> detailMap;
+
+        CPEGExpressionException();
+
+        CPEGExpressionException(CPEGExpressionExceptionType type);
+
+        CPEGExpressionException(CPEGExpressionExceptionType type, std::unordered_map<std::string, std::string> detailMap);
+    };
+
+
     struct SyntaxTreeNode {
     public:
         std::string name = "";
@@ -107,5 +125,7 @@ namespace ches::compiler {
         std::vector<CPEGRule> rules;
 
         CPEG();
+
+        SyntaxTree parse(std::string &source);
     };
 }
