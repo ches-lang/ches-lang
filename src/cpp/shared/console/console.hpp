@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "../configuration/configuration.hpp"
+
 #include "./console.cpp"
 
 

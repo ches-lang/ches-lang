@@ -40,22 +40,73 @@ namespace ches::shared {
             return std::filesystem::exists(path);
         }
 
-        static std::vector<std::string> getFilePathsInDirectory(std::string dirPath) {
+        static std::vector<std::string> getAllFilePathsInDirectory(std::string dirPath) {
+            std::vector<std::string> pathsInDir = FileManager::getPathsInDirectory(dirPath);
             std::vector<std::string> filePaths;
-            auto dirItr = std::filesystem::directory_iterator(dirPath);
 
-            for(auto item : dirItr) {
-                std::string path = item.path();
+            for(std::string path : pathsInDir) {
+                if(FileManager::isDirectory(path)) {
+                    std::vector<std::string> pathsInSubDir = FileManager::getAllFilePathsInDirectory(path);
 
-                if(!FileManager::isDirectory(path))
+                    for(std::string subPath : pathsInSubDir)
+                        filePaths.push_back(subPath);
+                } else {
                     filePaths.push_back(path);
+                }
             }
 
             return filePaths;
         }
 
+        static std::vector<std::string> getFilePathsInDirectory(std::string dirPath) {
+            std::vector<std::string> dirPaths = FileManager::getPathsInDirectory(dirPath);
+            std::vector<std::string> filePaths;
+
+            for(auto path : dirPaths)
+                if(!FileManager::isDirectory(path))
+                    filePaths.push_back(path);
+
+            return filePaths;
+        }
+
+        static std::vector<std::string> getPathsInDirectory(std::string dirPath) {
+            std::vector<std::string> paths;
+            auto dirItr = std::filesystem::directory_iterator(dirPath);
+
+            for(auto item : dirItr)
+                paths.push_back(item.path());
+
+            return paths;
+        }
+
         inline static bool isDirectory(std::string path) {
-            return std::filesystem::is_directory(path);
+            bool isDir;
+
+            try {
+                isDir = std::filesystem::is_directory(path);
+            } catch(std::filesystem::filesystem_error excep) {
+                return false;
+            }
+
+            return isDir;
+        }
+
+        /*
+         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable, Unknown]
+         */
+        static std::string getText(std::string filePath) {
+            std::string text;
+
+            try {
+                std::vector<std::string> fileLines = FileManager::getLines(filePath);
+
+                for(const std::string line : fileLines)
+                    text += line + "\n";
+            } catch(std::exception) {
+                throw FileManagerException(FileManagerException_Unknown, filePath);
+            }
+
+            return text;
         }
 
         /*
@@ -84,6 +135,18 @@ namespace ches::shared {
             }
 
             return lineVec;
+        }
+
+        static bool matchExtensionName(std::string filePath, std::string extName) {
+            if(FileManager::isDirectory(filePath))
+                return false;
+
+            int periodPos = filePath.rfind(".");
+
+            if(periodPos == std::string::npos)
+                return false;
+
+            return filePath.substr(periodPos + 1) == extName;
         }
 
         /*

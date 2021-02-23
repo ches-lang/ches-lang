@@ -12,7 +12,6 @@
 
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "../../shared/filemanager/filemanager.hpp"
@@ -22,3 +21,8 @@
 
 using namespace ches::compiler;
 using namespace ches::shared;
+
+
+SyntaxTreeNode::SyntaxTreeNode() {}
+
+SyntaxTree::SyntaxTree() {}

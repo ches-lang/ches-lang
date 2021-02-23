@@ -12,11 +12,37 @@
 
 
 namespace ches::compiler {
+    enum CompilerExceptionType {
+        CompilerException_Unknown,
+        CompilerException_NoInputFile
+    };
+
+
+    class CompilerException {
+    public:
+        CompilerExceptionType type;
+        std::unordered_map<std::string, std::string> detailMap;
+
+        CompilerException();
+
+        CompilerException(CompilerExceptionType type);
+
+        CompilerException(CompilerExceptionType type, std::unordered_map<std::string, std::string> detailMap);
+    };
+
+
     class Compiler {
-        std::string sourcePath;
+    public:
+        std::string sourcePath = "";
         std::vector<SourceFile> sourceFiles;
 
-    public:
         Compiler(std::string sourcePath);
+
+        void compile(std::string outputFilePath);
+
+    private:
+        unsigned char* getBytecode();
+
+        std::vector<SourceFile> getSourceFiles();
     };
 }

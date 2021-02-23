@@ -29,6 +29,7 @@ using namespace ches::shared;
 
 SourceFile::SourceFile(std::string filePath) {
     this->filePath = filePath;
+    this->loadSourceFile();
 }
 
 void SourceFile::loadSourceFile() {
@@ -40,16 +41,19 @@ void SourceFile::loadSourceFile() {
 
     try {
         this->syntaxTree = this->getSyntaxTree();
-    } catch(CPEGExpressionException excep) {
+    } catch(CPEGException excep) {
         throw excep;
     }
 }
 
 std::string SourceFile::getSource() {
-    if(this->filePath == "")
-        throw FileManagerException(FileManagerException_InvalidPath);
-
     std::string source = "";
+
+    try {
+        source = FileManager::getText(this->filePath);
+    } catch(FileManagerException excep) {
+        throw excep;
+    }
 
     return source;
 }

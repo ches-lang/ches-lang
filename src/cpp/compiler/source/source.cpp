@@ -15,11 +15,20 @@ namespace ches::compiler {
         std::string source = "";
         SyntaxTree syntaxTree;
 
+        /*
+         * excep: SourceFile::loadSourceFile() と同様
+         */
         SourceFile(std::string filePath);
 
+    private:
+        /*
+         * excep: SourceFile::getSyntaxTree() と同様 / SourceFile::getSource() と同様
+         */
         void loadSourceFile();
 
-    private:
+        /*
+         * FileManager::getText(std::string) と同様
+         */
         std::string getSource();
 
         SyntaxTree getSyntaxTree();
