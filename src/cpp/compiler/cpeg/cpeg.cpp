@@ -14,7 +14,8 @@
 namespace ches::compiler {
     enum CPEGExceptionType {
         CPEGException_Unknown,
-        CPEGException_InvalidCPEGSyntax,
+        CPEGException_FailedToParseCPEG,
+        CPEGException_InvalidCPEGSyntax
     };
 
 
@@ -23,11 +24,11 @@ namespace ches::compiler {
         CPEGExceptionType type;
         std::unordered_map<std::string, std::string> detailMap;
 
-        CPEGException();
+        CPEGException() noexcept;
 
-        CPEGException(CPEGExceptionType type);
+        CPEGException(CPEGExceptionType type) noexcept;
 
-        CPEGException(CPEGExceptionType type, std::unordered_map<std::string, std::string> detailMap);
+        CPEGException(CPEGExceptionType type, std::unordered_map<std::string, std::string> detailMap) noexcept;
     };
 
 
@@ -44,7 +45,7 @@ namespace ches::compiler {
         CPEGExpressionType type = CPEGExpression_Unknown;
         std::string value;
 
-        CPEGExpression();
+        CPEGExpression() noexcept;
     };
 
 
@@ -55,7 +56,7 @@ namespace ches::compiler {
     public:
         std::vector<CPEGExpression> exprs;
 
-        CPEGExpressionSequence();
+        CPEGExpressionSequence() noexcept;
     };
 
 
@@ -81,7 +82,7 @@ namespace ches::compiler {
         CPEGExpressionSequenceLoopType loopType;
         CPEGExpressionSequenceLookbehindType lookbehindType;
 
-        CPEGExpressionSequenceGroup();
+        CPEGExpressionSequenceGroup() noexcept;
     };
 
 
@@ -92,7 +93,7 @@ namespace ches::compiler {
     public:
         std::vector<CPEGExpressionSequenceGroup> seqs;
 
-        CPEGExpressionChoice();
+        CPEGExpressionChoice() noexcept;
     };
 
 
@@ -101,7 +102,7 @@ namespace ches::compiler {
         std::string name = "";
         std::vector<CPEGExpressionChoice> exprChoices;
 
-        CPEGRule();
+        CPEGRule() noexcept;
     };
 
 
@@ -109,17 +110,20 @@ namespace ches::compiler {
     public:
         std::vector<CPEGRule> rules;
 
-        CPEG();
+        CPEG() noexcept;
 
+        /*
+         * excep: 
+         */
         SyntaxTree getSyntaxTree(std::string &source);
 
         /*
-         * excep: FileManager::getLines(std::string) と同様
+         * excep: FileManager::getLines(std::string)
          */
         void loadCPEGFile(std::string filePath);
 
         /*
-         * excep: CPEGException [InvalidCPEGSyntax]
+         * excep: CPEGException [InvalidCPEGSyntax] / getCPEGTokens(std::string&)
          */
         static CPEGRule getCPEGRule(std::string &line) {
             CPEGRule rule;
@@ -134,6 +138,9 @@ namespace ches::compiler {
             return rule;
         }
 
+        /*
+         * excep: CPEGException [FailedToParseCPEG]
+         */
         static std::vector<std::string> getCPEGTokens(std::string &line) {
             std::vector<std::string> tokens;
             std::string tmpToken = "";
@@ -143,35 +150,39 @@ namespace ches::compiler {
 
             bool inString = false;
 
-            for(int i = 0; i < line.size(); i++) {
-                if(std::regex_match(&(line.at(i)), symbolRegex)) {
-                    tokens.push_back(std::to_string(line.at(i)));
-                    tmpToken = "";
-                } else if(std::regex_match(&(line.at(i)), spacingRegex)) {
-                    tokens.push_back(" ");
+            try {
+                for(int i = 0; i < line.size(); i++) {
+                    if(std::regex_match(&(line.at(i)), symbolRegex)) {
+                        tokens.push_back(std::to_string(line.at(i)));
+                        tmpToken = "";
+                    } else if(std::regex_match(&(line.at(i)), spacingRegex)) {
+                        tokens.push_back(" ");
 
-                    for(i++; i < line.size(); i++) {
-                        if(!std::regex_match(&(line.at(i)), spacingRegex)) {
-                            i--;
-                            break;
+                        for(i++; i < line.size(); i++) {
+                            if(!std::regex_match(&(line.at(i)), spacingRegex)) {
+                                i--;
+                                break;
+                            }
                         }
-                    }
-                } else if(line.at(i) == '"') {
-                    tmpToken.push_back(line.at(i));
-
-                    for(i++; i < line.size(); i++) {
+                    } else if(line.at(i) == '"') {
                         tmpToken.push_back(line.at(i));
 
-                        if(line.at(i) == '"') {
-                            tokens.push_back(tmpToken);
-                            continue;
-                        }
-                    }
+                        for(i++; i < line.size(); i++) {
+                            tmpToken.push_back(line.at(i));
 
-                    tmpToken = "";
-                } else {
-                    tmpToken.push_back(line.at(i));
+                            if(line.at(i) == '"') {
+                                tokens.push_back(tmpToken);
+                                continue;
+                            }
+                        }
+
+                        tmpToken = "";
+                    } else {
+                        tmpToken.push_back(line.at(i));
+                    }
                 }
+            } catch(std::regex_error excep) {
+                throw CPEGException(CPEGException_FailedToParseCPEG);
             }
 
             if(tmpToken != "")

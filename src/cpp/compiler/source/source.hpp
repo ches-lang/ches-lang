@@ -27,39 +27,20 @@ using namespace ches::compiler;
 using namespace ches::shared;
 
 
-SourceFile::SourceFile(std::string filePath) {
+SourceFile::SourceFile(std::string filePath) noexcept {
     this->filePath = filePath;
-    this->loadSourceFile();
 }
 
 void SourceFile::loadSourceFile() {
     try {
-        this->source = this->getSource();
+        this->source = FileManager::getText(this->filePath);
     } catch(FileManagerException excep) {
-        throw excep;
-    }
-
-    try {
-        this->syntaxTree = this->getSyntaxTree();
-    } catch(CPEGException excep) {
         throw excep;
     }
 }
 
-std::string SourceFile::getSource() {
-    std::string source = "";
-
-    try {
-        source = FileManager::getText(this->filePath);
-    } catch(FileManagerException excep) {
-        throw excep;
-    }
-
-    return source;
-}
-
-SyntaxTree SourceFile::getSyntaxTree() {
+void SourceFile::loadSyntaxTree() {
     SyntaxTree tree;
 
-    return tree;
+    this->syntaxTree = tree;
 }

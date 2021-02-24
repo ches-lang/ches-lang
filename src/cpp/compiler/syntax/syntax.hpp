@@ -23,6 +23,6 @@ using namespace ches::compiler;
 using namespace ches::shared;
 
 
-SyntaxTreeNode::SyntaxTreeNode() {}
+SyntaxTreeNode::SyntaxTreeNode() noexcept {}
 
-SyntaxTree::SyntaxTree() {}
+SyntaxTree::SyntaxTree() noexcept {}

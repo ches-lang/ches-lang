@@ -37,18 +37,18 @@ Console Console::error = Console("error", 31);
 Console Console::note = Console("note", 36);
 Console Console::warn = Console("warn", 35);
 
-Console::Console() {}
+Console::Console() noexcept {}
 
-Console::Console(std::string typeName, int typeColor) {
+Console::Console(std::string typeName, int typeColor) noexcept {
     this->typeName = typeName;
     this->typeColor = typeColor;
 }
 
-void Console::print(std::string title, bool terminateProc) {
+void Console::print(std::string title, bool terminateProc) noexcept {
     this->print(title, {}, terminateProc);
 }
 
-void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap, bool terminateProc) {
+void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap, bool terminateProc) noexcept {
     if(!Console::logLimitLoaded) {
         try {
             Console::logLimit = Console::getLogLimit();
@@ -73,7 +73,12 @@ void Console::print(std::string title, std::unordered_map<std::string, std::stri
 
     Console::logCount++;
 
-    Console::translateText(title);
+    try {
+        Console::translateText(title);
+    } catch(std::regex_error excep) {
+        Console::error.print("failed to translate log text", true);
+    }
+
     std::string outputTitle = std::regex_replace(title, std::regex("\n"), " ");
 
     std::cout << "\033[" << this->typeColor << "m[" << this->typeName << "]\033[m " << outputTitle << std::endl;
@@ -82,8 +87,12 @@ void Console::print(std::string title, std::unordered_map<std::string, std::stri
         std::string outputKey = key;
         std::string outputValue = value;
 
-        Console::translateText(outputKey);
-        Console::translateText(outputValue);
+        try {
+            Console::translateText(outputKey);
+            Console::translateText(outputValue);
+        } catch(std::regex_error excep) {
+            Console::error.print("failed to translate log text", true);
+        }
 
         outputKey = std::regex_replace(outputKey, std::regex("\n"), " ");
         outputValue = std::regex_replace(outputValue, std::regex("\n"), " ");

@@ -6,6 +6,8 @@
 # Copyright © 2020-2021 Garnet3106 All rights reserved. 
 
 
+general.error.internalError=内部エラー
 general.error.unknownError=不明なエラー
 
 general.words.errorType=エラー種別
+general.words.location=場所

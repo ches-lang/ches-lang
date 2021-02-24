@@ -27,34 +27,34 @@ using namespace ches::compiler;
 using namespace ches::shared;
 
 
-CPEGException::CPEGException() {}
+CPEGException::CPEGException() noexcept {}
 
-CPEGException::CPEGException(CPEGExceptionType type) {
+CPEGException::CPEGException(CPEGExceptionType type) noexcept {
     this->type = type;
 }
 
-CPEGException::CPEGException(CPEGExceptionType type, std::unordered_map<std::string, std::string> detailMap) {
+CPEGException::CPEGException(CPEGExceptionType type, std::unordered_map<std::string, std::string> detailMap) noexcept {
     this->type = type;
     this->detailMap = detailMap;
 }
 
 
-CPEGExpression::CPEGExpression() {}
+CPEGExpression::CPEGExpression() noexcept {}
 
 
-CPEGExpressionSequence::CPEGExpressionSequence() {}
+CPEGExpressionSequence::CPEGExpressionSequence() noexcept {}
 
 
-CPEGExpressionSequenceGroup::CPEGExpressionSequenceGroup() {}
+CPEGExpressionSequenceGroup::CPEGExpressionSequenceGroup() noexcept {}
 
 
-CPEGExpressionChoice::CPEGExpressionChoice() {}
+CPEGExpressionChoice::CPEGExpressionChoice() noexcept {}
 
 
-CPEGRule::CPEGRule() {}
+CPEGRule::CPEGRule() noexcept {}
 
 
-CPEG::CPEG() {}
+CPEG::CPEG() noexcept {}
 
 SyntaxTree getSyntaxTree(std::string &source) {
     SyntaxTree tree;

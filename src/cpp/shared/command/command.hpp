@@ -29,25 +29,25 @@
 using namespace ches::shared;
 
 
-CommandException::CommandException() {}
+CommandException::CommandException() noexcept {}
 
-CommandException::CommandException(CommandExceptionType type) {
+CommandException::CommandException(CommandExceptionType type) noexcept {
     this->type = type;
 }
 
-CommandException::CommandException(CommandExceptionType type, std::string target) {
+CommandException::CommandException(CommandExceptionType type, std::string target) noexcept {
     this->type = type;
     this->target = target;
 }
 
 
-CommandOption::CommandOption() {}
+CommandOption::CommandOption() noexcept {}
 
 
-CommandOptionMap::CommandOptionMap() {}
+CommandOptionMap::CommandOptionMap() noexcept {}
 
 
-Command::Command() {}
+Command::Command() noexcept {}
 
 Command::Command(std::vector<std::string> args, std::string defaultCmdName = "") {
     this->defaultCmdName = defaultCmdName;
@@ -62,7 +62,7 @@ void Command::addCommandProc(std::string cmdName, Command::CommandProc proc) {
     this->cmdProcMap[cmdName] = proc;
 }
 
-void Command::print() {
+void Command::print() noexcept {
     std::unordered_map<std::string, std::string> optionMap;
 
     for(auto const [ name, option ] : this->cmdOptionMap) {
@@ -142,7 +142,7 @@ void Command::loadFromArgs(std::vector<std::string> args) {
 }
 
 
-void SubCommands::run() {
+void SubCommands::run() noexcept {
     try {
         this->cmd.run();
     } catch(CommandException excep) {

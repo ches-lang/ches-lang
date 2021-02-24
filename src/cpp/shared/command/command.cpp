@@ -28,11 +28,11 @@ namespace ches::shared {
         CommandExceptionType type = CommandException_Unknown;
         std::string target = "";
 
-        CommandException();
+        CommandException() noexcept;
 
-        CommandException(CommandExceptionType type);
+        CommandException(CommandExceptionType type) noexcept;
 
-        CommandException(CommandExceptionType type, std::string target);
+        CommandException(CommandExceptionType type, std::string target) noexcept;
     };
 
 
@@ -43,16 +43,16 @@ namespace ches::shared {
          */
         std::vector<std::string> values;
 
-        CommandOption();
+        CommandOption() noexcept;
     };
 
 
     struct CommandOptionMap : public std::unordered_map<std::string, CommandOption> {
     public:
-        CommandOptionMap();
+        CommandOptionMap() noexcept;
 
         /*
-         * excep: CommandException
+         * excep: CommandException [UnknownOptionName]
          */
         inline CommandOption at(std::string optionName) {
             if(this->count(optionName) == 0)
@@ -61,6 +61,9 @@ namespace ches::shared {
             return (*this)[optionName];
         }
 
+        /*
+         * CommandException [DuplicatedOptionName]
+         */
         inline void addOption(std::string optionName, std::vector<std::string> optionValues = {}) {
             if(this->count(optionName) == 1)
                 throw CommandException(CommandException_DuplicatedOptionName, optionName);
@@ -86,10 +89,10 @@ namespace ches::shared {
         CommandProcMap cmdProcMap;
 
     public:
-        Command();
+        Command() noexcept;
 
         /*
-         * excep: Command::loadFromArgs(std::vector<std::string>) と同様
+         * excep: Command::loadFromArgs(std::vector<std::string>)
          */
         Command(std::vector<std::string> args, std::string defaultCmdName);
 
@@ -98,7 +101,7 @@ namespace ches::shared {
          */
         void addCommandProc(std::string cmdName, CommandProc proc);
 
-        void print();
+        void print() noexcept;
 
         /*
          * excep: CommandException [UnknownCommandName]
@@ -120,6 +123,6 @@ namespace ches::shared {
     public:
         virtual void init(std::vector<std::string> args, std::string defaultCmdName) = 0;
 
-        void run();
+        void run() noexcept;
     };
 }

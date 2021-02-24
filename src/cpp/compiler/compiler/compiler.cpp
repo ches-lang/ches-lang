@@ -23,11 +23,11 @@ namespace ches::compiler {
         CompilerExceptionType type;
         std::unordered_map<std::string, std::string> detailMap;
 
-        CompilerException();
+        CompilerException() noexcept;
 
-        CompilerException(CompilerExceptionType type);
+        CompilerException(CompilerExceptionType type) noexcept;
 
-        CompilerException(CompilerExceptionType type, std::unordered_map<std::string, std::string> detailMap);
+        CompilerException(CompilerExceptionType type, std::unordered_map<std::string, std::string> detailMap) noexcept;
     };
 
 
@@ -36,13 +36,27 @@ namespace ches::compiler {
         std::string sourcePath = "";
         std::vector<SourceFile> sourceFiles;
 
+        /*
+         * excep: Compiler::getSourceFiles()
+         */
         Compiler(std::string sourcePath);
 
+        /*
+         * excep: CompilerException [NoInputFile]
+         */
         void compile(std::string outputFilePath);
 
     private:
         unsigned char* getBytecode();
 
+        /*
+         * excep: FileManager::getAllFilePathsInDirectory(std::string) / FileManager::matchExtensionName(std::string, std::string)
+         */
         std::vector<SourceFile> getSourceFiles();
+
+        /*
+         * excep: SourceFile::getSource()
+         */
+        std::vector<SourceFile> loadSourceFiles();
     };
 }

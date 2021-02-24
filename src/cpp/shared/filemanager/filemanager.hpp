@@ -22,13 +22,13 @@
 using namespace ches::shared;
 
 
-FileManagerException::FileManagerException() {}
+FileManagerException::FileManagerException() noexcept {}
 
-FileManagerException::FileManagerException(FileManagerExceptionType type) {
+FileManagerException::FileManagerException(FileManagerExceptionType type) noexcept {
     this->type = type;
 }
 
-FileManagerException::FileManagerException(FileManagerExceptionType type, std::string target) {
+FileManagerException::FileManagerException(FileManagerExceptionType type, std::string target) noexcept {
     this->type = type;
     this->target = target;
 }

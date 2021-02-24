@@ -25,13 +25,13 @@ using namespace ches::compiler;
 using namespace ches::shared;
 
 
-CompilerException::CompilerException() {}
+CompilerException::CompilerException() noexcept {}
 
-CompilerException::CompilerException(CompilerExceptionType type) {
+CompilerException::CompilerException(CompilerExceptionType type) noexcept {
     this->type = type;
 }
 
-CompilerException::CompilerException(CompilerExceptionType type, std::unordered_map<std::string, std::string> detailMap) {
+CompilerException::CompilerException(CompilerExceptionType type, std::unordered_map<std::string, std::string> detailMap) noexcept {
     this->type = type;
     this->detailMap = detailMap;
 }
@@ -39,7 +39,12 @@ CompilerException::CompilerException(CompilerExceptionType type, std::unordered_
 
 Compiler::Compiler(std::string sourcePath) {
     this->sourcePath = sourcePath;
-    this->sourceFiles = this->getSourceFiles();
+
+    try {
+        this->sourceFiles = this->getSourceFiles();
+    } catch(FileManagerException excep) {
+        throw excep;
+    }
 }
 
 void Compiler::compile(std::string outputFilePath) {
@@ -62,9 +67,9 @@ std::vector<SourceFile> Compiler::getSourceFiles() {
     std::vector<std::string> chesFilePaths;
 
     if(FileManager::isDirectory(this->sourcePath)) {
-        filePaths = FileManager::getAllFilePathsInDirectory(this->sourcePath);
-
         try {
+            filePaths = FileManager::getAllFilePathsInDirectory(this->sourcePath);
+
             for(const std::string path : filePaths)
                 if(FileManager::matchExtensionName(path, "ches"))
                     sourceFiles.push_back(SourceFile(path));

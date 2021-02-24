@@ -16,9 +16,9 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../../shared/filemanager/filemanager.hpp"
 #include "../../../shared/command/command.hpp"
 #include "../../../shared/configuration/configuration.hpp"
+#include "../../../shared/filemanager/filemanager.hpp"
 
 #include "../../../compiler/compiler/compiler.hpp"
 
@@ -29,7 +29,7 @@ using namespace ches::cmd::chesc;
 using namespace ches::shared;
 
 
-ChescCommand::ChescCommand(int argc, char* argv[], std::string defaultCmdName = "") {
+ChescCommand::ChescCommand(int argc, char* argv[], std::string defaultCmdName = "") noexcept {
     std::vector<std::string> args;
 
     for(int i = 0; i < argc; i++)
@@ -38,7 +38,7 @@ ChescCommand::ChescCommand(int argc, char* argv[], std::string defaultCmdName = 
     this->init(args, defaultCmdName);
 }
 
-void ChescCommand::init(std::vector<std::string> args, std::string defaultCmdName = "") {
+void ChescCommand::init(std::vector<std::string> args, std::string defaultCmdName = "") noexcept {
     try {
         this->cmd = Command(args, defaultCmdName);
 

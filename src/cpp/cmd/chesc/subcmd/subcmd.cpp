@@ -14,16 +14,16 @@
 namespace ches::cmd::chesc {
     class ChescCommand : public SubCommands {
     public:
-        ChescCommand(int argc, char* argv[], std::string defaultCmdName);
+        ChescCommand(int argc, char* argv[], std::string defaultCmdName) noexcept;
 
     private:
-        void init(std::vector<std::string> args, std::string defaultCmdName) override;
+        void init(std::vector<std::string> args, std::string defaultCmdName) noexcept override;
 
-        static void cmd_cmp(Command &cmd) {
+        static void cmd_cmp(Command &cmd) noexcept {
             std::cout << "cmp" << std::endl;
         }
 
-        static void cmd_help(Command &cmd) {
+        static void cmd_help(Command &cmd) noexcept {
             Console::note.print("{^command.words.commandHelp} - {^command.words.subCommandList}", {
                 { "cmp", "{^command.help.cmp}" },
                 { "help", "{^command.help.help}" },
@@ -31,7 +31,7 @@ namespace ches::cmd::chesc {
             });
         }
 
-        static void cmd_set(Command &cmd) {
+        static void cmd_set(Command &cmd) noexcept {
             if(cmd.cmdOptionMap.size() == 0)
                 Console::note.print("{^config.setting.note.specifySettingName}", true);
 
@@ -79,11 +79,15 @@ namespace ches::cmd::chesc {
             Console::note.print("{^config.setting.note.settingList}", outputOptionMap);
         }
 
-        static void checkSettingPropFormat(std::string propName, std::string propValue) {
+        static void checkSettingPropFormat(std::string propName, std::string propValue) noexcept {
             if(propName == Configuration::langSettingName) {
-                if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
-                    Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^general.words.errorType}", "{^config.setting.error.invalidLanguageName}" },
-                        { "{^config.setting.words.settingName}", propName }, { "{^config.setting.words.settingValue}", propValue } }, true);
+                try {
+                    if(std::regex_search(propValue, std::regex("[^a-zA-Z0-9\\-_]")))
+                        Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^general.words.errorType}", "{^config.setting.error.invalidLanguageName}" },
+                            { "{^config.setting.words.settingName}", propName }, { "{^config.setting.words.settingValue}", propValue } }, true);
+                } catch(std::regex_error excep) {
+                    Console::error.print("{^general.error.internalError}", { { "{^general.words.location}", __func__ } }, true);
+                }
 
                 std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
                 std::string path = homeDirPath + "/langpack/" + propValue;

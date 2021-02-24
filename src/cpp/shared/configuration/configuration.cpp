@@ -30,11 +30,11 @@ namespace ches::shared {
         ConfigurationExceptionType type;
         std::string target = "";
 
-        ConfigurationException();
+        ConfigurationException() noexcept;
 
-        ConfigurationException(ConfigurationExceptionType type);
+        ConfigurationException(ConfigurationExceptionType type) noexcept;
 
-        ConfigurationException(ConfigurationExceptionType type, std::string target);
+        ConfigurationException(ConfigurationExceptionType type, std::string target) noexcept;
     };
 
 
@@ -51,28 +51,28 @@ namespace ches::shared {
 
         static std::string langSettingName;
 
-        Configuration();
+        Configuration() noexcept;
 
         /*
          * arg: editedOptionMap: 設定値を編集したオプションマップ
-         * excep: FileManager::getLines(std::string) と同様 / Configuration::toPropPair(std::string) と同様 / ConfigurationException [InvalidPropValue, UnknownPropName]
+         * excep: ConfigurationException [InvalidPropValue, UnknownPropName] / FileManager::getLines(std::string) / Configuration::toPropPair(std::string)
          */
         void edit(std::unordered_map<std::string, std::string> editedOptionMap);
 
         /*
          * ret: プロパティ名が存在するかどうか
          */
-        bool exists(std::string key);
+        bool exists(std::string key) noexcept;
 
         /*
          * ret: プロパティ名が見つかれば対応するプロパティ値、見つからなければ propName を返す
          */
-        std::string get(std::string key);
+        std::string get(std::string key) noexcept;
 
         /*
          * ret: 環境変数が存在する場合は設定値、存在しない場合は空文字を返す
          */
-        inline static std::string getEnvironmentVariable(std::string envName) {
+        inline static std::string getEnvironmentVariable(std::string envName) noexcept {
             const char *value = std::getenv(envName.c_str());
 
             if(value == NULL)
@@ -82,7 +82,7 @@ namespace ches::shared {
         }
 
         /*
-         * excep: Configuratioin::loadData(std::string) と同様 / ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty]
+         * excep: ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty] / Configuratioin::loadData(std::string)
          */
         static void loadEachData() {
             try {
@@ -107,11 +107,11 @@ namespace ches::shared {
         }
 
         /*
-         * excep: FileManager::getLines(std::string) と同様 / toPropPair(std::string) と同様 / ConfigurationException [DuplicatedPropName]
+         * excep: ConfigurationException [DuplicatedPropName] / FileManager::getLines(std::string) / toPropPair(std::string)
          */
         void loadData(std::string path);
 
-        void print();
+        void print() noexcept;
 
         /*
          * note: プロパティ名の重複検査は行われない
@@ -147,29 +147,24 @@ namespace ches::shared {
         }
 
     private:
-        static void removeBothSideSpaces(std::string &text) {
-            try {
-                int beforeSpaceLen = 0;
-                int behindSpaceLen = 0;
+        static void removeBothSideSpaces(std::string &text) noexcept {
+            int beforeSpaceLen = 0;
+            int behindSpaceLen = 0;
 
-                for(; beforeSpaceLen < text.size(); beforeSpaceLen++)
-                    if(text.at(beforeSpaceLen) != ' ')
-                        break;
+            for(; beforeSpaceLen < text.size(); beforeSpaceLen++)
+                if(text.at(beforeSpaceLen) != ' ')
+                    break;
 
-                for(; behindSpaceLen < text.size(); behindSpaceLen++)
-                    if(text.at(text.size() - behindSpaceLen - 1) != ' ')
-                        break;
+            for(; behindSpaceLen < text.size(); behindSpaceLen++)
+                if(text.at(text.size() - behindSpaceLen - 1) != ' ')
+                    break;
 
-                if(beforeSpaceLen != 0 && beforeSpaceLen == behindSpaceLen) {
-                    text = "";
-                    return;
-                }
-
-                text = text.substr(beforeSpaceLen, text.size() - behindSpaceLen - beforeSpaceLen);
-            } catch(std::out_of_range excep) {
-                std::cout << "String Parse Error (std::out_of_range) \"" + text + "\"" << std::endl;
-                exit(-1);
+            if(beforeSpaceLen != 0 && beforeSpaceLen == behindSpaceLen) {
+                text = "";
+                return;
             }
+
+            text = text.substr(beforeSpaceLen, text.size() - behindSpaceLen - beforeSpaceLen);
         }
     };
 }

@@ -30,12 +30,12 @@ namespace ches::shared {
         std::string typeName = "";
         int typeColor = 30;
 
-        Console();
+        Console() noexcept;
 
         /*
          * arg: typeColor: ANSI Color Code
          */
-        Console(std::string typeName, int typeColor = 30);
+        Console(std::string typeName, int typeColor = 30) noexcept;
 
         /*
          * excep: ConfigurationException [InvalidSettingValue]
@@ -59,7 +59,7 @@ namespace ches::shared {
         }
 
         /*
-         * excep: Console::logLimitToInt(std::string) と同様
+         * excep: Console::logLimitToInt(std::string)
          */
         static int getLogLimit() {
             std::string logLimitSettingValue = Configuration::settings.get(Console::logLimitSettingName);
@@ -78,10 +78,13 @@ namespace ches::shared {
             return logLimit;
         }
 
-        void print(std::string title, bool terminateProc);
+        void print(std::string title, bool terminateProc) noexcept;
 
-        void print(std::string title, std::unordered_map<std::string, std::string> detailMap = {}, bool terminateProc = false);
+        void print(std::string title, std::unordered_map<std::string, std::string> detailMap = {}, bool terminateProc = false) noexcept;
 
+        /*
+         * excep: std::regex_error
+         */
         static void translateText(std::string &text) {
             try {
                 int beginIndex = 0;
@@ -113,7 +116,7 @@ namespace ches::shared {
                     }
                 }
             } catch(std::regex_error excep) {
-                std::cout << "error (std::regex_error) on Console::translateText(std::string&)" << std::endl;
+                throw excep;
             }
         }
     };

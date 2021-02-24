@@ -13,11 +13,11 @@
 
 namespace ches::shared {
     enum FileManagerExceptionType {
-        FileManagerException_Unknown,
         FileManagerException_FileUnopenable,
         FileManagerException_InvalidPath,
         FileManagerException_NotFilePath,
-        FileManagerException_PathNotFound
+        FileManagerException_PathNotFound,
+        FileManagerException_Unknown,
     };
 
 
@@ -26,52 +26,90 @@ namespace ches::shared {
         FileManagerExceptionType type = FileManagerException_Unknown;
         std::string target = "";
 
-        FileManagerException();
+        FileManagerException() noexcept;
 
-        FileManagerException(FileManagerExceptionType type);
+        FileManagerException(FileManagerExceptionType type) noexcept;
 
-        FileManagerException(FileManagerExceptionType type, std::string target);
+        FileManagerException(FileManagerExceptionType type, std::string target) noexcept;
     };
 
 
     class FileManager {
     public:
+        /*
+         * excep: FileManagerException [Unknown]
+         */
         inline static bool exists(std::string path) {
-            return std::filesystem::exists(path);
+            bool exists;
+
+            try {
+                exists = std::filesystem::exists(path);
+            } catch(std::filesystem::filesystem_error excep) {
+                throw FileManagerException(FileManagerException_Unknown, path);
+            }
+
+            return exists;
         }
 
+        /*
+         * excep: FileManagerException [Unknown]
+         */
         static std::vector<std::string> getAllFilePathsInDirectory(std::string dirPath) {
-            std::vector<std::string> pathsInDir = FileManager::getPathsInDirectory(dirPath);
+            std::vector<std::string> pathsInDir;
             std::vector<std::string> filePaths;
 
-            for(std::string path : pathsInDir) {
-                if(FileManager::isDirectory(path)) {
-                    std::vector<std::string> pathsInSubDir = FileManager::getAllFilePathsInDirectory(path);
+            try {
+                pathsInDir = FileManager::getPathsInDirectory(dirPath);
 
-                    for(std::string subPath : pathsInSubDir)
-                        filePaths.push_back(subPath);
-                } else {
-                    filePaths.push_back(path);
+                for(std::string path : pathsInDir) {
+                    if(FileManager::isDirectory(path)) {
+                        std::vector<std::string> pathsInSubDir = FileManager::getAllFilePathsInDirectory(path);
+
+                        for(std::string subPath : pathsInSubDir)
+                            filePaths.push_back(subPath);
+                    } else {
+                        filePaths.push_back(path);
+                    }
                 }
+            } catch(std::filesystem::filesystem_error excep) {
+                throw FileManagerException(FileManagerException_Unknown, excep.path1());
             }
 
             return filePaths;
         }
 
+        /*
+         * excep: FileManagerException [Unknown]
+         */
         static std::vector<std::string> getFilePathsInDirectory(std::string dirPath) {
-            std::vector<std::string> dirPaths = FileManager::getPathsInDirectory(dirPath);
+            std::vector<std::string> dirPaths;
             std::vector<std::string> filePaths;
 
-            for(auto path : dirPaths)
-                if(!FileManager::isDirectory(path))
-                    filePaths.push_back(path);
+            try {
+                dirPaths = FileManager::getPathsInDirectory(dirPath);
+
+                for(auto path : dirPaths)
+                    if(!FileManager::isDirectory(path))
+                        filePaths.push_back(path);
+            } catch(std::filesystem::filesystem_error excep) {
+                throw FileManagerException(FileManagerException_Unknown, excep.path1());
+            }
 
             return filePaths;
         }
 
+        /*
+         * excep: FileManagerException [Unknown]
+         */
         static std::vector<std::string> getPathsInDirectory(std::string dirPath) {
             std::vector<std::string> paths;
-            auto dirItr = std::filesystem::directory_iterator(dirPath);
+            std::filesystem::directory_iterator dirItr;
+
+            try {
+                dirItr = std::filesystem::directory_iterator(dirPath);
+            } catch(std::filesystem::filesystem_error excep) {
+                throw FileManagerException(FileManagerException_Unknown, dirPath);
+            }
 
             for(auto item : dirItr)
                 paths.push_back(item.path());
@@ -79,41 +117,44 @@ namespace ches::shared {
             return paths;
         }
 
+        /*
+         * excep: FileManagerException [Unknown]
+         */
         inline static bool isDirectory(std::string path) {
             bool isDir;
 
             try {
                 isDir = std::filesystem::is_directory(path);
             } catch(std::filesystem::filesystem_error excep) {
-                return false;
+                throw FileManagerException(FileManagerException_Unknown, path);
             }
 
             return isDir;
         }
 
         /*
-         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable, Unknown]
+         * excep: FileManager::getLines(std::string)
          */
         static std::string getText(std::string filePath) {
-            std::string text;
+            std::string text = "";
 
             try {
                 std::vector<std::string> fileLines = FileManager::getLines(filePath);
 
                 for(const std::string line : fileLines)
                     text += line + "\n";
-            } catch(std::exception) {
-                throw FileManagerException(FileManagerException_Unknown, filePath);
+            } catch(FileManagerException excep) {
+                throw excep;
             }
 
             return text;
         }
 
         /*
-         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable, Unknown]
+         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable] / FileManager::exists(std::string) / FileManager::isDirectory(std::string)
          */
         static std::vector<std::string> getLines(std::string filePath) {
-            std::vector<std::string> lineVec;
+            std::vector<std::string> fileLines;
 
             try {
                 if(!FileManager::exists(filePath))
@@ -129,17 +170,24 @@ namespace ches::shared {
                     throw FileManagerException(FileManagerException_FileUnopenable, filePath);
 
                 while(getline(ifs, line_tmp))
-                    lineVec.push_back(line_tmp);
-            } catch(std::exception) {
-                throw FileManagerException(FileManagerException_Unknown, filePath);
+                    fileLines.push_back(line_tmp);
+            } catch(FileManagerException excep) {
+                throw excep;
             }
 
-            return lineVec;
+            return fileLines;
         }
 
+        /*
+         * excep: FileManager::isDirectory(std::string)
+         */
         static bool matchExtensionName(std::string filePath, std::string extName) {
-            if(FileManager::isDirectory(filePath))
-                return false;
+            try {
+                if(FileManager::isDirectory(filePath))
+                    return false;
+            } catch(FileManagerException excep) {
+                throw excep;
+            }
 
             int periodPos = filePath.rfind(".");
 
@@ -150,7 +198,7 @@ namespace ches::shared {
         }
 
         /*
-         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable, Unknown]
+         * excep: FileManagerException [NotFilePath, PathNotFound, FileUnopenable] / FileManager::exists(std::string) / FileManager::isDirectory(std::string)
          */
         static void writeLines(std::string filePath, std::vector<std::string> lineVec) {
             try {
@@ -167,8 +215,8 @@ namespace ches::shared {
 
                 for(std::string line : lineVec)
                     ofs << line << std::endl;
-            } catch(std::exception) {
-                throw FileManagerException(FileManagerException_Unknown, filePath);
+            } catch(FileManagerException excep) {
+                throw excep;
             }
         }
     };

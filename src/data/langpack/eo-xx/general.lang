@@ -6,6 +6,8 @@
 # Copyright © 2020-2021 Garnet3106 All rights reserved. 
 
 
+general.error.internalError=interna eraro
 general.error.unknownError=nekonata eraro
 
 general.words.errorType=erara tipo
+general.words.location=loko

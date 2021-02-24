@@ -22,7 +22,7 @@ using namespace ches::cmd::chesc;
 using namespace ches::shared;
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) noexcept {
     try {
         Configuration::loadEachData();
     } catch(FileManagerException excep) {

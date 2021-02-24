@@ -18,7 +18,7 @@ namespace ches::compiler {
         std::vector<SyntaxTreeNode> nodes;
         std::vector<std::string> tokens;
 
-        SyntaxTreeNode();
+        SyntaxTreeNode() noexcept;
     };
 
 
@@ -26,6 +26,6 @@ namespace ches::compiler {
     public:
         SyntaxTreeNode root;
 
-        SyntaxTree();
+        SyntaxTree() noexcept;
     };
 }

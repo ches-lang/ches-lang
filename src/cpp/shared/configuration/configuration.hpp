@@ -25,13 +25,13 @@
 using namespace ches::shared;
 
 
-ConfigurationException::ConfigurationException() {}
+ConfigurationException::ConfigurationException() noexcept {}
 
-ConfigurationException::ConfigurationException(ConfigurationExceptionType type) {
+ConfigurationException::ConfigurationException(ConfigurationExceptionType type) noexcept {
     this->type = type;
 }
 
-ConfigurationException::ConfigurationException(ConfigurationExceptionType type, std::string target) {
+ConfigurationException::ConfigurationException(ConfigurationExceptionType type, std::string target) noexcept {
     this->type = type;
     this->target = target;
 }
@@ -44,7 +44,7 @@ Configuration Configuration::langPack;
 
 std::string Configuration::langSettingName = "lang";
 
-Configuration::Configuration() {}
+Configuration::Configuration() noexcept {}
 
 
 void Configuration::edit(std::unordered_map<std::string, std::string> editedOptionMap) {
@@ -89,11 +89,11 @@ void Configuration::edit(std::unordered_map<std::string, std::string> editedOpti
     }
 }
 
-bool Configuration::exists(std::string key) {
-    return this->dataMap.count(key);
+bool Configuration::exists(std::string key) noexcept {
+    return this->dataMap.count(key) == 1;
 }
 
-std::string Configuration::get(std::string key) {
+std::string Configuration::get(std::string key) noexcept {
     if(!this->exists(key))
         return key;
 
@@ -142,7 +142,7 @@ void Configuration::loadData(std::string path) {
     }
 }
 
-void Configuration::print() {
+void Configuration::print() noexcept {
     std::cout << "[debug] Configuration Properties ( whole size: " << this->dataMap.size() << " )" << std::endl;
 
     for(auto [ key, value ] : this->dataMap)
