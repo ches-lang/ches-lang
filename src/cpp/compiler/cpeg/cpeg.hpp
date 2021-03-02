@@ -55,12 +55,6 @@ CPEGExpressionChoice::CPEGExpressionChoice() noexcept {}
 CPEGRule::CPEGRule() noexcept {}
 
 
-CPEGTokenMatchRule::CPEGTokenMatchRule(std::string token, bool optional) noexcept {
-    this->token = token;
-    this->optional = optional;
-}
-
-
 CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string> *tokens) {
     this->initMembers(tokens, 0, tokens->size());
 }

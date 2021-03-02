@@ -109,15 +109,6 @@ namespace ches::compiler {
     };
 
 
-    struct CPEGTokenMatchRule {
-    public:
-        std::string token = "";
-        bool optional = false;
-
-        CPEGTokenMatchRule(std::string token, bool optional = false) noexcept;
-    };
-
-
     /*
      * spec: CPEG トークン列のインデックス ( begin / length ) をもつ
      */
