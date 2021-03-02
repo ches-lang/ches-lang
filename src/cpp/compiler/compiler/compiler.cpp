@@ -32,10 +32,11 @@ namespace ches::compiler {
 
 
     class Compiler {
-    public:
+    private:
         std::string sourcePath = "";
         std::vector<SourceFile> sourceFiles;
 
+    public:
         /*
          * excep: Compiler::getSourceFiles()
          */

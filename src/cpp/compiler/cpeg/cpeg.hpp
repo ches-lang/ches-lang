@@ -14,6 +14,7 @@
 #include <regex>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "../../shared/filemanager/filemanager.hpp"
@@ -54,6 +55,38 @@ CPEGExpressionChoice::CPEGExpressionChoice() noexcept {}
 CPEGRule::CPEGRule() noexcept {}
 
 
+CPEGTokenMatchRule::CPEGTokenMatchRule(std::string token, bool optional) noexcept {
+    this->token = token;
+    this->optional = optional;
+}
+
+
+CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string> *tokens) {
+    this->initMembers(tokens, 0, tokens->size());
+}
+
+CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string> *tokens, unsigned int begin) {
+    this->initMembers(tokens, begin, tokens->size() - begin);
+}
+
+CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string> *tokens, unsigned int begin, unsigned int length) {
+    this->initMembers(tokens, begin, length);
+}
+
+void CPEGTokensIndex::initMembers(std::vector<std::string> *tokens, unsigned int begin, unsigned int length) {
+    this->_tokens = tokens;
+    this->_begin = begin;
+    this->_length = length;
+
+    if(this->end() > tokens->size())
+        throw CPEGException(CPEGException_InvalidCPEGTokensIndex);
+}
+
+
+std::regex CPEG::idTokenRegex = std::regex("[a-zA-Z0-9\\-_]+");
+std::regex CPEG::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");
+std::regex CPEG::spacingTokenRegex = std::regex("[ \t]");
+
 CPEG::CPEG() noexcept {}
 
 SyntaxTree getSyntaxTree(std::string &source) {
@@ -71,16 +104,9 @@ void CPEG::loadCPEGFile(std::string filePath) {
         throw excep;
     }
 
-    for(std::string line : fileLines) {
-        if(line.size() == 0)
-            continue;
+    CPEGRule tmpRule;
 
-        if(line.at(0) == '#')
-            continue;
-
-        
-
-        CPEGRule rule = CPEG::getCPEGRule(line);
-        this->rules.push_back(rule);
-    }
+    for(std::string line : fileLines)
+        if(CPEG::getCPEGRule(line, tmpRule))
+            this->rules.push_back(tmpRule);
 }

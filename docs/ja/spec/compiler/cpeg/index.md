@@ -21,6 +21,9 @@ Chestnutコンパイラの構文定義に使用する。
 
 |構文|名称|説明|例|
 |:-:|:-:|:-:|:-:|
+|#|行コメント<br>( line comment )|行をコメントアウトとして指定|`# any comment here`|
+|N :=|定義<br>( definition )|右辺の規則を規則名として定義|`class := "class" id`|
+|N~1~:N~2~|再命名<br>( renaming )|規則名を上書き|`class id:class_name`|
 |"string"|文字列リテラル<br>( string literal )|文字列|`"class"`|
 |[abc0-9]|文字クラス<br>( character class )|括弧内のいずれかの1文字|`[a-zA-Z_]`|
 |.|ワイルドカード<br>( wild card )|任意の1文字|`.*`|
@@ -32,8 +35,6 @@ Chestnutコンパイラの構文定義に使用する。
 |e?|0回または1回<br>( zero-or-one )|直前の1回以上の繰り返し|`IF+`|
 |&e~1~ e~2~|肯定先読み<br>( positive-lookbehind )|成功しても入力を進めない|`&"\n" "\r"`|
 |!e~1~ e~2~|否定先読み<br>( negative-lookbehind ) |成功しても入力を進めない|`!"\n" .`|
-|N :=|定義<br>( definition )|右辺の規則を規則名として定義|`class := "class" id`|
-|N~1~:N~2~|再命名<br>( renaming )|規則名を上書き|`class id:class_name`|
 
 #### 使用例
 
