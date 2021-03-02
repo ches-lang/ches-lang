@@ -299,6 +299,14 @@ namespace ches::compiler {
 
             try {
                 for(int i = 0; i < line.size(); i++) {
+                    if(line.at(i) == '#') {
+                        tokens.push_back({ line.at(i) });
+
+                        tmpToken = "";
+
+                        break;
+                    }
+
                     if(line.at(i) == '"') {
                         tmpToken.push_back(line.at(i));
 
@@ -316,12 +324,21 @@ namespace ches::compiler {
                         continue;
                     }
 
-                    if(line.at(i) == '#') {
-                        tokens.push_back({ line.at(i) });
+                    if(line.at(i) == '[') {
+                        tmpToken.push_back(line.at(i));
+
+                        for(i++; i < line.size(); i++) {
+                            tmpToken.push_back(line.at(i));
+
+                            if(line.at(i) == ']') {
+                                tokens.push_back(tmpToken);
+                                break;
+                            }
+                        }
 
                         tmpToken = "";
 
-                        break;
+                        continue;
                     }
 
                     if(std::regex_match(std::string { line.at(i) }, CPEG::symbolTokenRegex)) {
@@ -335,7 +352,7 @@ namespace ches::compiler {
 
                         continue;
                     }
-                    
+
                     if(std::regex_match(std::string { line.at(i) }, CPEG::spacingTokenRegex)) {
                         if(tmpToken != "")
                             tokens.push_back(tmpToken);
@@ -356,6 +373,7 @@ namespace ches::compiler {
 
                     if(std::regex_match(std::string { line.at(i) }, CPEG::idTokenRegex)) {
                         tmpToken.push_back(line.at(i));
+
                         continue;
                     }
 
