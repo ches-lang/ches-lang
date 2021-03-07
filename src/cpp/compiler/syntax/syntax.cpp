@@ -19,6 +19,8 @@ namespace ches::compiler {
         std::vector<std::string> tokens;
 
         SyntaxTreeNode() noexcept;
+
+        void print(int nestCount = 0);
     };
 
 
@@ -27,5 +29,7 @@ namespace ches::compiler {
         SyntaxTreeNode root;
 
         SyntaxTree() noexcept;
+
+        void print();
     };
 }

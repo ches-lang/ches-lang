@@ -31,16 +31,17 @@ SourceFile::SourceFile(std::string filePath) noexcept {
     this->filePath = filePath;
 }
 
-void SourceFile::loadSourceFile() {
+void SourceFile::loadSourceFile(CPEG &cpeg) {
     try {
         this->source = FileManager::getText(this->filePath);
     } catch(FileManagerException excep) {
         throw excep;
     }
-}
 
-void SourceFile::loadSyntaxTree() {
-    SyntaxTree tree;
-
-    this->syntaxTree = tree;
+    try {
+        this->syntaxTree = SourceParser::toSyntaxTree(cpeg, this->source);
+        this->syntaxTree.print();
+    } catch(CPEGException excep) {
+        throw excep;
+    }
 }

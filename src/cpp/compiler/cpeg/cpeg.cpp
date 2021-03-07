@@ -37,6 +37,13 @@ namespace ches::compiler {
     };
 
 
+    enum CPEGExpressionLookbehindType {
+        CPEGExpressionLookbehind_Default,
+        CPEGExpressionLookbehind_PositiveLookbehind,
+        CPEGExpressionLookbehind_NegativeLookbehind
+    };
+
+
     enum CPEGExpressionLoopType {
         CPEGExpressionLoop_Default,
         CPEGExpressionLoop_ZeroOrMore,
@@ -45,19 +52,24 @@ namespace ches::compiler {
     };
 
 
-    enum CPEGExpressionLookbehindType {
-        CPEGExpressionLookbehind_Default,
-        CPEGExpressionLookbehind_PositiveLookbehind,
-        CPEGExpressionLookbehind_NegativeLookbehind
-    };
-
-
     struct CPEGExpressionProperties {
     public:
-        CPEGExpressionLoopType loopType = CPEGExpressionLoop_Default;
         CPEGExpressionLookbehindType lookbehindType = CPEGExpressionLookbehind_Default;
+        CPEGExpressionLoopType loopType = CPEGExpressionLoop_Default;
 
         CPEGExpressionProperties() noexcept;
+
+        static CPEGExpressionLookbehindType toLookbehindType(char token) noexcept {
+            switch(token) {
+                case '&':
+                return CPEGExpressionLookbehind_PositiveLookbehind;
+
+                case '!':
+                return CPEGExpressionLookbehind_NegativeLookbehind;
+            }
+
+            return CPEGExpressionLookbehind_Default;
+        }
 
         static CPEGExpressionLoopType toLoopType(char token) noexcept {
             switch(token) {
@@ -74,16 +86,39 @@ namespace ches::compiler {
             return CPEGExpressionLoop_Default;
         }
 
-        static CPEGExpressionLookbehindType toLookbehindType(char token) noexcept {
-            switch(token) {
-                case '&':
-                return CPEGExpressionLookbehind_PositiveLookbehind;
+        static std::string toString(CPEGExpressionLookbehindType type) {
+            std::string lookbehindType = "";
 
-                case '!':
-                return CPEGExpressionLookbehind_NegativeLookbehind;
+            switch(type) {
+                case CPEGExpressionLookbehind_PositiveLookbehind:
+                return "&";
+
+                case CPEGExpressionLookbehind_NegativeLookbehind:
+                return "!";
+
+                default:
+                return "";
             }
 
-            return CPEGExpressionLookbehind_Default;
+            return "";
+        }
+
+        static std::string toString(CPEGExpressionLoopType type) {
+            switch(type) {
+                case CPEGExpressionLoop_ZeroOrMore:
+                return "*";
+
+                case CPEGExpressionLoop_OneOrMore:
+                return "+";
+
+                case CPEGExpressionLoop_ZeroOrOne:
+                return "?";
+
+                default:
+                return "";
+            }
+
+            return "";
         }
     };
 
@@ -105,6 +140,24 @@ namespace ches::compiler {
         CPEGExpressionProperties props;
 
         CPEGExpression() noexcept;
+
+        static std::string toString(CPEGExpressionType type) {
+            switch(type) {
+                case CPEGExpression_CharClass:
+                return "CharClass";
+
+                case CPEGExpression_ID:
+                return "ID";
+
+                case CPEGExpression_String:
+                return "String";
+
+                default:
+                return "Unknown";
+            }
+
+            return "Unknown";
+        }
     };
 
 
@@ -206,36 +259,37 @@ namespace ches::compiler {
     };
 
 
-    class CPEG {
+    struct CPEG {
     public:
         std::vector<CPEGRule> rules;
 
-        static std::regex charClassTokenRegex;
-        static std::regex idTokenRegex;
-        static std::regex spacingTokenRegex;
-        static std::regex stringTokenRegex;
-        static std::regex symbolTokenRegex;
-
         CPEG() noexcept;
-
-        /*
-         * excep: 
-         * note: 事前に CPEG::loadCPEGFile(std::string) を実行すること
-         */
-        SyntaxTree getSyntaxTree(std::string &source);
 
         /*
          * excep: FileManager::getLines(std::string) / getCPEGRule(std::string, CPEGRule)
          */
         void loadCPEGFile(std::string filePath);
 
+        void print() noexcept;
+    };
+
+
+    class CPEGParser {
+    private:
+        static std::regex charClassTokenRegex;
+        static std::regex idTokenRegex;
+        static std::regex spacingTokenRegex;
+        static std::regex stringTokenRegex;
+        static std::regex symbolTokenRegex;
+
+    public:
         /*
          * ret: expr が空でないかどうか
          * arg: expr: expr が空でない場合のみ変換後の expression を代入する
-         * excep: getCPEGExpression(std::string)
+         * excep: CPEGParser::toCPEGExpression(std::string)
          */
-        static bool getCPEGExpression(CPEGTokensIndex choiceTokensIndex, CPEGExpression &expr) {
-            if(CPEG::isCPEGTokensEmpty(choiceTokensIndex))
+        static bool toCPEGExpression(CPEGTokensIndex choiceTokensIndex, CPEGExpression &expr) {
+            if(CPEGParser::isCPEGTokensEmpty(choiceTokensIndex))
                 return false;
 
             std::vector<std::string> *tokens = choiceTokensIndex.tokens();
@@ -249,7 +303,7 @@ namespace ches::compiler {
                 tmpToken += tokens->at(i);
 
             try {
-                expr = CPEG::getCPEGExpression(tmpToken);
+                expr = CPEGParser::toCPEGExpression(tmpToken);
             } catch(std::regex_error excep) {
                 throw excep;
             } catch(CPEGException excep) {
@@ -262,11 +316,11 @@ namespace ches::compiler {
         /*
          * excep: std::regex_error / CPEGException [InvalidCPEGSyntax]
          */
-        static CPEGExpression getCPEGExpression(std::string token) {
+        static CPEGExpression toCPEGExpression(std::string token) {
             CPEGExpression expr;
-            CPEGExpressionProperties props = CPEG::getCPEGExpressionProperties(token);
+            CPEGExpressionProperties props = CPEGParser::toCPEGExpressionProperties(token);
 
-            if(std::regex_match(token, CPEG::charClassTokenRegex)) {
+            if(std::regex_match(token, CPEGParser::charClassTokenRegex)) {
                 expr.type = CPEGExpression_CharClass;
                 expr.value = token.substr(1, token.size() - 2);
                 expr.props = props;
@@ -274,7 +328,7 @@ namespace ches::compiler {
                 return expr;
             }
 
-            if(std::regex_match(token, CPEG::idTokenRegex)) {
+            if(std::regex_match(token, CPEGParser::idTokenRegex)) {
                 expr.type = CPEGExpression_ID;
                 expr.value = token;
                 expr.props = props;
@@ -282,7 +336,7 @@ namespace ches::compiler {
                 return expr;
             }
 
-            if(std::regex_match(token, CPEG::stringTokenRegex)) {
+            if(std::regex_match(token, CPEGParser::stringTokenRegex)) {
                 expr.type = CPEGExpression_String;
                 expr.value = token.substr(1, token.size() - 2);
                 expr.props = props;
@@ -302,10 +356,10 @@ namespace ches::compiler {
         }
 
         /*
-         * excep: CPEGException [ChoiceHasNoExpression] / CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string>*, unsigned int, unsigned int) / getCPEGExpressionSequenceGroup(CPEGTokensIndex, CPEGExpressionSequenceGroup&)
+         * excep: CPEGException [ChoiceHasNoExpression] / CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string>*, unsigned int, unsigned int) / CPEGParser::toCPEGExpressionSequenceGroup(CPEGTokensIndex, CPEGExpressionSequenceGroup&)
          */
-        static std::vector<CPEGExpressionChoice> getCPEGExpressionChoices(CPEGTokensIndex ruleTokensIndex) {
-            if(CPEG::isCPEGTokensEmpty(ruleTokensIndex))
+        static std::vector<CPEGExpressionChoice> toCPEGExpressionChoices(CPEGTokensIndex ruleTokensIndex) {
+            if(CPEGParser::isCPEGTokensEmpty(ruleTokensIndex))
                 throw CPEGException(CPEGException_ChoiceHasNoExpression);
 
             std::vector<CPEGExpressionChoice> choices;
@@ -326,7 +380,7 @@ namespace ches::compiler {
 
                         CPEGExpressionSequenceGroup group;
 
-                        if(!CPEG::getCPEGExpressionSequenceGroup(choiceTokensIndex, group))
+                        if(!CPEGParser::toCPEGExpressionSequenceGroup(choiceTokensIndex, group))
                             throw CPEGException(CPEGException_ChoiceHasNoExpression);
 
                         CPEGExpressionChoice newChoice;
@@ -347,8 +401,8 @@ namespace ches::compiler {
         /*
          * excep: CPEGException [InvalidSequenceGroupParen, SequenceGroupHasNoExpression]
          */
-        static bool getCPEGExpressionSequenceGroup(CPEGTokensIndex choiceTokensIndex, CPEGExpressionSequenceGroup &group) {
-            if(CPEG::isCPEGTokensEmpty(choiceTokensIndex))
+        static bool toCPEGExpressionSequenceGroup(CPEGTokensIndex choiceTokensIndex, CPEGExpressionSequenceGroup &group) {
+            if(CPEGParser::isCPEGTokensEmpty(choiceTokensIndex))
                 return false;
 
             CPEGExpressionSequenceGroup newGroup;
@@ -372,7 +426,7 @@ namespace ches::compiler {
                     CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
                     CPEGExpression expr;
 
-                    if(CPEG::getCPEGExpression(groupTokensIndex, expr))
+                    if(CPEGParser::toCPEGExpression(groupTokensIndex, expr))
                         tmpExprs.push_back(expr);
 
                     seqBegin = i + 1;
@@ -414,7 +468,7 @@ namespace ches::compiler {
                     CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
                     CPEGExpression expr;
 
-                    if(CPEG::getCPEGExpression(groupTokensIndex, expr))
+                    if(CPEGParser::toCPEGExpression(groupTokensIndex, expr))
                         tmpExprs.push_back(expr);
 
                     if(tmpExprs.size() == 0)
@@ -428,7 +482,7 @@ namespace ches::compiler {
                     std::string firstStr = tokens->at(seqBeginInParen);
                     std::string lastStr = tokens->at(seqEndInParen);
 
-                    CPEGExpressionProperties seqProps = CPEG::getCPEGExpressionProperties(firstStr, lastStr);
+                    CPEGExpressionProperties seqProps = CPEGParser::toCPEGExpressionProperties(firstStr, lastStr);
 
                     CPEGExpressionSequence newSeq;
                     newSeq.exprs = tmpExprs;
@@ -452,7 +506,7 @@ namespace ches::compiler {
                 CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
                 CPEGExpression expr;
 
-                if(CPEG::getCPEGExpression(groupTokensIndex, expr))
+                if(CPEGParser::toCPEGExpression(groupTokensIndex, expr))
                     tmpExprs.push_back(expr);
 
                 if(tmpExprs.size() > 0) {
@@ -468,7 +522,7 @@ namespace ches::compiler {
             return true;
         }
 
-        static CPEGExpressionProperties getCPEGExpressionProperties(std::string firstStr, std::string lastStr) noexcept {
+        static CPEGExpressionProperties toCPEGExpressionProperties(std::string firstStr, std::string lastStr) noexcept {
             char firstChar = '\0';
             char lastChar = '\0';
 
@@ -478,10 +532,10 @@ namespace ches::compiler {
             if(lastStr.size() != 0)
                 lastChar = lastStr.at(0);
 
-            return CPEG::getCPEGExpressionProperties(firstChar, lastChar);
+            return CPEGParser::toCPEGExpressionProperties(firstChar, lastChar);
         }
 
-        static CPEGExpressionProperties getCPEGExpressionProperties(char firstChar, char lastChar) noexcept {
+        static CPEGExpressionProperties toCPEGExpressionProperties(char firstChar, char lastChar) noexcept {
             CPEGExpressionProperties props;
 
             int symbolCount = 0;
@@ -506,14 +560,14 @@ namespace ches::compiler {
             return props;
         }
 
-        static CPEGExpressionProperties getCPEGExpressionProperties(std::string &token) noexcept {
+        static CPEGExpressionProperties toCPEGExpressionProperties(std::string &token) noexcept {
             if(token.size() == 0)
                 return CPEGExpressionProperties();
 
             char firstChar = token.at(0);
             char lastChar = token.at(token.size() - 1);
 
-            CPEGExpressionProperties props = CPEG::getCPEGExpressionProperties(firstChar, lastChar);
+            CPEGExpressionProperties props = CPEGParser::toCPEGExpressionProperties(firstChar, lastChar);
 
             if(props.lookbehindType != CPEGExpressionLookbehind_Default)
                 token = token.substr(1);
@@ -530,11 +584,11 @@ namespace ches::compiler {
         /*
          * arg: line: 解析させる行 ( 値の変更なし ); rule: 行の解析後に代入される規則値 ( 規則文であった場合のみ値が変更される )
          * ret: 与えられた行が規則文であるか
-         * excep: CPEGException [InvalidCPEGSyntax, InvalidCPEGRuleName] / getCPEGTokens(std::string&)
+         * excep: CPEGException [InvalidCPEGSyntax, InvalidCPEGRuleName] / toCPEGTokens(std::string&)
          */
-        static bool getCPEGRule(std::string &line, CPEGRule &rule) {
+        static bool toCPEGRule(std::string &line, CPEGRule &rule) {
             CPEGRule newRule;
-            std::vector<std::string> tokens = CPEG::getCPEGTokens(line);
+            std::vector<std::string> tokens = CPEGParser::toCPEGTokens(line);
 
             if(tokens.size() == 0)
                 return false;
@@ -547,12 +601,12 @@ namespace ches::compiler {
 
             int ruleDefStartIndex = 0;
 
-            if(CPEG::matchCPEGTokens(tokens, { "", ":", "=" }, ruleDefStartIndex, true)) {
-                if(!std::regex_match(tokens.at(0), CPEG::idTokenRegex))
+            if(CPEGParser::matchCPEGTokens(tokens, { "", ":", "=" }, ruleDefStartIndex, true)) {
+                if(!std::regex_match(tokens.at(0), CPEGParser::idTokenRegex))
                     throw CPEGException(CPEGException_InvalidCPEGRuleName);
 
                 newRule.name = tokens.at(0);
-                newRule.exprChoices = CPEG::getCPEGExpressionChoices(CPEGTokensIndex(&tokens, ruleDefStartIndex));
+                newRule.exprChoices = CPEGParser::toCPEGExpressionChoices(CPEGTokensIndex(&tokens, ruleDefStartIndex));
             }
 
             rule = newRule;
@@ -563,7 +617,7 @@ namespace ches::compiler {
         /*
          * excep: CPEGException [FailedToParseCPEG]
          */
-        static std::vector<std::string> getCPEGTokens(std::string &line) {
+        static std::vector<std::string> toCPEGTokens(std::string &line) {
             std::vector<std::string> tokens;
             std::string tmpToken = "";
 
@@ -613,7 +667,7 @@ namespace ches::compiler {
                         continue;
                     }
 
-                    if(std::regex_match(std::string { line.at(i) }, CPEG::symbolTokenRegex)) {
+                    if(std::regex_match(std::string { line.at(i) }, CPEGParser::symbolTokenRegex)) {
                         if(tmpToken != "")
                             tokens.push_back(tmpToken);
 
@@ -625,7 +679,7 @@ namespace ches::compiler {
                         continue;
                     }
 
-                    if(std::regex_match(std::string { line.at(i) }, CPEG::spacingTokenRegex)) {
+                    if(std::regex_match(std::string { line.at(i) }, CPEGParser::spacingTokenRegex)) {
                         if(tmpToken != "")
                             tokens.push_back(tmpToken);
 
@@ -634,7 +688,7 @@ namespace ches::compiler {
                         tokens.push_back(" ");
 
                         for(int j = i + 1; j < line.size(); j++) {
-                            if(!std::regex_match(std::string { line.at(j) }, CPEG::spacingTokenRegex)) {
+                            if(!std::regex_match(std::string { line.at(j) }, CPEGParser::spacingTokenRegex)) {
                                 i = j - 1;
                                 break;
                             }
@@ -643,7 +697,7 @@ namespace ches::compiler {
                         continue;
                     }
 
-                    if(std::regex_match(std::string { line.at(i) }, CPEG::idTokenRegex)) {
+                    if(std::regex_match(std::string { line.at(i) }, CPEGParser::idTokenRegex)) {
                         tmpToken.push_back(line.at(i));
 
                         continue;
@@ -704,5 +758,17 @@ namespace ches::compiler {
 
             return true;
         }
+    };
+
+
+    class SourceParser {
+    public:
+        static SyntaxTree toSyntaxTree(CPEG &cpeg, std::string source) {
+            SyntaxTree tree;
+
+            return tree;
+        }
+
+        
     };
 }

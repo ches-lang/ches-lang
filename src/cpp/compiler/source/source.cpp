@@ -20,14 +20,6 @@ namespace ches::compiler {
         /*
          * excep: SourceFile::getSyntaxTree() / SourceFile::getSource()
          */
-        void loadSourceFile();
-
-    private:
-        /*
-         * FileManager::getText(std::string)
-         */
-        std::string loadSource();
-
-        void loadSyntaxTree();
+        void loadSourceFile(CPEG &cpeg);
     };
 }

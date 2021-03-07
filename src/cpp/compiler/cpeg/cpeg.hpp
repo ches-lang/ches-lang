@@ -80,19 +80,7 @@ void CPEGTokensIndex::initMembers(std::vector<std::string> *tokens, unsigned int
 }
 
 
-std::regex CPEG::charClassTokenRegex = std::regex("\\[.*\\]");
-std::regex CPEG::idTokenRegex = std::regex("[a-zA-Z0-9\\-_]+");
-std::regex CPEG::spacingTokenRegex = std::regex("[ \t]");
-std::regex CPEG::stringTokenRegex = std::regex("\".*\"");
-std::regex CPEG::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");
-
 CPEG::CPEG() noexcept {}
-
-SyntaxTree getSyntaxTree(std::string &source) {
-    SyntaxTree tree;
-
-    return tree;
-}
 
 void CPEG::loadCPEGFile(std::string filePath) {
     std::vector<std::string> fileLines;
@@ -106,6 +94,45 @@ void CPEG::loadCPEGFile(std::string filePath) {
     CPEGRule tmpRule;
 
     for(std::string line : fileLines)
-        if(CPEG::getCPEGRule(line, tmpRule))
+        if(CPEGParser::toCPEGRule(line, tmpRule))
             this->rules.push_back(tmpRule);
 }
+
+void CPEG::print() noexcept {
+    std::cout << "- CPEG Rules -" << std::endl;
+    std::cout << std::endl;
+
+    for(CPEGRule rule : this->rules) {
+        std::cout << "[" << rule.name << "]" << std::endl;
+
+        for(CPEGExpressionChoice choice : rule.exprChoices) {
+            std::cout << "  choice" << std::endl;
+
+            for(CPEGExpressionSequence seq : choice.exprSeqGroup.exprSeqs) {
+                std::string seqLoopTypeStr = CPEGExpressionProperties::toString(seq.props.loopType);
+                std::string seqLookbehindTypeStr = CPEGExpressionProperties::toString(seq.props.lookbehindType);
+
+                std::cout << "    seqs" << " " << seqLookbehindTypeStr << seqLoopTypeStr << std::endl;
+
+                for(CPEGExpression expr : seq.exprs) {
+                    CPEGExpressionType type = expr.type;
+                    std::string typeName = CPEGExpression::toString(type);
+
+                    std::string exprLoopTypeStr = CPEGExpressionProperties::toString(expr.props.loopType);
+                    std::string exprLookbehindTypeStr = CPEGExpressionProperties::toString(expr.props.lookbehindType);
+
+                    std::cout << "      " << typeName << ": " << expr.value << " " << exprLookbehindTypeStr << exprLoopTypeStr << std::endl;
+                }
+            }
+        }
+
+        std::cout << std::endl;
+    }
+}
+
+
+std::regex CPEGParser::charClassTokenRegex = std::regex("\\[.*\\]");
+std::regex CPEGParser::idTokenRegex = std::regex("[a-zA-Z0-9\\-_]+");
+std::regex CPEGParser::spacingTokenRegex = std::regex("[ \t]");
+std::regex CPEGParser::stringTokenRegex = std::regex("\".*\"");
+std::regex CPEGParser::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");

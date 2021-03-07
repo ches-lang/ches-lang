@@ -51,13 +51,8 @@ namespace ches::compiler {
         unsigned char* getBytecode();
 
         /*
-         * excep: FileManager::getAllFilePathsInDirectory(std::string) / FileManager::matchExtensionName(std::string, std::string)
+         * excep: FileManager::getAllFilePathsInDirectory(std::string) / FileManager::matchExtensionName(std::string, std::string) / SourceFile::loadSourceFile()
          */
         std::vector<SourceFile> getSourceFiles();
-
-        /*
-         * excep: SourceFile::getSource()
-         */
-        std::vector<SourceFile> loadSourceFiles();
     };
 }

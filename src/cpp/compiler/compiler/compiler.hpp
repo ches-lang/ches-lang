@@ -50,8 +50,6 @@ Compiler::Compiler(std::string sourcePath) {
 void Compiler::compile(std::string outputFilePath) {
     if(this->sourceFiles.size() == 0)
         throw CompilerException(CompilerException_NoInputFile);
-
-    // todo: 処理を書く
 }
 
 unsigned char* Compiler::getBytecode() {
@@ -66,13 +64,26 @@ std::vector<SourceFile> Compiler::getSourceFiles() {
     std::vector<std::string> filePaths;
     std::vector<std::string> chesFilePaths;
 
+    std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
+
+    if(homeDirPath == "")
+        throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
+
+    CPEG cpeg;
+    cpeg.loadCPEGFile(homeDirPath + "/cpeg/syntax.cpeg");
+
     if(FileManager::isDirectory(this->sourcePath)) {
         try {
             filePaths = FileManager::getAllFilePathsInDirectory(this->sourcePath);
 
-            for(const std::string path : filePaths)
-                if(FileManager::matchExtensionName(path, "ches"))
-                    sourceFiles.push_back(SourceFile(path));
+            for(const std::string path : filePaths) {
+                if(FileManager::matchExtensionName(path, "ches")) {
+                    SourceFile file = SourceFile(path);
+                    file.loadSourceFile(cpeg);
+
+                    sourceFiles.push_back(file);
+                }
+            }
         } catch(FileManagerException excep) {
             throw excep;
         }
