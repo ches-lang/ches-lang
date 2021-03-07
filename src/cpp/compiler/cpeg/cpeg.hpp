@@ -1,8 +1,8 @@
 /*
- * Chestnut 0.0.0
+ * Ches 0.0.0
  *
  * GitHub Repository:
- *     https://github.com/Garnet3106/chestnut/
+ *     https://github.com/Garnet3106/ches-lang/
  *
  * Copyright © 2020-2021 Garnet3106 All rights reserved.
  */

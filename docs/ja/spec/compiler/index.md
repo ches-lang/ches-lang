@@ -11,7 +11,7 @@ ChesコンパイラではChesコードをCVMコードに変換する。
 ## 付随ページ
 
 - [AST (抽象構文木)](./ast/index.md)
-- [CPEG (Chestnut-PEG)](./ast/index.md)
+- [CPEG (Ches-PEG)](./ast/index.md)
 
 ---
 

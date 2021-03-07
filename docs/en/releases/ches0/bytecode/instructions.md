@@ -1,4 +1,4 @@
-# Chestnut Bytecode Instructions
+# Ches Bytecode Instructions
 
 ## Special Instruction List
 

@@ -1,10 +1,10 @@
-# CVM (Chestnut仮想マシン)
+# CVM ( Ches 仮想マシン )
 
 [ドキュメント](../../../index.md) > [日本語](../../index.md) > [仕様書](../index.md) > [CVM](./index.md)
 
 ## 名称
 
-CVMは Chestnut Virtual Machine ( = Chestnut仮想マシン ) の略である。
+CVMは Ches Virtual Machine ( = Ches 仮想マシン ) の略である。
 
 ## 役割
 

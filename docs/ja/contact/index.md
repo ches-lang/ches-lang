@@ -4,7 +4,7 @@
 
 ## GitHub Issues
 
-Chestnutに関する問題報告は [こちら](https://github.com/Garnet3106/chestnut/issues/) から。
+Ches に関する問題報告は [こちら](https://github.com/Garnet3106/ches-lang/issues/) から。
 
 ## その他
 

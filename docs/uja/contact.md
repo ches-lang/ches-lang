@@ -1,6 +1,6 @@
 # コソタケト
 
-言语ゐ問題を报告ずゑには [こちら](https://github.com/Garnet3106/chestnut/issues/)。
+言语ゐ問題を报告ずゑには [こちら](https://github.com/Garnet3106/ches-lang/issues/)。
 
 そゐ他ゐ理由て連絡ずゑ場合：
 

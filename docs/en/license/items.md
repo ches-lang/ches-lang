@@ -1,9 +1,9 @@
-# Chestnut License
+# Ches License
 
 ## Overview
 
-This is a license about using Chestnut.
-Please use Chestnut within the range of the license.
+This is a license about using Ches.
+Please use Ches within the range of the license.
 Please make an appropriate decision if not described in the license.
 
 
@@ -14,13 +14,13 @@ Please make an appropriate decision if not described in the license.
 
 ### **Private Use**
 
-You can use Chestnut freely if you use for private use.
+You can use Ches freely if you use for private use.
 
 ### **Redistribution**
 
-You can redistribute a part or the whole of Chestnut.
+You can redistribute a part or the whole of Ches.
 Please report me [here](#Contact) when you redistribute it.
-And please present the URL of the [Chestnut License](/docs/en/license/items.md) for people who use redistributed Chestnut.
+And please present the URL of the [Ches License](/docs/en/license/items.md) for people who use redistributed Ches.
 
 ### **Analyzation**
 
@@ -31,23 +31,23 @@ It is not prohibited to analyze binary data that the compiler output.
 
 ### **Alteration and Derivative**
 
-You can alter or derive Chestnut if you use privately.
+You can alter or derive Ches if you use privately.
 If you distribute alteration or derivative, please consult with me [here](#Contact).
 
 ### **権利関係**
 
-Chestnutのすべての著作権は [Garnet3106](https://github.com/Garnet3106/) が有しますが、Chestnutを利用して制作された著作物の著作権は、その制作者が有します。
+Ches のすべての著作権は [Garnet3106](https://github.com/Garnet3106/) が有しますが、Ches を利用して制作された著作物の著作権は、その制作者が有します。
 
-Chestnutを使用して制作されたソフトウェアについては、その制作者はソフトウェアに対して利用規約やライセンスなどの条項を取り決めることができます。
+Ches を使用して制作されたソフトウェアについては、その制作者はソフトウェアに対して利用規約やライセンスなどの条項を取り決めることができます。
 ただし、このライセンスに反する項目は無効になります。
 
 ### **Commercial Use**
 
-You can use, distribute and sell softwares that made with Chestnut freely.
+You can use, distribute and sell softwares that made with Ches freely.
 
 ### **Others**
 
-Please do not use Chestnut for wrong purpose.
+Please do not use Ches for wrong purpose.
 
 For example:
 

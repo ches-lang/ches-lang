@@ -9,19 +9,19 @@
 ### Windows
 
 ```
-C:\Program Files\Chestnut\
+C:\Program Files\Ches\
 ```
 
 ### macOS
 
 ```
-/Users/Shared/Library/Chestnut/
+/Users/Shared/Library/Ches/
 ```
 
 ### Linux
 
 ```
-/lib/chestnut/
+/lib/Ches/
 ```
 
 ## ディレクトリ構造

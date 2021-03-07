@@ -1,10 +1,10 @@
-# CPEG (Chestnut-PEG)
+# CPEG (Ches-PEG)
 
 [ドキュメント](../../../../index.md) > [日本語](../../../index.md) > [仕様書](../../index.md) > [コンパイラ](../index.md) > [CPEG](./index.md)
 
 ## 用途
 
-Chestnutコンパイラの構文定義に使用する。
+Ches コンパイラの構文定義に使用する。
 
 ## 構文
 

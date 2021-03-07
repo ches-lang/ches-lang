@@ -1,6 +1,6 @@
 # Contact me
 
-Please report me language issues [here](https://github.com/Garnet3106/chestnut/issues/).
+Please report me language issues [here](https://github.com/Garnet3106/ches-lang/issues/).
 
 To contact for other reasons:
 
