@@ -14,11 +14,13 @@
 namespace ches::compiler {
     enum CPEGExceptionType {
         CPEGException_Unknown,
-        CPEGException_ChoiceHasNoRuleItem,
+        CPEGException_InvalidSequenceGroupParen,
+        CPEGException_ChoiceHasNoExpression,
         CPEGException_FailedToParseCPEG,
         CPEGException_InvalidCPEGRuleName,
         CPEGException_InvalidCPEGSyntax,
-        CPEGException_InvalidCPEGTokensIndex
+        CPEGException_InvalidCPEGTokensIndex,
+        CPEGException_SequenceGroupHasNoExpression
     };
 
 
@@ -35,11 +37,63 @@ namespace ches::compiler {
     };
 
 
+    enum CPEGExpressionLoopType {
+        CPEGExpressionLoop_Default,
+        CPEGExpressionLoop_ZeroOrMore,
+        CPEGExpressionLoop_OneOrMore,
+        CPEGExpressionLoop_ZeroOrOne,
+    };
+
+
+    enum CPEGExpressionLookbehindType {
+        CPEGExpressionLookbehind_Default,
+        CPEGExpressionLookbehind_PositiveLookbehind,
+        CPEGExpressionLookbehind_NegativeLookbehind
+    };
+
+
+    struct CPEGExpressionProperties {
+    public:
+        CPEGExpressionLoopType loopType = CPEGExpressionLoop_Default;
+        CPEGExpressionLookbehindType lookbehindType = CPEGExpressionLookbehind_Default;
+
+        CPEGExpressionProperties() noexcept;
+
+        static CPEGExpressionLoopType toLoopType(char token) noexcept {
+            switch(token) {
+                case '*':
+                return CPEGExpressionLoop_ZeroOrMore;
+
+                case '+':
+                return CPEGExpressionLoop_OneOrMore;
+
+                case '?':
+                return CPEGExpressionLoop_ZeroOrOne;
+            }
+
+            return CPEGExpressionLoop_Default;
+        }
+
+        static CPEGExpressionLookbehindType toLookbehindType(char token) noexcept {
+            switch(token) {
+                case '&':
+                return CPEGExpressionLookbehind_PositiveLookbehind;
+
+                case '!':
+                return CPEGExpressionLookbehind_NegativeLookbehind;
+            }
+
+            return CPEGExpressionLookbehind_Default;
+        }
+    };
+
+
     enum CPEGExpressionType {
         CPEGExpression_Unknown,
+        CPEGExpression_CharClass,
         CPEGExpression_ID,
-        CPEGExpression_Regex,
-        CPEGExpression_String
+        CPEGExpression_String,
+        CPEGExpression_WildCard
     };
 
 
@@ -47,6 +101,8 @@ namespace ches::compiler {
     public:
         CPEGExpressionType type = CPEGExpression_Unknown;
         std::string value;
+
+        CPEGExpressionProperties props;
 
         CPEGExpression() noexcept;
     };
@@ -59,20 +115,9 @@ namespace ches::compiler {
     public:
         std::vector<CPEGExpression> exprs;
 
+        CPEGExpressionProperties props;
+
         CPEGExpressionSequence() noexcept;
-    };
-
-
-    enum CPEGExpressionSequenceLoopType {
-        CPEGExpressionSequenceLoop_ZeroOrMore,
-        CPEGExpressionSequenceLoop_OneOrMore,
-        CPEGExpressionSequenceLoop_ZeroOrOne,
-    };
-
-
-    enum CPEGExpressionSequenceLookbehindType {
-        CPEGExpressionSequenceLookbehind_PositiveLookbehind,
-        CPEGExpressionSequenceLookbehind_NegativeLookbehind
     };
 
 
@@ -81,9 +126,7 @@ namespace ches::compiler {
      */
     struct CPEGExpressionSequenceGroup {
     public:
-        std::vector<CPEGExpressionSequence> exprSeq;
-        CPEGExpressionSequenceLoopType loopType;
-        CPEGExpressionSequenceLookbehindType lookbehindType;
+        std::vector<CPEGExpressionSequence> exprSeqs;
 
         CPEGExpressionSequenceGroup() noexcept;
     };
@@ -94,7 +137,7 @@ namespace ches::compiler {
      */
     struct CPEGExpressionChoice {
     public:
-        std::vector<CPEGExpressionSequenceGroup> exprSeqGroups;
+        CPEGExpressionSequenceGroup exprSeqGroup;
 
         CPEGExpressionChoice() noexcept;
     };
@@ -167,9 +210,11 @@ namespace ches::compiler {
     public:
         std::vector<CPEGRule> rules;
 
+        static std::regex charClassTokenRegex;
         static std::regex idTokenRegex;
-        static std::regex symbolTokenRegex;
         static std::regex spacingTokenRegex;
+        static std::regex stringTokenRegex;
+        static std::regex symbolTokenRegex;
 
         CPEG() noexcept;
 
@@ -185,15 +230,90 @@ namespace ches::compiler {
         void loadCPEGFile(std::string filePath);
 
         /*
-         * excep: 
+         * ret: expr が空でないかどうか
+         * arg: expr: expr が空でない場合のみ変換後の expression を代入する
+         * excep: getCPEGExpression(std::string)
          */
-        static std::vector<CPEGExpressionChoice> getCPEGExpressionChoices(CPEGTokensIndex tokensIndex) {
+        static bool getCPEGExpression(CPEGTokensIndex choiceTokensIndex, CPEGExpression &expr) {
+            if(CPEG::isCPEGTokensEmpty(choiceTokensIndex))
+                return false;
+
+            std::vector<std::string> *tokens = choiceTokensIndex.tokens();
+
+            unsigned int begin = choiceTokensIndex.begin();
+            unsigned int end = choiceTokensIndex.end();
+
+            std::string tmpToken = "";
+
+            for(int i = begin; i < end; i++)
+                tmpToken += tokens->at(i);
+
+            try {
+                expr = CPEG::getCPEGExpression(tmpToken);
+            } catch(std::regex_error excep) {
+                throw excep;
+            } catch(CPEGException excep) {
+                throw excep;
+            }
+
+            return true;
+        }
+
+        /*
+         * excep: std::regex_error / CPEGException [InvalidCPEGSyntax]
+         */
+        static CPEGExpression getCPEGExpression(std::string token) {
+            CPEGExpression expr;
+            CPEGExpressionProperties props = CPEG::getCPEGExpressionProperties(token);
+
+            if(std::regex_match(token, CPEG::charClassTokenRegex)) {
+                expr.type = CPEGExpression_CharClass;
+                expr.value = token.substr(1, token.size() - 2);
+                expr.props = props;
+
+                return expr;
+            }
+
+            if(std::regex_match(token, CPEG::idTokenRegex)) {
+                expr.type = CPEGExpression_ID;
+                expr.value = token;
+                expr.props = props;
+
+                return expr;
+            }
+
+            if(std::regex_match(token, CPEG::stringTokenRegex)) {
+                expr.type = CPEGExpression_String;
+                expr.value = token.substr(1, token.size() - 2);
+                expr.props = props;
+
+                return expr;
+            }
+
+            if(token == ".") {
+                expr.type = CPEGExpression_WildCard;
+                expr.value = token;
+                expr.props = props;
+
+                return expr;
+            }
+
+            throw CPEGException(CPEGException_InvalidCPEGSyntax);
+        }
+
+        /*
+         * excep: CPEGException [ChoiceHasNoExpression] / CPEGTokensIndex::CPEGTokensIndex(std::vector<std::string>*, unsigned int, unsigned int) / getCPEGExpressionSequenceGroup(CPEGTokensIndex, CPEGExpressionSequenceGroup&)
+         */
+        static std::vector<CPEGExpressionChoice> getCPEGExpressionChoices(CPEGTokensIndex ruleTokensIndex) {
+            if(CPEG::isCPEGTokensEmpty(ruleTokensIndex))
+                throw CPEGException(CPEGException_ChoiceHasNoExpression);
+
             std::vector<CPEGExpressionChoice> choices;
 
-            std::vector<std::string> *tokens = tokensIndex.tokens();
+            std::vector<std::string> *tokens = ruleTokensIndex.tokens();
 
-            unsigned int begin = tokensIndex.begin();
-            unsigned int end = tokensIndex.end();
+            unsigned int begin = ruleTokensIndex.begin();
+            unsigned int end = ruleTokensIndex.end();
 
             unsigned int seqGroupBegin = begin;
 
@@ -202,21 +322,21 @@ namespace ches::compiler {
                     if(i == end || tokens->at(i) == ">") {
                         int seqGroupEnd = i;
 
-                        CPEGTokensIndex groupTokensIndex(tokens, seqGroupBegin, seqGroupEnd - seqGroupBegin);
+                        CPEGTokensIndex choiceTokensIndex(tokens, seqGroupBegin, seqGroupEnd - seqGroupBegin);
 
-                        std::vector<CPEGExpressionSequenceGroup> group = CPEG::getCPEGExpressionSequenceGroups(groupTokensIndex);
+                        CPEGExpressionSequenceGroup group;
+
+                        if(!CPEG::getCPEGExpressionSequenceGroup(choiceTokensIndex, group))
+                            throw CPEGException(CPEGException_ChoiceHasNoExpression);
 
                         CPEGExpressionChoice newChoice;
-                        newChoice.exprSeqGroups = group;
+                        newChoice.exprSeqGroup = group;
 
                         choices.push_back(newChoice);
 
                         seqGroupBegin = seqGroupEnd + 1;
                     }
                 }
-                std::cout<<std::endl;
-            } catch(std::out_of_range excep) {
-                throw excep;
             } catch(CPEGException excep) {
                 throw excep;
             }
@@ -225,32 +345,186 @@ namespace ches::compiler {
         }
 
         /*
-         * excep: 
+         * excep: CPEGException [InvalidSequenceGroupParen, SequenceGroupHasNoExpression]
          */
-        static std::vector<CPEGExpressionSequenceGroup> getCPEGExpressionSequenceGroups(CPEGTokensIndex tokensIndex) {
-            if(CPEG::isCPEGTokensEmpty(tokensIndex))
-                throw CPEGException(CPEGException_ChoiceHasNoRuleItem);
+        static bool getCPEGExpressionSequenceGroup(CPEGTokensIndex choiceTokensIndex, CPEGExpressionSequenceGroup &group) {
+            if(CPEG::isCPEGTokensEmpty(choiceTokensIndex))
+                return false;
 
-            std::vector<CPEGExpressionSequenceGroup> groups;
+            CPEGExpressionSequenceGroup newGroup;
 
-            std::vector<std::string> *tokens = tokensIndex.tokens();
+            std::vector<std::string> *tokens = choiceTokensIndex.tokens();
 
-            unsigned int begin = tokensIndex.begin();
-            unsigned int end = tokensIndex.end();
+            unsigned int begin = choiceTokensIndex.begin();
+            unsigned int end = choiceTokensIndex.end();
 
-            for(int j = begin; j < end; j++) std::cout << tokens->at(j) << "|"; std::cout << std::endl;
+            unsigned int seqBegin = begin;
+            int seqBeginInParen = begin;
 
-            try {
-                for(int i = begin; i < end; i++) {
-                    // if(tokens.at(i) == '(') {
-                    //     CPEGExpressionSequence = CPEG::getCPEGExpressionSequence();
-                    // }
+            bool inParen = false;
+
+            std::vector<CPEGExpression> tmpExprs;
+
+            int i = begin;
+
+            for(; i < end; i++) {
+                if(tokens->at(i) == " ") {
+                    CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
+                    CPEGExpression expr;
+
+                    if(CPEG::getCPEGExpression(groupTokensIndex, expr))
+                        tmpExprs.push_back(expr);
+
+                    seqBegin = i + 1;
+
+                    continue;
                 }
-            } catch(std::out_of_range excep) {
-                throw excep;
+
+                if(tokens->at(i) == "(") {
+                    if(inParen)
+                        throw CPEGException(CPEGException_InvalidSequenceGroupParen);
+
+                    inParen = true;
+
+                    if(tmpExprs.size() > 0) {
+                        CPEGExpressionSequence newSeq;
+                        newSeq.exprs = tmpExprs;
+
+                        newGroup.exprSeqs.push_back(newSeq);
+
+                        tmpExprs.clear();
+                    }
+
+                    seqBegin = i + 1;
+                    seqBeginInParen = i;
+
+                    // note: 開き丸括弧が最初のトークンでない場合のみスペースまたは先読み記号を含める
+                    if(i - 1 >= 0)
+                        seqBeginInParen = i - 1;
+
+                    continue;
+                }
+
+                if(tokens->at(i) == ")") {
+                    if(!inParen)
+                        throw CPEGException(CPEGException_InvalidSequenceGroupParen);
+
+                    inParen = false;
+
+                    CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
+                    CPEGExpression expr;
+
+                    if(CPEG::getCPEGExpression(groupTokensIndex, expr))
+                        tmpExprs.push_back(expr);
+
+                    if(tmpExprs.size() == 0)
+                        throw CPEGException(CPEGException_SequenceGroupHasNoExpression);
+
+                    int seqEndInParen = i;
+
+                    if(i < tokens->size())
+                        seqEndInParen = i + 1;
+
+                    std::string firstStr = tokens->at(seqBeginInParen);
+                    std::string lastStr = tokens->at(seqEndInParen);
+
+                    CPEGExpressionProperties seqProps = CPEG::getCPEGExpressionProperties(firstStr, lastStr);
+
+                    CPEGExpressionSequence newSeq;
+                    newSeq.exprs = tmpExprs;
+                    newSeq.props = seqProps;
+
+                    newGroup.exprSeqs.push_back(newSeq);
+
+                    tmpExprs.clear();
+
+                    seqBegin = i + 2;
+                    i += 1;
+
+                    continue;
+                }
             }
 
-            return groups;
+            if(begin != end) {
+                if(inParen)
+                    throw CPEGException(CPEGException_InvalidSequenceGroupParen);
+
+                CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
+                CPEGExpression expr;
+
+                if(CPEG::getCPEGExpression(groupTokensIndex, expr))
+                    tmpExprs.push_back(expr);
+
+                if(tmpExprs.size() > 0) {
+                    CPEGExpressionSequence newSeq;
+                    newSeq.exprs = tmpExprs;
+
+                    newGroup.exprSeqs.push_back(newSeq);
+                }
+            }
+
+            group = newGroup;
+
+            return true;
+        }
+
+        static CPEGExpressionProperties getCPEGExpressionProperties(std::string firstStr, std::string lastStr) noexcept {
+            char firstChar = '\0';
+            char lastChar = '\0';
+
+            if(firstStr.size() != 0)
+                firstChar = firstStr.at(0);
+
+            if(lastStr.size() != 0)
+                lastChar = lastStr.at(0);
+
+            return CPEG::getCPEGExpressionProperties(firstChar, lastChar);
+        }
+
+        static CPEGExpressionProperties getCPEGExpressionProperties(char firstChar, char lastChar) noexcept {
+            CPEGExpressionProperties props;
+
+            int symbolCount = 0;
+
+            CPEGExpressionLoopType loopType = CPEGExpressionProperties::toLoopType(lastChar);
+
+            if(loopType != CPEGExpressionLoop_Default) {
+                props.loopType = loopType;
+                symbolCount++;
+            }
+
+            CPEGExpressionLookbehindType lookbehindType = CPEGExpressionProperties::toLookbehindType(firstChar);
+
+            if(lookbehindType != CPEGExpressionLookbehind_Default) {
+                props.lookbehindType = lookbehindType;
+                symbolCount++;
+            }
+
+            if(symbolCount == 0)
+                return CPEGExpressionProperties();
+
+            return props;
+        }
+
+        static CPEGExpressionProperties getCPEGExpressionProperties(std::string &token) noexcept {
+            if(token.size() == 0)
+                return CPEGExpressionProperties();
+
+            char firstChar = token.at(0);
+            char lastChar = token.at(token.size() - 1);
+
+            CPEGExpressionProperties props = CPEG::getCPEGExpressionProperties(firstChar, lastChar);
+
+            if(props.lookbehindType != CPEGExpressionLookbehind_Default)
+                token = token.substr(1);
+
+            if(token.size() == 0)
+                return props;
+
+            if(props.loopType != CPEGExpressionLoop_Default)
+                token = token.substr(0, token.size() - 1);
+
+            return props;
         }
 
         /*
@@ -278,10 +552,8 @@ namespace ches::compiler {
                     throw CPEGException(CPEGException_InvalidCPEGRuleName);
 
                 newRule.name = tokens.at(0);
-                rule.exprChoices = CPEG::getCPEGExpressionChoices(CPEGTokensIndex(&tokens, ruleDefStartIndex, tokens.size() - ruleDefStartIndex));
+                newRule.exprChoices = CPEG::getCPEGExpressionChoices(CPEGTokensIndex(&tokens, ruleDefStartIndex));
             }
-
-            // newRule.exprChoices.push_back();
 
             rule = newRule;
 

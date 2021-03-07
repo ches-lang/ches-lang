@@ -40,6 +40,9 @@ CPEGException::CPEGException(CPEGExceptionType type, std::unordered_map<std::str
 }
 
 
+CPEGExpressionProperties::CPEGExpressionProperties() noexcept {}
+
+
 CPEGExpression::CPEGExpression() noexcept {}
 
 
@@ -77,9 +80,11 @@ void CPEGTokensIndex::initMembers(std::vector<std::string> *tokens, unsigned int
 }
 
 
+std::regex CPEG::charClassTokenRegex = std::regex("\\[.*\\]");
 std::regex CPEG::idTokenRegex = std::regex("[a-zA-Z0-9\\-_]+");
-std::regex CPEG::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");
 std::regex CPEG::spacingTokenRegex = std::regex("[ \t]");
+std::regex CPEG::stringTokenRegex = std::regex("\".*\"");
+std::regex CPEG::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");
 
 CPEG::CPEG() noexcept {}
 
