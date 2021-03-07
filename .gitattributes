@@ -1,1 +1,2 @@
-*.ches linguist-language=Chestnut
+*.ches linguist-language=Ches
+docs/* linguist-documentation
