@@ -1,0 +1,6 @@
+class Hello
+
+
+@entry()
+    println("Hello, world")
+end
