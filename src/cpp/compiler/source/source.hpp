@@ -31,7 +31,7 @@ SourceFile::SourceFile(std::string filePath) noexcept {
     this->filePath = filePath;
 }
 
-void SourceFile::loadSourceFile(CPEG &cpeg) {
+void SourceFile::loadSourceFile(CPEG *cpeg) {
     try {
         this->source = FileManager::getText(this->filePath);
     } catch(FileManagerException excep) {
@@ -39,7 +39,9 @@ void SourceFile::loadSourceFile(CPEG &cpeg) {
     }
 
     try {
-        this->syntaxTree = SourceParser::toSyntaxTree(cpeg, this->source);
+        SourceParser parser(cpeg, &this->source);
+
+        this->syntaxTree = parser.toSyntaxTree();
         this->syntaxTree.print();
     } catch(CPEGException excep) {
         throw excep;

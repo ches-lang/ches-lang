@@ -45,6 +45,49 @@ CPEGExpressionProperties::CPEGExpressionProperties() noexcept {}
 
 CPEGExpression::CPEGExpression() noexcept {}
 
+bool CPEGExpression::match(std::string *src, unsigned int &srcIndex) const {
+    switch(this->type) {
+        case CPEGExpression_CharClass: {
+            try {
+                if(src->size() + srcIndex < 1)
+                    return false;
+
+                std::regex pattern("[" + this->value + "]");
+
+                if(!std::regex_match(src->substr(srcIndex, 1), pattern))
+                    return false;
+
+                srcIndex++;
+            } catch(std::regex_error excep) {
+                throw CPEGException(CPEGException_InvalidCPEGValue);
+            }
+        } return true;
+
+        case CPEGExpression_String: {
+            if(src->size() + srcIndex < this->value.size())
+                return false;
+
+            for(int i = 0; i < this->value.size(); i++)
+                if(src->at(srcIndex + i) != this->value.at(i))
+                    return false;
+
+            srcIndex += this->value.size();
+        } return true;
+
+        case CPEGExpression_WildCard: {
+            if(src->size() + srcIndex < 1)
+                return false;
+
+            srcIndex++;
+        } return true;
+
+        default:
+        throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+    }
+
+    throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+}
+
 
 CPEGExpressionSequence::CPEGExpressionSequence() noexcept {}
 
@@ -136,3 +179,98 @@ std::regex CPEGParser::idTokenRegex = std::regex("[a-zA-Z0-9\\-_]+");
 std::regex CPEGParser::spacingTokenRegex = std::regex("[ \t]");
 std::regex CPEGParser::stringTokenRegex = std::regex("\".*\"");
 std::regex CPEGParser::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");
+
+
+SourceParser::SourceParser(CPEG *cpeg, std::string *source) {
+    this->cpeg = cpeg;
+    this->source = source;
+}
+
+SyntaxTree SourceParser::toSyntaxTree() {
+    SyntaxTree tree;
+
+    std::cout << "- Source Parsing -" << std::endl;
+    std::cout << std::endl;
+
+    unsigned int srcIndex = 0;
+
+    while(srcIndex < this->source->size()) {
+        std::cout << srcIndex << " " << this->source->size() << std::endl;
+        std::string matchedRuleName = this->searchMatchedRule(srcIndex);
+
+        std::cout << "result [" << matchedRuleName << "]" << std::endl;
+        std::cout << std::endl;
+
+        if(matchedRuleName == "")
+            throw CPEGException(CPEGException_NoCPEGRuleMatched);
+
+        std::cout << "- - - - -" << std::endl;
+        std::cout << std::endl;
+    }
+
+    return tree;
+}
+
+std::string SourceParser::searchMatchedRule(unsigned int &srcBegin) {
+    for(CPEGRule rule : this->cpeg->rules) {
+        std::cout << "checking [" << rule.name << "]" << std::endl;
+
+        for(CPEGExpressionChoice choice : rule.exprChoices) {
+            unsigned int choiceSrcBegin = srcBegin;
+            bool choiceMatched = true;
+
+            const CPEGExpressionSequenceGroup group = choice.exprSeqGroup;
+            const std::vector<CPEGExpressionSequence> seqVec = group.exprSeqs;
+
+            for(int seq_i = 0; seq_i < seqVec.size(); seq_i++) {
+                unsigned int seqSrcBegin = choiceSrcBegin;
+                bool seqMatched = true;
+
+                const CPEGExpressionSequence seq = seqVec.at(seq_i);
+                const std::vector<CPEGExpression> exprVec = seq.exprs;
+
+                if(seq.props.lookbehindType != CPEGExpressionLookbehind_Default)
+                    if(seq_i + 1 < seqVec.size())
+                        throw CPEGException(CPEGException_LookbehindTargetNotExists);
+
+                for(int expr_i = 0; expr_i < exprVec.size(); expr_i++) {
+                    unsigned int exprSrcBegin = seqSrcBegin;
+                    const CPEGExpression expr = exprVec.at(expr_i);
+
+                    if(!expr.match(this->source, exprSrcBegin)) {
+                        std::cout << "no(" << seqSrcBegin << "," << expr.value << ") ";
+                        seqMatched = false;
+                        break;
+                    }
+
+                    std::cout << "ok(" << seqSrcBegin << "," << expr.value << ") ";
+
+                    seqSrcBegin = exprSrcBegin;
+                }
+
+                std::cout << std::endl;
+                std::cout << std::endl;
+
+                // note: Sequence が失敗したら次の Choice に移る
+
+                if(!seqMatched) {
+                    choiceMatched = false;
+                    break;
+                }
+
+                choiceSrcBegin = seqSrcBegin;
+            }
+
+            // Choice が成功したら規則名を返す
+
+            if(choiceMatched) {
+                std::cout << std::endl;
+                std::cout << "index change: " << srcBegin << " -> " << choiceSrcBegin << std::endl;
+                srcBegin = choiceSrcBegin;
+                return rule.name;
+            }
+        }
+    }
+
+    return "";
+}

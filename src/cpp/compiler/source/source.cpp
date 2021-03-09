@@ -20,6 +20,6 @@ namespace ches::compiler {
         /*
          * excep: SourceFile::getSyntaxTree() / SourceFile::getSource()
          */
-        void loadSourceFile(CPEG &cpeg);
+        void loadSourceFile(CPEG *cpeg);
     };
 }

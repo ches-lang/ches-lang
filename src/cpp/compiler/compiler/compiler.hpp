@@ -70,7 +70,9 @@ std::vector<SourceFile> Compiler::getSourceFiles() {
         throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
 
     CPEG cpeg;
-    cpeg.loadCPEGFile(homeDirPath + "/cpeg/syntax.cpeg");
+    // todo: 後でパスを戻す
+    // cpeg.loadCPEGFile(homeDirPath + "/cpeg/syntax.cpeg");
+    cpeg.loadCPEGFile("/Users/Garnet3106/Desktop/Docs/Repos/chestnut/test/compiler/syntax.cpeg");
 
     if(FileManager::isDirectory(this->sourcePath)) {
         try {
@@ -79,7 +81,7 @@ std::vector<SourceFile> Compiler::getSourceFiles() {
             for(const std::string path : filePaths) {
                 if(FileManager::matchExtensionName(path, "ches")) {
                     SourceFile file = SourceFile(path);
-                    file.loadSourceFile(cpeg);
+                    file.loadSourceFile(&cpeg);
 
                     sourceFiles.push_back(file);
                 }
