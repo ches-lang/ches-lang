@@ -64,7 +64,7 @@ bool CPEGExpression::match(std::string *src, unsigned int &srcIndex) const {
         } return true;
 
         case CPEGExpression_String: {
-            if(src->size() + srcIndex < this->value.size())
+            if(src->size() < this->value.size() + srcIndex)
                 return false;
 
             for(int i = 0; i < this->value.size(); i++)

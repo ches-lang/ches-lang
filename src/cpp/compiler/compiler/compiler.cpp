@@ -36,6 +36,8 @@ namespace ches::compiler {
         std::string sourcePath = "";
         std::vector<SourceFile> sourceFiles;
 
+        static std::string cpegRelativePath;
+
     public:
         /*
          * excep: Compiler::getSourceFiles()

@@ -21,6 +21,8 @@ namespace ches::compiler {
         CPEGException_InvalidCPEGSyntax,
         CPEGException_InvalidCPEGTokensIndex,
         CPEGException_InvalidCPEGValue,
+        CPEGException_InvalidEscapeSymbol,
+        CPEGException_InvalidStringSymbol,
         CPEGException_LookbehindTargetNotExists,
         CPEGException_NoCPEGRuleMatched,
         CPEGException_SequenceGroupHasNoExpression,
@@ -346,8 +348,11 @@ namespace ches::compiler {
             }
 
             if(std::regex_match(token, CPEGParser::stringTokenRegex)) {
+                std::string value = token.substr(1, token.size() - 2);
+                CPEGParser::unescapeString(value);
+
                 expr.type = CPEGExpression_String;
-                expr.value = token.substr(1, token.size() - 2);
+                expr.value = value;
                 expr.props = props;
 
                 return expr;
@@ -652,6 +657,17 @@ namespace ches::compiler {
                                 tokens.push_back(tmpToken);
                                 break;
                             }
+
+                            if(line.at(i) == '\\') {
+                                if(i + 1 < line.size())
+                                    tmpToken.push_back(line.at(i + 1));
+
+                                i++;
+                            }
+
+                            // spec: 行の最後までダブルクォーテーションが来ない場合は例外を投げる
+                            if(i + 1 >= line.size())
+                                throw CPEGException(CPEGException_InvalidStringSymbol);
                         }
 
                         tmpToken = "";
@@ -766,6 +782,49 @@ namespace ches::compiler {
             matchedTokenLen = tokenIndex;
 
             return true;
+        }
+
+        /*
+         * spec: 速度向上のため正規表現を用いない
+         * excep: CPEGException [InvalidEscapeSymbol]
+         */
+        static void unescapeString(std::string &escapedStr) {
+            std::string rawStr;
+
+            for(int i = 0; i < escapedStr.size(); i++) {
+                if(escapedStr.at(i) == '\\') {
+                    if(i > escapedStr.size() + 1)
+                        throw CPEGException(CPEGException_InvalidEscapeSymbol);
+
+                    switch(escapedStr.at(i + 1)) {
+                        case 'n':
+                        rawStr += '\n';
+                        break;
+
+                        case 't':
+                        rawStr += '\t';
+                        break;
+
+                        case '\\':
+                        rawStr += '\\';
+                        break;
+
+                        case '\'':
+                        rawStr += '\'';
+                        break;
+
+                        case '"':
+                        rawStr += '"';
+                        break;
+                    }
+
+                    i++;
+                } else {
+                    rawStr += escapedStr.at(i);
+                }
+            }
+
+            escapedStr = rawStr;
         }
     };
 
