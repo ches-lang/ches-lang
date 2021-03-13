@@ -24,7 +24,7 @@ namespace ches::compiler {
         CPEGException_InvalidEscapeSymbol,
         CPEGException_InvalidStringSymbol,
         CPEGException_LookbehindTargetNotExists,
-        CPEGException_NoCPEGRuleMatched,
+        CPEGException_NoSucceededCPEGRule,
         CPEGException_SequenceGroupHasNoExpression,
         CPEGException_UnknownCPEGExpressionType
     };
@@ -150,7 +150,7 @@ namespace ches::compiler {
         /*
          * excep: CPEGException [InvalidCPEGValue, UnknownCPEGExpressionType]
          */
-        bool match(std::string *src, unsigned int &srcIndex) const;
+        bool match(std::string *src, unsigned int &srcIndex, std::string &token) const;
 
         static std::string toString(CPEGExpressionType type) {
             switch(type) {
@@ -834,17 +834,15 @@ namespace ches::compiler {
         CPEG *cpeg;
         std::string *source;
 
-        int index = 0;
+        unsigned int index = 0;
 
     public:
         SourceParser(CPEG *cpeg, std::string *source);
 
         SyntaxTree toSyntaxTree();
 
-        /*
-         * ret: マッチした規則の名前; どの規則にもマッチしなかった場合は空文字
-         * excep: CPEGException [LookbehindTargetNotExists]
-         */
-        std::string searchMatchedRule(unsigned int &srcBegin);
+        std::vector<SyntaxTreeNode> toSyntaxTreeNode();
+
+        bool ruleSuccessful(CPEGRule &rule, std::vector<std::string> &tokens);
     };
 }
