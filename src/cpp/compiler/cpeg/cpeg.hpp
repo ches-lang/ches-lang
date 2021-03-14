@@ -42,49 +42,99 @@ CPEGException::CPEGException(CPEGExceptionType type, std::unordered_map<std::str
 
 CPEGExpressionProperties::CPEGExpressionProperties() noexcept {}
 
+std::pair<unsigned int, int> CPEGExpressionProperties::getMinAndMaxCount() const {
+    switch(this->loopType) {
+        case CPEGExpressionLoop_Default:
+        return { 1, 1 };
+
+        case CPEGExpressionLoop_ZeroOrMore:
+        return { 0, -1 };
+
+        case CPEGExpressionLoop_OneOrMore:
+        return { 1, -1 };
+
+        case CPEGExpressionLoop_ZeroOrOne:
+        return { 0, 1 };
+
+        default:
+        throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+    }
+}
+
 
 CPEGExpression::CPEGExpression() noexcept {}
 
-bool CPEGExpression::match(std::string *src, unsigned int &srcIndex, std::string &token) const {
+bool CPEGExpression::match(std::string *src, unsigned int &index, std::vector<std::string> &tokens) const {
+    int loopCount = 0;
+    std::pair<unsigned int, int> minAndMaxCount = this->props.getMinAndMaxCount();
+
+    while(index < src->size()) {
+        bool matched = false;
+
+        std::string newToken;
+
+        if(this->tokenMatch(src, index, newToken)) {
+            tokens.push_back(newToken);
+
+            matched = true;
+            loopCount++;
+        }
+
+        if(loopCount >= minAndMaxCount.first) {
+            if(!matched && minAndMaxCount.second == -1)
+                return true;
+
+            if(loopCount <= minAndMaxCount.second)
+                return true;
+        }
+
+        if(!matched)
+            return false;
+    }
+
+    return false;
+}
+
+bool CPEGExpression::tokenMatch(std::string *src, unsigned int &index, std::string &token) const {
     switch(this->type) {
         case CPEGExpression_CharClass: {
             try {
-                if(src->size() + srcIndex < 1)
+                if(src->size() + index < 1)
                     return false;
 
                 std::regex pattern("[" + this->value + "]");
 
-                if(!std::regex_match(src->substr(srcIndex, 1), pattern))
+                if(!std::regex_match(src->substr(index, 1), pattern))
                     return false;
 
-                token = { src->at(srcIndex) };
+                token = { src->at(index) };
 
-                srcIndex++;
+                index++;
             } catch(std::regex_error excep) {
                 throw CPEGException(CPEGException_InvalidCPEGValue);
             }
         } return true;
 
         case CPEGExpression_String: {
-            if(src->size() < this->value.size() + srcIndex)
+            if(src->size() < this->value.size() + index)
                 return false;
 
             for(int i = 0; i < this->value.size(); i++)
-                if(src->at(srcIndex + i) != this->value.at(i))
+                if(src->at(index + i) != this->value.at(i))
                     return false;
 
             token = this->value;
 
-            srcIndex += this->value.size();
+            index += this->value.size();
         } return true;
 
         case CPEGExpression_WildCard: {
-            if(src->size() + srcIndex < 1)
+            if(src->size() + index < 1)
                 return false;
 
-            token = { src->at(srcIndex) };
+            token = { src->at(index) };
 
-            srcIndex++;
+            index++;
         } return true;
 
         default:
@@ -274,11 +324,11 @@ bool SourceParser::ruleSuccessful(CPEGRule &rule, std::vector<std::string> &toke
 
                 const CPEGExpression expr = exprVec.at(expr_i);
 
-                std::string newToken;
+                // std::vector<std::string> newTokens;
 
-                if(expr.match(this->source, tmpExprIndex, newToken)) {
+                if(expr.match(this->source, tmpExprIndex, tmpSeqTokens)) {
                     std::cout << "ok(" << tmpSeqIndex << "," << expr.value << ") ";
-                    tmpSeqTokens.push_back(newToken);
+                    // tmpSeqTokens.push_back(newToken);
                     tmpSeqIndex = tmpExprIndex;
                 } else {
                     std::cout << "no(" << tmpSeqIndex << "," << expr.value << ") ";

@@ -65,6 +65,11 @@ namespace ches::compiler {
 
         CPEGExpressionProperties() noexcept;
 
+        /*
+         * excep: CPEGException [UnknownCPEGExpressionType]
+         */
+        std::pair<unsigned int, int> getMinAndMaxCount() const;
+
         static CPEGExpressionLookbehindType toLookbehindType(char token) noexcept {
             switch(token) {
                 case '&':
@@ -92,7 +97,7 @@ namespace ches::compiler {
             return CPEGExpressionLoop_Default;
         }
 
-        static std::string toString(CPEGExpressionLookbehindType type) {
+        static std::string toString(CPEGExpressionLookbehindType type) noexcept {
             std::string lookbehindType = "";
 
             switch(type) {
@@ -109,7 +114,7 @@ namespace ches::compiler {
             return "";
         }
 
-        static std::string toString(CPEGExpressionLoopType type) {
+        static std::string toString(CPEGExpressionLoopType type) noexcept {
             switch(type) {
                 case CPEGExpressionLoop_ZeroOrMore:
                 return "*";
@@ -148,9 +153,14 @@ namespace ches::compiler {
         CPEGExpression() noexcept;
 
         /*
+         * excep: CPEGExpression::tokenMatch(std::string*, unsigned int&, std::string&) / CPEGExpressionProperties::getMinAndMaxCount()
+         */
+        bool match(std::string *src, unsigned int &srcIndex, std::vector<std::string> &tokens) const;
+
+        /*
          * excep: CPEGException [InvalidCPEGValue, UnknownCPEGExpressionType]
          */
-        bool match(std::string *src, unsigned int &srcIndex, std::string &token) const;
+        bool tokenMatch(std::string *src, unsigned int &srcIndex, std::string &token) const;
 
         static std::string toString(CPEGExpressionType type) {
             switch(type) {

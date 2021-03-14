@@ -11,6 +11,8 @@
 #pragma once
 
 
+#include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -30,8 +32,15 @@ void SyntaxTreeNode::print(int nestCount) {
 
     std::cout << indent << "[" << this->name << "]" << std::endl;
 
-    for(std::string token : this->tokens)
-        std::cout << indent << "  " << token << std::endl;
+    for(std::string tk : this->tokens) {
+        tk = std::regex_replace(tk, std::regex("\\\\"), "\\\\");
+        tk = std::regex_replace(tk, std::regex(" "), "\\s");
+        tk = std::regex_replace(tk, std::regex("　"), "\\S");
+        tk = std::regex_replace(tk, std::regex("\t"), "\\t");
+        tk = std::regex_replace(tk, std::regex("\n"), "\\n");
+
+        std::cout << indent << "  " << tk << std::endl;
+    }
 
     for(SyntaxTreeNode node : this->nodes)
         node.print(nestCount + 1);
