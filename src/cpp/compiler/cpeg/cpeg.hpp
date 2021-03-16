@@ -64,86 +64,6 @@ std::pair<unsigned int, int> CPEGExpressionProperties::getMinAndMaxCount() const
 
 CPEGExpression::CPEGExpression() noexcept {}
 
-bool CPEGExpression::match(std::string *src, unsigned int &index, std::vector<std::string> &tokens) const {
-    int loopCount = 0;
-    std::pair<unsigned int, int> minAndMaxCount = this->props.getMinAndMaxCount();
-
-    while(index < src->size()) {
-        bool matched = false;
-
-        std::string newToken;
-
-        if(this->tokenMatch(src, index, newToken)) {
-            tokens.push_back(newToken);
-
-            matched = true;
-            loopCount++;
-        }
-
-        if(loopCount >= minAndMaxCount.first) {
-            if(!matched && minAndMaxCount.second == -1)
-                return true;
-
-            if(loopCount <= minAndMaxCount.second)
-                return true;
-        }
-
-        if(!matched)
-            return false;
-    }
-
-    return false;
-}
-
-bool CPEGExpression::tokenMatch(std::string *src, unsigned int &index, std::string &token) const {
-    switch(this->type) {
-        case CPEGExpression_CharClass: {
-            try {
-                if(src->size() + index < 1)
-                    return false;
-
-                std::regex pattern("[" + this->value + "]");
-
-                if(!std::regex_match(src->substr(index, 1), pattern))
-                    return false;
-
-                token = { src->at(index) };
-
-                index++;
-            } catch(std::regex_error excep) {
-                throw CPEGException(CPEGException_InvalidCPEGValue);
-            }
-        } return true;
-
-        case CPEGExpression_String: {
-            if(src->size() < this->value.size() + index)
-                return false;
-
-            for(int i = 0; i < this->value.size(); i++)
-                if(src->at(index + i) != this->value.at(i))
-                    return false;
-
-            token = this->value;
-
-            index += this->value.size();
-        } return true;
-
-        case CPEGExpression_WildCard: {
-            if(src->size() + index < 1)
-                return false;
-
-            token = { src->at(index) };
-
-            index++;
-        } return true;
-
-        default:
-        throw CPEGException(CPEGException_UnknownCPEGExpressionType);
-    }
-
-    throw CPEGException(CPEGException_UnknownCPEGExpressionType);
-}
-
 
 CPEGExpressionSequence::CPEGExpressionSequence() noexcept {}
 
@@ -242,6 +162,106 @@ SourceParser::SourceParser(CPEG *cpeg, std::string *source) {
     this->source = source;
 }
 
+bool SourceParser::expressionMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+    int loopCount = 0;
+    std::pair<unsigned int, int> minAndMaxCount = expr.props.getMinAndMaxCount();
+
+    while(index <= this->source->size()) {
+        bool matched = false;
+
+        if(index != this->source->size() && this->expressionTokenMatch(nest, index, expr, node)) {
+            matched = true;
+            loopCount++;
+        }
+
+        if(loopCount >= minAndMaxCount.first) {
+            if(!matched && minAndMaxCount.second == -1)
+                return true;
+
+            if(loopCount <= minAndMaxCount.second)
+                return true;
+        }
+
+        if(!matched)
+            return false;
+    }
+
+    return false;
+}
+
+bool SourceParser::expressionTokenMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+    switch(expr.type) {
+        case CPEGExpression_CharClass: {
+            try {
+                if(this->source->size() + index < 1)
+                    return false;
+
+                std::regex pattern("[" + expr.value + "]");
+
+                if(!std::regex_match(this->source->substr(index, 1), pattern))
+                    return false;
+
+                node.tokens.push_back({ this->source->at(index) });
+
+                index++;
+            } catch(std::regex_error excep) {
+                throw CPEGException(CPEGException_InvalidCPEGValue);
+            }
+        } return true;
+
+        case CPEGExpression_ID: {
+            CPEGRule newRule;
+            bool newRuleExists = false;
+
+            for(int i = 0; i < this->cpeg->rules.size(); i++) {
+                if(this->cpeg->rules.at(i).name == expr.value) {
+                    newRule = this->cpeg->rules.at(i);
+                    newRuleExists = true;
+
+                    break;
+                }
+            }
+
+            if(!newRuleExists)
+                throw CPEGException(CPEGException_InvalidCPEGRuleName);
+
+            SyntaxTreeNode newNode;
+
+            if(!this->ruleSuccessful(nest, index, newRule, newNode))
+                return false;
+
+            node.nodes.push_back(newNode);
+        } return true;
+
+        case CPEGExpression_String: {
+            if(this->source->size() < index + expr.value.size())
+                return false;
+
+            for(int i = 0; i < expr.value.size(); i++)
+                if(this->source->at(index + i) != expr.value.at(i))
+                    return false;
+
+            node.tokens.push_back(expr.value);
+
+            index += expr.value.size();
+        } return true;
+
+        case CPEGExpression_WildCard: {
+            if(this->source->size() + index < 1)
+                return false;
+
+            node.tokens.push_back({ this->source->at(index) });
+
+            index++;
+        } return true;
+
+        default:
+        throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+    }
+
+    throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+}
+
 SyntaxTree SourceParser::toSyntaxTree() {
     std::cout << "- Source Parsing -" << std::endl;
     std::cout << std::endl;
@@ -264,20 +284,21 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
         bool succeeded = false;
 
         for(int i = 0; i < this->cpeg->rules.size(); i++) {
-            std::vector<std::string> tokens;
+            SyntaxTreeNode newNode;
 
-            if(this->ruleSuccessful(this->cpeg->rules.at(i), tokens)) {
+            if(this->ruleSuccessful(0, this->index, this->cpeg->rules.at(i), newNode)) {
                 std::string name = this->cpeg->rules.at(i).name;
+
+                std::cout << "tokens: " << newNode.tokens.size() << std::endl;
 
                 std::cout << "rule [" << name << "]" << std::endl;
                 std::cout << std::endl;
 
-                SyntaxTreeNode newNode;
-                newNode.name = name;
-                newNode.tokens = tokens;
                 nodes.push_back(newNode);
 
                 succeeded = true;
+
+                break;
             }
         }
 
@@ -293,18 +314,26 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
     return nodes;
 }
 
-bool SourceParser::ruleSuccessful(CPEGRule &rule, std::vector<std::string> &tokens) {
-    std::cout << "checking [" << rule.name << "]" << std::endl;
+bool SourceParser::ruleSuccessful(unsigned int nest, unsigned int &index, CPEGRule &rule, SyntaxTreeNode &node) {
+    std::string consoleIndent(nest * 4, ' ');
+    std::string consoleIndentPlus((nest + 1) * 4, ' ');
+
+    std::cout << std::endl << consoleIndent << "checking [" << rule.name << "]" << std::endl;
+
+    if(index >= this->source->size()) {
+        std::cout << consoleIndent << "index out of range (" << index << ")" << std::endl;
+        throw CPEGException(CPEGException_IndexOutOfRange);
+    }
 
     bool choiceSucceeded = false;
 
     for(CPEGExpressionChoice choice : rule.exprChoices) {
-        unsigned int tmpChoiceIndex = this->index;
+        unsigned int tmpChoiceIndex = index;
 
         const CPEGExpressionSequenceGroup group = choice.exprSeqGroup;
         const std::vector<CPEGExpressionSequence> seqVec = group.exprSeqs;
 
-        std::vector<std::string> tmpChoiceTokens;
+        SyntaxTreeNode tmpChoiceNode;
 
         for(int seq_i = 0; seq_i < seqVec.size(); seq_i++) {
             unsigned int tmpSeqIndex = tmpChoiceIndex;
@@ -313,7 +342,7 @@ bool SourceParser::ruleSuccessful(CPEGRule &rule, std::vector<std::string> &toke
             const CPEGExpressionSequence seq = seqVec.at(seq_i);
             const std::vector<CPEGExpression> exprVec = seq.exprs;
 
-            std::vector<std::string> tmpSeqTokens;
+            SyntaxTreeNode tmpSeqNode;
 
             if(seq.props.lookbehindType != CPEGExpressionLookbehind_Default)
                 if(seq_i + 1 < seqVec.size())
@@ -322,33 +351,25 @@ bool SourceParser::ruleSuccessful(CPEGRule &rule, std::vector<std::string> &toke
             for(int expr_i = 0; expr_i < exprVec.size(); expr_i++) {
                 unsigned int tmpExprIndex = tmpSeqIndex;
 
-                const CPEGExpression expr = exprVec.at(expr_i);
+                CPEGExpression expr = exprVec.at(expr_i);
 
-                // std::vector<std::string> newTokens;
-
-                if(expr.match(this->source, tmpExprIndex, tmpSeqTokens)) {
-                    std::cout << "ok(" << tmpSeqIndex << "," << expr.value << ") ";
-                    // tmpSeqTokens.push_back(newToken);
+                if(this->expressionMatch(nest + 1, tmpExprIndex, expr, tmpSeqNode)) {
+                    std::cout << consoleIndentPlus << "ok (" << tmpSeqIndex << "," << expr.value << ")" << std::endl;
                     tmpSeqIndex = tmpExprIndex;
                 } else {
-                    std::cout << "no(" << tmpSeqIndex << "," << expr.value << ") ";
+                    std::cout << consoleIndentPlus << "no (" << tmpSeqIndex << "," << expr.value << ")" << std::endl;
                     escapeSeqProc = true;
                     break;
                 }
             }
-
-            std::cout << std::endl;
-            std::cout << std::endl;
 
             // note: Sequences が失敗したら次の Choice に移る
 
             if(escapeSeqProc)
                 break;
 
-            for(const std::string tk : tmpSeqTokens)
-                tmpChoiceTokens.push_back(tk);
-
             tmpChoiceIndex = tmpSeqIndex;
+            tmpChoiceNode = tmpSeqNode;
 
             choiceSucceeded = true;
         }
@@ -357,11 +378,12 @@ bool SourceParser::ruleSuccessful(CPEGRule &rule, std::vector<std::string> &toke
 
         if(choiceSucceeded) {
             std::cout << std::endl;
-            std::cout << "changed index: " << this->index << " -> " << tmpChoiceIndex << std::endl;
+            std::cout << consoleIndent << "changed index: " << index << " -> " << tmpChoiceIndex << std::endl;
 
-            this->index = tmpChoiceIndex;
+            index = tmpChoiceIndex;
 
-            tokens = tmpChoiceTokens;
+            node = tmpChoiceNode;
+            node.name = rule.name;
 
             return true;
         }

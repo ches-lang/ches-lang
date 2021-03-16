@@ -17,6 +17,7 @@ namespace ches::compiler {
         CPEGException_InvalidSequenceGroupParen,
         CPEGException_ChoiceHasNoExpression,
         CPEGException_FailedToParseCPEG,
+        CPEGException_IndexOutOfRange,
         CPEGException_InvalidCPEGRuleName,
         CPEGException_InvalidCPEGSyntax,
         CPEGException_InvalidCPEGTokensIndex,
@@ -151,16 +152,6 @@ namespace ches::compiler {
         CPEGExpressionProperties props;
 
         CPEGExpression() noexcept;
-
-        /*
-         * excep: CPEGExpression::tokenMatch(std::string*, unsigned int&, std::string&) / CPEGExpressionProperties::getMinAndMaxCount()
-         */
-        bool match(std::string *src, unsigned int &srcIndex, std::vector<std::string> &tokens) const;
-
-        /*
-         * excep: CPEGException [InvalidCPEGValue, UnknownCPEGExpressionType]
-         */
-        bool tokenMatch(std::string *src, unsigned int &srcIndex, std::string &token) const;
 
         static std::string toString(CPEGExpressionType type) {
             switch(type) {
@@ -849,10 +840,20 @@ namespace ches::compiler {
     public:
         SourceParser(CPEG *cpeg, std::string *source);
 
+        /*
+         * excep: CPEGExpression::tokenMatch(unsigned int, unsigned int&, CPEGExpression&, SyntaxTreeNode&) / CPEGExpressionProperties::getMinAndMaxCount()
+         */
+        bool expressionMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
+
+        /*
+         * excep: CPEGException [InvalidCPEGValue, UnknownCPEGExpressionType]
+         */
+        bool expressionTokenMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
+
         SyntaxTree toSyntaxTree();
 
         std::vector<SyntaxTreeNode> toSyntaxTreeNode();
 
-        bool ruleSuccessful(CPEGRule &rule, std::vector<std::string> &tokens);
+        bool ruleSuccessful(unsigned int nest, unsigned int &index, CPEGRule &rule, SyntaxTreeNode &node);
     };
 }
