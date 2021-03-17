@@ -24,7 +24,7 @@ namespace ches::compiler {
         CPEGException_InvalidValue,
         CPEGException_InvalidEscapeSymbol,
         CPEGException_InvalidStringSymbol,
-        CPEGException_LookbehindTargetNotExists,
+        CPEGException_LookaheadTargetNotExists,
         CPEGException_NoSucceededRule,
         CPEGException_SequenceGroupHasNoExpression,
         CPEGException_UnknownExpressionType
@@ -44,10 +44,10 @@ namespace ches::compiler {
     };
 
 
-    enum CPEGExpressionLookbehindType {
-        CPEGExpressionLookbehind_Default,
-        CPEGExpressionLookbehind_PositiveLookbehind,
-        CPEGExpressionLookbehind_NegativeLookbehind
+    enum CPEGExpressionLookaheadType {
+        CPEGExpressionLookahead_Default,
+        CPEGExpressionLookahead_Positive,
+        CPEGExpressionLookahead_Negative
     };
 
 
@@ -61,7 +61,7 @@ namespace ches::compiler {
 
     struct CPEGExpressionProperties {
     public:
-        CPEGExpressionLookbehindType lookbehindType = CPEGExpressionLookbehind_Default;
+        CPEGExpressionLookaheadType lookaheadType = CPEGExpressionLookahead_Default;
         CPEGExpressionLoopType loopType = CPEGExpressionLoop_Default;
 
         CPEGExpressionProperties() noexcept;
@@ -71,16 +71,16 @@ namespace ches::compiler {
          */
         std::pair<unsigned int, int> getMinAndMaxCount() const;
 
-        static CPEGExpressionLookbehindType toLookbehindType(char token) noexcept {
+        static CPEGExpressionLookaheadType toLookaheadType(char token) noexcept {
             switch(token) {
                 case '&':
-                return CPEGExpressionLookbehind_PositiveLookbehind;
+                return CPEGExpressionLookahead_Positive;
 
                 case '!':
-                return CPEGExpressionLookbehind_NegativeLookbehind;
+                return CPEGExpressionLookahead_Negative;
             }
 
-            return CPEGExpressionLookbehind_Default;
+            return CPEGExpressionLookahead_Default;
         }
 
         static CPEGExpressionLoopType toLoopType(char token) noexcept {
@@ -98,14 +98,14 @@ namespace ches::compiler {
             return CPEGExpressionLoop_Default;
         }
 
-        static std::string toString(CPEGExpressionLookbehindType type) noexcept {
-            std::string lookbehindType = "";
+        static std::string toString(CPEGExpressionLookaheadType type) noexcept {
+            std::string lookaheadType = "";
 
             switch(type) {
-                case CPEGExpressionLookbehind_PositiveLookbehind:
+                case CPEGExpressionLookahead_Positive:
                 return "&";
 
-                case CPEGExpressionLookbehind_NegativeLookbehind:
+                case CPEGExpressionLookahead_Negative:
                 return "!";
 
                 default:
@@ -562,10 +562,10 @@ namespace ches::compiler {
                 symbolCount++;
             }
 
-            CPEGExpressionLookbehindType lookbehindType = CPEGExpressionProperties::toLookbehindType(firstChar);
+            CPEGExpressionLookaheadType lookaheadType = CPEGExpressionProperties::toLookaheadType(firstChar);
 
-            if(lookbehindType != CPEGExpressionLookbehind_Default) {
-                props.lookbehindType = lookbehindType;
+            if(lookaheadType != CPEGExpressionLookahead_Default) {
+                props.lookaheadType = lookaheadType;
                 symbolCount++;
             }
 
@@ -584,7 +584,7 @@ namespace ches::compiler {
 
             CPEGExpressionProperties props = CPEGParser::toCPEGExpressionProperties(firstChar, lastChar);
 
-            if(props.lookbehindType != CPEGExpressionLookbehind_Default)
+            if(props.lookaheadType != CPEGExpressionLookahead_Default)
                 token = token.substr(1);
 
             if(token.size() == 0)

@@ -129,18 +129,18 @@ void CPEG::print() noexcept {
 
             for(CPEGExpressionSequence seq : choice.exprSeqGroup.exprSeqs) {
                 std::string seqLoopTypeStr = CPEGExpressionProperties::toString(seq.props.loopType);
-                std::string seqLookbehindTypeStr = CPEGExpressionProperties::toString(seq.props.lookbehindType);
+                std::string seqLookaheadTypeStr = CPEGExpressionProperties::toString(seq.props.lookaheadType);
 
-                std::cout << "    seqs" << " " << seqLookbehindTypeStr << seqLoopTypeStr << std::endl;
+                std::cout << "    seqs" << " " << seqLookaheadTypeStr << seqLoopTypeStr << std::endl;
 
                 for(CPEGExpression expr : seq.exprs) {
                     CPEGExpressionType type = expr.type;
                     std::string typeName = CPEGExpression::toString(type);
 
                     std::string exprLoopTypeStr = CPEGExpressionProperties::toString(expr.props.loopType);
-                    std::string exprLookbehindTypeStr = CPEGExpressionProperties::toString(expr.props.lookbehindType);
+                    std::string exprLookaheadTypeStr = CPEGExpressionProperties::toString(expr.props.lookaheadType);
 
-                    std::cout << "      " << typeName << ": " << expr.value << " " << exprLookbehindTypeStr << exprLoopTypeStr << std::endl;
+                    std::cout << "      " << typeName << ": " << expr.value << " " << exprLookaheadTypeStr << exprLoopTypeStr << std::endl;
                 }
             }
         }
@@ -401,9 +401,9 @@ bool SourceParser::ruleSuccessful(unsigned int nest, unsigned int &index, CPEGRu
 
             CPEGExpressionSequence seq = groupSeqs.at(seq_i);
 
-            if(seq.props.lookbehindType != CPEGExpressionLookbehind_Default)
+            if(seq.props.lookaheadType != CPEGExpressionLookahead_Default)
                 if(seq_i + 1 < groupSeqs.size())
-                    throw CPEGException(CPEGException_LookbehindTargetNotExists);
+                    throw CPEGException(CPEGException_LookaheadTargetNotExists);
 
             // note: Sequences が失敗したら次の Choice に移る
 
