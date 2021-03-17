@@ -16,18 +16,18 @@ namespace ches::compiler {
         CPEGException_Unknown,
         CPEGException_InvalidSequenceGroupParen,
         CPEGException_ChoiceHasNoExpression,
-        CPEGException_FailedToParseCPEG,
+        CPEGException_FailedToParseDescription,
         CPEGException_IndexOutOfRange,
-        CPEGException_InvalidCPEGRuleName,
-        CPEGException_InvalidCPEGSyntax,
-        CPEGException_InvalidCPEGTokensIndex,
-        CPEGException_InvalidCPEGValue,
+        CPEGException_InvalidRuleName,
+        CPEGException_InvalidSyntax,
+        CPEGException_InvalidTokensIndex,
+        CPEGException_InvalidValue,
         CPEGException_InvalidEscapeSymbol,
         CPEGException_InvalidStringSymbol,
         CPEGException_LookbehindTargetNotExists,
-        CPEGException_NoSucceededCPEGRule,
+        CPEGException_NoSucceededRule,
         CPEGException_SequenceGroupHasNoExpression,
-        CPEGException_UnknownCPEGExpressionType
+        CPEGException_UnknownExpressionType
     };
 
 
@@ -367,7 +367,7 @@ namespace ches::compiler {
                 return expr;
             }
 
-            throw CPEGException(CPEGException_InvalidCPEGSyntax);
+            throw CPEGException(CPEGException_InvalidSyntax);
         }
 
         /*
@@ -612,13 +612,13 @@ namespace ches::compiler {
                 return false;
 
             if(tokens.size() < 4)
-                throw CPEGException(CPEGException_InvalidCPEGSyntax);
+                throw CPEGException(CPEGException_InvalidSyntax);
 
             int ruleDefStartIndex = 0;
 
             if(CPEGParser::matchCPEGTokens(tokens, { "", ":", "=" }, ruleDefStartIndex, true)) {
                 if(!std::regex_match(tokens.at(0), CPEGParser::idTokenRegex))
-                    throw CPEGException(CPEGException_InvalidCPEGRuleName);
+                    throw CPEGException(CPEGException_InvalidRuleName);
 
                 newRule.name = tokens.at(0);
                 newRule.exprChoices = CPEGParser::toCPEGExpressionChoices(CPEGTokensIndex(&tokens, ruleDefStartIndex));
@@ -731,10 +731,10 @@ namespace ches::compiler {
 
                     std::cout << line.at(i) << std::endl;
 
-                    throw CPEGException(CPEGException_InvalidCPEGSyntax);
+                    throw CPEGException(CPEGException_InvalidSyntax);
                 }
             } catch(std::regex_error excep) {
-                throw CPEGException(CPEGException_FailedToParseCPEG);
+                throw CPEGException(CPEGException_FailedToParseDescription);
             }
 
             if(tmpToken != "")

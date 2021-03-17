@@ -57,7 +57,7 @@ std::pair<unsigned int, int> CPEGExpressionProperties::getMinAndMaxCount() const
         return { 0, 1 };
 
         default:
-        throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+        throw CPEGException(CPEGException_UnknownExpressionType);
     }
 }
 
@@ -95,7 +95,7 @@ void CPEGTokensIndex::initMembers(std::vector<std::string> *tokens, unsigned int
     this->_length = length;
 
     if(this->end() > tokens->size())
-        throw CPEGException(CPEGException_InvalidCPEGTokensIndex);
+        throw CPEGException(CPEGException_InvalidTokensIndex);
 }
 
 
@@ -268,7 +268,7 @@ bool SourceParser::expressionTokenSuccessful(unsigned int nest, unsigned int &in
 
                 index++;
             } catch(std::regex_error excep) {
-                throw CPEGException(CPEGException_InvalidCPEGValue);
+                throw CPEGException(CPEGException_InvalidValue);
             }
         } return true;
 
@@ -286,7 +286,7 @@ bool SourceParser::expressionTokenSuccessful(unsigned int nest, unsigned int &in
             }
 
             if(!newRuleExists)
-                throw CPEGException(CPEGException_InvalidCPEGRuleName);
+                throw CPEGException(CPEGException_InvalidRuleName);
 
             SyntaxTreeNode newNode;
 
@@ -319,10 +319,10 @@ bool SourceParser::expressionTokenSuccessful(unsigned int nest, unsigned int &in
         } return true;
 
         default:
-        throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+        throw CPEGException(CPEGException_UnknownExpressionType);
     }
 
-    throw CPEGException(CPEGException_UnknownCPEGExpressionType);
+    throw CPEGException(CPEGException_UnknownExpressionType);
 }
 
 SyntaxTree SourceParser::toSyntaxTree() {
@@ -365,7 +365,7 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
 
         if(!succeeded) {
             std::cout << "err index: " << this->index << std::endl;
-            throw CPEGException(CPEGException_NoSucceededCPEGRule);
+            throw CPEGException(CPEGException_NoSucceededRule);
         }
 
         std::cout << "- - - - -" << std::endl;
