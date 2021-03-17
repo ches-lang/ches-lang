@@ -841,14 +841,16 @@ namespace ches::compiler {
         SourceParser(CPEG *cpeg, std::string *source);
 
         /*
-         * excep: CPEGExpression::tokenMatch(unsigned int, unsigned int&, CPEGExpression&, SyntaxTreeNode&) / CPEGExpressionProperties::getMinAndMaxCount()
+         * excep: expressionTokenSuccessful(unsigned int, unsigned int&, CPEGExpression&, SyntaxTreeNode&) / CPEGExpressionProperties::getMinAndMaxCount()
          */
-        bool expressionMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
+        bool sequenceSuccessful(unsigned int nest, unsigned int &index, CPEGExpressionSequence &seq, SyntaxTreeNode &node);
+
+        bool expressionSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
 
         /*
          * excep: CPEGException [InvalidCPEGValue, UnknownCPEGExpressionType]
          */
-        bool expressionTokenMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
+        bool expressionTokenSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
 
         SyntaxTree toSyntaxTree();
 

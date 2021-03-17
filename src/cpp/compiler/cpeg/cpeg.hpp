@@ -162,34 +162,97 @@ SourceParser::SourceParser(CPEG *cpeg, std::string *source) {
     this->source = source;
 }
 
-bool SourceParser::expressionMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+bool SourceParser::sequenceSuccessful(unsigned int nest, unsigned int &index, CPEGExpressionSequence &seq, SyntaxTreeNode &node) {
+    std::string consoleIndent(nest * 4, ' ');
+    std::string consoleIndentPlus((nest + 1) * 4, ' ');
+
+    std::cout << std::endl;
+    std::cout << consoleIndentPlus << "sequence check (" << index << ")" << std::endl;
+
+    unsigned int tmpIndex = index;
+    SyntaxTreeNode tmpNode = node;
+
     int loopCount = 0;
-    std::pair<unsigned int, int> minAndMaxCount = expr.props.getMinAndMaxCount();
+    std::pair<unsigned int, int> minAndMaxCount = seq.props.getMinAndMaxCount();
+
+    std::cout << consoleIndentPlus << "sequence min/max count: " << minAndMaxCount.first << " " << minAndMaxCount.second << std::endl;
+    std::cout << std::endl;
 
     while(index <= this->source->size()) {
-        bool matched = false;
+        unsigned int tmpSeqIndex = tmpIndex;
+        SyntaxTreeNode tmpSeqNode = tmpNode;
 
-        if(index != this->source->size() && this->expressionTokenMatch(nest, index, expr, node)) {
-            matched = true;
-            loopCount++;
+        bool seqSucceeded = false;
+
+        if(index != this->source->size()) {
+            bool eachSeqSucceeded = true;
+
+            for(int expr_i = 0; expr_i < seq.exprs.size(); expr_i++) {
+                if(!this->expressionSuccessful(nest + 1, tmpSeqIndex, seq.exprs.at(expr_i), tmpSeqNode)) {
+                    std::cout << consoleIndentPlus << "no (" << tmpSeqIndex << "," << seq.exprs.at(expr_i).value << ")" << std::endl;
+                    eachSeqSucceeded = false;
+                    break;
+                } else {
+                    std::cout << consoleIndentPlus << "ok (" << tmpSeqIndex << "," << seq.exprs.at(expr_i).value << ")" << std::endl;
+                }
+            }
+
+            if(eachSeqSucceeded) {
+                std::cout << consoleIndentPlus << "tmp sequence succeeded (" << tmpSeqIndex << ")" << std::endl;
+
+                tmpIndex = tmpSeqIndex;
+                tmpNode = tmpSeqNode;
+
+                loopCount++;
+                seqSucceeded = true;
+            } else {
+                std::cout << consoleIndentPlus << "tmp sequence failed (" << tmpSeqIndex << ")" << std::endl;
+            }
         }
 
         if(loopCount >= minAndMaxCount.first) {
-            if(!matched && minAndMaxCount.second == -1)
-                return true;
+            if(!seqSucceeded && minAndMaxCount.second == -1
+                    || loopCount <= minAndMaxCount.second) {
+                index = tmpIndex;
+                node = tmpNode;
 
-            if(loopCount <= minAndMaxCount.second)
                 return true;
+            }
         }
 
-        if(!matched)
+        if(!seqSucceeded)
             return false;
     }
 
     return false;
 }
 
-bool SourceParser::expressionTokenMatch(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+bool SourceParser::expressionSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+    int loopCount = 0;
+    std::pair<unsigned int, int> minAndMaxCount = expr.props.getMinAndMaxCount();
+
+    while(index <= this->source->size()) {
+        bool succeeded = false;
+
+        if(index != this->source->size() && this->expressionTokenSuccessful(nest, index, expr, node)) {
+            succeeded = true;
+            loopCount++;
+        }
+
+        if(loopCount >= minAndMaxCount.first) {
+            if(!succeeded && minAndMaxCount.second == -1
+                    || loopCount <= minAndMaxCount.second)
+                return true;
+        }
+
+        if(!succeeded)
+            return false;
+    }
+
+    return false;
+}
+
+bool SourceParser::expressionTokenSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
     switch(expr.type) {
         case CPEGExpression_CharClass: {
             try {
@@ -289,8 +352,6 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
             if(this->ruleSuccessful(0, this->index, this->cpeg->rules.at(i), newNode)) {
                 std::string name = this->cpeg->rules.at(i).name;
 
-                std::cout << "tokens: " << newNode.tokens.size() << std::endl;
-
                 std::cout << "rule [" << name << "]" << std::endl;
                 std::cout << std::endl;
 
@@ -325,53 +386,37 @@ bool SourceParser::ruleSuccessful(unsigned int nest, unsigned int &index, CPEGRu
         throw CPEGException(CPEGException_IndexOutOfRange);
     }
 
-    bool choiceSucceeded = false;
-
     for(CPEGExpressionChoice choice : rule.exprChoices) {
+        bool choiceSucceeded = true;
+
         unsigned int tmpChoiceIndex = index;
-
-        const CPEGExpressionSequenceGroup group = choice.exprSeqGroup;
-        const std::vector<CPEGExpressionSequence> seqVec = group.exprSeqs;
-
         SyntaxTreeNode tmpChoiceNode;
 
-        for(int seq_i = 0; seq_i < seqVec.size(); seq_i++) {
-            unsigned int tmpSeqIndex = tmpChoiceIndex;
-            bool escapeSeqProc = false;
+        const CPEGExpressionSequenceGroup group = choice.exprSeqGroup;
+        const std::vector<CPEGExpressionSequence> groupSeqs = group.exprSeqs;
 
-            const CPEGExpressionSequence seq = seqVec.at(seq_i);
-            const std::vector<CPEGExpression> exprVec = seq.exprs;
+        for(int seq_i = 0; seq_i < groupSeqs.size(); seq_i++) {
+            // unsigned int tmpSeqIndex = tmpChoiceIndex;
+            // SyntaxTreeNode tmpSeqNode;
 
-            SyntaxTreeNode tmpSeqNode;
+            CPEGExpressionSequence seq = groupSeqs.at(seq_i);
 
             if(seq.props.lookbehindType != CPEGExpressionLookbehind_Default)
-                if(seq_i + 1 < seqVec.size())
+                if(seq_i + 1 < groupSeqs.size())
                     throw CPEGException(CPEGException_LookbehindTargetNotExists);
-
-            for(int expr_i = 0; expr_i < exprVec.size(); expr_i++) {
-                unsigned int tmpExprIndex = tmpSeqIndex;
-
-                CPEGExpression expr = exprVec.at(expr_i);
-
-                if(this->expressionMatch(nest + 1, tmpExprIndex, expr, tmpSeqNode)) {
-                    std::cout << consoleIndentPlus << "ok (" << tmpSeqIndex << "," << expr.value << ")" << std::endl;
-                    tmpSeqIndex = tmpExprIndex;
-                } else {
-                    std::cout << consoleIndentPlus << "no (" << tmpSeqIndex << "," << expr.value << ")" << std::endl;
-                    escapeSeqProc = true;
-                    break;
-                }
-            }
 
             // note: Sequences が失敗したら次の Choice に移る
 
-            if(escapeSeqProc)
+            if(!this->sequenceSuccessful(nest, tmpChoiceIndex, seq, tmpChoiceNode)) {
+                std::cout << consoleIndentPlus << "sequence failed (" << tmpChoiceIndex << ")" << std::endl;
+                choiceSucceeded = false;
                 break;
+            } else {
+                std::cout << consoleIndentPlus << "sequence succeeded (" << tmpChoiceIndex << ")" << std::endl;
+            }
 
-            tmpChoiceIndex = tmpSeqIndex;
-            tmpChoiceNode = tmpSeqNode;
-
-            choiceSucceeded = true;
+            // tmpChoiceIndex = tmpSeqIndex;
+            // tmpChoiceNode = tmpSeqNode;
         }
 
         // Choice が成功したら true を返す
