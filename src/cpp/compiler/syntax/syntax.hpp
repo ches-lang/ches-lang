@@ -30,7 +30,7 @@ SyntaxTreeNode::SyntaxTreeNode() noexcept {}
 void SyntaxTreeNode::print(int nestCount) {
     std::string indent(nestCount * 4, ' ');
 
-    std::cout << indent << "[" << this->name << "]" << std::endl;
+    std::cout << indent << "\033[36m[" << this->name << "]\033[m";
 
     for(std::string tk : this->tokens) {
         tk = std::regex_replace(tk, std::regex("\\\\"), "\\\\");
@@ -39,8 +39,10 @@ void SyntaxTreeNode::print(int nestCount) {
         tk = std::regex_replace(tk, std::regex("\t"), "\\t");
         tk = std::regex_replace(tk, std::regex("\n"), "\\n");
 
-        std::cout << indent << "  " << tk << std::endl;
+        std::cout << " \033[44m" << tk << "\033[m";
     }
+
+    std::cout << std::endl;
 
     for(SyntaxTreeNode node : this->nodes)
         node.print(nestCount + 1);
