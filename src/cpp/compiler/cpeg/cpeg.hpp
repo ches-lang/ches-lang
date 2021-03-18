@@ -162,7 +162,7 @@ SourceParser::SourceParser(CPEG *cpeg, std::string *source) {
     this->source = source;
 }
 
-bool SourceParser::sequenceSuccessful(unsigned int nest, unsigned int &index, CPEGExpressionSequence &seq, SyntaxTreeNode &node) {
+bool SourceParser::sequenceSuccessful(const unsigned int nest, unsigned int &index, CPEGExpressionSequence &seq, SyntaxTreeNode &node) {
     std::string consoleIndent(nest * 4, ' ');
     std::string consoleIndentPlus((nest + 1) * 4, ' ');
 
@@ -227,7 +227,7 @@ bool SourceParser::sequenceSuccessful(unsigned int nest, unsigned int &index, CP
     return false;
 }
 
-bool SourceParser::expressionSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+bool SourceParser::expressionSuccessful(const unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
     int loopCount = 0;
     std::pair<unsigned int, int> minAndMaxCount = expr.props.getMinAndMaxCount();
 
@@ -252,25 +252,29 @@ bool SourceParser::expressionSuccessful(unsigned int nest, unsigned int &index, 
     return false;
 }
 
-bool SourceParser::expressionTokenSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+bool SourceParser::expressionTokenSuccessful(const unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node) {
+    bool isLookaheadExpr = expr.props.lookaheadType != CPEGExpressionLookahead_Default;
+    bool isLookaheadNegative = expr.props.lookaheadType == CPEGExpressionLookahead_Negative;
+
     switch(expr.type) {
         case CPEGExpression_CharClass: {
             try {
                 if(this->source->size() + index < 1)
-                    return false;
+                    return isLookaheadNegative;
 
                 std::regex pattern("[" + expr.value + "]");
 
                 if(!std::regex_match(this->source->substr(index, 1), pattern))
-                    return false;
+                    return isLookaheadNegative;
 
-                node.tokens.push_back({ this->source->at(index) });
-
-                index++;
+                if(!isLookaheadExpr) {
+                    node.tokens.push_back({ this->source->at(index) });
+                    index++;
+                }
             } catch(std::regex_error excep) {
                 throw CPEGException(CPEGException_InvalidValue);
             }
-        } return true;
+        } return !isLookaheadNegative;
 
         case CPEGExpression_ID: {
             CPEGRule newRule;
@@ -288,35 +292,41 @@ bool SourceParser::expressionTokenSuccessful(unsigned int nest, unsigned int &in
             if(!newRuleExists)
                 throw CPEGException(CPEGException_InvalidRuleName);
 
+            unsigned int tmpIndex = index;
             SyntaxTreeNode newNode;
 
-            if(!this->ruleSuccessful(nest, index, newRule, newNode))
-                return false;
+            if(!this->ruleSuccessful(nest, tmpIndex, newRule, newNode))
+                return isLookaheadNegative;
 
-            node.nodes.push_back(newNode);
-        } return true;
+            if(!isLookaheadExpr) {
+                node.nodes.push_back(newNode);
+                index = tmpIndex;
+            }
+        } return !isLookaheadNegative;
 
         case CPEGExpression_String: {
             if(this->source->size() < index + expr.value.size())
-                return false;
+                return isLookaheadNegative;
 
             for(int i = 0; i < expr.value.size(); i++)
                 if(this->source->at(index + i) != expr.value.at(i))
-                    return false;
+                    return isLookaheadNegative;
 
-            node.tokens.push_back(expr.value);
-
-            index += expr.value.size();
-        } return true;
+            if(!isLookaheadExpr) {
+                node.tokens.push_back(expr.value);
+                index += expr.value.size();
+            }
+        } return !isLookaheadNegative;
 
         case CPEGExpression_WildCard: {
             if(this->source->size() + index < 1)
-                return false;
+                return isLookaheadNegative;
 
-            node.tokens.push_back({ this->source->at(index) });
-
-            index++;
-        } return true;
+            if(!isLookaheadExpr) {
+                node.tokens.push_back({ this->source->at(index) });
+                index++;
+            }
+        } return !isLookaheadNegative;
 
         default:
         throw CPEGException(CPEGException_UnknownExpressionType);
@@ -375,7 +385,7 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
     return nodes;
 }
 
-bool SourceParser::ruleSuccessful(unsigned int nest, unsigned int &index, CPEGRule &rule, SyntaxTreeNode &node) {
+bool SourceParser::ruleSuccessful(const unsigned int nest, unsigned int &index, CPEGRule &rule, SyntaxTreeNode &node) {
     std::string consoleIndent(nest * 4, ' ');
     std::string consoleIndentPlus((nest + 1) * 4, ' ');
 

@@ -843,19 +843,19 @@ namespace ches::compiler {
         /*
          * excep: expressionTokenSuccessful(unsigned int, unsigned int&, CPEGExpression&, SyntaxTreeNode&) / CPEGExpressionProperties::getMinAndMaxCount()
          */
-        bool sequenceSuccessful(unsigned int nest, unsigned int &index, CPEGExpressionSequence &seq, SyntaxTreeNode &node);
+        bool sequenceSuccessful(const unsigned int nest, unsigned int &index, CPEGExpressionSequence &seq, SyntaxTreeNode &node);
 
-        bool expressionSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
+        bool expressionSuccessful(const unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
 
         /*
          * excep: CPEGException [InvalidCPEGValue, UnknownCPEGExpressionType]
          */
-        bool expressionTokenSuccessful(unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
+        bool expressionTokenSuccessful(const unsigned int nest, unsigned int &index, CPEGExpression &expr, SyntaxTreeNode &node);
 
         SyntaxTree toSyntaxTree();
 
         std::vector<SyntaxTreeNode> toSyntaxTreeNode();
 
-        bool ruleSuccessful(unsigned int nest, unsigned int &index, CPEGRule &rule, SyntaxTreeNode &node);
+        bool ruleSuccessful(const unsigned int nest, unsigned int &index, CPEGRule &rule, SyntaxTreeNode &node);
     };
 }
