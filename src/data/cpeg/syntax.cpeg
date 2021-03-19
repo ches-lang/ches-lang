@@ -10,30 +10,36 @@
 
 class_def := "class" spacing+ id spacing* new_line+
 
-# func_def を func_call よりも前に置くこと
-
-func_def := spacing* func_name spacing* "(" spacing* ")" new_line+ statement* "end" spacing* new_line+
-func_call := spacing* func_name spacing* "(" spacing* expression+ ("," expression)* spacing* ")" spacing* new_line+
-
-return_statement := spacing* "ret" (spacing* id)? spacing* new_line+
+func_def := "@"? id spacing* "(" spacing* ")" spacing* new_line+ statement* "end" spacing* new_line+
 
 statement := func_call > return_statement
 
+func_call := spacing+ "@"? id spacing* "(" spacing* (expression spacing* ","? spacing*)* spacing* ")" spacing* new_line+
+return_statement := spacing* "ret" (spacing* id)? spacing* new_line+
+
+var_def := spacing* var_type 
+var_type := id > var_type_gen
+var_type_gen := id spacing* "<" spacing* var_type spacing* ">"
+
 ## expressions ##
 
-expression := literal
+expression := literal > id
 
-literal := char_literal > string_literal
+literal := char_literal > string_literal > number_literal
 
-char := "\\" . > !"\"" .
-char_literal := "'" char "'"
-string_literal := "\"" char* "\""
+char_literal := "'" char_char "'"
+string_literal := "\"" string_char* "\""
 
-## tokens ##
+number_literal := [0-9] "." [0-9]*
+
+## others ##
 
 new_line := "\n"
 spacing := " " > "\t"
 
 id := [a-zA-Z] [0-9a-zA-Z]*
 
-func_name := "@"? id
+# 文字が他のトークンにマッチしないよう最後に置く
+
+char_char := "\\" . > !"'" .
+string_char := "\\" . > !"\"" .
