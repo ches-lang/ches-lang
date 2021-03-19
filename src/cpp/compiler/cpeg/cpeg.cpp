@@ -211,6 +211,7 @@ namespace ches::compiler {
     struct CPEGRule {
     public:
         std::string name = "";
+        bool isMacro = false;
         std::vector<CPEGExpressionChoice> exprChoices;
 
         CPEGRule() noexcept;
@@ -616,11 +617,24 @@ namespace ches::compiler {
 
             int ruleDefStartIndex = 0;
 
-            if(CPEGParser::matchCPEGTokens(tokens, { "", ":", "=" }, ruleDefStartIndex, true)) {
+            bool isNormalRule = CPEGParser::matchCPEGTokens(tokens, { "", ":", "=" }, ruleDefStartIndex, true);
+            bool isMacroRule = false;
+
+            if(!isNormalRule)
+                isMacroRule = CPEGParser::matchCPEGTokens(tokens, { "", "|", "=" }, ruleDefStartIndex, true);
+
+            if(isNormalRule || isMacroRule) {
                 if(!std::regex_match(tokens.at(0), CPEGParser::idTokenRegex))
                     throw CPEGException(CPEGException_InvalidRuleName);
 
                 newRule.name = tokens.at(0);
+
+                if(isMacroRule) {
+                    newRule.isMacro = true;
+                } else {
+                    newRule.isMacro = false;
+                }
+
                 newRule.exprChoices = CPEGParser::toCPEGExpressionChoices(CPEGTokensIndex(&tokens, ruleDefStartIndex));
             }
 

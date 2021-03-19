@@ -154,7 +154,7 @@ std::regex CPEGParser::charClassTokenRegex = std::regex("\\[.*\\]");
 std::regex CPEGParser::idTokenRegex = std::regex("[a-zA-Z0-9\\-_]+");
 std::regex CPEGParser::spacingTokenRegex = std::regex("[ \t]");
 std::regex CPEGParser::stringTokenRegex = std::regex("\".*\"");
-std::regex CPEGParser::symbolTokenRegex = std::regex("[:=.()\\[\\]>*+?&!]");
+std::regex CPEGParser::symbolTokenRegex = std::regex("[:|=.()\\[\\]>*+?&!]");
 
 
 SourceParser::SourceParser(CPEG *cpeg, std::string *source) {
@@ -357,6 +357,9 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
         bool succeeded = false;
 
         for(int i = 0; i < this->cpeg->rules.size(); i++) {
+            if(this->cpeg->rules.at(i).isMacro)
+                continue;
+
             SyntaxTreeNode newNode;
 
             if(this->ruleSuccessful(0, this->index, this->cpeg->rules.at(i), newNode)) {
