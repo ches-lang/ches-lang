@@ -40,6 +40,9 @@ CPEGException::CPEGException(CPEGExceptionType type, std::unordered_map<std::str
 }
 
 
+CPEGExpressionRenaming::CPEGExpressionRenaming() noexcept {}
+
+
 CPEGExpressionProperties::CPEGExpressionProperties() noexcept {}
 
 std::pair<unsigned int, int> CPEGExpressionProperties::getMinAndMaxCount() const {
@@ -128,19 +131,23 @@ void CPEG::print() noexcept {
             std::cout << "  choice" << std::endl;
 
             for(CPEGExpressionSequence seq : choice.exprSeqGroup.exprSeqs) {
+                std::string seqRenaming = seq.renaming.toString();
+
                 std::string seqLoopTypeStr = CPEGExpressionProperties::toString(seq.props.loopType);
                 std::string seqLookaheadTypeStr = CPEGExpressionProperties::toString(seq.props.lookaheadType);
 
-                std::cout << "    seqs" << " " << seqLookaheadTypeStr << seqLoopTypeStr << std::endl;
+                std::cout << "    seqs" << " " << seqLookaheadTypeStr << seqLoopTypeStr << " " << seqRenaming << std::endl;
 
                 for(CPEGExpression expr : seq.exprs) {
                     CPEGExpressionType type = expr.type;
                     std::string typeName = CPEGExpression::toString(type);
 
+                    std::string exprRenaming = expr.renaming.toString();
+
                     std::string exprLoopTypeStr = CPEGExpressionProperties::toString(expr.props.loopType);
                     std::string exprLookaheadTypeStr = CPEGExpressionProperties::toString(expr.props.lookaheadType);
 
-                    std::cout << "      " << typeName << ": " << expr.value << " " << exprLookaheadTypeStr << exprLoopTypeStr << std::endl;
+                    std::cout << "      " << typeName << ": " << expr.value << " " << exprLookaheadTypeStr << exprLoopTypeStr << " " << exprRenaming << std::endl;
                 }
             }
         }
@@ -213,8 +220,11 @@ bool SourceParser::sequenceSuccessful(const unsigned int nest, unsigned int &ind
         if(loopCount >= minAndMaxCount.first) {
             if(!seqSucceeded && minAndMaxCount.second == -1
                     || loopCount <= minAndMaxCount.second) {
+                // std::cout << seq.renaming.getAvailable() << " " << seq.renaming.getNewName() << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+                CPEGParser::addSequenceNodeToNode(node, tmpNode, seq.renaming);
+                // node = tmpNode;
+
                 index = tmpIndex;
-                node = tmpNode;
 
                 return true;
             }
@@ -268,7 +278,7 @@ bool SourceParser::expressionTokenSuccessful(const unsigned int nest, unsigned i
                     return isLookaheadNegative;
 
                 if(!isLookaheadExpr) {
-                    node.tokens.push_back({ this->source->at(index) });
+                    CPEGParser::addExpressionTokenToNode(node, { this->source->at(index) }, expr.renaming);
                     index++;
                 }
             } catch(std::regex_error excep) {
@@ -299,7 +309,7 @@ bool SourceParser::expressionTokenSuccessful(const unsigned int nest, unsigned i
                 return isLookaheadNegative;
 
             if(!isLookaheadExpr) {
-                node.nodes.push_back(newNode);
+                CPEGParser::addExpressionNodeToNode(node, newNode, expr.renaming);
                 index = tmpIndex;
             }
         } return !isLookaheadNegative;
@@ -313,7 +323,7 @@ bool SourceParser::expressionTokenSuccessful(const unsigned int nest, unsigned i
                     return isLookaheadNegative;
 
             if(!isLookaheadExpr) {
-                node.tokens.push_back(expr.value);
+                CPEGParser::addExpressionTokenToNode(node, expr.value, expr.renaming);
                 index += expr.value.size();
             }
         } return !isLookaheadNegative;
@@ -323,7 +333,7 @@ bool SourceParser::expressionTokenSuccessful(const unsigned int nest, unsigned i
                 return isLookaheadNegative;
 
             if(!isLookaheadExpr) {
-                node.tokens.push_back({ this->source->at(index) });
+                CPEGParser::addExpressionTokenToNode(node, { this->source->at(index) }, expr.renaming);
                 index++;
             }
         } return !isLookaheadNegative;

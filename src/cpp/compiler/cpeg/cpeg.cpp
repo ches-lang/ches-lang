@@ -59,6 +59,74 @@ namespace ches::compiler {
     };
 
 
+    struct CPEGExpressionRenaming {
+    private:
+        bool available = false;
+        /*
+         * val: available == false または名前消し: 空文字
+         */
+        std::string newName = "";
+
+    public:
+        CPEGExpressionRenaming() noexcept;
+
+        inline bool getAvailable() {
+            return this->available;
+        }
+
+        /*
+         * ret: available == false の場合: 空文字
+         */
+        inline std::string getNewName() noexcept {
+            if(!this->available)
+                return "";
+
+            return this->newName;
+        }
+
+        inline void setNewName(std::string newName) noexcept {
+            this->available = true;
+            this->newName = newName;
+        }
+
+        static CPEGExpressionRenaming toRenamingData(std::string &token, std::regex &symbolTokenRegex) noexcept {
+            if(token.size() == 0)
+                return CPEGExpressionRenaming();
+
+            bool hasNewName = false;
+            std::string tmpNewName = "";
+
+            for(int i = token.size() - 1; i >= 0; i--) {
+                if(token.at(i) == ':') {
+                    hasNewName = true;
+                    break;
+                }
+
+                if(std::regex_match(std::string { token.at(i) }, symbolTokenRegex))
+                    break;
+
+                tmpNewName = token.at(i) + tmpNewName;
+            }
+
+            CPEGExpressionRenaming renaming;
+
+            if(hasNewName) {
+                token = token.substr(0, token.size() - tmpNewName.size() - 1);
+                renaming.setNewName(tmpNewName);
+            }
+
+            return renaming;
+        }
+
+        inline std::string toString() noexcept {
+            if(!this->available)
+                return "";
+
+            return "\"" + this->newName + "\"";
+        }
+    };
+
+
     struct CPEGExpressionProperties {
     public:
         CPEGExpressionLookaheadType lookaheadType = CPEGExpressionLookahead_Default;
@@ -70,6 +138,65 @@ namespace ches::compiler {
          * excep: CPEGException [UnknownCPEGExpressionType]
          */
         std::pair<unsigned int, int> getMinAndMaxCount() const;
+
+        static CPEGExpressionProperties toCPEGExpressionProperties(std::string firstStr, std::string lastStr) noexcept {
+            char firstChar = '\0';
+            char lastChar = '\0';
+
+            if(firstStr.size() != 0)
+                firstChar = firstStr.at(0);
+
+            if(lastStr.size() != 0)
+                lastChar = lastStr.at(0);
+
+            return CPEGExpressionProperties::toCPEGExpressionProperties(firstChar, lastChar);
+        }
+
+        static CPEGExpressionProperties toCPEGExpressionProperties(char firstChar, char lastChar) noexcept {
+            CPEGExpressionProperties props;
+
+            int symbolCount = 0;
+
+            CPEGExpressionLoopType loopType = CPEGExpressionProperties::toLoopType(lastChar);
+
+            if(loopType != CPEGExpressionLoop_Default) {
+                props.loopType = loopType;
+                symbolCount++;
+            }
+
+            CPEGExpressionLookaheadType lookaheadType = CPEGExpressionProperties::toLookaheadType(firstChar);
+
+            if(lookaheadType != CPEGExpressionLookahead_Default) {
+                props.lookaheadType = lookaheadType;
+                symbolCount++;
+            }
+
+            if(symbolCount == 0)
+                return CPEGExpressionProperties();
+
+            return props;
+        }
+
+        static CPEGExpressionProperties toCPEGExpressionProperties(std::string &token) noexcept {
+            if(token.size() == 0)
+                return CPEGExpressionProperties();
+
+            char firstChar = token.at(0);
+            char lastChar = token.at(token.size() - 1);
+
+            CPEGExpressionProperties props = CPEGExpressionProperties::toCPEGExpressionProperties(firstChar, lastChar);
+
+            if(props.lookaheadType != CPEGExpressionLookahead_Default)
+                token = token.substr(1);
+
+            if(token.size() == 0)
+                return props;
+
+            if(props.loopType != CPEGExpressionLoop_Default)
+                token = token.substr(0, token.size() - 1);
+
+            return props;
+        }
 
         static CPEGExpressionLookaheadType toLookaheadType(char token) noexcept {
             switch(token) {
@@ -149,6 +276,7 @@ namespace ches::compiler {
         CPEGExpressionType type = CPEGExpression_Unknown;
         std::string value;
 
+        CPEGExpressionRenaming renaming;
         CPEGExpressionProperties props;
 
         CPEGExpression() noexcept;
@@ -180,6 +308,7 @@ namespace ches::compiler {
     public:
         std::vector<CPEGExpression> exprs;
 
+        CPEGExpressionRenaming renaming;
         CPEGExpressionProperties props;
 
         CPEGExpressionSequence() noexcept;
@@ -296,6 +425,51 @@ namespace ches::compiler {
         static std::regex symbolTokenRegex;
 
     public:
+        static void addExpressionNodeToNode(SyntaxTreeNode &node, SyntaxTreeNode &newNode, CPEGExpressionRenaming &renaming) {
+            if(renaming.getAvailable()) {
+                if(renaming.getNewName() != "") {
+                    newNode.name = renaming.getNewName();
+                    node.nodes.push_back(newNode);
+                } else {
+                    for(std::string newNodeToken : newNode.tokens)
+                        node.tokens.push_back(newNodeToken);
+
+                    for(SyntaxTreeNode tmpNode : newNode.nodes)
+                        node.nodes.push_back(tmpNode);
+                }
+            } else {
+                node.nodes.push_back(newNode);
+            }
+        }
+
+        static void addExpressionTokenToNode(SyntaxTreeNode &node, std::string token, CPEGExpressionRenaming &renaming) {
+            if(renaming.getAvailable()) {
+                if(renaming.getNewName() != "") {
+                    SyntaxTreeNode newNode;
+                    newNode.name = renaming.getNewName();
+                    newNode.tokens.push_back(token);
+                    node.nodes.push_back(newNode);
+                } else {
+                    node.tokens.push_back(token);
+                }
+            } else {
+                node.tokens.push_back(token);
+            }
+        }
+
+        static void addSequenceNodeToNode(SyntaxTreeNode &node, SyntaxTreeNode &newNode, CPEGExpressionRenaming &renaming) {
+            if(renaming.getAvailable()) {
+                if(renaming.getNewName() != "") {
+                    newNode.name = renaming.getNewName();
+                    node.nodes.push_back(newNode);
+                } else {
+                    node = newNode;
+                }
+            } else {
+                node = newNode;
+            }
+        }
+
         /*
          * ret: expr が空でないかどうか
          * arg: expr: expr が空でない場合のみ変換後の expression を代入する
@@ -331,11 +505,14 @@ namespace ches::compiler {
          */
         static CPEGExpression toCPEGExpression(std::string token) {
             CPEGExpression expr;
-            CPEGExpressionProperties props = CPEGParser::toCPEGExpressionProperties(token);
+
+            CPEGExpressionRenaming renaming = CPEGExpressionRenaming::toRenamingData(token, CPEGParser::symbolTokenRegex);
+            CPEGExpressionProperties props = CPEGExpressionProperties::toCPEGExpressionProperties(token);
 
             if(std::regex_match(token, CPEGParser::charClassTokenRegex)) {
                 expr.type = CPEGExpression_CharClass;
                 expr.value = token.substr(1, token.size() - 2);
+                expr.renaming = renaming;
                 expr.props = props;
 
                 return expr;
@@ -344,6 +521,7 @@ namespace ches::compiler {
             if(std::regex_match(token, CPEGParser::idTokenRegex)) {
                 expr.type = CPEGExpression_ID;
                 expr.value = token;
+                expr.renaming = renaming;
                 expr.props = props;
 
                 return expr;
@@ -355,6 +533,7 @@ namespace ches::compiler {
 
                 expr.type = CPEGExpression_String;
                 expr.value = value;
+                expr.renaming = renaming;
                 expr.props = props;
 
                 return expr;
@@ -363,6 +542,7 @@ namespace ches::compiler {
             if(token == ".") {
                 expr.type = CPEGExpression_WildCard;
                 expr.value = token;
+                expr.renaming = renaming;
                 expr.props = props;
 
                 return expr;
@@ -492,16 +672,39 @@ namespace ches::compiler {
 
                     int seqEndInParen = i;
 
-                    if(i < tokens->size())
+                    if(i + 1 < tokens->size())
                         seqEndInParen = i + 1;
 
                     std::string firstStr = tokens->at(seqBeginInParen);
                     std::string lastStr = tokens->at(seqEndInParen);
 
-                    CPEGExpressionProperties seqProps = CPEGParser::toCPEGExpressionProperties(firstStr, lastStr);
+                    CPEGExpressionProperties seqProps = CPEGExpressionProperties::toCPEGExpressionProperties(firstStr, lastStr);
+
+                    CPEGExpressionRenaming seqRenaming;
+
+                    for(i++; i < end; i++) {
+                        if(tokens->at(i) == ":") {
+                            if(i + 1 < end && tokens->at(i + 1) != " ") {
+                                if(!std::regex_match(tokens->at(i + 1), CPEGParser::idTokenRegex))
+                                    throw CPEGException(CPEGException_InvalidSyntax);
+
+                                seqRenaming.setNewName(tokens->at(i + 1));
+                            } else {
+                                seqRenaming.setNewName("");
+                            }
+
+                            break;
+                        }
+
+                        if(tokens->at(i) == " ") {
+                            i -= 1;
+                            break;
+                        }
+                    }
 
                     CPEGExpressionSequence newSeq;
                     newSeq.exprs = tmpExprs;
+                    newSeq.renaming = seqRenaming;
                     newSeq.props = seqProps;
 
                     newGroup.exprSeqs.push_back(newSeq);
@@ -509,13 +712,12 @@ namespace ches::compiler {
                     tmpExprs.clear();
 
                     seqBegin = i + 2;
-                    i += 1;
 
                     continue;
                 }
             }
 
-            if(begin != end) {
+            if(begin != end && i > seqBegin) {
                 if(inParen)
                     throw CPEGException(CPEGException_InvalidSequenceGroupParen);
 
@@ -536,65 +738,6 @@ namespace ches::compiler {
             group = newGroup;
 
             return true;
-        }
-
-        static CPEGExpressionProperties toCPEGExpressionProperties(std::string firstStr, std::string lastStr) noexcept {
-            char firstChar = '\0';
-            char lastChar = '\0';
-
-            if(firstStr.size() != 0)
-                firstChar = firstStr.at(0);
-
-            if(lastStr.size() != 0)
-                lastChar = lastStr.at(0);
-
-            return CPEGParser::toCPEGExpressionProperties(firstChar, lastChar);
-        }
-
-        static CPEGExpressionProperties toCPEGExpressionProperties(char firstChar, char lastChar) noexcept {
-            CPEGExpressionProperties props;
-
-            int symbolCount = 0;
-
-            CPEGExpressionLoopType loopType = CPEGExpressionProperties::toLoopType(lastChar);
-
-            if(loopType != CPEGExpressionLoop_Default) {
-                props.loopType = loopType;
-                symbolCount++;
-            }
-
-            CPEGExpressionLookaheadType lookaheadType = CPEGExpressionProperties::toLookaheadType(firstChar);
-
-            if(lookaheadType != CPEGExpressionLookahead_Default) {
-                props.lookaheadType = lookaheadType;
-                symbolCount++;
-            }
-
-            if(symbolCount == 0)
-                return CPEGExpressionProperties();
-
-            return props;
-        }
-
-        static CPEGExpressionProperties toCPEGExpressionProperties(std::string &token) noexcept {
-            if(token.size() == 0)
-                return CPEGExpressionProperties();
-
-            char firstChar = token.at(0);
-            char lastChar = token.at(token.size() - 1);
-
-            CPEGExpressionProperties props = CPEGParser::toCPEGExpressionProperties(firstChar, lastChar);
-
-            if(props.lookaheadType != CPEGExpressionLookahead_Default)
-                token = token.substr(1);
-
-            if(token.size() == 0)
-                return props;
-
-            if(props.loopType != CPEGExpressionLoop_Default)
-                token = token.substr(0, token.size() - 1);
-
-            return props;
         }
 
         /*
