@@ -1,4 +1,4 @@
-# CPEG (Ches-PEG)
+# CPEG ( Ches-PEG )
 
 [ドキュメント](../../../../index.md) > [日本語](../../../index.md) > [仕様書](../../index.md) > [コンパイラ](../index.md) > [CPEG](./index.md)
 
@@ -22,7 +22,8 @@ Ches コンパイラの構文定義に使用する。
 |構文|名称|説明|例|
 |:-:|:-:|:-:|:-:|
 |#|行コメント<br>( line comment )|行をコメントアウトとして指定|`# any comment here`|
-|N :=|定義<br>( definition )|右辺の規則を規則名として定義|`class := "class" id`|
+|N :=|定義<br>( definition )|N を名前として規則を定義|`class := "class" id`|
+|N |=|マクロ定義<br>( macro definition )|N を名前としてマクロ規則を定義|`class := "class" id`|
 |N~1~:N~2~|再命名<br>( renaming )|規則名を上書き|`class id:class_name`|
 |"string"|文字列リテラル<br>( string literal )|文字列|`"class"`|
 |[abc0-9]|文字クラス<br>( character class )|括弧内のいずれかの1文字|`[a-zA-Z_]`|
