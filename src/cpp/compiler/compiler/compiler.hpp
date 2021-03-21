@@ -74,7 +74,7 @@ std::vector<SourceFile> Compiler::getSourceFiles() {
     CPEG cpeg;
     // todo: 後でパスを戻す
     // cpeg.loadCPEGFile(homeDirPath + Compiler::cpegRelativePath);
-    cpeg.loadCPEGFile("/Users/Garnet3106/Desktop/Docs/Repos/chestnut/test/compiler/syntax.cpeg");
+    cpeg.loadCPEGFile("/Users/Garnet3106/Desktop/Docs/Repos/ches-lang/test/compiler/syntax.cpeg");
     cpeg.print();
 
     if(FileManager::isDirectory(this->sourcePath)) {

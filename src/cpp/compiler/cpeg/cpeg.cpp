@@ -425,51 +425,6 @@ namespace ches::compiler {
         static std::regex symbolTokenRegex;
 
     public:
-        static void addExpressionNodeToNode(SyntaxTreeNode &node, SyntaxTreeNode &newNode, CPEGExpressionRenaming &renaming) {
-            if(renaming.getAvailable()) {
-                if(renaming.getNewName() != "") {
-                    newNode.name = renaming.getNewName();
-                    node.nodes.push_back(newNode);
-                } else {
-                    for(std::string newNodeToken : newNode.tokens)
-                        node.tokens.push_back(newNodeToken);
-
-                    for(SyntaxTreeNode tmpNode : newNode.nodes)
-                        node.nodes.push_back(tmpNode);
-                }
-            } else {
-                node.nodes.push_back(newNode);
-            }
-        }
-
-        static void addExpressionTokenToNode(SyntaxTreeNode &node, std::string token, CPEGExpressionRenaming &renaming) {
-            if(renaming.getAvailable()) {
-                if(renaming.getNewName() != "") {
-                    SyntaxTreeNode newNode;
-                    newNode.name = renaming.getNewName();
-                    newNode.tokens.push_back(token);
-                    node.nodes.push_back(newNode);
-                } else {
-                    node.tokens.push_back(token);
-                }
-            } else {
-                node.tokens.push_back(token);
-            }
-        }
-
-        static void addSequenceNodeToNode(SyntaxTreeNode &node, SyntaxTreeNode &newNode, CPEGExpressionRenaming &renaming) {
-            if(renaming.getAvailable()) {
-                if(renaming.getNewName() != "") {
-                    newNode.name = renaming.getNewName();
-                    node.nodes.push_back(newNode);
-                } else {
-                    node = newNode;
-                }
-            } else {
-                node = newNode;
-            }
-        }
-
         /*
          * ret: expr が空でないかどうか
          * arg: expr: expr が空でない場合のみ変換後の expression を代入する
@@ -717,15 +672,17 @@ namespace ches::compiler {
                 }
             }
 
-            if(begin != end && i > seqBegin) {
+            if(begin != end) {
                 if(inParen)
                     throw CPEGException(CPEGException_InvalidSequenceGroupParen);
 
-                CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
-                CPEGExpression expr;
+                if(i > seqBegin) {
+                    CPEGTokensIndex groupTokensIndex(tokens, seqBegin, i - seqBegin);
+                    CPEGExpression expr;
 
-                if(CPEGParser::toCPEGExpression(groupTokensIndex, expr))
-                    tmpExprs.push_back(expr);
+                    if(CPEGParser::toCPEGExpression(groupTokensIndex, expr))
+                        tmpExprs.push_back(expr);
+                }
 
                 if(tmpExprs.size() > 0) {
                     CPEGExpressionSequence newSeq;
@@ -996,6 +953,51 @@ namespace ches::compiler {
 
     public:
         SourceParser(CPEG *cpeg, std::string *source);
+
+        static void addExpressionNodeToNode(SyntaxTreeNode &node, SyntaxTreeNode &newNode, CPEGExpressionRenaming &renaming) {
+            if(renaming.getAvailable()) {
+                if(renaming.getNewName() != "") {
+                    newNode.name = renaming.getNewName();
+                    node.nodes.push_back(newNode);
+                } else {
+                    for(std::string newNodeToken : newNode.tokens)
+                        node.tokens.push_back(newNodeToken);
+
+                    for(SyntaxTreeNode tmpNode : newNode.nodes)
+                        node.nodes.push_back(tmpNode);
+                }
+            } else {
+                node.nodes.push_back(newNode);
+            }
+        }
+
+        static void addExpressionTokenToNode(SyntaxTreeNode &node, std::string token, CPEGExpressionRenaming &renaming) {
+            if(renaming.getAvailable()) {
+                if(renaming.getNewName() != "") {
+                    SyntaxTreeNode newNode;
+                    newNode.name = renaming.getNewName();
+                    newNode.tokens.push_back(token);
+                    node.nodes.push_back(newNode);
+                } else {
+                    node.tokens.push_back(token);
+                }
+            } else {
+                node.tokens.push_back(token);
+            }
+        }
+
+        static void addSequenceNodeToNode(SyntaxTreeNode &node, SyntaxTreeNode &newNode, CPEGExpressionRenaming &renaming) {
+            if(renaming.getAvailable()) {
+                if(renaming.getNewName() != "") {
+                    newNode.name = renaming.getNewName();
+                    node.nodes.push_back(newNode);
+                } else {
+                    node = newNode;
+                }
+            } else {
+                node = newNode;
+            }
+        }
 
         /*
          * excep: expressionTokenSuccessful(unsigned int, unsigned int&, CPEGExpression&, SyntaxTreeNode&) / CPEGExpressionProperties::getMinAndMaxCount()
