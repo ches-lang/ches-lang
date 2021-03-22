@@ -325,7 +325,6 @@ bool SourceParser::expressionTokenSuccessful(const unsigned int nest, unsigned i
 
             if(!isLookaheadExpr) {
                 SourceParser::addExpressionTokenToNode(node, expr.value, expr.renaming);
-                std::cout << "a: " << index << " " << expr.value.size() << std::endl;
                 index += expr.value.size();
             }
         } return !isLookaheadNegative;
