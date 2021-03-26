@@ -8,10 +8,12 @@
 
 |設定名|形式|内容|備考|
 |:-:|:-:|:-:|:-:|
-|heap-def|データサイズ|ヒープ領域の初期サイズ||
-|heap-max|データサイズ|ヒープ領域の最大サイズ||
-|stack-def|データサイズ|各スレッドの Threst 領域の初期サイズ||
-|stack-max|データサイズ|各スレッドの Threst 領域の最大サイズ||
+|heap-size-def|データサイズ|ヒープ領域の初期サイズ|heap-size-max 未満であること|
+|heap-size-max|データサイズ|ヒープ領域の最大サイズ||
+|heap--size-max|データサイズ|ヒープ領域の最大サイズ||
+|mem-size-max|データサイズ|メモリ領域全体の最大サイズ|heap-size-max 及び stack-size-max をそれぞれ超えること|
+|stack-size-def|データサイズ|各スレッドの Threst 領域の初期サイズ|stack-size-max 未満であること|
+|stack-size-max|データサイズ|各スレッドの Threst 領域の最大サイズ||
 
 ---
 
