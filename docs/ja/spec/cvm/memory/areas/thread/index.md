@@ -10,7 +10,7 @@
 
 |領域名|役割|備考|
 |:-:|:-:|:-:|
-|[スレッドスタック / Threst 領域<br>( Thread Stack / Threst Area )](./stack/index.md)|ヒープ領域のインデックスデータをスタック構造で格納する||
+|[スレッドスタック / Threst 領域<br>( Thread Stack / Threst Area )](./stack/index.md)|一時的な変数データをスタック構造で格納する||
 
 ---
 
