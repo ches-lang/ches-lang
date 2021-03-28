@@ -11,6 +11,11 @@
 |[共有領域<br>( shared area )](./shared/index.md)|全スレッドに共有される領域|
 |[スレッド領域<br>( thread area )](./thread/index.md)|各スレッドに割り当てられる領域|
 
+- 共有領域
+    - CVM コード領域
+- スレッド領域
+    - スタック領域
+
 ---
 
 Copyright © 2020-2021 Garnet3106 All rights reserved.

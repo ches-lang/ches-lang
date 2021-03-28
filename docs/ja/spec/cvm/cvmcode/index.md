@@ -1,6 +1,6 @@
-# バイトコード
+# CVM コード
 
-[ドキュメント](../../../../index.md) > [日本語](../../../index.md) > [仕様書](../../index.md) > [CVM](../index.md) > [バイトコード](./index.md)
+[ドキュメント](../../../../index.md) > [日本語](../../../index.md) > [仕様書](../../index.md) > [CVM](../index.md) > [CVM コード](./index.md)
 
 ## 例
 

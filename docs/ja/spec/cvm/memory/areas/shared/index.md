@@ -8,10 +8,10 @@
 
 ## 保有領域
 
-|領域名|役割|備考|
-|:-:|:-:|:-:|
-|[バイトコード領域<br>( Bytecode Area )](./bytecode/index.md)|実行するバイトコードを格納する||
-|[ヒープ領域<br>( Heap Area )](./heap/index.md)|プログラムの実行に必要なデータやインスタンス等を格納する||
+|領域名|役割|
+|:-:|:-:|
+|[CVM コード領域<br>( CVM Code Area )](./cvmcode/index.md)|実行する CVM コードを格納する|
+|[ヒープ領域<br>( Heap Area )](./heap/index.md)|プログラムの実行に必要なデータやインスタンス等を格納する|
 
 ---
 
