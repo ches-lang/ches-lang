@@ -15,12 +15,17 @@
     - [CVM コード領域 ( CVM Code Area )](./shared/cvmcode/index.md)
     - [ヒープ領域 ( Heap Area )](./shared/heap/index.md)
         - [固定データ領域 ( Constant Data Area )](./shared/heap/constant/index.md)
+            - [関数領域 ( Function Area )](./shared/heap/constant/index.md)
+            - [クラス領域 ( Class Area )](./shared/heap/constant/index.md)
+            - [インデックススタック領域 ( Index Stack Area )](./shared/heap/constant/index.md)
+            - [定数領域 ( Constant Variable Area )](./shared/heap/constant/index.md)
         - [新規データ領域 ( New Data Area )](./shared/heap/new/index.md)
             - [第一新規データ領域 ( First New Data Area )](./shared/heap/new/index.md)
             - [第二新規データ領域 ( Second New Data Area)](./shared/heap/new/index.md)
         - [長期データ領域 ( Longterm Data Area )](./shared/heap/longterm/index.md)
 - [スレッド領域 ( Thread Area )](./thread/index.md)
-    - [演算スタック領域 ( Operation Stack Area )](./thread/stack/index.md)
+    - [関数スタック領域 ( Function Stack Area )](./thread/function/index.md)
+    - [参照スタック領域 ( Reference Stack Area )](./thread/reference/index.md)
 
 ---
 
