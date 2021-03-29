@@ -6,6 +6,12 @@
 
 ## 呼び出し
 
+配列形式である引数データの参照を取得し、ポップする。
+
+## return
+
+
+
 ---
 
 Copyright © 2020-2021 Garnet3106 All rights reserved.
