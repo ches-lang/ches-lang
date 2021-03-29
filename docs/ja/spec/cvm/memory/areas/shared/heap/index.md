@@ -28,10 +28,11 @@
 
 ## 保有領域
 
-|領域名|役割|備考|
-|:-:|:-:|:-:|
-|[固定ヒープ領域<br>( Constant Heap Area )](./constant/index.md)|プログラムの実行に使用する固定長のデータを格納する||
-|[可変ヒープ領域<br>( Variable Heap Area )](./variable/index.md)|通常のインスタンスや参照を格納する||
+|領域名|役割|
+|:-:|:-:|
+|[固定データ領域<br>( Constant Data Area )](./constant/index.md)|プログラムの実行に使用する固定長のデータを格納する|
+|[新規データ領域<br>( Variable Data Area )](./new/index.md)|通常のインスタンスや参照を格納する|
+|[長期データ領域<br>( Longterm Data Area )](./longterm/index.md)|通常のインスタンスや参照を格納する|
 
 ---
 
