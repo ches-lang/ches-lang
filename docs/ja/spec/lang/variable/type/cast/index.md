@@ -55,4 +55,4 @@ s32 num2 = num1         # エラー: 無効な変数型
 
 ---
 
-Copyright © 2020-2021 Garnet3106 All rights reserved.
+Copyright © 2019-2021 Garnet3106 All rights reserved.

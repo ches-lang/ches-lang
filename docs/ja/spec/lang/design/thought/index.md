@@ -20,4 +20,4 @@ Ches ではコーディング効率を重視します。Ches コードを書く�
 
 ---
 
-Copyright © 2020-2021 Garnet3106 All rights reserved.
+Copyright © 2019-2021 Garnet3106 All rights reserved.

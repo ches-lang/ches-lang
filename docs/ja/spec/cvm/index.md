@@ -18,4 +18,4 @@ CVMは Ches Virtual Machine ( = Ches 仮想マシン ) の略である。
 
 ---
 
-Copyright © 2020-2021 Garnet3106 All rights reserved.
+Copyright © 2019-2021 Garnet3106 All rights reserved.

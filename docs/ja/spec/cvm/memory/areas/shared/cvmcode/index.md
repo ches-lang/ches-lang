@@ -16,4 +16,4 @@ CVM コード内の関数識別子はインデックスに展開及び置換さ�
 
 ---
 
-Copyright © 2020-2021 Garnet3106 All rights reserved.
+Copyright © 2019-2021 Garnet3106 All rights reserved.

@@ -37,4 +37,4 @@ Ches の開発 ( 設計, 実装, ドキュメント執筆等 ) は「がーね�
 
 ---
 
-Copyright © 2020-2021 Garnet3106 All rights reserved.
+Copyright © 2019-2021 Garnet3106 All rights reserved.

@@ -25,4 +25,4 @@ ChesコードをCVMコードに変換する。
 
 ---
 
-Copyright © 2020-2021 Garnet3106 All rights reserved.
+Copyright © 2019-2021 Garnet3106 All rights reserved.
