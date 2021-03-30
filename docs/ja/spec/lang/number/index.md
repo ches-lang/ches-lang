@@ -8,7 +8,7 @@
 
 ## 数値型一覧
 
-[変数型 > 基本型](../variable/type/index.md) を参照。
+[変数型 > 基本型](../variable/type/index.md#基本型) を参照。
 
 ## リテラル
 
