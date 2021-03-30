@@ -69,19 +69,19 @@ end
 ```
 00| Hello.@entry(str[]):
 
-0 | push_str    "Garnet"
-0 | new         User(str)
+0 | spush_str   "Garnet"
+0 | spush_new   User(str)
 
-0 | push_str    "Hello, world"
+0 | spush_str   "Hello, world"
 0 | call        User.say(str)
 
 0 | ret
 
 0 | User.@const(str):
 
-0 | push_this
-0 | push_arg    0
-0 | memset      name
+0 | spush_this
+0 | spush_arg   0
+0 | hset        name
 0 | ret
 
 0 | User.say(str):
