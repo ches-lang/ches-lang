@@ -53,7 +53,7 @@
 /* 命令のタイトルに使用する */
 
 span.instTitle {
-    background-color: #888888;
+    background-color: #aaaaaa;
     padding: 3px 5px;
 }
 </style>
