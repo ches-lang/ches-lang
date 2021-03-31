@@ -13,7 +13,7 @@
 - [学習](./learning/index.md)
 - [ライセンス](./license/index.md)
 - [リリース](./releases/index.md)
-- [言語仕様書](./spec/index.md)
+- [仕様書](./spec/index.md)
 
 ---
 
