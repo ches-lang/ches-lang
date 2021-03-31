@@ -17,7 +17,7 @@
         - [固定データ領域 ( Constant Data Area )](./shared/heap/constant/index.md)
             - [関数領域 ( Function Area )](./shared/heap/constant/index.md#関数領域)
             - [クラス領域 ( Class Area )](./shared/heap/constant/index.md#クラス領域)
-            - [参照スタック領域 ( Reference Stack Area )](./shared/heap/constant/index.md#参照スタック領域)
+            - [参照領域 ( Reference Area )](./shared/heap/constant/index.md#参照領域)
             - [定数領域 ( Constant Variable Area )](./shared/heap/constant/index.md#定数領域)
         - [新規データ領域 ( New Data Area )](./shared/heap/new/index.md)
             - [第一新規データ領域 ( First New Data Area )](./shared/heap/new/index.md)
