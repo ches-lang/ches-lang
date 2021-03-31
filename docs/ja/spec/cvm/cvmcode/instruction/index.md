@@ -49,11 +49,20 @@
 |0x|thstart|スレッド処理開始|
 |0x|thstop|スレッド処理停止|
 
-### `none ( 0x00 )`
+<style>
+/* 命令のタイトルに使用する */
+
+span.instTitle {
+    background-color: #888888;
+    padding: 3px 5px;
+}
+</style>
+
+### <span class="instTitle">none ( 0x00 )</span>
 
 何もしない。
 
-### `add_T ( 0x ~ 0x )`
+### <span class="instTitle">add_T ( 0x ~ 0x )</span>
 
 値同士を加算する。
 
@@ -67,11 +76,11 @@
 
 - 演算結果値 ( サイズ T; 要素数 1 )
 
-### `call ( 0x )`
+### <span class="instTitle">call ( 0x )</span>
 
 [処理手順 - 関数](../../procs/function/index.md) を参照。
 
-### `thcret ( 0x )`
+### <span class="instTitle">thcret ( 0x )</span>
 
 新たにスレッドを作成し、スタック領域を割り当てる。
 
@@ -85,7 +94,7 @@
 
 - スレッド ID ( 8 バイト整数; 要素数 1 )
 
-### `thdisp ( 0x )`
+### <span class="instTitle">thdisp ( 0x )</span>
 
 スレッド及び割り当てられたメモリ領域を破棄する。
 
@@ -101,7 +110,7 @@
 
 - 実行した関数の返り値 ( 値の参照; 要素数 1 )
 
-### `thstart ( 0x )`
+### <span class="instTitle">thstart ( 0x )</span>
 
 スレッド処理の実行を開始する。
 
@@ -111,7 +120,7 @@
 
 - スレッド ID ( 8 バイト整数; 要素数 1 )
 
-### `thstop ( 0x )`
+### <span class="instTitle">thstop ( 0x )</span>
 
 スレッドの処理を停止する。
 
