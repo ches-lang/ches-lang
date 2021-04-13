@@ -1,6 +1,9 @@
 class Hello
 
+str msg = "Hello!"
 
-@entry()
-    println("Hello, world")
+@entry(str[] args)
+    if(args.len == 2)
+        println("To " ~ args[1] ~ ": " ~ msg)
+    end
 end

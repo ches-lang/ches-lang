@@ -1,0 +1,10 @@
+; タイムスタンプ
+606801F2
+
+; @entry(str[] args)
+BEFDE5CC C57B478E E457C095 562EAC87
+
+@entry(str[] args):
+
+    spush_arg   0
+    spush_mem
