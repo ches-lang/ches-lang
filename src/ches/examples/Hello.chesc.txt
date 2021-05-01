@@ -1,10 +1,22 @@
+; マジックナンバ
+CHESCCBC
+
+; コードネーム
+FANTASIA
+
 ; タイムスタンプ
 606801F2
 
-; @entry(str[] args)
-BEFDE5CC C57B478E E457C095 562EAC87
+; 関数 ID データ
+BEFDE5CC C57B478E E457C095 562EAC87 @entry(str[] args)
 
-@entry(str[] args):
+; グローバル変数 ID データ
+0   str "Hello!"
+
+; @entry(str[] args)
+BEFDE5CC C57B478E E457C095 562EAC87:
 
     spush_arg   0
     spush_mem
+
+
