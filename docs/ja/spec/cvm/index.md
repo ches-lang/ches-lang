@@ -15,6 +15,8 @@ CVMは Ches Virtual Machine ( = Ches 仮想マシン ) の略である。
 - [CVM コード](./cvmcode/index.md)
     - [命令](./cvmcode/instruction/index.md)
 - [メモリ管理](./memory/index.md)
+- [処理手順](./procs/index.md)
+- [CVM 概要](./summary/index.md)
 
 ---
 
