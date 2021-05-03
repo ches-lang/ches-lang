@@ -6,26 +6,29 @@
 
 ## 領域一覧
 
-|領域名|役割|
-|:-:|:-:|
-|[共有領域<br>( shared area )](./shared/index.md)|全スレッドに共有される領域|
-|[スレッド領域<br>( thread area )](./thread/index.md)|各スレッド毎に割り当てられる領域|
+### 全領域
 
 - [共有領域 ( Shared Area )](./shared/index.md)
-    - [CVM コード領域 ( CVM Code Area )](./shared/cvmcode/index.md)
-    - [ヒープ領域 ( Heap Area )](./shared/heap/index.md)
-        - [固定データ領域 ( Constant Data Area )](./shared/heap/constant/index.md)
-            - [関数領域 ( Function Area )](./shared/heap/constant/index.md#関数領域)
-            - [クラス領域 ( Class Area )](./shared/heap/constant/index.md#クラス領域)
-            - [参照領域 ( Reference Area )](./shared/heap/constant/index.md#参照領域)
-            - [定数領域 ( Constant Variable Area )](./shared/heap/constant/index.md#定数領域)
-        - [新規データ領域 ( New Data Area )](./shared/heap/new/index.md)
-            - [第一新規データ領域 ( First New Data Area )](./shared/heap/new/index.md)
-            - [第二新規データ領域 ( Second New Data Area)](./shared/heap/new/index.md)
-        - [長期データ領域 ( Longterm Data Area )](./shared/heap/longterm/index.md)
+    - [命令領域 ( Instruction Area )](./shared/instruction/index.md)
+    - [関数領域 ( Function Area )](./shared/function/index.md#関数領域)
+    - [クラス領域 ( Class Area )](./shared/class/index.md#クラス領域)
+    - [参照領域 ( Reference Area )](./shared/reference/index.md#参照領域)
+    - [定数領域 ( Constant Variable Area )](./shared/constvar/index.md#定数領域)
+    - [GC 領域 ( GC Area )](./shared/gc/index.md)
+        - [新規 GC 領域 ( New GC Area )](./shared/gc/new/index.md)
+            - [第一新規 GC 領域 ( First New GC Area )](./shared/gc/new/first/index.md)
+            - [第二新規 GC 領域 ( Second New GC Area)](./shared/gc/new/second/index.md)
+        - [長期 GC 領域 ( Longterm GC Area )](./shared/gc/longterm/index.md)
 - [スレッド領域 ( Thread Area )](./thread/index.md)
-    - [関数スタック領域 ( Function Stack Area )](./thread/function/index.md)
-    - [演算スタック領域 ( Operation Stack Area )](./thread/operation/index.md)
+    - [関数領域 ( Function Area )](./thread/function/index.md)
+    - [演算領域 ( Operation Area )](./thread/operation/index.md)
+
+### 保有領域
+
+|領域名|役割|
+|:-:|:-:|
+|[共有領域<br>( Shared Area )](./shared/index.md)|全スレッドに共有される領域|
+|[スレッド領域<br>( Thread Area )](./thread/index.md)|各スレッド毎に割り当てられる領域|
 
 ---
 

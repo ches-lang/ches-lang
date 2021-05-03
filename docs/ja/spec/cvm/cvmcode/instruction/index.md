@@ -15,7 +15,7 @@
 |0x05|ares|配列領域サイズ変更|
 |0x06|aset|配列要素設定|
 |0x07 ~ 0x12|add_T|ビット加算|
-|0x13|and_8b|8 ビット論理積|
+|0x13|and|8 ビット論理積|
 |0x14|call|関数呼び出し|
 |0x15 ~ 0x20|cmp_ref|参照ビット比較|
 |0x21 ~ 0x26|cmp_T|ビット比較|
@@ -29,7 +29,7 @@
 |0x44|hset|ヒープ値設定|
 |0x45|memset|クラスメンバ値設定|
 |0x46 ~ 0x51|mul_T|ビット乗算|
-|0x52|or_8b|8 ビット論理和|
+|0x52|or|8 ビット論理和|
 |0x53|ret|ブロック抜け|
 |0x54 ~ 0x59|rev_T|ビット反転|
 |0x60|spop|ポップ及びヒープ開放|
@@ -56,7 +56,7 @@
 /* 命令のタイトルに使用する */
 
 span.instTitle {
-    background-color: #aaaaaa;
+    background-color: #cccccc;
     padding: 3px 5px;
 }
 </style>

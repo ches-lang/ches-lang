@@ -10,8 +10,8 @@
 
 |領域名|役割|
 |:-:|:-:|
-|[関数スタック領域<br>( Thread Stack Area )](./function/index.md)|実行中の関数に関するデータをスタック構造で格納する|
-|[演算スタック領域<br>( Thread Stack Area )](./reference/index.md)|関数内で使用する一時的な参照データをスタック構造で格納する|
+|[関数領域<br>( Thread Area )](./function/index.md)|実行中の関数に関するデータをスタック構造で格納する|
+|[演算領域<br>( Operation Area )](./reference/index.md)|関数内で使用する一時的な参照データをスタック構造で格納する|
 
 ---
 
