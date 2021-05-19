@@ -62,7 +62,7 @@ CVM についての大まかな解説を行う。
 ```
 class Hello
 
-@main(str[] args)
+@entry(str[] args)
     println("Hello, world!")
 end
 ```
@@ -72,12 +72,12 @@ end
 GANTCCBC
 
 ; 関数定義
-<main_func_id> Hello.@main(str[])
+<entry_func_id> Hello.@entry(str[])
 
-; Hello.@main(str[]) の命令
+; Hello.@entry(str[]) の命令
 
 spush_str   "Hello, world!"
-spush_func  <println_func_id>
+spush_uuid  <println_func_id>
 call
 ret
 ```
