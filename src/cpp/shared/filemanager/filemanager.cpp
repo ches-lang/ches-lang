@@ -72,7 +72,7 @@ namespace ches::shared {
                     }
                 }
             } catch(std::filesystem::filesystem_error excep) {
-                throw FileManagerException(FileManagerException_Unknown, excep.path1());
+                throw FileManagerException(FileManagerException_Unknown, excep.path1().string());
             }
 
             return filePaths;
@@ -92,7 +92,7 @@ namespace ches::shared {
                     if(!FileManager::isDirectory(path))
                         filePaths.push_back(path);
             } catch(std::filesystem::filesystem_error excep) {
-                throw FileManagerException(FileManagerException_Unknown, excep.path1());
+                throw FileManagerException(FileManagerException_Unknown, excep.path1().string());
             }
 
             return filePaths;
@@ -112,7 +112,7 @@ namespace ches::shared {
             }
 
             for(auto item : dirItr)
-                paths.push_back(item.path());
+                paths.push_back(item.path().string());
 
             return paths;
         }

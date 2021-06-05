@@ -24,7 +24,7 @@ using namespace ches::shared;
 
 int main(int argc, char *argv[]) noexcept {
     try {
-        Configuration::loadEachData();
+        Configuration::loadAll();
     } catch(FileManagerException excep) {
         Console::error.print("{^config.error.failedToReadConfigFile}", { { "{^file.words.path}", excep.target }, { "{^general.words.errorType}", "FileManagerException [" + std::to_string(excep.type) + "]" } }, true);
     } catch(ConfigurationException excep) {

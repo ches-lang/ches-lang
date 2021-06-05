@@ -7,7 +7,6 @@
 ```
 class クラス名
 
-
 メンバ1
 メンバ2
 
@@ -22,12 +21,10 @@ class クラス名
 
 class Names
 
-
 ## メンバ変数 ##
 
 str creatorName = "Garnet"
 pub dyn str name = "Micheal"
-
 
 ## メンバ関数 ##
 

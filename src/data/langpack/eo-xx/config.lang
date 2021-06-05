@@ -8,6 +8,7 @@
 
 config.error.failedToReadConfigFile=lego de konfig dosiero malsukcesis
 config.error.failedToParseConfigFile=analizo de konfig dosiero malsukcesis
+config.error.configNotLoaded=ne legita konfig
 
 # config.setting
 

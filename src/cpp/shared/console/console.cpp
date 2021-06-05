@@ -38,6 +38,26 @@ namespace ches::shared {
         Console(std::string typeName, int typeColor = 30) noexcept;
 
         /*
+         * excep: Configuration::exists(std::string), Configuration::exists(std::string), Console::logLimitToInt(std::string)
+         */
+        static int getLogLimit() {
+            int logLimit;
+
+            try {
+                std::string logLimitSettingValue = Configuration::settings.get(Console::logLimitSettingName);
+
+                if(!Configuration::settings.exists(logLimitSettingName))
+                    return -1;
+
+                logLimit = Console::logLimitToInt(logLimitSettingValue);
+            } catch(ConfigurationException excep) {
+                throw excep;
+            }
+
+            return logLimit;
+        }
+
+        /*
          * excep: ConfigurationException [InvalidSettingValue]
          */
         static int logLimitToInt(std::string value) {
@@ -58,34 +78,11 @@ namespace ches::shared {
             return logLimit;
         }
 
-        /*
-         * excep: Console::logLimitToInt(std::string)
-         */
-        static int getLogLimit() {
-            std::string logLimitSettingValue = Configuration::settings.get(Console::logLimitSettingName);
-
-            if(!Configuration::settings.exists(logLimitSettingName))
-                return -1;
-
-            int logLimit;
-
-            try {
-                logLimit = Console::logLimitToInt(logLimitSettingValue);
-            } catch(ConfigurationException excep) {
-                throw excep;
-            }
-
-            return logLimit;
-        }
-
         void print(std::string title, bool terminateProc) noexcept;
 
         void print(std::string title, std::unordered_map<std::string, std::string> detailMap = {}, bool terminateProc = false) noexcept;
 
-        /*
-         * excep: std::regex_error
-         */
-        static void translateText(std::string &text) {
+        static void translateText(std::string &text) noexcept {
             try {
                 int beginIndex = 0;
                 std::regex searchPattern("\\{\\^[a-zA-Z0-9\\._-]+\\}");
@@ -115,8 +112,10 @@ namespace ches::shared {
                         break;
                     }
                 }
+            } catch(ConfigurationException excep) {
+                text = "\e[41m" + text + "\e[0m";
             } catch(std::regex_error excep) {
-                throw excep;
+                text = "\e[41m" + text + "\e[0m";
             }
         }
     };

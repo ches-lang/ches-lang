@@ -49,16 +49,25 @@ void Console::print(std::string title, bool terminateProc) noexcept {
 }
 
 void Console::print(std::string title, std::unordered_map<std::string, std::string> detailMap, bool terminateProc) noexcept {
+    // note: 無限ループを防止するため、コンソール出力前に logLimitLoaded を true にする0
+
     if(!Console::logLimitLoaded) {
         try {
             Console::logLimit = Console::getLogLimit();
             Console::logLimitLoaded = true;
         } catch(ConfigurationException excep) {
             Console::logLimit = -1;
-            // note: 無限ループを防止するため、コンソール出力前に logLimitLoaded を true にする
             Console::logLimitLoaded = true;
 
-            Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^config.setting.words.settingName}", "log-limit" }, { "{^config.setting.words.settingValue}", excep.target } });
+            switch(excep.type) {
+                case ConfigurationException_InvalidSettingValue:
+                Console::error.print("{^config.setting.error.invalidSettingValue}", { { "{^config.setting.words.settingName}", "log-limit" }, { "{^config.setting.words.settingValue}", excep.target } });
+                break;
+
+                case ConfigurationException_NotLoaded:
+                Console::error.print("{^config.error.configNotLoaded}", {});
+                break;
+            }
         }
     }
 

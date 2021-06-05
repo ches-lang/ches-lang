@@ -14,12 +14,14 @@
 namespace ches::shared {
     enum ConfigurationExceptionType {
         ConfigurationException_Unknown,
+        ConfigurationException_AlreadyLoaded,
         ConfigurationException_DuplicatedPropName,
         ConfigurationException_InvalidEnvironmentVariable,
         ConfigurationException_InvalidPropName,
         ConfigurationException_InvalidPropValue,
         ConfigurationException_InvalidSettingValue,
         ConfigurationException_InvalidSyntax,
+        ConfigurationException_NotLoaded,
         ConfigurationException_UndefinedSettingProperty,
         ConfigurationException_UnknownPropName
     };
@@ -39,6 +41,9 @@ namespace ches::shared {
 
 
     class Configuration {
+    private:
+        bool isLoaded = false;
+
     protected:
         std::string path = "";
         std::unordered_map<std::string, std::string> dataMap;
@@ -55,19 +60,21 @@ namespace ches::shared {
 
         /*
          * arg: editedOptionMap: 設定値を編集したオプションマップ
-         * excep: ConfigurationException [InvalidPropValue, UnknownPropName] / FileManager::getLines(std::string) / Configuration::toPropPair(std::string)
+         * excep: ConfigurationException [InvalidPropValue, NotLoaded, UnknownPropName] / FileManager::getLines(std::string) / Configuration::toPropPair(std::string)
          */
         void edit(std::unordered_map<std::string, std::string> editedOptionMap);
 
         /*
          * ret: プロパティ名が存在するかどうか
+         * excep: ConfigurationException [NotLoaded]
          */
-        bool exists(std::string key) noexcept;
+        bool exists(std::string key);
 
         /*
          * ret: プロパティ名が見つかれば対応するプロパティ値、見つからなければ propName を返す
+         * excep: ConfigurationException [NotLoaded]
          */
-        std::string get(std::string key) noexcept;
+        std::string get(std::string key);
 
         /*
          * ret: 環境変数が存在する場合は設定値、存在しない場合は空文字を返す
@@ -82,23 +89,28 @@ namespace ches::shared {
         }
 
         /*
-         * excep: ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty] / Configuratioin::loadData(std::string)
+         * excep: ConfigurationException [DuplicatedPropName] / FileManager::getLines(std::string) / toPropPair(std::string)
          */
-        static void loadEachData() {
+        void load(std::string path);
+
+        /*
+         * excep: ConfigurationException [InvalidEnvironmentVariable, UndefinedSettingProperty] / Configuratioin::load(std::string)
+         */
+        static void loadAll() {
             try {
                 std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
 
                 if(homeDirPath == "")
                     throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
 
-                Configuration::settings.loadData(homeDirPath + "/settings/chesc.cnf");
+                Configuration::settings.load(homeDirPath + "/settings/chesc.cnf");
 
                 std::string langSettingValue = Configuration::settings.get(Configuration::langSettingName);
 
                 if(!Configuration::settings.exists(langSettingName) || langSettingValue == "")
                     throw ConfigurationException(ConfigurationException_UndefinedSettingProperty, langSettingName);
 
-                Configuration::langPack.loadData(homeDirPath + "/langpack/" + langSettingValue);
+                Configuration::langPack.load(homeDirPath + "/langpack/" + langSettingValue);
             } catch(FileManagerException excep) {
                 throw excep;
             } catch(ConfigurationException excep) {
@@ -107,11 +119,9 @@ namespace ches::shared {
         }
 
         /*
-         * excep: ConfigurationException [DuplicatedPropName] / FileManager::getLines(std::string) / toPropPair(std::string)
+         * excep: ConfigurationException [NotLoaded]
          */
-        void loadData(std::string path);
-
-        void print() noexcept;
+        void print();
 
         /*
          * note: プロパティ名の重複検査は行われない

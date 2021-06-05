@@ -8,6 +8,7 @@
 
 config.error.failedToReadConfigFile=構成ファイルの読み込みに失敗しました
 config.error.failedToParseConfigFile=構成ファイルのパースに失敗しました
+config.error.configNotLoaded=構成ファイルが読み込まれていません
 
 # config.setting
 

@@ -8,6 +8,7 @@
 
 config.error.failedToReadConfigFile=failed to read config file
 config.error.failedToParseConfigFile=failed to parse config file
+config.error.configNotLoaded=config is not loaded
 
 # config.setting
 

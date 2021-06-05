@@ -48,6 +48,9 @@ Configuration::Configuration() noexcept {}
 
 
 void Configuration::edit(std::unordered_map<std::string, std::string> editedOptionMap) {
+    if(!this->isLoaded)
+        throw ConfigurationException(ConfigurationException_NotLoaded);
+
     for(const auto [ key, value ] : editedOptionMap)
         if(!this->exists(key))
             throw ConfigurationException(ConfigurationException_UnknownPropName);
@@ -89,18 +92,27 @@ void Configuration::edit(std::unordered_map<std::string, std::string> editedOpti
     }
 }
 
-bool Configuration::exists(std::string key) noexcept {
+bool Configuration::exists(std::string key) {
+    if(!this->isLoaded)
+        throw ConfigurationException(ConfigurationException_NotLoaded);
+
     return this->dataMap.count(key) == 1;
 }
 
-std::string Configuration::get(std::string key) noexcept {
+std::string Configuration::get(std::string key) {
+    if(!this->isLoaded)
+        throw ConfigurationException(ConfigurationException_NotLoaded);
+
     if(!this->exists(key))
         return key;
 
     return this->dataMap.at(key);
 }
 
-void Configuration::loadData(std::string path) {
+void Configuration::load(std::string path) {
+    if(this->isLoaded)
+        throw ConfigurationException(ConfigurationException_AlreadyLoaded);
+
     this->path = path;
 
     std::vector<std::string> lineVec;
@@ -132,7 +144,8 @@ void Configuration::loadData(std::string path) {
             if(prop == (std::pair<std::string, std::string>){})
                 continue;
 
-            if(this->exists(prop.first))
+            // Configuration::isLoaded が true に設定されていないため Configuration::exists() を使わない
+            if(this->dataMap.count(prop.first) == 1)
                 throw ConfigurationException(ConfigurationException_DuplicatedPropName);
 
             this->dataMap[prop.first] = prop.second;
@@ -140,9 +153,14 @@ void Configuration::loadData(std::string path) {
     } catch(ConfigurationException excep) {
         throw excep;
     }
+
+    this->isLoaded = true;
 }
 
-void Configuration::print() noexcept {
+void Configuration::print() {
+    if(!this->isLoaded)
+        throw ConfigurationException(ConfigurationException_NotLoaded);
+
     std::cout << "[debug] Configuration Properties ( whole size: " << this->dataMap.size() << " )" << std::endl;
 
     for(auto [ key, value ] : this->dataMap)
