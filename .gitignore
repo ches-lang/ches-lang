@@ -1,4 +1,6 @@
 *.command
+*.bat
+*.exe
 *.DS_Store
 /.vscode
 /bin
