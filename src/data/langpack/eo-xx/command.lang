@@ -16,6 +16,8 @@ command.error.unknownCommandError=nekonata komanda eraro
 command.error.unknownCommandName=nekonata komanda nomo
 command.error.unknownOptionName=nekonata opcia nomo
 
+command.error.cmp.noInputFile=nenie eniga dosiero estas
+
 command.help.cmp=Traduki Ches'a(j)n dosiero(j)n.
 command.help.help=Vidigi komandan helpon.
 command.help.set=Konstati aŭ ŝanĝi la komanda(j)n agordo(j)n.

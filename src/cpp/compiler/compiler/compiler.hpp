@@ -37,64 +37,31 @@ CompilerException::CompilerException(CompilerExceptionType type, std::unordered_
 }
 
 
-std::string cpegRelativePath = "/cpeg/syntax.cpeg";
-
-Compiler::Compiler(std::string sourcePath) {
-    this->sourcePath = sourcePath;
-
+Compiler::Compiler(std::vector<std::string> srcFilePaths, std::string cpegPath) {
     try {
-        this->sourceFiles = this->getSourceFiles();
-    } catch(FileManagerException excep) {
-        throw excep;
+        this->cpeg.loadCPEGFile(cpegPath);
+    } catch(CPEGException except) {
+        throw except;
+    } catch(FileManagerException except) {
+        throw except;
     }
+
+    for(std::string path : srcFilePaths)
+        this->sourceFiles.push_back(SourceFile(path));
 }
 
-void Compiler::compile(std::string outputFilePath) {
+unsigned char* Compiler::compile() {
     if(this->sourceFiles.size() == 0)
         throw CompilerException(CompilerException_NoInputFile);
+
+    for(SourceFile file : this->sourceFiles)
+        file.loadSourceFile(&this->cpeg);
+
+    return nullptr;
 }
 
 unsigned char* Compiler::getBytecode() {
     unsigned char *bytecode;
 
     return bytecode;
-}
-
-std::vector<SourceFile> Compiler::getSourceFiles() {
-    std::vector<SourceFile> sourceFiles;
-
-    std::vector<std::string> filePaths;
-    std::vector<std::string> chesFilePaths;
-
-    std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
-
-    if(homeDirPath == "")
-        throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
-
-    CPEG cpeg;
-    // todo: 後でパスを戻す
-    // cpeg.loadCPEGFile(homeDirPath + Compiler::cpegRelativePath);
-    cpeg.loadCPEGFile("/Users/Garnet3106/Desktop/Docs/Repos/ches-lang/test/compiler/syntax.cpeg");
-    cpeg.print();
-
-    if(FileManager::isDirectory(this->sourcePath)) {
-        try {
-            filePaths = FileManager::getAllFilePathsInDirectory(this->sourcePath);
-
-            for(const std::string path : filePaths) {
-                if(FileManager::matchExtensionName(path, "ches")) {
-                    SourceFile file = SourceFile(path);
-                    file.loadSourceFile(&cpeg);
-
-                    sourceFiles.push_back(file);
-                }
-            }
-        } catch(FileManagerException excep) {
-            throw excep;
-        }
-    } else {
-        sourceFiles = { this->sourcePath };
-    }
-
-    return sourceFiles;
 }

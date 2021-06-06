@@ -700,7 +700,7 @@ namespace ches::compiler {
         /*
          * arg: line: 解析させる行 ( 値の変更なし ); rule: 行の解析後に代入される規則値 ( 規則文であった場合のみ値が変更される )
          * ret: 与えられた行が規則文であるか
-         * excep: CPEGException [InvalidCPEGSyntax, InvalidCPEGRuleName] / toCPEGTokens(std::string&)
+         * excep: CPEGException [InvalidCPEGSyntax, InvalidCPEGRuleName] / CPEGParser::toCPEGTokens(std::string&)
          */
         static bool toCPEGRule(std::string &line, CPEGRule &rule) {
             CPEGRule newRule;

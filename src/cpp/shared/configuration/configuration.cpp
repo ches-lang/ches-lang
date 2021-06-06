@@ -16,7 +16,7 @@ namespace ches::shared {
         ConfigurationException_Unknown,
         ConfigurationException_AlreadyLoaded,
         ConfigurationException_DuplicatedPropName,
-        ConfigurationException_InvalidEnvironmentVariable,
+        ConfigurationException_EnvironmentVariableNotSet,
         ConfigurationException_InvalidPropName,
         ConfigurationException_InvalidPropValue,
         ConfigurationException_InvalidSettingValue,
@@ -101,7 +101,7 @@ namespace ches::shared {
                 std::string homeDirPath = Configuration::getEnvironmentVariable(Configuration::homeDirEnvName);
 
                 if(homeDirPath == "")
-                    throw ConfigurationException(ConfigurationException_InvalidEnvironmentVariable);
+                    throw ConfigurationException(ConfigurationException_EnvironmentVariableNotSet);
 
                 Configuration::settings.load(homeDirPath + "/settings/chesc.cnf");
 

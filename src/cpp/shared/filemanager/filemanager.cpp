@@ -52,6 +52,32 @@ namespace ches::shared {
         }
 
         /*
+         * except: FileManagerException [Unknown]
+         */
+        static std::vector<std::string> filterFilePathsWithExtensionName(std::vector<std::string> paths, std::string extName) {
+            std::vector<std::string> filterFilePaths;
+
+            try {
+                for(std::string eachPath : paths) {
+                    if(FileManager::isDirectory(eachPath)) {
+                        std::vector<std::string> subFilePaths = FileManager::getAllFilePathsInDirectory(eachPath);
+
+                        for(std::string eachSubFilePath : subFilePaths)
+                            if(FileManager::matchExtensionName(eachSubFilePath, extName))
+                                filterFilePaths.push_back(eachSubFilePath);
+                    } else {
+                        if(FileManager::matchExtensionName(eachPath, extName))
+                            filterFilePaths.push_back(eachPath);
+                    }
+                }
+            } catch(FileManagerException except) {
+                throw except;
+            }
+
+            return filterFilePaths;
+        }
+
+        /*
          * excep: FileManagerException [Unknown]
          */
         static std::vector<std::string> getAllFilePathsInDirectory(std::string dirPath) {

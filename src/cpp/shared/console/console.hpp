@@ -112,5 +112,5 @@ void Console::print(std::string title, std::unordered_map<std::string, std::stri
     std::cout << std::endl;
 
     if(terminateProc)
-        exit(-1);
+        Console::terminate();
 }

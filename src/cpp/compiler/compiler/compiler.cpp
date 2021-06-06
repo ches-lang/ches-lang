@@ -33,28 +33,21 @@ namespace ches::compiler {
 
     class Compiler {
     private:
-        std::string sourcePath = "";
+        CPEG cpeg;
         std::vector<SourceFile> sourceFiles;
-
-        static std::string cpegRelativePath;
 
     public:
         /*
-         * excep: Compiler::getSourceFiles()
+         * excep: CPEG::loadCPEGFile(std::string)
          */
-        Compiler(std::string sourcePath);
+        Compiler(std::vector<std::string> srcFilePaths, std::string cpegPath);
 
         /*
          * excep: CompilerException [NoInputFile]
          */
-        void compile(std::string outputFilePath);
+        unsigned char* compile();
 
     private:
         unsigned char* getBytecode();
-
-        /*
-         * excep: FileManager::getAllFilePathsInDirectory(std::string) / FileManager::matchExtensionName(std::string, std::string) / SourceFile::loadSourceFile()
-         */
-        std::vector<SourceFile> getSourceFiles();
     };
 }

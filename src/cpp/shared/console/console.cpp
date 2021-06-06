@@ -82,6 +82,10 @@ namespace ches::shared {
 
         void print(std::string title, std::unordered_map<std::string, std::string> detailMap = {}, bool terminateProc = false) noexcept;
 
+        static void terminate(int exitCode = -1) noexcept {
+            exit(exitCode);
+        }
+
         static void translateText(std::string &text) noexcept {
             try {
                 int beginIndex = 0;

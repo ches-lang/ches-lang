@@ -115,9 +115,13 @@ void CPEG::loadCPEGFile(std::string filePath) {
 
     CPEGRule tmpRule;
 
-    for(std::string line : fileLines)
-        if(CPEGParser::toCPEGRule(line, tmpRule))
-            this->rules.push_back(tmpRule);
+    try {
+        for(std::string line : fileLines)
+            if(CPEGParser::toCPEGRule(line, tmpRule))
+                this->rules.push_back(tmpRule);
+    } catch(CPEGException excep) {
+        throw excep;
+    }
 }
 
 void CPEG::print() noexcept {

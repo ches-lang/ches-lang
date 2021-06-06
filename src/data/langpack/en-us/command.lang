@@ -16,6 +16,8 @@ command.error.unknownCommandError=unknown command error
 command.error.unknownCommandName=unknown command name
 command.error.unknownOptionName=unknown option name
 
+command.error.cmp.noInputFile=no input file
+
 command.help.cmp=Compile ches file(s).
 command.help.help=Show command help.
 command.help.set=Check or change the command setting(s).

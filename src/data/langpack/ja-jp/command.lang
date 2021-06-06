@@ -16,6 +16,8 @@ command.error.unknownCommandError=不明なコマンドエラー
 command.error.unknownCommandName=不明なコマンド名
 command.error.unknownOptionName=不明なオプション名
 
+command.error.cmp.noInputFile=入力ファイルがありません
+
 command.help.cmp=Chesファイルをコンパイルする
 command.help.help=コマンドヘルプを表示する
 command.help.set=コマンド設定を確認または変更する
