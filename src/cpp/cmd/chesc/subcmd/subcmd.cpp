@@ -26,8 +26,8 @@ namespace ches::cmd::chesc {
             std::string refOptionName = "-ref";
             std::string outputOptionName = "-o";
 
-            std::string chesFileExt = "ches";
-            std::string chescFileExt = "chesc";
+            std::string chesFileExtName = "ches";
+            std::string chescFileExtName = "chesc";
 
             // 入力ファイルを取得
 
@@ -40,20 +40,26 @@ namespace ches::cmd::chesc {
             if(inputOptionValues.size() == 0)
                 Console::error.print("{^command.error.cmp.noInputFile}", { { "note", "specify an input file with -i option." } }, true);
 
-            bool inputPathNotExists = false;
+            bool isInputFileInvalid = false;
 
             try {
                 for(std::string path : inputOptionValues) {
                     if(!FileManager::exists(path)) {
                         Console::error.print("input file not found", { { "path", path } });
-                        inputPathNotExists = true;
+                        isInputFileInvalid = true;
+                        continue;
+                    }
+
+                    if(!FileManager::isDirectory(path) && !FileManager::matchExtensionName(path, chesFileExtName)) {
+                        Console::error.print("invalid extension name", { { "path", path } });
+                        isInputFileInvalid = true;
                     }
                 }
 
-                if(inputPathNotExists)
+                if(isInputFileInvalid)
                     Console::terminate();
 
-                inputFilePaths = FileManager::filterFilePathsWithExtensionName(inputOptionValues, chesFileExt);
+                inputFilePaths = FileManager::filterFilePathsWithExtensionName(inputOptionValues, chesFileExtName);
             } catch(FileManagerException except) {
                 Console::error.print("unknown file error", { { "path", except.target } }, true);
             }
@@ -68,18 +74,38 @@ namespace ches::cmd::chesc {
             if(cmd.cmdOptionMap.count(refOptionName) == 1) {
                 std::vector<std::string> refOptionValues = cmd.cmdOptionMap.at(refOptionName).values;
 
+                bool isRefFileInvalid = false;
+
                 try {
-                    refFilePaths = FileManager::filterFilePathsWithExtensionName(refOptionValues, chescFileExt);
-                } catch(FileManagerException except) {
-                    switch(except.type) {
-                        case FileManagerException_NotFilePath:
-                        Console::error.print("reference file not found", { { "path", except.target } }, true);
-                        break;
+                    for(std::string path : refOptionValues) {
+                        if(!FileManager::exists(path)) {
+                            Console::error.print("reference file not found", { { "path", path } });
+                            isRefFileInvalid = true;
+                            continue;
+                        }
+
+                        if(!FileManager::isDirectory(path) && !FileManager::matchExtensionName(path, chescFileExtName)) {
+                            Console::error.print("invalid extension name", { { "path", path } });
+                            isRefFileInvalid = true;
+                        }
                     }
+
+                    if(isRefFileInvalid)
+                        Console::terminate();
+
+                    refFilePaths = FileManager::filterFilePathsWithExtensionName(refOptionValues, chescFileExtName);
+                } catch(FileManagerException except) {
+                    Console::error.print("unknown file error", { { "path", except.target } }, true);
                 }
             }
 
             // ファイルパスの重複を検知
+
+            std::sort(inputFilePaths.begin(), inputFilePaths.end());
+            inputFilePaths.erase(std::unique(inputFilePaths.begin(), inputFilePaths.end()), inputFilePaths.end());
+
+            std::sort(refFilePaths.begin(), refFilePaths.end());
+            refFilePaths.erase(std::unique(refFilePaths.begin(), refFilePaths.end()), refFilePaths.end());
 
             // CPEG ファイルパスを取得
 
