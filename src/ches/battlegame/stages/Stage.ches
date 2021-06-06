@@ -1,0 +1,23 @@
+class Stage
+
+int .stageNum = 0
+
+int .bossSum = 0
+int .currentBossNum = 0
+
+@const(stageNum)
+    .stageNum = stageNum
+end
+
+.start()
+    println("- Stage ${.stageNum + 1} Start -")
+    println(2)
+
+    for .currentBossNum < .bossSum
+        Boss boss = new(.currentBossNum)
+
+        if !boss.battle()
+            ret false
+        end
+    end
+end
