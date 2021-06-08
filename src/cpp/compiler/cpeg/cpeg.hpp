@@ -109,18 +109,22 @@ void CPEG::loadCPEGFile(std::string filePath) {
 
     try {
         fileLines = FileManager::getLines(filePath);
-    } catch(FileManagerException excep) {
-        throw excep;
+    } catch(FileManagerException except) {
+        throw except;
     }
 
     CPEGRule tmpRule;
 
+    int line_i = 0;
+
     try {
-        for(std::string line : fileLines)
-            if(CPEGParser::toCPEGRule(line, tmpRule))
+        for(; line_i < fileLines.size(); line_i++)
+            if(CPEGParser::toCPEGRule(fileLines.at(line_i), tmpRule))
                 this->rules.push_back(tmpRule);
-    } catch(CPEGException excep) {
-        throw excep;
+    } catch(CPEGException except) {
+        throw except;
+    } catch(std::out_of_range except) {
+        std::cout << "outofrange " << line_i << std::endl;
     }
 }
 
@@ -393,7 +397,7 @@ std::vector<SyntaxTreeNode> SourceParser::toSyntaxTreeNode() {
 
         if(!succeeded) {
             std::cout << "err index: " << this->index << std::endl;
-            throw CPEGException(CPEGException_NoSucceededRule);
+            throw CPEGException(CPEGException_NoSucceededRule, { { "index", std::to_string(this->index) } });
         }
 
         std::cout << "- - - - -" << std::endl;

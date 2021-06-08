@@ -1,9 +1,7 @@
-class Hello
+class A
 
-str msg = "Hello!"
+str msg
+s32 hello = 2343252.325
 
 @entry(str[] args)
-    if(args.len == 2)
-        println("To " ~ args[1] ~ ": " ~ msg)
-    end
 end

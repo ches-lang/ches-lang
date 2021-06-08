@@ -8,45 +8,75 @@
 
 ## statements ##
 
-class_def := "class" spacing+ id:class_id spacing* new_line+
+# statement の最後には new_line+ を置くこと
+statement |= func_call > ret_value > var_def > var_init > var_subst
 
-func_def := ("@"? id):func_name spacing* "(" spacing* ")" spacing* new_line+ statement* spacing* "end" spacing* new_line+
+### class ###
 
-statement |= func_call > ret_statement > var_def > var_init > var_subst
+class_def := "class" spacing+ id:class_id spacing* new_line+ statement*
 
-func_call |= spacing* "@"? id spacing* "(" spacing* (expression:func_args_value spacing* ","? spacing*)*:func_args spacing* ")" spacing* new_line+
-ret_statement |= spacing* "ret" (spacing* expression)?:ret_value spacing* new_line+
+### function ###
 
-var_def |= spacing* var_type_spc: spacing* id:var_name spacing* new_line+
-var_init |= spacing* var_type_spc: spacing* id:var_name spacing* "=" spacing* expression:var_value spacing* new_line+
+func_def := func_name spacing* "(" spacing* func_def_arg* spacing* ")" spacing* new_line+ statement* spacing* "end" spacing* new_line+
+func_def_arg |= var_type_with_spc:var_type spacing* id:var_name spacing* ","? spacing*
+
+func_call |= spacing+ func_name spacing* "(" spacing* func_call_arg* spacing* ")" spacing* new_line+
+func_call_arg |= expression:func_args_value spacing* ","? spacing*
+
+ret_value |= spacing* "ret" (spacing* expression)?:ret_value spacing* new_line+
+
+### variable ###
+
+var_def |= spacing* var_type_with_spc:var_type spacing* id:var_name spacing* new_line+
+var_init |= spacing* var_type_with_spc:var_type spacing* id:var_name spacing* "=" spacing* expression:var_value spacing* new_line+
 var_subst |= spacing* id:var_name spacing* "=" spacing* expression:var_value spacing* new_line+
 
-# var_type, var_type_spc の id は最後に置く
-# var_type_spc は var_def, var_init 用; id のみの場合は後ろに空白を強制的に入れる
+# var_type, var_type_with_spc の id は最後に置く
+# var_type_with_spc は var_def, var_init 用; id のみの場合は後ろに空白を強制的に入れる
 
-var_type |= var_type_gen > id
-var_type_spc |= var_type_gen > id spacing+
+var_type |= var_type_arr > var_type_gen > id
+var_type_with_spc |= var_type_arr > var_type_gen > id spacing+
+var_type_arr |= id spacing* "[" spacing* expression? spacing* "]"
 var_type_gen |= id spacing* "<" spacing* var_type spacing* ">"
+
+### if ###
+
+if |= spacing* "if" spacing* logic_section spacing* new_line+ statement* spacing* "end" spacing* new_line+
 
 ## expressions ##
 
-expression |= literal > id
+### section(elem1 == elem2)
+### a == b || c != d && (e > f && g < h)
+
+expression |= logic_section > pure_expression:
+
+# 論理が絡まない expression
+pure_expression |= literal > id
+
+logic_section |= logic_elem logic_section_seq*
+logic_section_seq |= spacing* logic_operator? logic_elem spacing*
+logic_elem |= pure_expression spacing* comparison_operator spacing* pure_expression > pure_expression
+
+logic_operator |= "&&" > "||"
+comparison_operator |= "==" > "!=" > ("<" > ">") "="?
+
+### literals ###
 
 literal |= char_literal > string_literal > number_literal
 
-char_literal |= "'" char_char "'"
-string_literal |= "\"" string_char* "\""
+char_literal |= "'" char_char: "'"
+string_literal |= "\"" string_char*: "\""
 
-number_literal |= [0-9]+ ("." [0-9])?
-
-## others ##
-
-new_line := "\n"
-spacing := " " > "\t"
+number_literal |= [0-9]+ ("." [0-9]+)?
 
 id |= [a-zA-Z] [0-9a-zA-Z]*
 
-# 文字が他のトークンにマッチしないよう最後に置く
-
 char_char |= "\\" . > !"'" .
 string_char |= "\\" . > !"\"" .
+
+## others ##
+
+func_name |= "@"? id:
+
+new_line := "\n"
+spacing := " " > "\t"

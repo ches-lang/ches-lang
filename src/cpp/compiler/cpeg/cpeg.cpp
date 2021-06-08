@@ -89,7 +89,7 @@ namespace ches::compiler {
             this->newName = newName;
         }
 
-        static CPEGExpressionRenaming toRenamingData(std::string &token, std::regex &symbolTokenRegex) noexcept {
+        static CPEGExpressionRenaming toRenamingData(std::string &token, std::regex &symbolTokenRegex) {
             if(token.size() == 0)
                 return CPEGExpressionRenaming();
 
@@ -152,7 +152,7 @@ namespace ches::compiler {
             return CPEGExpressionProperties::toCPEGExpressionProperties(firstChar, lastChar);
         }
 
-        static CPEGExpressionProperties toCPEGExpressionProperties(char firstChar, char lastChar) noexcept {
+        static CPEGExpressionProperties toCPEGExpressionProperties(char firstChar, char lastChar) {
             CPEGExpressionProperties props;
 
             int symbolCount = 0;
@@ -177,7 +177,7 @@ namespace ches::compiler {
             return props;
         }
 
-        static CPEGExpressionProperties toCPEGExpressionProperties(std::string &token) noexcept {
+        static CPEGExpressionProperties toCPEGExpressionProperties(std::string &token) {
             if(token.size() == 0)
                 return CPEGExpressionProperties();
 
@@ -857,7 +857,7 @@ namespace ches::compiler {
             return tokens;
         }
 
-        static bool isCPEGTokensEmpty(CPEGTokensIndex tokensIndex) noexcept {
+        static bool isCPEGTokensEmpty(CPEGTokensIndex tokensIndex) {
             std::vector<std::string> *tokens = tokensIndex.tokens();
 
             unsigned int begin = tokensIndex.begin();
@@ -870,7 +870,7 @@ namespace ches::compiler {
             return true;
         }
 
-        static bool matchCPEGTokens(std::vector<std::string> tokens, std::vector<std::string> tokenMatchRules, int &matchedTokenLen, bool ignoreSpacing = false) noexcept {
+        static bool matchCPEGTokens(std::vector<std::string> tokens, std::vector<std::string> tokenMatchRules, int &matchedTokenLen, bool ignoreSpacing = false) {
             int matchRuleIndex = 0;
             int tokenIndex = 0;
 

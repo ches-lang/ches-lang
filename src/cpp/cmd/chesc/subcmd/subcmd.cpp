@@ -116,6 +116,8 @@ namespace ches::cmd::chesc {
 
             std::string cpegFilePath = homeDirPath + "/cpeg/syntax.cpeg";
 
+            // todo: -deb モードでのみ表示する
+
             std::cout << "input files" << std::endl;
             for(std::string path : inputFilePaths)
                 std::cout << path << std::endl;
@@ -130,8 +132,9 @@ namespace ches::cmd::chesc {
                     Console::error.print("cpeg file not found", { { "path", cpegFilePath } }, true);
 
                 Compiler cmp(inputFilePaths, cpegFilePath);
+                cmp.compile();
             } catch(CPEGException except) {
-                Console::error.print("failed to load cpeg file", { { "type", std::to_string(except.type) } }, true);
+                Console::error.print("failed to load cpeg file", { { "type", std::to_string(except.type) }, { "index", except.detailMap.at("index") } }, true);
             } catch(FileManagerException except) {
                 Console::error.print("unknown file error", { { "path", except.target } }, true);
             }
