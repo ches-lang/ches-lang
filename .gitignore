@@ -5,6 +5,6 @@
 /.vscode
 /bin
 .src/*
-src_old/*
 src/tools/cmd/chesc/test.cpp
 test/*
+src/cpp
