@@ -59,6 +59,7 @@ Ches を使用する用途は問わない。
 - [イテレータ](./iterator/index.md)
 - [リテラル](./literal/index.md)
 - [修飾子](./modifier/index.md)
+- [命名規則](./naming/index.md)
 - [数値](./number/index.md)
 - [オブジェクト](./object/index.md)
 - [スライス](./slice/index.md)
