@@ -2,21 +2,25 @@
 
 [ドキュメント](../../index.md) > [日本語](../index.md) > [連絡先](./index.md)
 
+## 概要
+
+`注意!` 脆弱性などの重大な問題は、基本的に外部へ公開せず [その他手段](#その他手段) の連絡手段からご連絡ください。
+
 ## GitHub Issues
 
-Ches に関する問題報告は [こちら](https://github.com/Garnet3106/ches-lang/issues/) から。
+Ches の実装に関する問題報告は [リポジトリ > Issues](https://github.com/ChesLang/ches-lang/issues) からお願いします。
 
-## その他
+## その他手段
 
-質問などはこちらから。
+連絡が必要な場合は以下のいずれかからお願いします。
 
-- Email \*1 ... [info@gant.work](mailto:info@gant.work)
-- Twitter ... [@Garnet3106](https://twitter.com/Garnet3106/)
-- Discord \*2 ... [Garnet#9502](http://discord.com/)
+(例) Ches に関する質問, ご支援やご協力の相談, 重大な問題の報告
 
-\*1 返信が遅くなってしまう場合があります。
-<br>
-\*2 フレンド申請可。
+|手段|アドレス, ID, リンク|伝達の確実性|備考|
+|:-:|:-:|:-:|:-:|
+|Email|[ches@gant.work](mailto:ches@gant.work)|極低|新着メールをほぼ確認しません|
+|Twitter|[@Ches_lang](https://twitter.com/Ches_lang)|高|DM, フォロー等可|
+|Discord|[Garnet#9502](http://discord.com)|中|DM, フレンド申請可|
 
 ---
 
