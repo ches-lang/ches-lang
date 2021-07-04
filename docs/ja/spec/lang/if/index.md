@@ -8,6 +8,8 @@
 
 ## 構文
 
+### if 構文
+
 ```
 #== これらの場合 if 文を用いることは無意味である ==#
 
@@ -25,6 +27,36 @@ let s = "Hello"
 
 if s.len() == 5
     println("'" ~ s ~ "' is five characters.")
+end
+```
+
+### if-in 構文
+
+値に応じて複数の処理を切り替えるには `if-in` 構文を用いる。
+
+```
+if 元の値 in
+    pick 条件値
+        # 処理
+    end
+end
+```
+
+```
+let ch = 'a'
+
+if ch in
+    pick 'a'
+        println("A of Alpha")
+    end
+
+    pick 'b'
+        println("B of Bravo")
+    end
+
+    pick
+        println("I dunno this letter...")
+    end
 end
 ```
 
