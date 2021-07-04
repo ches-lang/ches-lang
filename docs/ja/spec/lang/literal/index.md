@@ -6,7 +6,9 @@
 
 ## 各種リテラル
 
-- [数値 > 数値リテラル](../number/index.md)
+- [数値 > リテラル](../number/index.md#リテラル)
+- [文字 > リテラル](../character/index.md#リテラル)
+- [文字列 > リテラル](../string/index.md#リテラル)
 
 ---
 

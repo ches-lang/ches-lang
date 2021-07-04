@@ -6,9 +6,10 @@
 
 日本語版の Ches ドキュメントです。
 
-## リンク
+## 付随ページ
 
 - [連絡先](./contact/index.md)
+- [設計書](./design/index.md)
 - [FAQ](./faq/index.md)
 - [言語紹介](./introduction/index.md)
 - [学習](./learning/index.md)

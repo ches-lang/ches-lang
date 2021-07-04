@@ -14,41 +14,30 @@ class クラス名
 関数2
 ```
 
-### コード例
-
 ```
-## クラス定義 ##
+#== クラス定義 ==#
 
 class Names
 
-## メンバ変数 ##
+#== メンバ変数 ==#
 
-str creatorName = "Garnet"
-pub dyn str name = "Micheal"
+let creator_name = "Garnet"
+let pub name = "Micheal"
 
-## メンバ関数 ##
+#== メンバ関数 ==#
 
-greetCreator()
-    println("Hello, " ~ creatorName ~ "!")
+fn dyn greet_creator()
+    println("Hello, " ~ self.creator_name ~ "!")
 end
 
-dyn changeName(str newName)
-    .name = newName
+fn dyn change_name(str new_name)
+    self.name = new_name
 end
 ```
 
 ## アクセス修飾子
 
-デフォルトの修飾子は `pub` である。
-
-publicなメンバにアクセス修飾子を記述する必要はない。
-
-|修飾子|アクセス範囲|
-|:-:|:-:|
-|pub|全体|
-|prv|クラス内 [\*1]|
-
-[\*1] 継承先クラスからのアクセスは不可。
+[修飾子 > アクセス修飾子](../modifier/index.md#アクセス修飾子) を参照。
 
 ## メンバ
 
@@ -60,10 +49,6 @@ publicなメンバにアクセス修飾子を記述する必要はない。
 |private|クラス内|
 
 ### 静的メンバ
-
-メンバ名の前に `.` (ピリオド) を置いて表す
-
-(例: `int .num = 10`)
 
 ## 継承
 
