@@ -18,7 +18,7 @@ let arr = Arr<str>[3s32, 1s32, 0s32, 6s32]
 # >> "32"
 println(arr.get(2))
 
-# 範囲外を参照するためエラー
+# 範囲外を参照するため実行時エラー
 println(arr.get(4))
 ```
 

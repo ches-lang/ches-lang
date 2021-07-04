@@ -52,7 +52,7 @@ obj = Class()
 
 let mut immut_arg = true
 
-# 不変な変数を変更するとエラー
+# 不変な変数を変更するとコンパイルエラー
 immut_arg = false
 
 #== 可変な変数 ==#
@@ -72,7 +72,7 @@ fn @entry
     let immut_arg = false
     let mut mut_arg = false
 
-    # 第一引数で不変 -> 可変の変換が起こるためエラー
+    # 第一引数で不変 -> 可変の変換が起こるためコンパイルエラー
     pass_args(immut_arg, mut_arg)
 
     # 代入の場合、コピー値が代入されるため変換が起こらず問題ない
