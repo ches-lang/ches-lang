@@ -4,8 +4,12 @@
 
 ## 構文
 
+`class` 構文はブロックでないため、インデントや `end` キーワードが必要ない。
+
 ```
-class クラス名
+# 修飾子は省略可
+# クラス名はモジュール名を含む ... モジュール名.クラス名 など
+class 修飾子 クラス名
 
 メンバ1
 メンバ2
@@ -17,7 +21,7 @@ class クラス名
 ```
 #== クラス定義 ==#
 
-class Names
+class Example.Names
 
 #== メンバ変数 ==#
 
@@ -26,11 +30,11 @@ let pub name = "Micheal"
 
 #== メンバ関数 ==#
 
-fn dyn greet_creator()
+fn self greet_creator()
     println("Hello, " ~ self.creator_name ~ "!")
 end
 
-fn dyn change_name(str new_name)
+fn self change_name(str new_name)
     self.name = new_name
 end
 ```
@@ -46,6 +50,10 @@ end
 ## 継承
 
 [継承](./inheritance/index.md) を参照。
+
+## 抽象クラス
+
+[抽象クラス](./abstract/index.md) を参照。
 
 ## 構造体
 

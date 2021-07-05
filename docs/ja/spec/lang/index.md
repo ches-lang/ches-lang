@@ -37,15 +37,16 @@ Ches を使用する用途は問わない。
 
 ## 付随ページ
 
-- [配列](./array/index.md)
 - [属性](./attribute/index.md)
 - [文字](./character/index.md)
 - [クラス](./class/index.md)
+    - [抽象クラス](./class/abstract/index.md)
     - [継承](./class/inheritance/index.md)
     - [プロパティ](./class/property/index.md)
 - [コーディングスタイル](./codingstyle/index.md)
 - [コメントアウト](./commentout/index.md)
 - [データ構造](./datastruct/index.md)
+    - [配列](./datastruct/array/index.md)
     - [タプル](./datastruct/tuple/index.md)
 - [列挙体](./enum/index.md)
 - [エラー](./exception/index.md)
