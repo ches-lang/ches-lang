@@ -42,6 +42,7 @@
 |`directory`|`dir`|ディレクトリ|
 |`error`|`err`|エラー|
 |`length`|`len`|長さ|
+|`original`|`orig`|原物の|
 |`relative`|`rel`|相対的な|
 
 ### 番号割り当て
