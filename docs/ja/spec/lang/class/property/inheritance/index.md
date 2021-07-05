@@ -5,32 +5,30 @@
 ## 構文
 
 ```
-class 継承先クラス名 : 継承元クラス名
+## クラスの継承 ##
+
+class 継承先 : 継承元
 ```
 
-### 使用例
-
 ```
-class PCInterface
+## 継承元クラスの定義 ##
 
+class SimpleTV
 
-dyn vir bool destroyed = false
+let mut is_power_on = false
 
-dyn vir void destroy()
+fn self switch_power()
+    self.is_power_on = !self.is_power_on
 end
 ```
 
 ```
-class BeefedUpPC : PCInterface
+## 継承先クラスの定義 ##
 
+class BrokenTV : SimpleTV
 
-use sys
-
-
-dyn ovr bool destroyed = false
-
-dyn ovr void destroy()
-    println("Beefed-up PC never be broken!")
+fn self switch_power()
+    println("TV is broken now.")
 end
 ```
 

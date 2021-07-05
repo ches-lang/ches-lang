@@ -28,6 +28,8 @@ fn abs 関数名(引数) end
 ```
 class abs Car
 
+let mut speed = false
+
 # 抽象関数を定義する
 fn self abs run() end
 

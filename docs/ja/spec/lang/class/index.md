@@ -26,7 +26,7 @@ class Example.Names
 #== メンバ変数 ==#
 
 let creator_name = "Garnet"
-let pub name = "Micheal"
+let pub mut name = "Micheal"
 
 #== メンバ関数 ==#
 
