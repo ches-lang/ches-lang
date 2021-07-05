@@ -47,6 +47,7 @@ Ches を使用する用途は問わない。
 - [コメントアウト](./commentout/index.md)
 - [データ構造](./datastruct/index.md)
     - [タプル](./datastruct/tuple/index.md)
+- [列挙体](./enum/index.md)
 - [エラー](./exception/index.md)
 - [エスケープシーケンス](./escseq/index.md)
 - [for 文](./for/index.md)
