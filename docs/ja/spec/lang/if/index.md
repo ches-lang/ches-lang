@@ -30,9 +30,35 @@ if s.len() == 5
 end
 ```
 
+### if-else 構文
+
+```
+let num = 0s32
+
+if num == 0s32
+    println("zero")
+else if num == 1s32
+    println("not zero but one")
+end
+```
+
+### else 構文
+
+```
+let num = 0s32
+
+if num == 0s32
+    println("zero")
+else
+    println("not zero")
+end
+```
+
 ### if-in 構文
 
 値に応じて複数の処理を切り替えるには `if-in` 構文を用いる。
+
+他言語における `switch` 文に代わる構文である。
 
 ```
 if 元の値 in
