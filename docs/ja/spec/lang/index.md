@@ -44,7 +44,7 @@ Ches を使用する用途は問わない。
     - [継承](./class/inheritance/index.md)
     - [プロパティ](./class/property/index.md)
 - [コーディングスタイル](./codingstyle/index.md)
-- [コメントアウト](./commentout/index.md)
+- [コメントアウト](./commout/index.md)
 - [データ構造](./datastruct/index.md)
     - [配列](./datastruct/array/index.md)
     - [タプル](./datastruct/tuple/index.md)
