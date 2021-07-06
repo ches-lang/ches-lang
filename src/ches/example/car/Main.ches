@@ -1,0 +1,5 @@
+class Main
+
+fn @entry()
+    let car = Car()
+end

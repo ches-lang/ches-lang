@@ -9,3 +9,4 @@ src/tools/cmd/chesc/test.cpp
 test/*
 docs/en/old
 src/cpp
+src/ches/old
