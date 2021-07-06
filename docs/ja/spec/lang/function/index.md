@@ -106,7 +106,7 @@ end
 
 抽象クラス内に定義された実装を持たない関数。
 
-[抽象クラス](../class/abstract/index.md) を参照。
+[抽象クラス > 抽象関数](../class/abstract/index.md#抽象関数) を参照。
 
 ---
 

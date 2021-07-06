@@ -18,14 +18,14 @@ let self on_car_start = Event(s32 speed)
 
 let self mut speed = 0s32
 
+fn @const()
+    # イベントリスナを追加
+    CarEvent.on_car_start.add_listener(CarEvent.listen_car_start)
+end
+
 # イベントリスナを定義 ... リスナの引数をイベントと一致させる
 fn listen_car_start(s32 speed)
     println("A car is running at " ~ speed ~ ".")
-end
-
-fn init_event()
-    # イベントリスナを追加
-    CarEvent.on_car_start.add_listener(CarEvent.listen_car_start)
 end
 
 fn run(s32 speed)

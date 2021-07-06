@@ -63,6 +63,12 @@ fn self impl run()
 end
 ```
 
+## 抽象関数
+
+抽象関数はクラスメンバである必要がある。
+
+定義には [抽象修飾子](../../modifier/index.md#抽象修飾子) `abs` を、実装には [実装修飾子](../../modifier/index.md#実装修飾子) `impl` を用いる。
+
 ---
 
 Copyright © 2019-2021 Garnet3106 All rights reserved.
