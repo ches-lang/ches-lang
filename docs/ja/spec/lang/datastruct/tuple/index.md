@@ -11,16 +11,16 @@
 ```
 #== タプル型変数の定義 ==#
 
-# 型 ... (s32, str, Vec<f64>)
-let tuple = (100s32, "Hello", Vec<f64>())
+# 型 ... Tuple[s32, str, Vec<f64>]
+let tuple = Tuple[100s32, "Hello", Vec<f64>()]
 
 #== タプルの展開 ==#
 
 # 複数の変数に展開する
-let (v1, v2, v3) = tuple
+let [v1, v2, v3] = tuple
 
 # 値の数が合わないためコンパイルエラー
-let (v1, v2) = tuple
+let [v1, v2] = tuple
 ```
 
 ---

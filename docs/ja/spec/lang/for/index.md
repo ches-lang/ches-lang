@@ -73,11 +73,11 @@ for i in vec
     println(i)
 end
 
-for (i, item) in vec
+for [i, item] in vec
     println(i ~ ": " ~ item)
 end
 
-for (i, item) in vec[1:]
+for [i, item] in vec[1:]
     println(i ~ ": " ~ item)
 end
 ```
