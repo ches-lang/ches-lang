@@ -35,11 +35,12 @@
 
 以下はその例である。
 
-|元単語|変換先|意味|
+|元の単語|略語|意味|
 |:-:|:-:|:-:|
 |`absolute`|`abs`|絶対の|
 |`abstract`|`abs`|抽象的な|
 |`directory`|`dir`|ディレクトリ|
+|`delegate`|`deleg`|ディレクトリ|
 |`error`|`err`|エラー|
 |`length`|`len`|長さ|
 |`original`|`orig`|原物の|
