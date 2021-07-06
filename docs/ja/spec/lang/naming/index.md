@@ -40,7 +40,6 @@
 |`absolute`|`abs`|絶対の|
 |`abstract`|`abs`|抽象的な|
 |`directory`|`dir`|ディレクトリ|
-|`delegate`|`deleg`|ディレクトリ|
 |`error`|`err`|エラー|
 |`length`|`len`|長さ|
 |`original`|`orig`|原物の|
@@ -56,8 +55,16 @@
 
 ### 関数
 
-変数の型や状態を変換する関数は `to_` で始まる。
+変数の型や状態を変換する関数の名前は `to_` で始まる。
 
 (例) `to_s32` `to_abs_path`
 
 ### 変数
+
+### イベント
+
+[Event](nolink) 型変数の名前は基本的に `on_変更元_動作` とする。
+
+`動作` として動詞を使う場合は原形にする。
+
+(例) `on_esc_key_down` `on_mouse_click` `on_mouse_doubleclick`
