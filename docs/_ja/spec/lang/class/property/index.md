@@ -11,9 +11,9 @@
 ```
 prop 型 変数名
     get
-        # getter
+        # ゲッタ
     set
-        # setter
+        # セッタ
     end
 end
 ```
@@ -23,11 +23,9 @@ end
 ```
 class TV
 
-
 use sys
 
-
-prop bool power = false
+prop power = false
     set
         if power == val
             println("Nothing happened.")

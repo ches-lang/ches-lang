@@ -14,7 +14,6 @@
 @属性クラスインスタンス
 メンバ定義
 
-
 #== コード例 ==#
 
 @Attr("Any Messages...")
@@ -26,9 +25,7 @@
 ```
 class Calculator
 
-
 use sys
-
 
 @ArgAttr("secs", "元の時間 (秒)")
 @ArgAttr("meters", "元の長さ (メートル)")
@@ -55,14 +52,12 @@ end
 ```
 class BetaAttr : Attr
 
+let msg = ""
 
-str msg = ""
-
-
-@const()
+fn @const()
 end
 
-@const(str msg)
+fn @const(str msg)
     this.msg = msg
 end
 ```

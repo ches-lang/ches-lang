@@ -23,9 +23,7 @@
 
 ### 予約語の不使用
 
-命名に予約語を用いることはできない。
-
-これに反する命名はコンパイル時にエラーを発生させることがある。
+命名に [予約語](../keyword/index.md#予約語) を用いることはできない。
 
 (誤例) `pub` `class` `fn` `let` `mut`
 
@@ -39,6 +37,7 @@
 |:-:|:-:|:-:|
 |`absolute`|`abs`|絶対の|
 |`abstract`|`abs`|抽象的な|
+|`configuration`|`conf`|構成|
 |`directory`|`dir`|ディレクトリ|
 |`error`|`err`|エラー|
 |`length`|`len`|長さ|
@@ -68,3 +67,7 @@
 `動作` として動詞を使う場合は原形にする。
 
 (例) `on_esc_key_down` `on_mouse_click` `on_mouse_doubleclick`
+
+---
+
+Copyright © 2019-2021 Garnet3106 All rights reserved.

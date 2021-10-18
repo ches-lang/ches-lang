@@ -8,12 +8,16 @@ Ches Documentation `Ches Docs` provides various kinds of information such as spe
 
 Language Selection / 语言选择 / 言語選択 / 言语选択
 
+! This documentation is under construction now !
+
+! このドキュメントは現在準備中です !
+
 |Language (en)|Language (local)|Writing Status|
 |:-:|:-:|:-:|
 |English|[English (US)](./en/index.md)|❌ Bad|
 |Chinese|[中文 (普通话)](./zh/index.md)|❌ Bad|
 |Japanese|[日本語](./ja/index.md)|🔵 Good|
-|Jaρañyʐe]|[怪レい日本语](./uja/index.md)|❌ Bad|
+|Jaρañyʐe|[怪レい日本语](./uja/index.md)|❌ Bad|
 |Baze|[Baze](./bz/index.md)|❌ Bad|
 
 ---
