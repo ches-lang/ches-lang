@@ -1,0 +1,11 @@
+struct Printer<T>
+    field
+        T latest_msg
+    end
+
+    impl
+        fn print() Result<PrintErr>
+            println()
+        end
+    end
+end

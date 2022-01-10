@@ -1,0 +1,5 @@
+fn assert(v bool)
+    if debug && v
+        panic!()
+    end
+end

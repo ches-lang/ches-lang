@@ -1,0 +1,20 @@
+fn @entry()
+    # エラーインスタンス
+    let ok = Result<s32, AppErr>.Ok(123)
+    let err = Result<s32, AppErr>.Err()
+
+    read_file("file.txt")
+end
+
+fn read_file(file_path str) 
+    ret match File.read(file_path)
+        Ok(v) => Ok(v)
+        Err(_) => Err(AppErr.FileLoadFailure(file_path))
+    end
+end
+
+enum AppErr : TErr
+    field
+        FileLoadFailure(path str)
+    end
+end

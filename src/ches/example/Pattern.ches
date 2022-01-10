@@ -1,0 +1,26 @@
+enum Pattern : TEq
+    field
+        One
+        Two
+        Three
+        Four
+        Five
+    end
+
+    impl
+        fn is_one(self|) bool
+            ret self == Pattern::One
+        end
+    end
+
+    impl TStrFormat
+        pub fn to_str(self|) str
+            ret match self
+                Pattern::One => "one"
+                Pattern::Two => "two"
+                Pattern::Three => "three"
+                else => "four or more"
+            end
+        end
+    end
+end
