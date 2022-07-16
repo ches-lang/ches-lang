@@ -1,0 +1,11 @@
+pub fn assert_eq(cond bool, msg = "Assertion value is not equal.")
+    if !cond
+        panic(msg)
+    end
+end
+
+pub fn assert_neq(cond bool, msg = "Assertion value is equal.")
+    if cond
+        panic(msg)
+    end
+end

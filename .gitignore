@@ -1,12 +1,5 @@
-*.command
-*.bat
-*.exe
-*.DS_Store
 /.vscode
-/bin
 .src/*
-src/tools/cmd/chesc/test.cpp
-test/*
-docs/en/old
-src/cpp
-src/ches/old
+docs/docs
+
+*.DS_Store

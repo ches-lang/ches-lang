@@ -1,0 +1,10 @@
+class Player
+
+str #playerName = ""
+
+@const(str playerName)
+    #playerName = playerName
+end
+
+void attack()
+end

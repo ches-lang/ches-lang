@@ -1,0 +1,7 @@
+class A
+
+str msg
+s32 hello = 2343252.325
+
+@entry(str[] args)
+end

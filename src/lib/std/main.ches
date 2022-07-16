@@ -1,0 +1,7 @@
+pub fn print(str s)
+    # hidden
+end
+
+pub fn println(str s)
+    println(s ++ "\n")
+end

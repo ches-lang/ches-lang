@@ -1,0 +1,51 @@
+use std::*
+
+fn main()
+    assert_eq(calc())
+end
+
+fn calc() s32
+    let num1 = read_line() as s32
+    let op = Operator.from(read_char())
+    let num2 = read_line() as s32
+
+    match op
+        Some(v) => ret op.calc(num1, num2)
+        None => panic("Operator is invalid.")
+    end
+end
+
+enum Operator
+    Addition
+    Subtraction
+    Multiplication
+    Division
+    Remainder
+
+    impl
+        pub fn calc<T>(self| num1 T, num2 T)
+            ret match self
+                Operator::Addition => num1 + num2
+                Operator::Subtraction => num1 - num2
+                Operator::Multiplication => num1 * num2
+                Operator::Division => num1 / num2
+                Operator::Remainder => num1 % num2
+            end
+        end
+    end
+
+    impl From<Option<char>>
+        pub fn from(c char) Option<Operator>
+            let result = match c
+                '+' => Operator::Addition
+                '-' => Operator::Subtraction
+                '*' => Operator::Multiplication
+                '/' => Operator::Division
+                '%' => Operator::Remainder
+                else => ret None
+            end
+
+            ret Some(result)
+        end
+    end
+end

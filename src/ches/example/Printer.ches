@@ -1,7 +1,5 @@
 struct Printer<T>
-    field
-        T latest_msg
-    end
+    T latest_msg
 
     impl
         fn print() Result<PrintErr>
