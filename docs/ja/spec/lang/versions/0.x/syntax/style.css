@@ -1,3 +1,10 @@
 div.syntax-definition {
-    background: black;
+    background-color: #f8f8f8;
+    border-left: solid 5px #cccccc;
+    border-radius: 3px;
+    padding: 3px 8px;
+}
+
+div.syntax-definition-indent {
+    padding-left: 20px;
 }
