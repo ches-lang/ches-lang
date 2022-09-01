@@ -44,8 +44,8 @@ false
 
 ```
 r"I say hello."
-r{%"I say "hello.""%}
-r{%{%"I say {%"hello."%}"%}%}
+r{"I say "hello.""}
+r{%{"I say {"hello."}"}%}
 ```
 
 ## 数値リテラル
