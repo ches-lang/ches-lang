@@ -14,7 +14,7 @@ end
 
 ## ブロック式
 
-[ブロック式](../expression/index.md#ブロック式) を参照すること。
+\>\> [式 > ブロック式](../expression/index.md#ブロック式)
 
 ---
 
