@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="../style.css">
-
 # ブロック
 
 ## 定義ブロック
@@ -13,19 +11,6 @@
     ...
 end
 ```
-
-Start: ブロックの開始部分
-
-<div class="syntax-definition">
-    Block::BlockDefinition(Start) :=
-    <div class="syntax-definition-indent">
-        Start
-        [a](a)
-    </div> 
-    <div class="syntax-definition-indent">
-        "end"
-    </div>
-</div>
 
 ## ブロック式
 
