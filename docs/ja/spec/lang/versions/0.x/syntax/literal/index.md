@@ -40,12 +40,14 @@ false
 
 `生文字列リテラル`
 
-<!-- Jekyll の Liquid syntax error を回避するため波括弧をエスケープ -->
+<!-- Jekyll の Liquid syntax error を回避するため raw タグを使う -->
 
 ```
+{% raw %}
 r"I say hello."
 r{"I say "hello.""}
-r{%{%"I say {"hello."}"%}%}
+r{{"I say {"hello."}"}}
+{% endraw %}
 ```
 
 ## 数値リテラル
